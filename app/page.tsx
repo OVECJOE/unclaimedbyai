@@ -12,7 +12,7 @@ export default function Page() {
       <main>
         {/* Hero section */}
         <section className="space-y-5 sm:text-center border-b py-10 px-4">
-          <Badge className="bg-primary/10 text-primary" asChild>
+          <Badge className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground" asChild>
             <p className="py-1 px-3">Claim it before someone&apos;s chatbot already has</p>
           </Badge>
           <div className="space-y-3">
@@ -32,7 +32,7 @@ export default function Page() {
         <section className="space-y-5 border-b py-10 px-4">
           <div className="mx-auto max-w-7xl grid grid-cols-1 sm:grid-cols-3 gap-3">
             <article className="flex items-start gap-2">
-              <Badge className="bg-primary/20 text-primary p-2" asChild>
+              <Badge className="bg-primary/20 text-primary p-2 dark:bg-primary/30 dark:text-primary-foreground" asChild>
                 <HugeiconsIcon icon={InternetIcon} className="size-10" />
               </Badge>
               <div className="space-y-1">
@@ -41,7 +41,7 @@ export default function Page() {
               </div>
             </article>
             <article className="flex items-start gap-2">
-              <Badge className="bg-primary/20 text-primary p-2" asChild>
+              <Badge className="bg-primary/20 text-primary p-2 dark:bg-primary/30 dark:text-primary-foreground" asChild>
                 <HugeiconsIcon icon={AtIcon} className="size-10" />
               </Badge>
               <div className="space-y-1">
@@ -50,7 +50,7 @@ export default function Page() {
               </div>
             </article>
             <article className="flex items-start gap-2">
-              <Badge className="bg-primary/20 text-primary p-2" asChild>
+              <Badge className="bg-primary/20 text-primary p-2 dark:bg-primary/30 dark:text-primary-foreground" asChild>
                 <HugeiconsIcon icon={BrainIcon} className="size-10" />
               </Badge>
               <div className="space-y-1">

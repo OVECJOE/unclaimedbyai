@@ -21,7 +21,7 @@ export default function Prompter() {
 
   return (
     <form className="mx-auto max-w-prose">
-      <div className="focus-within:border-primary focus-within:ring-primary/15 relative border border-primary/20 bg-primary/3 p-3 transition-colors focus-within:ring-4">
+      <div className="focus-within:border-primary focus-within:ring-primary/15 relative border border-border bg-card p-3 transition-colors focus-within:ring-4 dark:border-primary/30 dark:bg-secondary/40">
         <Textarea
           id="prompt"
           name="prompt"
@@ -40,10 +40,10 @@ export default function Prompter() {
           </Button>
         </div>
       </div>
-      <p className="hidden sm:flex items-center gap-3 md:gap-5 justify-center text-center bg-secondary/70 py-0.5 border border-t-0 border-primary/20">
-        <Badge className="text-primary md:text-xs font-light">No sign up required</Badge>
-        <Badge className="text-primary md:text-xs font-light">Pay per report</Badge>
-        <Badge className="text-primary md:text-xs font-light">No subscriptions</Badge>
+      <p className="hidden sm:flex items-center gap-3 md:gap-5 justify-center text-center bg-secondary/70 py-0.5 border border-t-0 border-border dark:bg-secondary/40 dark:border-primary/20">
+        <Badge className="text-primary md:text-xs font-light dark:text-primary-foreground">No sign up required</Badge>
+        <Badge className="text-primary md:text-xs font-light dark:text-primary-foreground">Pay per report</Badge>
+        <Badge className="text-primary md:text-xs font-light dark:text-primary-foreground">No subscriptions</Badge>
       </p>
     </form>
   )
