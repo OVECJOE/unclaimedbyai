@@ -40,7 +40,9 @@ export default function Prompter() {
           </Button>
         </div>
       </div>
-      <p className="hidden sm:flex items-center gap-3 md:gap-5 justify-center text-center bg-secondary/70 py-0.5 border border-t-0 border-border dark:bg-secondary/40 dark:border-primary/20">
+      <p
+        className="hidden sm:flex items-center gap-3 md:gap-5 justify-center text-center bg-secondary/70 p-1 border border-t-0 border-border dark:bg-secondary/40 dark:border-primary/20"
+      >
         <Badge className="text-primary md:text-xs font-light dark:text-primary-foreground">No sign up required</Badge>
         <Badge className="text-primary md:text-xs font-light dark:text-primary-foreground">Pay per report</Badge>
         <Badge className="text-primary md:text-xs font-light dark:text-primary-foreground">No subscriptions</Badge>

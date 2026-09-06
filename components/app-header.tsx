@@ -12,7 +12,6 @@ import { cn } from "@/lib/utils"
 const navLinks = [
   { href: "/product", label: "Product" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/how-it-works", label: "How it works" },
   { href: "/blog", label: "Blog" },
 ]
 
@@ -45,11 +44,11 @@ export default function AppHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Link href="/signin" className="text-sm text-muted-foreground transition-colors hover:text-primary">
+          <Link href="/sign-in" className="text-sm text-muted-foreground transition-colors hover:text-primary">
             Sign in
           </Link>
           <Button asChild>
-            <Link href="/signup">Get started</Link>
+            <Link href="/sign-up">Get started</Link>
           </Button>
         </div>
 
@@ -78,11 +77,11 @@ export default function AppHeader() {
                   </Link>
                 )
               })}
-              <Link href="/signin" className="text-base text-muted-foreground hover:text-primary">
+              <Link href="/sign-in" className="text-base text-muted-foreground hover:text-primary">
                 Sign in
               </Link>
               <Button className="mt-4" asChild>
-                <Link href="/signup">Get started</Link>
+                <Link href="/sign-up">Get started</Link>
               </Button>
             </nav>
           </SheetContent>
