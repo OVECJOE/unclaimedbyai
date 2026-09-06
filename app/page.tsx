@@ -40,7 +40,7 @@ export default function Page() {
         </section>
 
         {/* Things to know */}
-        <section className="space-y-5 border-b py-10 px-4">
+        <section className="border-b py-10 px-4">
           <div className="mx-auto max-w-7xl grid grid-cols-1 sm:grid-cols-3 gap-3">
             <article className="flex items-start gap-2">
               <Badge className="bg-primary/20 text-primary p-2 dark:bg-primary/30 dark:text-primary-foreground" asChild>
@@ -75,41 +75,43 @@ export default function Page() {
         </section>
 
         {/* How it works */}
-        <section className="space-y-10 sm:text-center border-b py-10 px-4">
-          <div className="space-y-1">
-            <h2 className="text-2xl font-semibold font-heading">How it works</h2>
-            <p className="md:text-lg text-muted-foreground">
-              Three simple steps to find a name you can actually own.
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row sm:justify-center gap-8 sm:gap-3">
-            <article className="bg-sidebar/50 text-start space-y-2 flex-1 border sm:border-0 border-primary/20 py-5 px-3 sm:p-2">
-              <h5 className="text-xs uppercase font-bold font-heading text-primary">Step 1</h5>
-              <div className="space-y-1">
-                <h4 className="text-xl font-medium font-heading">Generate</h4>
-                <p className="text-sm text-muted-foreground">
-                  Tell us what you&apos;re building and we&apos;ll generate names that fit.
-                </p>
-              </div>
-            </article>
-            <article className="bg-sidebar/60 text-start space-y-2 flex-1 border sm:border-0 border-primary/20 py-5 px-3">
-              <h5 className="text-xs uppercase font-bold font-heading text-primary">Step 2</h5>
-              <div className="space-y-1">
-                <h4 className="text-xl font-medium font-heading">Check</h4>
-                <p className="text-sm text-muted-foreground">
-                  We check domains, social handles, and AI associations in real time.
-                </p>
-              </div>
-            </article>
-            <article className="bg-sidebar/70 text-start space-y-2 flex-1 border sm:border-0 border-primary/20 py-5 px-3">
-              <h5 className="text-xs uppercase font-bold font-heading text-primary">Step 3</h5>
-              <div className="space-y-1">
-                <h4 className="text-xl font-medium font-heading">Claim it</h4>
-                <p className="text-sm text-muted-foreground">
-                  Choose a name with confidence and build without the risk.
-                </p>
-              </div>
-            </article>
+        <section className="border-b py-10 px-4">
+          <div className="mx-auto max-w-7xl sm:text-center space-y-10">
+            <div className="space-y-1">
+              <h2 className="text-2xl font-semibold font-heading">How it works</h2>
+              <p className="md:text-lg text-muted-foreground">
+                Three simple steps to find a name you can actually own.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:justify-center gap-8 sm:gap-3">
+              <article className="bg-sidebar/50 text-start space-y-2 flex-1 border sm:border-0 border-primary/20 py-5 px-3 sm:p-2">
+                <h5 className="text-xs uppercase font-bold font-heading text-primary">Step 1</h5>
+                <div className="space-y-1">
+                  <h4 className="text-xl font-medium font-heading">Generate</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Tell us what you&apos;re building and we&apos;ll generate names that fit.
+                  </p>
+                </div>
+              </article>
+              <article className="bg-sidebar/60 text-start space-y-2 flex-1 border sm:border-0 border-primary/20 py-5 px-3">
+                <h5 className="text-xs uppercase font-bold font-heading text-primary">Step 2</h5>
+                <div className="space-y-1">
+                  <h4 className="text-xl font-medium font-heading">Check</h4>
+                  <p className="text-sm text-muted-foreground">
+                    We check domains, social handles, and AI associations in real time.
+                  </p>
+                </div>
+              </article>
+              <article className="bg-sidebar/70 text-start space-y-2 flex-1 border sm:border-0 border-primary/20 py-5 px-3">
+                <h5 className="text-xs uppercase font-bold font-heading text-primary">Step 3</h5>
+                <div className="space-y-1">
+                  <h4 className="text-xl font-medium font-heading">Claim it</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Choose a name with confidence and build without the risk.
+                  </p>
+                </div>
+              </article>
+            </div>
           </div>
         </section>
 
