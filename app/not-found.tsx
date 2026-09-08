@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Toggle } from "@/components/ui/toggle";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -25,10 +24,6 @@ export default function NotFound() {
       <main className="flex flex-1">
         <div className="mx-auto flex w-full max-w-6xl flex-col px-6 py-20 sm:px-8 md:py-24">
           <section className="mx-auto w-full max-w-3xl text-center">
-            <Badge variant="secondary" className="mb-5">
-              Page not found
-            </Badge>
-
             <h1 className="font-heading text-7xl font-medium leading-none tracking-tight text-primary sm:text-8xl md:text-9xl">
               404
             </h1>
