@@ -56,7 +56,7 @@ export function PriceCard({ price, title, label, benefits, discountage }: PriceC
       <CardFooter>
         <CardAction className="w-full">
           <Button size="lg" asChild className="w-full">
-            <Link href="/sign-up">Get Started</Link>
+            <Link href="/auth">Get Started</Link>
           </Button>
         </CardAction>
       </CardFooter>

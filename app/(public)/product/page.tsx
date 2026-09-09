@@ -206,7 +206,7 @@ export default function ProductPage() {
               independently. A children&apos;s book character from 1995 is a
               shrug. A live SaaS company in your exact category is not.
             </p>
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center md:justify-center gap-3">
               <Badge variant="outline" className="border px-5 py-2">
                 GPT
               </Badge>

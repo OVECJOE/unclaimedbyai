@@ -6,7 +6,7 @@ import Logo from "@/components/logo"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Menu09Icon } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 
 const navLinks = [
@@ -64,17 +64,19 @@ export default function AppHeader() {
               {navLinks.map((link) => {
                 const active = pathname === link.href
                 return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "text-base transition-colors hover:text-primary",
-                      active ? "font-medium text-primary" : "text-muted-foreground"
-                    )}
-                  >
-                    {link.label}
-                  </Link>
+                  <SheetClose key={link.href} asChild>
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "text-base transition-colors hover:text-primary",
+                        active ? "font-medium text-primary" : "text-muted-foreground"
+                      )}
+                    >
+                      {link.label}
+                    </Link>
+                  </SheetClose>
                 )
               })}
               <Link href="/auth" className="text-base text-muted-foreground hover:text-primary">
