@@ -25,6 +25,16 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import Prompter from "@/components/prompter"
+import type { Metadata } from "next"
+import { JsonLd } from "@/components/json-ld"
+import { SITE_NAME, SITE_URL, offersJsonLd, pageMetadata } from "@/lib/site"
+
+export const metadata: Metadata = pageMetadata({
+  title: "What happens when you hit check?",
+  description:
+    "No black box. Live RDAP domain checks, exact social handle checks, and independent AI association checks across GPT, Claude, and Gemini — with the receipts for each one.",
+  path: "/product",
+})
 
 const DOMAIN_STATUSES = [
   { domain: "vantis.com", available: false },
@@ -53,9 +63,74 @@ const SOCIAL_HANDLES = [
   },
 ]
 
+const FAQS = [
+  {
+    id: "need-an-account-to-try",
+    question: "Do I need an account to try it?",
+    answer:
+      "No. Generating and checking names is free without signing up. You only need an account to buy a full report or save your history.",
+  },
+  {
+    id: "how-accurate-is-the-ai-association-check",
+    question: "How accurate is the AI association check?",
+    answer:
+      "It's a warning system, not a guarantee. If three separate models already recognize your name, that's a real signal. If none of them do, it means none of them have run into it yet — not that no model ever will.",
+  },
+  {
+    id: "what-if-none-of-the-generated-names-work",
+    question: "What if none of the generated names work?",
+    answer:
+      "Type your own. The same box that generates names will check any name you already have in mind, the same way.",
+  },
+  {
+    id: "why-does-com-show-as-taken-but-ai-as-open",
+    question: "Why does .com show as taken but .ai as open?",
+    answer:
+      "They're different registries with different owners. A name can be wide open on a newer TLD and long gone on .com. We show you both instead of picking one.",
+  },
+]
+
+const productJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${SITE_URL}/product#app`,
+      name: `${SITE_NAME} name checker`,
+      url: `${SITE_URL}/product`,
+      description:
+        "No black box, no made-up score. Three real checks for a name: live RDAP domain lookups, exact social handle checks, and independent AI association checks across GPT, Claude, and Gemini.",
+      applicationCategory: "BusinessApplication",
+      applicationSubCategory: "Name checker",
+      operatingSystem: "Web",
+      inLanguage: "en",
+      featureList: [
+        "Live RDAP domain checks across .com, .ai, .io, and .co",
+        "Exact social handle checks through public APIs",
+        "Independent AI association checks across GPT, Claude, and Gemini",
+      ],
+      offers: offersJsonLd,
+      provider: { "@id": `${SITE_URL}/#organization` },
+    },
+    {
+      "@type": "FAQPage",
+      "@id": `${SITE_URL}/product#faq`,
+      mainEntity: FAQS.map((faq) => ({
+        "@type": "Question",
+        name: faq.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: faq.answer,
+        },
+      })),
+    },
+  ],
+}
+
 export default function ProductPage() {
   return (
     <>
+      <JsonLd data={productJsonLd} />
       {/* Hero */}
       <section className="space-y-5 px-4 py-10 sm:text-center">
         <Badge
@@ -361,46 +436,16 @@ export default function ProductPage() {
             Questions people actually ask
           </h2>
           <Accordion type="single" defaultValue={"need-an-account-to-try"}>
-            <AccordionItem value="need-an-account-to-try">
-              <AccordionTrigger className="text-xl">
-                Do I need an account to try it?
-              </AccordionTrigger>
-              <AccordionContent className="text-lg">
-                No. Generating and checking names is free without signing up.
-                You only need an account to buy a full report or save your
-                history.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="how-accurate-is-the-ai-association-check">
-              <AccordionTrigger className="text-xl">
-                How accurate is the AI association check?
-              </AccordionTrigger>
-              <AccordionContent className="text-lg">
-                It&apos;s a warning system, not a guarantee. If three separate
-                models already recognize your name, that&apos;s a real signal.
-                If none of them do, it means none of them have run into it yet —
-                not that no model ever will.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="what-if-none-of-the-generated-names-work">
-              <AccordionTrigger className="text-xl">
-                What if none of the generated names work?
-              </AccordionTrigger>
-              <AccordionContent className="text-lg">
-                Type your own. The same box that generates names will check any
-                name you already have in mind, the same way.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="why-does-com-show-as-taken-but-ai-as-open">
-              <AccordionTrigger className="text-xl">
-                Why does .com show as taken but .ai as open?
-              </AccordionTrigger>
-              <AccordionContent className="text-lg">
-                They&apos;re different registries with different owners. A name
-                can be wide open on a newer TLD and long gone on .com. We show
-                you both instead of picking one.
-              </AccordionContent>
-            </AccordionItem>
+            {FAQS.map((faq) => (
+              <AccordionItem key={faq.id} value={faq.id}>
+                <AccordionTrigger className="text-xl">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-lg">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
           </Accordion>
         </div>
       </section>

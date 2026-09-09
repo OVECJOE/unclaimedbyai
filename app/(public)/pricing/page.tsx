@@ -1,32 +1,28 @@
 import { Badge } from "@/components/ui/badge"
 import { PriceCard, PriceCardProps } from "@/components/price-card"
+import type { Metadata } from "next"
+import { JsonLd } from "@/components/json-ld"
+import { PLANS, pageMetadata, pricingJsonLd } from "@/lib/site"
 
-const prices: PriceCardProps[] = [
-  {
-    title: "Single report",
-    price: { currency: "$", amount: 1.99 },
-    label: "One name, full report.",
-    benefits: ["Domains", "Social handles", "AI association"],
-  },
-  {
-    title: "5 reports",
-    price: { currency: "$", amount: 6.99 },
-    label: "$1.40 per report.",
-    benefits: ["Domains", "Social handles", "AI association"],
-    discountage: 30,
-  },
-  {
-    title: "20 reports",
-    price: { currency: "$", amount: 21.99 },
-    label: "$1.10 per report.",
-    benefits: ["Domains", "Social handles", "AI association"],
-    discountage: 45,
-  },
-]
+export const metadata: Metadata = pageMetadata({
+  title: "Pricing",
+  description:
+    "Pay per report, not per month. Single reports from $1.99, 5 reports for $6.99, or 20 reports for $21.99. No subscriptions.",
+  path: "/pricing",
+})
+
+const prices: PriceCardProps[] = PLANS.map((plan) => ({
+  title: plan.title,
+  label: plan.label,
+  price: { currency: "$", amount: plan.amount },
+  benefits: plan.benefits,
+  discountage: plan.discountage,
+}))
 
 export default function PricingPage() {
   return (
     <>
+      <JsonLd data={pricingJsonLd} />
       <section className="space-y-5 px-4 py-10 sm:text-center">
         <Badge
           className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"

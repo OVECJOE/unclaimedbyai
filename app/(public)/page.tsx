@@ -11,36 +11,23 @@ import {
 } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Metadata } from "next"
+import type { Metadata } from "next"
+import { JsonLd } from "@/components/json-ld"
+import { homeJsonLd, pageMetadata } from "@/lib/site"
 
 const AUDIENCE_EXAMPLE = ["Founders", "Creators", "Makers", "Marketers"]
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Discover names for your idea",
-  description: "Here you can discover names for your idea before you build around one.",
-  alternates: { canonical: "/" },
-  openGraph: {
-    title: "Unclaimed by AI Homepage",
-    description: "Discover names for your idea before you build around one.",
-    images: ["/og-image.png"]
-  },
-  twitter: { card: "summary_large_image" }
-}
+  description:
+    "Generate names for your idea, then check domains, social handles, and AI associations across GPT, Claude, and Gemini before you build around one.",
+  path: "/",
+})
 
 export default function Page() {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    name: "Unclaimed by AI",
-    description: "Discover names for your idea before you build around one.",
-    url: "https://unclaimedbyai.lol",
-    image: "https://unclaimedbyai.lol/og-image.png",
-    applicationCategory: "saas",
-  }
-
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLd data={homeJsonLd} />
 
       {/* Hero */}
       <section className="space-y-5 border-b px-4 py-10 sm:text-center">

@@ -8,6 +8,12 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { sendMagicLink } from "./actions"
 import { MagicLinkTimer } from "@/components/magic-link-timer"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Sign in",
+  robots: { index: false, follow: false },
+}
 
 export default async function AuthPage({
   searchParams,
