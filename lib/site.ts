@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 export const SITE_NAME = "Unclaimed by AI"
-export const SITE_URL = "https://unclaimedbyai.lol"
+export const SITE_URL = "https://unclaimedbyai.com"
 export const SITE_DESCRIPTION =
   "Generate names for your idea. Then check domains, social handles, and AI associations before you build around one."
 export const OG_PATH = "/og-image.png"
