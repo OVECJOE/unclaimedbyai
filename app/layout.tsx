@@ -1,8 +1,8 @@
 import { Geist_Mono, IBM_Plex_Sans, Instrument_Serif } from "next/font/google"
-
-import "./globals.css"
+import { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
+import "./globals.css"
 
 const instrumentSerifHeading = Instrument_Serif({
   subsets: ["latin"],
@@ -20,11 +20,37 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 })
 
+
+export const metadata: Metadata = {
+  metadataBase: new URL("https://unclaimedbyai.lol"),
+  title: {
+    default: "Unclaimed by AI",
+    template: "%s · Unclaimed by AI"
+  },
+  description: "Generate names for your idea. Then check domains, social handles, and AI associations before you build around one.",
+  openGraph: {
+    title: "Unclaimed by AI",
+    description: "Generate names for your idea. Then check domains, social handles, and AI associations before you build around one.",
+    url: "https://unclaimedbyai.lol",
+    siteName: "Unclaimed by AI",
+    type: "website",
+    images: ["/og-image.png"]
+  }
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "url": "https://unclaimedbyai.lol",
+    "name": "Unclaimed by AI",
+    "description": "Generate names for your idea. Then check domains, social handles, and AI associations before you build around one.",
+  }
+
   return (
     <html
       lang="en"
@@ -37,6 +63,11 @@ export default function RootLayout({
         instrumentSerifHeading.variable
       )}
     >
+      <head>
+        <script type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
