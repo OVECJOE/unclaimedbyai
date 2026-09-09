@@ -14,6 +14,7 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { JsonLd } from "@/components/json-ld"
 import { homeJsonLd, pageMetadata } from "@/lib/site"
+import { WaitlistDialog } from "@/components/waitlist-dialog"
 
 const AUDIENCE_EXAMPLE = ["Founders", "Creators", "Makers", "Marketers"]
 
@@ -28,6 +29,7 @@ export default function Page() {
   return (
     <>
       <JsonLd data={homeJsonLd} />
+      <WaitlistDialog />
 
       {/* Hero */}
       <section className="space-y-5 border-b px-4 py-10 sm:text-center">
