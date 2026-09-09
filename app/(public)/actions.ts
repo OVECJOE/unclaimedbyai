@@ -28,7 +28,10 @@ export async function addToWaitlist(
   try {
     const res = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
       body: JSON.stringify({ email: normalized }),
     })
     const data = (await res.json().catch(() => null)) as

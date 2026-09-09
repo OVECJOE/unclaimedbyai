@@ -30,7 +30,7 @@ export function WaitlistDialog() {
 
   useEffect(() => {
     if (localStorage.getItem(STORAGE_KEY)) return
-    const timer = setTimeout(() => setOpen(true), 800)
+    const timer = setTimeout(() => setOpen(true), 6000)
     return () => clearTimeout(timer)
   }, [])
 
