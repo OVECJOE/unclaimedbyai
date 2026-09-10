@@ -179,7 +179,7 @@ export default function Page() {
           </AvatarGroup>
         </div>
         <Button size="lg" className="py-8 text-xl">
-          <Link href="/sign-up">Claim yours</Link>
+          <Link href="/auth">Claim yours</Link>
         </Button>
       </section>
     </>

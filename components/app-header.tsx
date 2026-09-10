@@ -79,12 +79,16 @@ export default function AppHeader() {
                   </SheetClose>
                 )
               })}
-              <Link href="/auth" className="text-base text-muted-foreground hover:text-primary">
-                Sign in
-              </Link>
-              <Button className="mt-4" asChild>
-                <Link href="/auth">Get started</Link>
-              </Button>
+              <SheetClose asChild>
+                <Link href="/auth" className="text-base text-muted-foreground hover:text-primary">
+                  Sign in
+                </Link>
+              </SheetClose>
+              <SheetClose asChild>
+                <Button className="mt-4" asChild>
+                  <Link href="/auth">Get started</Link>
+                </Button>
+              </SheetClose>
             </nav>
           </SheetContent>
         </Sheet>
