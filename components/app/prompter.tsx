@@ -7,6 +7,11 @@ import { Badge } from "@/components/ui/badge"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowUpIcon } from "@hugeicons/core-free-icons"
 import useTypewriter from "@/hooks/typewriter"
+import { cn } from "@/lib/utils"
+
+type PrompterProps = {
+  hideFooter?: boolean
+}
 
 const EXAMPLES = [
   "A pay-per-report tool that checks if a name is taken",
@@ -15,7 +20,7 @@ const EXAMPLES = [
   "A workout tracker for climbers",
 ]
 
-export default function Prompter() {
+export default function Prompter({ hideFooter = false }: PrompterProps) {
   const [value, setValue] = useState("")
   const ghostText = useTypewriter(EXAMPLES, value.length === 0)
 
@@ -41,7 +46,13 @@ export default function Prompter() {
         </div>
       </div>
       <p
-        className="hidden sm:flex items-center gap-3 md:gap-5 justify-center text-center bg-secondary/70 p-1 border border-t-0 border-border dark:bg-secondary/40 dark:border-primary/20"
+        className={cn(
+          "items-center gap-3 md:gap-5 justify-center text-center bg-secondary/70 p-1 border border-t-0 border-border dark:bg-secondary/40 dark:border-primary/20",
+          {
+            "hidden sm:flex": !hideFooter,
+            "hidden": hideFooter
+          }
+        )}
       >
         <Badge className="text-primary md:text-xs font-light dark:text-primary-foreground">No sign up required</Badge>
         <Badge className="text-primary md:text-xs font-light dark:text-primary-foreground">Pay per report</Badge>

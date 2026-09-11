@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import Logo from "@/components/logo"
+import Logo from "@/components/app/logo"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Menu09Icon } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"

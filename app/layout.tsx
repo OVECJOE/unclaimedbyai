@@ -1,8 +1,8 @@
 import { Geist_Mono, IBM_Plex_Sans, Instrument_Serif } from "next/font/google"
 import type { Metadata } from "next"
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/app/theme-provider"
 import { cn } from "@/lib/utils"
-import { JsonLd } from "@/components/json-ld"
+import { JsonLd } from "@/components/app/json-ld"
 import {
   OG_PATH,
   SITE_DESCRIPTION,

@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import Prompter from "@/components/prompter"
+import Prompter from "@/components/app/prompter"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { AtIcon, BrainIcon, InternetIcon } from "@hugeicons/core-free-icons"
 import {
@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import type { Metadata } from "next"
-import { JsonLd } from "@/components/json-ld"
+import { JsonLd } from "@/components/app/json-ld"
 import { homeJsonLd, pageMetadata } from "@/lib/site"
 import { WaitlistDialog } from "@/components/waitlist-dialog"
 

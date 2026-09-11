@@ -5,7 +5,7 @@ import {
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import Link from "next/link"
-import Logo from "@/components/logo"
+import Logo from "@/components/app/logo"
 
 export default function AppFooter() {
   return (
@@ -23,8 +23,8 @@ export default function AppFooter() {
             <div className="space-y-3">
               <h3 className="text-xs font-bold uppercase">Product</h3>
               <ul className="space-y-2">
-                <li><Link href="#features" className="hover:text-primary transition-colors">Features</Link></li>
-                <li><Link href="#how-it-works" className="hover:text-primary transition-colors">How it works</Link></li>
+                <li><Link href="/#features" className="hover:text-primary transition-colors">Features</Link></li>
+                <li><Link href="/#how-it-works" className="hover:text-primary transition-colors">How it works</Link></li>
                 <li><Link href="/pricing" className="hover:text-primary transition-colors">Pricing</Link></li>
               </ul>
             </div>

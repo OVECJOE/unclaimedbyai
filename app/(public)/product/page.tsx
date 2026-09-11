@@ -24,9 +24,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import Prompter from "@/components/prompter"
+import Prompter from "@/components/app/prompter"
 import type { Metadata } from "next"
-import { JsonLd } from "@/components/json-ld"
+import { JsonLd } from "@/components/app/json-ld"
 import { SITE_NAME, SITE_URL, offersJsonLd, pageMetadata } from "@/lib/site"
 
 export const metadata: Metadata = pageMetadata({

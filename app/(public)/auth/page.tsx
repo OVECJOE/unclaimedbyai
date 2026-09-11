@@ -1,4 +1,4 @@
-import { TextDivider } from "@/components/text-divider"
+import { TextDivider } from "@/components/app/text-divider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -7,7 +7,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { sendMagicLink } from "./actions"
-import { MagicLinkTimer } from "@/components/magic-link-timer"
+import { MagicLinkTimer } from "@/components/public/magic-link-timer"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {

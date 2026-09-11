@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge"
 import { PriceCard, PriceCardProps } from "@/components/price-card"
 import type { Metadata } from "next"
-import { JsonLd } from "@/components/json-ld"
+import { JsonLd } from "@/components/app/json-ld"
 import { PLANS, pageMetadata, pricingJsonLd } from "@/lib/site"
 
 export const metadata: Metadata = pageMetadata({
