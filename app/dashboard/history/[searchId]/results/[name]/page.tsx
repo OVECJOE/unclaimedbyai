@@ -302,10 +302,7 @@ export default async function SearchResultNamePage({
               </TabsList>
             </div>
             <TabsContent value="overview">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Overview</CardTitle>
-                </CardHeader>
+              <Card size="sm">
                 <CardContent className="space-y-5">
                   <div className="grid gap-px border border-border bg-border sm:grid-cols-3">
                     <CheckTile
@@ -364,10 +361,7 @@ export default async function SearchResultNamePage({
             </TabsContent>
 
             <TabsContent value="domains">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Domains</CardTitle>
-                </CardHeader>
+              <Card size="sm">
                 <CardContent>
                   <Table>
                     <TableHeader>
@@ -410,10 +404,7 @@ export default async function SearchResultNamePage({
             </TabsContent>
 
             <TabsContent value="social-handles">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Social handles</CardTitle>
-                </CardHeader>
+              <Card size="sm">
                 <CardContent>
                   <Table>
                     <TableHeader>
@@ -462,10 +453,7 @@ export default async function SearchResultNamePage({
             </TabsContent>
 
             <TabsContent value="ai-association">
-              <Card>
-                <CardHeader>
-                  <CardTitle>AI association</CardTitle>
-                </CardHeader>
+              <Card size="sm">
                 <CardContent className="space-y-5">
                   <div className="flex flex-wrap items-center gap-3">
                     <Badge className={VERDICT_COLORS[verdict]}>
