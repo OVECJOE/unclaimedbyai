@@ -6,9 +6,9 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="max-h-screen overflow-y-auto scrollbar-none">
+    <div>
       <DashboardHeader />
-      <main className="min-h-[50svh]">{children}</main>
+      <main className="min-h-screen">{children}</main>
     </div>
   )
 }

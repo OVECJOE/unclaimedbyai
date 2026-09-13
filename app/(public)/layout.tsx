@@ -9,7 +9,7 @@ export default function PublicLayout({
   return (
     <div>
       <AppHeader />
-      <main className="min-h-[70vh]">{children}</main>
+      <main className="min-h-screen">{children}</main>
       <AppFooter />
     </div>
   );

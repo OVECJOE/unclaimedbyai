@@ -2,9 +2,9 @@ import Prompter from "@/components/app/prompter";
 import { Button } from "@/components/ui/button";
 import { SearchResultCard, SearchResultCardProps } from "@/components/dashboard/search-result-card";
 import Link from "next/link";
-import { RECENT_SEARCHES } from "@/lib/constants";
+import { SEARCH_HISTORY } from "@/lib/constants";
 
-const recentSearches: SearchResultCardProps[] = RECENT_SEARCHES.slice(0, 5)
+const recentSearches: SearchResultCardProps[] = SEARCH_HISTORY.slice(0, 5)
 
 export default function DashboardPage() {
   return (
