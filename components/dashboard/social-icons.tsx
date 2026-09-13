@@ -14,6 +14,23 @@ const SOCIAL_ICONS = {
   instagram: InstagramIcon,
 } as const
 
+export function SocialIcon({
+  platform,
+  className,
+}: {
+  platform: keyof typeof SOCIAL_ICONS
+  className?: string
+}) {
+  return (
+    <HugeiconsIcon
+      icon={SOCIAL_ICONS[platform]}
+      strokeWidth={2}
+      aria-hidden="true"
+      className={className}
+    />
+  )
+}
+
 export function SocialAvailabilityList({
   socials,
 }: {

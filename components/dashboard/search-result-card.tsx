@@ -9,6 +9,8 @@ import {
   AvatarFallback,
 } from "@/components/ui/avatar"
 import Link from "next/link"
+import { SEARCH_RESULTS } from "@/lib/constants"
+import { TierBadge } from "@/components/tier-badge"
 
 export type SearchResultCardProps = {
   id: string
@@ -27,6 +29,10 @@ export function SearchResultCard({
   topPick,
   createdAt,
 }: SearchResultCardProps) {
+  const tier = SEARCH_RESULTS[id]?.find(
+    (result) => result.name.toLowerCase() === topPick.name.toLowerCase()
+  )?.tier
+
   return (
     <Link
       href={`/dashboard/history/${id}`}
@@ -55,6 +61,7 @@ export function SearchResultCard({
                 <span className="text-primary">{topPick.name}</span> is
                 the top pick
               </p>
+              {tier && <TierBadge tier={tier} />}
             </div>
           </div>
 

@@ -28,6 +28,13 @@ export function summarizeResults(results: NameResult[]) {
   }
 }
 
+export function tierForScore(score: number): GradeTier {
+  if (score >= 80) return "Excellent"
+  if (score >= 60) return "Good"
+  if (score >= 40) return "Okay"
+  return "Poor"
+}
+
 export function overallScoreColor(score: number): string {
   if (score >= 80) return "bg-green-600 text-white px-1.5 py-0.5"
   if (score >= 60) return "bg-yellow-500 text-black px-1.5 py-0.5"
@@ -36,7 +43,7 @@ export function overallScoreColor(score: number): string {
 
 const TIER_COLORS: Record<GradeTier, string> = {
   Excellent: "bg-green-600 text-white px-1.5 py-0.5",
-  Good: "bg-lime-600 text-black px-1.5 py-0.5",
+  Good: "bg-lime-700 text-white px-1.5 py-0.5",
   Okay: "bg-yellow-500 text-black px-1.5 py-0.5",
   Poor: "bg-red-600 text-white px-1.5 py-0.5",
 }
