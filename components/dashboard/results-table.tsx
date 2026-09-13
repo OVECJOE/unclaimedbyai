@@ -24,7 +24,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -131,64 +130,59 @@ export default function ResultsTable({
 
   return (
     <Collapsible asChild open={expanded} onOpenChange={setExpanded}>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Overall</TableHead>
-            <TableHead>Domains</TableHead>
-            <TableHead>Social</TableHead>
-            <TableHead>AI Association</TableHead>
-            <TableHead className="w-10" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {results.slice(0, INITIAL_ROWS).map((result) => (
-            <NameRow key={result.name} result={result} searchId={searchId} />
-          ))}
-        </TableBody>
-        {remaining > 0 && (
-          <CollapsibleContent asChild>
-            <TableBody>
-              {results.slice(INITIAL_ROWS).map((result) => (
-                <NameRow
-                  key={result.name}
-                  result={result}
-                  searchId={searchId}
-                />
-              ))}
-            </TableBody>
-          </CollapsibleContent>
-        )}
-        {remaining > 0 && (
-          <TableFooter>
+      <div className="w-full">
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={6} className="p-0">
-                <CollapsibleTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="mx-auto text-primary flex items-center justify-end"
-                  >
-                    {expanded ? (
-                      <>Show fewer</>
-                    ) : (
-                      <>
-                        Show {remaining} more{" "}
-                        {remaining === 1 ? "name" : "names"}
-                      </>
-                    )}
-                    <HugeiconsIcon
-                      icon={expanded ? ArrowUp01Icon : ArrowDown01Icon}
-                      strokeWidth={2}
-                      className="size-3.5"
-                    />
-                  </Button>
-                </CollapsibleTrigger>
-              </TableCell>
+              <TableHead>Name</TableHead>
+              <TableHead>Overall</TableHead>
+              <TableHead>Domains</TableHead>
+              <TableHead>Social</TableHead>
+              <TableHead>AI Association</TableHead>
+              <TableHead className="w-10" />
             </TableRow>
-          </TableFooter>
+          </TableHeader>
+          <TableBody>
+            {results.slice(0, INITIAL_ROWS).map((result) => (
+              <NameRow key={result.name} result={result} searchId={searchId} />
+            ))}
+          </TableBody>
+          {remaining > 0 && (
+            <CollapsibleContent asChild>
+              <TableBody>
+                {results.slice(INITIAL_ROWS).map((result) => (
+                  <NameRow
+                    key={result.name}
+                    result={result}
+                    searchId={searchId}
+                  />
+                ))}
+              </TableBody>
+            </CollapsibleContent>
+          )}
+        </Table>
+        {remaining > 0 && (
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              className="flex h-12 w-full items-center justify-center rounded-none border-t bg-muted/50 text-primary font-medium"
+            >
+              {expanded ? (
+                <>Show fewer</>
+              ) : (
+                <>
+                  Show {remaining} more {remaining === 1 ? "name" : "names"}
+                </>
+              )}
+              <HugeiconsIcon
+                icon={expanded ? ArrowUp01Icon : ArrowDown01Icon}
+                strokeWidth={2}
+                className="size-3.5"
+              />
+            </Button>
+          </CollapsibleTrigger>
         )}
-      </Table>
+      </div>
     </Collapsible>
   )
 }
