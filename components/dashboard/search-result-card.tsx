@@ -28,8 +28,12 @@ export function SearchResultCard({
   createdAt,
 }: SearchResultCardProps) {
   return (
-    <Link href={`/dashboard/history/${id}`} as={`/dashboard/history/${id}`}>
-      <div className="border-t px-2 py-4">
+    <Link
+      href={`/dashboard/history/${id}`}
+      as={`/dashboard/history/${id}`}
+      className="block"
+    >
+      <div className="px-2 py-4">
         <div className="flex items-start justify-between gap-6 px-1">
           <div className="flex min-w-0 flex-col gap-2">
             <div className="space-y-1">

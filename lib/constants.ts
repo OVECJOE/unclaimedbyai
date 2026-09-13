@@ -1,0 +1,1204 @@
+import { SearchResultCardProps } from "@/components/dashboard/search-result-card";
+
+export const RECENT_SEARCHES: SearchResultCardProps[] = [
+  {
+    id: "deb3e298-e02e-494f-8b6d-6fa97aa1c554",
+    query: "A naming and domain checker",
+    nameCount: 10,
+    topPick: {
+      name: "Mealime",
+      logo: "https://www.google.com/s2/favicons?domain=mealime.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Mealime",
+        logo: "https://www.google.com/s2/favicons?domain=mealime.com&sz=64",
+      },
+      {
+        name: "Descript",
+        logo: "https://www.google.com/s2/favicons?domain=descript.com&sz=64",
+      },
+      {
+        name: "InVision",
+        logo: "https://www.google.com/s2/favicons?domain=invisionapp.com&sz=64",
+      },
+    ],
+    createdAt: "2026-09-03T11:42:00Z",
+  },
+  {
+    id: "74d28606-2b96-4e8f-9470-7968bee613b4",
+    query: "Project management tool for small teams",
+    nameCount: 8,
+    topPick: {
+      name: "Standuply",
+      logo: "https://www.google.com/s2/favicons?domain=standuply.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Standuply",
+        logo: "https://www.google.com/s2/favicons?domain=standuply.com&sz=64",
+      },
+      {
+        name: "Motion",
+        logo: "https://www.google.com/s2/favicons?domain=usemotion.com&sz=64",
+      },
+      {
+        name: "Dubsado",
+        logo: "https://www.google.com/s2/favicons?domain=dubsado.com&sz=64",
+      },
+    ],
+    createdAt: "2026-09-03T01:42:00Z",
+  },
+  {
+    id: "c089d668-a5de-4b09-bd00-37ba14d9c263",
+    query: "AI video summarizer",
+    nameCount: 8,
+    topPick: {
+      name: "StoryGraph",
+      logo: "https://www.google.com/s2/favicons?domain=thestorygraph.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "StoryGraph",
+        logo: "https://www.google.com/s2/favicons?domain=thestorygraph.com&sz=64",
+      },
+      {
+        name: "Riverside",
+        logo: "https://www.google.com/s2/favicons?domain=riverside.fm&sz=64",
+      },
+      {
+        name: "Otter",
+        logo: "https://www.google.com/s2/favicons?domain=otter.ai&sz=64",
+      },
+    ],
+    createdAt: "2026-09-02T04:42:00Z",
+  },
+  {
+    id: "31df94f8-8d79-439b-b78e-7f8b1373cb7c",
+    query: "A marketplace for independent designers",
+    nameCount: 10,
+    topPick: {
+      name: "Appcues",
+      logo: "https://www.google.com/s2/favicons?domain=appcues.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Appcues",
+        logo: "https://www.google.com/s2/favicons?domain=appcues.com&sz=64",
+      },
+      {
+        name: "Lemlist",
+        logo: "https://www.google.com/s2/favicons?domain=lemlist.com&sz=64",
+      },
+      {
+        name: "Descript",
+        logo: "https://www.google.com/s2/favicons?domain=descript.com&sz=64",
+      },
+    ],
+    createdAt: "2026-09-01T19:42:00Z",
+  },
+  {
+    id: "123e6bcc-a221-4f01-b967-e06e19927b50",
+    query: "Personal finance app for freelancers",
+    nameCount: 20,
+    topPick: {
+      name: "Dubsado",
+      logo: "https://www.google.com/s2/favicons?domain=dubsado.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Dubsado",
+        logo: "https://www.google.com/s2/favicons?domain=dubsado.com&sz=64",
+      },
+      {
+        name: "Transistor",
+        logo: "https://www.google.com/s2/favicons?domain=transistor.fm&sz=64",
+      },
+      {
+        name: "Bobby",
+        logo: "https://www.google.com/s2/favicons?domain=bobby.app&sz=64",
+      },
+    ],
+    createdAt: "2026-08-31T18:42:00Z",
+  },
+  {
+    id: "cefc2d91-5ac6-44b5-8e1c-acc13d6845c6",
+    query: "A note-taking app for researchers",
+    nameCount: 18,
+    topPick: {
+      name: "Marker",
+      logo: "https://www.google.com/s2/favicons?domain=marker.io&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Marker",
+        logo: "https://www.google.com/s2/favicons?domain=marker.io&sz=64",
+      },
+      {
+        name: "Namely",
+        logo: "https://www.google.com/s2/favicons?domain=namely.com&sz=64",
+      },
+      {
+        name: "Beehiiv",
+        logo: "https://www.google.com/s2/favicons?domain=beehiiv.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-30T21:42:00Z",
+  },
+  {
+    id: "438e997c-f218-4c51-a5f0-781f8cd4cecd",
+    query: "Habit tracker with social accountability",
+    nameCount: 15,
+    topPick: {
+      name: "Marker",
+      logo: "https://www.google.com/s2/favicons?domain=marker.io&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Marker",
+        logo: "https://www.google.com/s2/favicons?domain=marker.io&sz=64",
+      },
+      {
+        name: "Substack",
+        logo: "https://www.google.com/s2/favicons?domain=substack.com&sz=64",
+      },
+      {
+        name: "Trim",
+        logo: "https://www.google.com/s2/favicons?domain=asktrim.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-30T08:42:00Z",
+  },
+  {
+    id: "e1204fc5-1336-4241-8b7c-7fb302b8a14e",
+    query: "AI code review assistant",
+    nameCount: 15,
+    topPick: {
+      name: "Codeium",
+      logo: "https://www.google.com/s2/favicons?domain=codeium.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Codeium",
+        logo: "https://www.google.com/s2/favicons?domain=codeium.com&sz=64",
+      },
+      {
+        name: "Marker.io",
+        logo: "https://www.google.com/s2/favicons?domain=marker.io&sz=64",
+      },
+      {
+        name: "Calendly",
+        logo: "https://www.google.com/s2/favicons?domain=calendly.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-30T02:42:00Z",
+  },
+  {
+    id: "d947d29a-b161-4b46-955d-1b074ba6f26b",
+    query: "A scheduling tool for solo consultants",
+    nameCount: 20,
+    topPick: {
+      name: "Lucide",
+      logo: "https://www.google.com/s2/favicons?domain=lucide.dev&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Lucide",
+        logo: "https://www.google.com/s2/favicons?domain=lucide.dev&sz=64",
+      },
+      {
+        name: "YNAB",
+        logo: "https://www.google.com/s2/favicons?domain=ynab.com&sz=64",
+      },
+      {
+        name: "Behance",
+        logo: "https://www.google.com/s2/favicons?domain=behance.net&sz=64",
+      },
+    ],
+    createdAt: "2026-08-28T20:42:00Z",
+  },
+  {
+    id: "314e3197-2212-49ee-984a-1f84fbfc9a5c",
+    query: "Recipe organizer for home cooks",
+    nameCount: 12,
+    topPick: {
+      name: "Folk",
+      logo: "https://www.google.com/s2/favicons?domain=folk.app&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Folk",
+        logo: "https://www.google.com/s2/favicons?domain=folk.app&sz=64",
+      },
+      {
+        name: "Loom",
+        logo: "https://www.google.com/s2/favicons?domain=loom.com&sz=64",
+      },
+      {
+        name: "Way of Life",
+        logo: "https://www.google.com/s2/favicons?domain=wayoflifeapp.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-28T00:42:00Z",
+  },
+  {
+    id: "6dfe3de0-4c20-4098-95d2-4a5a30653d2d",
+    query: "A CRM built for indie hackers",
+    nameCount: 8,
+    topPick: {
+      name: "Settle",
+      logo: "https://www.google.com/s2/favicons?domain=settleup.app&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Settle",
+        logo: "https://www.google.com/s2/favicons?domain=settleup.app&sz=64",
+      },
+      {
+        name: "Plausible",
+        logo: "https://www.google.com/s2/favicons?domain=plausible.io&sz=64",
+      },
+      {
+        name: "Quizlet",
+        logo: "https://www.google.com/s2/favicons?domain=quizlet.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-26T19:42:00Z",
+  },
+  {
+    id: "dad6e7fb-b3c8-48e8-8bb4-e54c92a8102d",
+    query: "Async standup tool for remote teams",
+    nameCount: 10,
+    topPick: {
+      name: "Userpilot",
+      logo: "https://www.google.com/s2/favicons?domain=userpilot.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Userpilot",
+        logo: "https://www.google.com/s2/favicons?domain=userpilot.com&sz=64",
+      },
+      {
+        name: "Greg",
+        logo: "https://www.google.com/s2/favicons?domain=gregapp.com&sz=64",
+      },
+      {
+        name: "Way of Life",
+        logo: "https://www.google.com/s2/favicons?domain=wayoflifeapp.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-26T15:42:00Z",
+  },
+  {
+    id: "2e5ce943-a38d-4d16-aa27-099581ec6c37",
+    query: "A resume builder with AI feedback",
+    nameCount: 20,
+    topPick: {
+      name: "Cal",
+      logo: "https://www.google.com/s2/favicons?domain=cal.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Cal",
+        logo: "https://www.google.com/s2/favicons?domain=cal.com&sz=64",
+      },
+      {
+        name: "Marker.io",
+        logo: "https://www.google.com/s2/favicons?domain=marker.io&sz=64",
+      },
+      {
+        name: "Marker",
+        logo: "https://www.google.com/s2/favicons?domain=marker.io&sz=64",
+      },
+    ],
+    createdAt: "2026-08-25T09:42:00Z",
+  },
+  {
+    id: "9741699f-ab35-4f33-a437-8e8e7c7fcde2",
+    query: "Newsletter platform for niche writers",
+    nameCount: 15,
+    topPick: {
+      name: "We Work Remotely",
+      logo: "https://www.google.com/s2/favicons?domain=weworkremotely.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "We Work Remotely",
+        logo: "https://www.google.com/s2/favicons?domain=weworkremotely.com&sz=64",
+      },
+      {
+        name: "Ghost",
+        logo: "https://www.google.com/s2/favicons?domain=ghost.org&sz=64",
+      },
+      {
+        name: "Remote OK",
+        logo: "https://www.google.com/s2/favicons?domain=remoteok.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-24T10:42:00Z",
+  },
+  {
+    id: "71f27b4a-4dd4-4c3d-97b6-c1dce09a079d",
+    query: "A workout tracker for climbers",
+    nameCount: 10,
+    topPick: {
+      name: "Copilot",
+      logo: "https://www.google.com/s2/favicons?domain=copilot.money&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Copilot",
+        logo: "https://www.google.com/s2/favicons?domain=copilot.money&sz=64",
+      },
+      {
+        name: "Streaks",
+        logo: "https://www.google.com/s2/favicons?domain=streaksapp.com&sz=64",
+      },
+      {
+        name: "Whoop",
+        logo: "https://www.google.com/s2/favicons?domain=whoop.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-24T01:42:00Z",
+  },
+  {
+    id: "2153e730-9f13-46b6-801f-982bed0e3f1e",
+    query: "Invoice generator for freelance designers",
+    nameCount: 10,
+    topPick: {
+      name: "Gamma",
+      logo: "https://www.google.com/s2/favicons?domain=gamma.app&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Gamma",
+        logo: "https://www.google.com/s2/favicons?domain=gamma.app&sz=64",
+      },
+      {
+        name: "Marker.io",
+        logo: "https://www.google.com/s2/favicons?domain=marker.io&sz=64",
+      },
+      {
+        name: "Figma",
+        logo: "https://www.google.com/s2/favicons?domain=figma.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-23T17:42:00Z",
+  },
+  {
+    id: "92131e1e-9910-4f45-920c-d08bd05d5cfe",
+    query: "A flashcard app for language learners",
+    nameCount: 6,
+    topPick: {
+      name: "Milkshake",
+      logo: "https://www.google.com/s2/favicons?domain=milkshake.app&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Milkshake",
+        logo: "https://www.google.com/s2/favicons?domain=milkshake.app&sz=64",
+      },
+      {
+        name: "Ramp",
+        logo: "https://www.google.com/s2/favicons?domain=ramp.com&sz=64",
+      },
+      {
+        name: "Userpilot",
+        logo: "https://www.google.com/s2/favicons?domain=userpilot.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-22T17:42:00Z",
+  },
+  {
+    id: "e7bb105e-dc39-4731-b258-557c949db767",
+    query: "Team wiki with AI search",
+    nameCount: 8,
+    topPick: {
+      name: "Stoic",
+      logo: "https://www.google.com/s2/favicons?domain=stoicapp.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Stoic",
+        logo: "https://www.google.com/s2/favicons?domain=stoicapp.com&sz=64",
+      },
+      {
+        name: "Carrd",
+        logo: "https://www.google.com/s2/favicons?domain=carrd.co&sz=64",
+      },
+      {
+        name: "Copilot",
+        logo: "https://www.google.com/s2/favicons?domain=copilot.money&sz=64",
+      },
+    ],
+    createdAt: "2026-08-21T13:42:00Z",
+  },
+  {
+    id: "04aa0393-f6e0-49e1-9822-c5ccc71bcaeb",
+    query: "A subscription tracker for households",
+    nameCount: 20,
+    topPick: {
+      name: "Basmo",
+      logo: "https://www.google.com/s2/favicons?domain=basmoapp.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Basmo",
+        logo: "https://www.google.com/s2/favicons?domain=basmoapp.com&sz=64",
+      },
+      {
+        name: "Stoic",
+        logo: "https://www.google.com/s2/favicons?domain=stoicapp.com&sz=64",
+      },
+      {
+        name: "Rocket Money",
+        logo: "https://www.google.com/s2/favicons?domain=rocketmoney.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-21T04:42:00Z",
+  },
+  {
+    id: "f8f1967d-843f-462f-ba5c-d36280eea0a8",
+    query: "Onboarding checklist tool for SaaS teams",
+    nameCount: 10,
+    topPick: {
+      name: "Pitch",
+      logo: "https://www.google.com/s2/favicons?domain=pitch.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Pitch",
+        logo: "https://www.google.com/s2/favicons?domain=pitch.com&sz=64",
+      },
+      {
+        name: "Kickresume",
+        logo: "https://www.google.com/s2/favicons?domain=kickresume.com&sz=64",
+      },
+      {
+        name: "YNAB",
+        logo: "https://www.google.com/s2/favicons?domain=ynab.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-20T13:42:00Z",
+  },
+  {
+    id: "3fcd42a2-c171-46a6-a48b-6525b7c2933b",
+    query: "A carpool app for suburban commuters",
+    nameCount: 18,
+    topPick: {
+      name: "Scribe",
+      logo: "https://www.google.com/s2/favicons?domain=scribehow.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Scribe",
+        logo: "https://www.google.com/s2/favicons?domain=scribehow.com&sz=64",
+      },
+      {
+        name: "Featurebase",
+        logo: "https://www.google.com/s2/favicons?domain=featurebase.app&sz=64",
+      },
+      {
+        name: "YNAB",
+        logo: "https://www.google.com/s2/favicons?domain=ynab.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-20T03:42:00Z",
+  },
+  {
+    id: "1c96976a-f451-4fe9-9a48-e17f50f57278",
+    query: "Meeting notes summarizer for sales calls",
+    nameCount: 10,
+    topPick: {
+      name: "Carrd",
+      logo: "https://www.google.com/s2/favicons?domain=carrd.co&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Carrd",
+        logo: "https://www.google.com/s2/favicons?domain=carrd.co&sz=64",
+      },
+      {
+        name: "Settle",
+        logo: "https://www.google.com/s2/favicons?domain=settleup.app&sz=64",
+      },
+      {
+        name: "Bobby",
+        logo: "https://www.google.com/s2/favicons?domain=bobby.app&sz=64",
+      },
+    ],
+    createdAt: "2026-08-19T06:42:00Z",
+  },
+  {
+    id: "e4df9d88-fa98-4bef-bf19-72d2375371cf",
+    query: "A budgeting app for college students",
+    nameCount: 8,
+    topPick: {
+      name: "AnyList",
+      logo: "https://www.google.com/s2/favicons?domain=anylist.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "AnyList",
+        logo: "https://www.google.com/s2/favicons?domain=anylist.com&sz=64",
+      },
+      {
+        name: "Codeium",
+        logo: "https://www.google.com/s2/favicons?domain=codeium.com&sz=64",
+      },
+      {
+        name: "Wise",
+        logo: "https://www.google.com/s2/favicons?domain=wise.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-18T11:42:00Z",
+  },
+  {
+    id: "5d22a812-9d90-41fe-8fd9-02c8fb565d67",
+    query: "Design feedback tool for agencies",
+    nameCount: 18,
+    topPick: {
+      name: "Beehiiv",
+      logo: "https://www.google.com/s2/favicons?domain=beehiiv.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Beehiiv",
+        logo: "https://www.google.com/s2/favicons?domain=beehiiv.com&sz=64",
+      },
+      {
+        name: "StoryGraph",
+        logo: "https://www.google.com/s2/favicons?domain=thestorygraph.com&sz=64",
+      },
+      {
+        name: "Roam",
+        logo: "https://www.google.com/s2/favicons?domain=roamresearch.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-18T04:42:00Z",
+  },
+  {
+    id: "fcac0edc-d832-4b38-96d7-d086ec3ddd51",
+    query: "A plant care reminder app",
+    nameCount: 6,
+    topPick: {
+      name: "Beautiful.ai",
+      logo: "https://www.google.com/s2/favicons?domain=beautiful.ai&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Beautiful.ai",
+        logo: "https://www.google.com/s2/favicons?domain=beautiful.ai&sz=64",
+      },
+      {
+        name: "Canny Boards",
+        logo: "https://www.google.com/s2/favicons?domain=canny.io&sz=64",
+      },
+      {
+        name: "Fathom",
+        logo: "https://www.google.com/s2/favicons?domain=fathom.video&sz=64",
+      },
+    ],
+    createdAt: "2026-08-17T13:42:00Z",
+  },
+  {
+    id: "a0387448-fa00-47c7-a25c-3cc4ebe44c34",
+    query: "Customer feedback widget for startups",
+    nameCount: 15,
+    topPick: {
+      name: "Yummly",
+      logo: "https://www.google.com/s2/favicons?domain=yummly.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Yummly",
+        logo: "https://www.google.com/s2/favicons?domain=yummly.com&sz=64",
+      },
+      {
+        name: "Featurebase",
+        logo: "https://www.google.com/s2/favicons?domain=featurebase.app&sz=64",
+      },
+      {
+        name: "Copilot",
+        logo: "https://www.google.com/s2/favicons?domain=copilot.money&sz=64",
+      },
+    ],
+    createdAt: "2026-08-16T13:42:00Z",
+  },
+  {
+    id: "11773a61-95ce-4b7a-9877-922beb79d4ed",
+    query: "A journaling app with mood tracking",
+    nameCount: 20,
+    topPick: {
+      name: "Canny",
+      logo: "https://www.google.com/s2/favicons?domain=canny.io&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Canny",
+        logo: "https://www.google.com/s2/favicons?domain=canny.io&sz=64",
+      },
+      {
+        name: "Toggl",
+        logo: "https://www.google.com/s2/favicons?domain=toggl.com&sz=64",
+      },
+      {
+        name: "Beehiiv",
+        logo: "https://www.google.com/s2/favicons?domain=beehiiv.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-16T07:42:00Z",
+  },
+  {
+    id: "b45cff26-5c2c-4161-b079-0c30ee716c62",
+    query: "Link-in-bio tool for creators",
+    nameCount: 8,
+    topPick: {
+      name: "YNAB",
+      logo: "https://www.google.com/s2/favicons?domain=ynab.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "YNAB",
+        logo: "https://www.google.com/s2/favicons?domain=ynab.com&sz=64",
+      },
+      {
+        name: "Bring!",
+        logo: "https://www.google.com/s2/favicons?domain=getbring.com&sz=64",
+      },
+      {
+        name: "Bonsai",
+        logo: "https://www.google.com/s2/favicons?domain=hellobonsai.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-16T04:42:00Z",
+  },
+  {
+    id: "2280da39-b287-415f-83ac-e237112375dc",
+    query: "A waitlist manager for early-stage products",
+    nameCount: 10,
+    topPick: {
+      name: "Frill",
+      logo: "https://www.google.com/s2/favicons?domain=frill.co&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Frill",
+        logo: "https://www.google.com/s2/favicons?domain=frill.co&sz=64",
+      },
+      {
+        name: "Lemlist",
+        logo: "https://www.google.com/s2/favicons?domain=lemlist.com&sz=64",
+      },
+      {
+        name: "Duolingo",
+        logo: "https://www.google.com/s2/favicons?domain=duolingo.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-14T22:42:00Z",
+  },
+  {
+    id: "8c5dd638-b2d3-4dda-982b-8d5e23add8b5",
+    query: "Icon library for indie developers",
+    nameCount: 6,
+    topPick: {
+      name: "Ghost",
+      logo: "https://www.google.com/s2/favicons?domain=ghost.org&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Ghost",
+        logo: "https://www.google.com/s2/favicons?domain=ghost.org&sz=64",
+      },
+      {
+        name: "HoneyBook",
+        logo: "https://www.google.com/s2/favicons?domain=honeybook.com&sz=64",
+      },
+      {
+        name: "Canny Boards",
+        logo: "https://www.google.com/s2/favicons?domain=canny.io&sz=64",
+      },
+    ],
+    createdAt: "2026-08-14T08:42:00Z",
+  },
+  {
+    id: "1376e76a-2ee1-492a-a6a3-d378b26e01fa",
+    query: "A tip-splitting app for group dinners",
+    nameCount: 8,
+    topPick: {
+      name: "Beacons",
+      logo: "https://www.google.com/s2/favicons?domain=beacons.ai&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Beacons",
+        logo: "https://www.google.com/s2/favicons?domain=beacons.ai&sz=64",
+      },
+      {
+        name: "Discourse",
+        logo: "https://www.google.com/s2/favicons?domain=discourse.org&sz=64",
+      },
+      {
+        name: "Basecamp",
+        logo: "https://www.google.com/s2/favicons?domain=basecamp.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-13T10:42:00Z",
+  },
+  {
+    id: "8af90c35-e60c-4f38-9058-d94c7634405f",
+    query: "Job board for remote-only companies",
+    nameCount: 10,
+    topPick: {
+      name: "Day One",
+      logo: "https://www.google.com/s2/favicons?domain=dayoneapp.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Day One",
+        logo: "https://www.google.com/s2/favicons?domain=dayoneapp.com&sz=64",
+      },
+      {
+        name: "Scoop",
+        logo: "https://www.google.com/s2/favicons?domain=takescoop.com&sz=64",
+      },
+      {
+        name: "Ramp",
+        logo: "https://www.google.com/s2/favicons?domain=ramp.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-12T20:42:00Z",
+  },
+  {
+    id: "8c90c71d-44e8-4bba-8f06-9bacae7c0587",
+    query: "A screen recording tool for bug reports",
+    nameCount: 8,
+    topPick: {
+      name: "Way of Life",
+      logo: "https://www.google.com/s2/favicons?domain=wayoflifeapp.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Way of Life",
+        logo: "https://www.google.com/s2/favicons?domain=wayoflifeapp.com&sz=64",
+      },
+      {
+        name: "CodeRabbit",
+        logo: "https://www.google.com/s2/favicons?domain=coderabbit.ai&sz=64",
+      },
+      {
+        name: "Mighty Networks",
+        logo: "https://www.google.com/s2/favicons?domain=mightynetworks.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-11T23:42:00Z",
+  },
+  {
+    id: "ba6c8295-e8fc-45f8-bf3e-19b8bbb34373",
+    query: "Local event discovery app",
+    nameCount: 10,
+    topPick: {
+      name: "Upvoty",
+      logo: "https://www.google.com/s2/favicons?domain=upvoty.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Upvoty",
+        logo: "https://www.google.com/s2/favicons?domain=upvoty.com&sz=64",
+      },
+      {
+        name: "Close",
+        logo: "https://www.google.com/s2/favicons?domain=close.com&sz=64",
+      },
+      {
+        name: "Splid",
+        logo: "https://www.google.com/s2/favicons?domain=splid.app&sz=64",
+      },
+    ],
+    createdAt: "2026-08-10T20:42:00Z",
+  },
+  {
+    id: "fd0ca010-c3fb-4abd-a941-b7d263c76412",
+    query: "A pricing page builder for SaaS",
+    nameCount: 10,
+    topPick: {
+      name: "Canny Boards",
+      logo: "https://www.google.com/s2/favicons?domain=canny.io&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Canny Boards",
+        logo: "https://www.google.com/s2/favicons?domain=canny.io&sz=64",
+      },
+      {
+        name: "StoryGraph",
+        logo: "https://www.google.com/s2/favicons?domain=thestorygraph.com&sz=64",
+      },
+      {
+        name: "Rocket Money",
+        logo: "https://www.google.com/s2/favicons?domain=rocketmoney.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-10T09:42:00Z",
+  },
+  {
+    id: "31575c9c-1913-4f8b-8431-3558fc7bb971",
+    query: "Voice memo transcription for podcasters",
+    nameCount: 20,
+    topPick: {
+      name: "Reflectly",
+      logo: "https://www.google.com/s2/favicons?domain=reflectly.app&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Reflectly",
+        logo: "https://www.google.com/s2/favicons?domain=reflectly.app&sz=64",
+      },
+      {
+        name: "Carrd",
+        logo: "https://www.google.com/s2/favicons?domain=carrd.co&sz=64",
+      },
+      {
+        name: "Working Nomads",
+        logo: "https://www.google.com/s2/favicons?domain=workingnomads.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-09T08:42:00Z",
+  },
+  {
+    id: "8e57a1ed-dc8f-43ca-9dd0-50c17f67f249",
+    query: "A book club coordination app",
+    nameCount: 10,
+    topPick: {
+      name: "Rover",
+      logo: "https://www.google.com/s2/favicons?domain=rover.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Rover",
+        logo: "https://www.google.com/s2/favicons?domain=rover.com&sz=64",
+      },
+      {
+        name: "Attio",
+        logo: "https://www.google.com/s2/favicons?domain=attio.com&sz=64",
+      },
+      {
+        name: "Fireflies",
+        logo: "https://www.google.com/s2/favicons?domain=fireflies.ai&sz=64",
+      },
+    ],
+    createdAt: "2026-08-08T13:42:00Z",
+  },
+  {
+    id: "c226da49-9efe-4f20-920c-ee64a6fca238",
+    query: "Time tracking for freelance developers",
+    nameCount: 10,
+    topPick: {
+      name: "Prefinery",
+      logo: "https://www.google.com/s2/favicons?domain=prefinery.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Prefinery",
+        logo: "https://www.google.com/s2/favicons?domain=prefinery.com&sz=64",
+      },
+      {
+        name: "Height",
+        logo: "https://www.google.com/s2/favicons?domain=height.app&sz=64",
+      },
+      {
+        name: "Loom Onboarding",
+        logo: "https://www.google.com/s2/favicons?domain=loom.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-08T08:42:00Z",
+  },
+  {
+    id: "8867fb1d-5c03-43a4-adf2-8eabce6291f3",
+    query: "A dog walking marketplace",
+    nameCount: 6,
+    topPick: {
+      name: "Bobby",
+      logo: "https://www.google.com/s2/favicons?domain=bobby.app&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Bobby",
+        logo: "https://www.google.com/s2/favicons?domain=bobby.app&sz=64",
+      },
+      {
+        name: "Namely",
+        logo: "https://www.google.com/s2/favicons?domain=namely.com&sz=64",
+      },
+      {
+        name: "Streaks",
+        logo: "https://www.google.com/s2/favicons?domain=streaksapp.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-07T11:42:00Z",
+  },
+  {
+    id: "6a2e02b4-0b29-4c5b-96b4-30aab1205fc9",
+    query: "Slide deck generator for founders",
+    nameCount: 8,
+    topPick: {
+      name: "Obsidian",
+      logo: "https://www.google.com/s2/favicons?domain=obsidian.md&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Obsidian",
+        logo: "https://www.google.com/s2/favicons?domain=obsidian.md&sz=64",
+      },
+      {
+        name: "Riverside",
+        logo: "https://www.google.com/s2/favicons?domain=riverside.fm&sz=64",
+      },
+      {
+        name: "LaunchList",
+        logo: "https://www.google.com/s2/favicons?domain=getlaunchlist.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-07T01:42:00Z",
+  },
+  {
+    id: "3dcf31e9-c417-4921-a3d1-43d290fe2c0a",
+    query: "A tool for splitting rent fairly",
+    nameCount: 10,
+    topPick: {
+      name: "Waze Carpool",
+      logo: "https://www.google.com/s2/favicons?domain=waze.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Waze Carpool",
+        logo: "https://www.google.com/s2/favicons?domain=waze.com&sz=64",
+      },
+      {
+        name: "Marker",
+        logo: "https://www.google.com/s2/favicons?domain=marker.io&sz=64",
+      },
+      {
+        name: "Mighty Networks",
+        logo: "https://www.google.com/s2/favicons?domain=mightynetworks.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-06T06:42:00Z",
+  },
+  {
+    id: "07c76397-9543-498c-a82a-4ee042d0ab35",
+    query: "Community forum software for creators",
+    nameCount: 20,
+    topPick: {
+      name: "Geekbot",
+      logo: "https://www.google.com/s2/favicons?domain=geekbot.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Geekbot",
+        logo: "https://www.google.com/s2/favicons?domain=geekbot.com&sz=64",
+      },
+      {
+        name: "Reading List",
+        logo: "https://www.google.com/s2/favicons?domain=readinglist.app&sz=64",
+      },
+      {
+        name: "Plausible",
+        logo: "https://www.google.com/s2/favicons?domain=plausible.io&sz=64",
+      },
+    ],
+    createdAt: "2026-08-05T10:42:00Z",
+  },
+  {
+    id: "d7c30244-1644-417e-b4c4-f7398702f65d",
+    query: "A grocery list app that syncs with recipes",
+    nameCount: 8,
+    topPick: {
+      name: "Splid",
+      logo: "https://www.google.com/s2/favicons?domain=splid.app&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Splid",
+        logo: "https://www.google.com/s2/favicons?domain=splid.app&sz=64",
+      },
+      {
+        name: "Landen",
+        logo: "https://www.google.com/s2/favicons?domain=landen.co&sz=64",
+      },
+      {
+        name: "Anki",
+        logo: "https://www.google.com/s2/favicons?domain=apps.ankiweb.net&sz=64",
+      },
+    ],
+    createdAt: "2026-08-05T00:42:00Z",
+  },
+  {
+    id: "3080b59f-7de8-417b-b696-d000b9899381",
+    query: "Cold email tool for small agencies",
+    nameCount: 18,
+    topPick: {
+      name: "Bookclubs",
+      logo: "https://www.google.com/s2/favicons?domain=bookclubs.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Bookclubs",
+        logo: "https://www.google.com/s2/favicons?domain=bookclubs.com&sz=64",
+      },
+      {
+        name: "Splitwise",
+        logo: "https://www.google.com/s2/favicons?domain=splitwise.com&sz=64",
+      },
+      {
+        name: "StoryGraph",
+        logo: "https://www.google.com/s2/favicons?domain=thestorygraph.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-04T18:42:00Z",
+  },
+  {
+    id: "0127cdcb-5505-46dc-bdd6-10cf3d9a4804",
+    query: "A trip planner for group travel",
+    nameCount: 18,
+    topPick: {
+      name: "Monzo",
+      logo: "https://www.google.com/s2/favicons?domain=monzo.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Monzo",
+        logo: "https://www.google.com/s2/favicons?domain=monzo.com&sz=64",
+      },
+      {
+        name: "Cal",
+        logo: "https://www.google.com/s2/favicons?domain=cal.com&sz=64",
+      },
+      {
+        name: "Notion",
+        logo: "https://www.google.com/s2/favicons?domain=notion.so&sz=64",
+      },
+    ],
+    createdAt: "2026-08-04T01:42:00Z",
+  },
+  {
+    id: "2a9f02ed-acf9-4df0-83e3-9cdfe71cc48f",
+    query: "Feedback board for open source projects",
+    nameCount: 10,
+    topPick: {
+      name: "Prefinery",
+      logo: "https://www.google.com/s2/favicons?domain=prefinery.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Prefinery",
+        logo: "https://www.google.com/s2/favicons?domain=prefinery.com&sz=64",
+      },
+      {
+        name: "Paprika",
+        logo: "https://www.google.com/s2/favicons?domain=paprikaapp.com&sz=64",
+      },
+      {
+        name: "Fireflies",
+        logo: "https://www.google.com/s2/favicons?domain=fireflies.ai&sz=64",
+      },
+    ],
+    createdAt: "2026-08-02T23:42:00Z",
+  },
+  {
+    id: "534ea787-ae44-4a34-9975-9fb596a311df",
+    query: "A commission tracker for freelance artists",
+    nameCount: 18,
+    topPick: {
+      name: "Featurebase",
+      logo: "https://www.google.com/s2/favicons?domain=featurebase.app&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Featurebase",
+        logo: "https://www.google.com/s2/favicons?domain=featurebase.app&sz=64",
+      },
+      {
+        name: "Wag",
+        logo: "https://www.google.com/s2/favicons?domain=wagwalking.com&sz=64",
+      },
+      {
+        name: "Standuply",
+        logo: "https://www.google.com/s2/favicons?domain=standuply.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-02T14:42:00Z",
+  },
+  {
+    id: "99f9c1ef-f178-4c2b-8f30-de5400fcbd79",
+    query: "Onboarding video tool for HR teams",
+    nameCount: 8,
+    topPick: {
+      name: "Marker",
+      logo: "https://www.google.com/s2/favicons?domain=marker.io&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Marker",
+        logo: "https://www.google.com/s2/favicons?domain=marker.io&sz=64",
+      },
+      {
+        name: "Gamma",
+        logo: "https://www.google.com/s2/favicons?domain=gamma.app&sz=64",
+      },
+      {
+        name: "Fireflies",
+        logo: "https://www.google.com/s2/favicons?domain=fireflies.ai&sz=64",
+      },
+    ],
+    createdAt: "2026-08-02T06:42:00Z",
+  },
+  {
+    id: "8c55d6f2-0d10-473f-a61d-594454a7ce07",
+    query: "A tool for tracking reading goals",
+    nameCount: 6,
+    topPick: {
+      name: "17hats",
+      logo: "https://www.google.com/s2/favicons?domain=17hats.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "17hats",
+        logo: "https://www.google.com/s2/favicons?domain=17hats.com&sz=64",
+      },
+      {
+        name: "Cal",
+        logo: "https://www.google.com/s2/favicons?domain=cal.com&sz=64",
+      },
+      {
+        name: "Wise",
+        logo: "https://www.google.com/s2/favicons?domain=wise.com&sz=64",
+      },
+    ],
+    createdAt: "2026-08-01T13:42:00Z",
+  },
+  {
+    id: "a1357758-9d27-43d7-9bee-8f067305fca1",
+    query: "Simple analytics for indie makers",
+    nameCount: 20,
+    topPick: {
+      name: "Waze Carpool",
+      logo: "https://www.google.com/s2/favicons?domain=waze.com&sz=64",
+    },
+    namesPreview: [
+      {
+        name: "Waze Carpool",
+        logo: "https://www.google.com/s2/favicons?domain=waze.com&sz=64",
+      },
+      {
+        name: "Strava",
+        logo: "https://www.google.com/s2/favicons?domain=strava.com&sz=64",
+      },
+      {
+        name: "Landen",
+        logo: "https://www.google.com/s2/favicons?domain=landen.co&sz=64",
+      },
+    ],
+    createdAt: "2026-08-01T08:42:00Z",
+  },
+]
