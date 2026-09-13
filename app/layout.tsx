@@ -1,4 +1,4 @@
-import { Geist_Mono, IBM_Plex_Sans, Instrument_Serif } from "next/font/google"
+import localFont from "next/font/local"
 import type { Metadata } from "next"
 import { ThemeProvider } from "@/components/app/theme-provider"
 import { cn } from "@/lib/utils"
@@ -12,19 +12,21 @@ import {
 } from "@/lib/site"
 import "./globals.css"
 
-const instrumentSerifHeading = Instrument_Serif({
-  subsets: ["latin"],
-  weight: ["400"],
+const instrumentSerifHeading = localFont({
+  src: "./fonts/instrument-serif.woff2",
+  weight: "400",
   variable: "--font-heading",
 })
 
-const ibmPlexSans = IBM_Plex_Sans({
-  subsets: ["latin"],
+const ibmPlexSans = localFont({
+  src: "./fonts/ibm-plex-sans.woff2",
+  weight: "100 900",
   variable: "--font-sans",
 })
 
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
+const fontMono = localFont({
+  src: "./fonts/geist-mono.woff2",
+  weight: "100 900",
   variable: "--font-mono",
 })
 
