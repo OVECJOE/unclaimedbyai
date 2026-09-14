@@ -5,16 +5,16 @@ import { cn } from "@/lib/utils"
 type Tier = "Excellent" | "Good" | "Okay" | "Poor"
 
 const strokeByTier: Record<Tier, string> = {
-  Excellent: "stroke-emerald-500",
-  Good: "stroke-emerald-500",
-  Okay: "stroke-amber-500",
-  Poor: "stroke-red-500",
+  Excellent: "stroke-green-600",
+  Good: "stroke-lime-700",
+  Okay: "stroke-yellow-500",
+  Poor: "stroke-red-600",
 }
 
 const textByTier: Record<Tier, string> = {
-  Excellent: "text-emerald-600",
-  Good: "text-emerald-600",
-  Okay: "text-amber-600",
+  Excellent: "text-green-600",
+  Good: "text-lime-700",
+  Okay: "text-yellow-600",
   Poor: "text-red-600",
 }
 
