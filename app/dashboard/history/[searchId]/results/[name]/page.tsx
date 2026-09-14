@@ -289,7 +289,7 @@ export default async function SearchResultNamePage({
           </Card>
 
           <Tabs defaultValue="overview">
-            <div className="max-w-full overflow-x-auto pb-1">
+            <div className="max-w-full overflow-x-auto pb-1 scrollbar-none">
               <TabsList variant="line">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="domains">Domains</TabsTrigger>
