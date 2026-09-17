@@ -1,3 +1,4 @@
+import Script from "next/script"
 import localFont from "next/font/local"
 import type { Metadata } from "next"
 import { ThemeProvider } from "@/components/app/theme-provider"
@@ -30,12 +31,11 @@ const fontMono = localFont({
   variable: "--font-mono",
 })
 
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: SITE_NAME,
-    template: `%s · ${SITE_NAME}`
+    template: `%s · ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
   openGraph: {
@@ -72,6 +72,13 @@ export default function RootLayout({
       )}
     >
       <body>
+        <Script
+          async
+          src="https://www.sabilytics.com/script.js"
+          data-site="tl6y296p08at"
+          data-domain="unclaimedbyai.com"
+          strategy="afterInteractive"
+        />
         <JsonLd data={siteJsonLd} />
         <ThemeProvider>{children}</ThemeProvider>
       </body>
