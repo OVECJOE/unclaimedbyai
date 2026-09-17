@@ -24,14 +24,14 @@ export default function DashboardPage() {
 
       {/* Recent searches */}
       <section className="px-4 py-10">
-        <div className="mx-auto grid max-w-7xl">
+        <div className="mx-auto space-y-4 max-w-7xl">
           <div className="flex items-center justify-between gap-5">
             <h3 className="font-heading text-2xl md:text-3xl font-semibold">Recent searches</h3>
             <Link href="/dashboard/history">
               <Button variant="link" className="p-0">View all</Button>
             </Link>
           </div>
-          <div className="my-4 divide-y divide-border">
+          <div className="grid grid-cols-1 gap-3 divide-y divide-border">
             {recentSearches.map((search) => (
               <SearchResultCard key={search.id} {...search} />
             ))}
