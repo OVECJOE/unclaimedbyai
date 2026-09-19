@@ -23,7 +23,7 @@ export default async function BillingLayout({
             <p className="text-sm text-muted-foreground">
               Total spent:{" "}
               <span className="font-mono font-semibold text-primary">
-                {totalSpent}
+                ${totalSpent}
               </span>
             </p>
           </div>
