@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { DownloadIcon, RefreshIcon } from "@hugeicons/core-free-icons"
+import { BriefcaseBusiness, DownloadIcon, RefreshIcon } from "@hugeicons/core-free-icons"
 import { transactions } from "@/lib/billing"
 import { formatDateTime } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -15,6 +15,7 @@ import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Button } from "@/components/ui/button"
 import { tierColor } from "@/lib/name-results"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function HistoryPage() {
   return (
@@ -35,22 +36,30 @@ export default function HistoryPage() {
             {transactions.map((transaction) => (
               <TableRow key={transaction.id}>
                 <TableCell>
-                  <div className="space-y-1">
-                    <p
-                      className={cn("text-md font-semibold", {
-                        "text-muted-foreground":
-                          transaction.status === "Failed",
-                      })}
-                    >
-                      {transaction.name}
-                    </p>
-                    <p
-                      className={cn("text-muted-foreground text-xs", {
-                        "font-light": transaction.status === "Failed",
-                      })}
-                    >
-                      {transaction.query}
-                    </p>
+                  <div className="flex items-start gap-2">
+                    <Avatar>
+                      <AvatarImage src={transaction.logo} />
+                      <AvatarFallback>
+                        <HugeiconsIcon icon={BriefcaseBusiness} />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-1">
+                      <p
+                        className={cn("text-md font-semibold", {
+                          "text-muted-foreground":
+                            transaction.status === "Failed",
+                        })}
+                      >
+                        {transaction.name}
+                      </p>
+                      <p
+                        className={cn("text-muted-foreground text-xs", {
+                          "font-light": transaction.status === "Failed",
+                        })}
+                      >
+                        {transaction.query}
+                      </p>
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell><span className="text-xs font-medium italic">{formatDateTime(transaction.purchasedAt)}</span></TableCell>

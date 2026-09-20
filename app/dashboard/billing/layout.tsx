@@ -2,7 +2,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
 import { totalSpent } from "@/lib/billing"
 import { headers } from "next/headers"
-import { cn } from "@/lib/utils"
 
 export default async function BillingLayout({
   children
