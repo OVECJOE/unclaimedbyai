@@ -6,7 +6,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { BriefcaseBusiness, DownloadIcon, RefreshIcon } from "@hugeicons/core-free-icons"
+import {
+  BriefcaseBusiness,
+  DownloadIcon,
+  RefreshIcon,
+} from "@hugeicons/core-free-icons"
 import { transactions } from "@/lib/billing"
 import { formatDateTime } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -16,8 +20,25 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { Button } from "@/components/ui/button"
 import { tierColor } from "@/lib/name-results"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { PaginationWindow } from "@/components/ui/pagination-window"
+import { ITEMS_PER_PAGE } from "@/lib/constants"
+import { clampPage } from "@/lib/pagination"
 
-export default function HistoryPage() {
+export default async function HistoryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string }>
+}) {
+  const { page } = await searchParams
+
+  const pageCount = Math.ceil(transactions.length / ITEMS_PER_PAGE)
+  const currentPage = clampPage(Number.parseInt(page ?? "", 10), pageCount)
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE
+  const currentTransactions = transactions.slice(
+    offset,
+    offset + ITEMS_PER_PAGE
+  )
+
   return (
     <section className="px-4">
       <div className="mx-auto max-w-7xl space-y-4">
@@ -33,7 +54,7 @@ export default function HistoryPage() {
           </TableHeader>
 
           <TableBody>
-            {transactions.map((transaction) => (
+            {currentTransactions.map((transaction) => (
               <TableRow key={transaction.id}>
                 <TableCell>
                   <div className="flex items-start gap-2">
@@ -53,7 +74,7 @@ export default function HistoryPage() {
                         {transaction.name}
                       </p>
                       <p
-                        className={cn("text-muted-foreground text-xs", {
+                        className={cn("text-xs text-muted-foreground", {
                           "font-light": transaction.status === "Failed",
                         })}
                       >
@@ -62,7 +83,11 @@ export default function HistoryPage() {
                     </div>
                   </div>
                 </TableCell>
-                <TableCell><span className="text-xs font-medium italic">{formatDateTime(transaction.purchasedAt)}</span></TableCell>
+                <TableCell>
+                  <span className="text-xs font-medium italic">
+                    {formatDateTime(transaction.purchasedAt)}
+                  </span>
+                </TableCell>
                 <TableCell>
                   <Badge
                     className={cn({
@@ -74,7 +99,11 @@ export default function HistoryPage() {
                     {transaction.status}
                   </Badge>
                 </TableCell>
-                <TableCell><span className="font-bold font-heading text-lg">${transaction.amount}</span></TableCell>
+                <TableCell>
+                  <span className="font-heading text-lg font-bold">
+                    ${transaction.amount}
+                  </span>
+                </TableCell>
                 <TableCell className="text-center">
                   {transaction.status === "Completed" ? (
                     <Button variant="ghost" asChild>
@@ -102,6 +131,13 @@ export default function HistoryPage() {
             ))}
           </TableBody>
         </Table>
+        <div className="mt-4 mb-8">
+          <PaginationWindow
+            currentPage={currentPage}
+            pageCount={pageCount}
+            basePath="/dashboard/billing/history"
+          />
+        </div>
       </div>
     </section>
   )

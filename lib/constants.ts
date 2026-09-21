@@ -1213,6 +1213,8 @@ export interface NameResult {
   aiAssociation: "Low" | "Medium" | "High" | "Very High"
 }
 
+export const ITEMS_PER_PAGE = 10
+
 export const SEARCH_RESULTS: Record<string, NameResult[]> = {
   "deb3e298-e02e-494f-8b6d-6fa97aa1c554": [  // A naming and domain checker
     {

@@ -6,15 +6,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { SEARCH_HISTORY } from "@/lib/constants"
+import { ITEMS_PER_PAGE, SEARCH_HISTORY } from "@/lib/constants"
 import { clampPage } from "@/lib/pagination"
 import { SearchResultCard } from "@/components/dashboard/search-result-card"
 import { PaginationWindow } from "@/components/ui/pagination-window"
 import SearchHistoryToolbar from "@/components/dashboard/search-history-toolbar"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { SlashIcon } from "@hugeicons/core-free-icons"
-
-const ITEMS_PER_PAGE = 10
 
 export default async function SearchHistoryPage({ searchParams }: { searchParams: Promise<{ [key: string]: string }> }) {
   const { page } = await searchParams
