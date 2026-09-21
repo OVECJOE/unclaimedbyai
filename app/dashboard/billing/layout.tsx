@@ -28,7 +28,7 @@ export default async function BillingLayout({
           </div>
           <Tabs defaultValue={activeTab}>
             <div>
-              <TabsList variant="line">
+              <TabsList variant="line" className="border-b w-full">
                 <TabsTrigger value="payment-methods" asChild>
                   <Link href="/dashboard/billing">Payment Methods</Link>
                 </TabsTrigger>
