@@ -61,7 +61,7 @@ export default async function BlogListing({ page }: { page: number }) {
               width="720"
               height="440"
               style={{ fontFamily: "var(--font-mono)" }}
-              className="mx-auto"
+              className="mx-auto h-auto w-full max-w-[720px]"
             >
               <rect width="360" height="220" fill="var(--background)" />
               <g
