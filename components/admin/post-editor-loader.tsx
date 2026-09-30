@@ -4,5 +4,10 @@ import dynamic from "next/dynamic"
 
 export const PostEditor = dynamic(() => import("./post-editor"), {
   ssr: false,
-  loading: () => <div className="h-96 border" />,
+  loading: () => (
+    <div
+      className="h-96 animate-pulse border border-input bg-muted/40"
+      aria-label="Loading editor"
+    />
+  ),
 })

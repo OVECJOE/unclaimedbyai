@@ -133,7 +133,8 @@ export default function PostForm({ post }: { post: Post | null }) {
   }
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <>
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10">
       <div className="space-y-6">
         <Input
           value={title}
@@ -143,7 +144,7 @@ export default function PostForm({ post }: { post: Post | null }) {
           }}
           placeholder="Post title"
           aria-label="Post title"
-          className="h-14 font-heading text-3xl md:text-4xl"
+          className="h-12 font-heading text-2xl sm:h-14 sm:text-3xl md:text-4xl"
         />
         <PostEditor
           initialMarkdown={post?.bodyMdx ?? ""}
@@ -186,7 +187,7 @@ export default function PostForm({ post }: { post: Post | null }) {
           {status === "published" ? (
             <>
               <Button disabled={pending} onClick={() => save("published")}>
-                Update
+                {pending ? "Saving…" : "Update"}
               </Button>
               <Button
                 variant="outline"
@@ -199,7 +200,7 @@ export default function PostForm({ post }: { post: Post | null }) {
           ) : (
             <>
               <Button disabled={pending} onClick={() => save("published")}>
-                Publish
+                {pending ? "Saving…" : "Publish"}
               </Button>
               <Button
                 variant="outline"
@@ -235,15 +236,26 @@ export default function PostForm({ post }: { post: Post | null }) {
 
         <div className="space-y-2">
           <Label htmlFor="slug">URL slug</Label>
-          <Input
-            id="slug"
-            value={slug}
-            onChange={(event) => {
-              setSlugTouched(true)
-              edit(setSlug)(slugify(event.target.value))
-            }}
-          />
-          <p className="text-xs text-muted-foreground">/blog/{slug || "…"}</p>
+          <div className="flex h-10 items-center border border-transparent border-b-input bg-transparent transition-[color,border-color] focus-within:border-b-ring">
+            <span
+              aria-hidden="true"
+              className="shrink-0 text-base text-muted-foreground md:text-sm"
+            >
+              /blog/
+            </span>
+            <input
+              id="slug"
+              value={slug}
+              onChange={(event) => {
+                setSlugTouched(true)
+                edit(setSlug)(slugify(event.target.value))
+              }}
+              placeholder="my-post"
+              autoComplete="off"
+              spellCheck={false}
+              className="h-full min-w-0 flex-1 bg-transparent px-0 py-1 text-base outline-none placeholder:text-muted-foreground md:text-sm"
+            />
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -326,6 +338,49 @@ export default function PostForm({ post }: { post: Post | null }) {
           </AccordionItem>
         </Accordion>
       </aside>
-    </div>
+      </div>
+
+      <div className="sticky bottom-0 -mx-4 mt-8 border-t bg-background/95 px-4 py-3 backdrop-blur-sm lg:hidden">
+        <div className="flex gap-2">
+          {status === "published" ? (
+            <>
+              <Button
+                className="flex-1"
+                disabled={pending}
+                onClick={() => save("published")}
+              >
+                {pending ? "Saving…" : "Update"}
+              </Button>
+              <Button
+                className="flex-1"
+                variant="outline"
+                disabled={pending}
+                onClick={() => save("draft")}
+              >
+                Unpublish
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                className="flex-1"
+                disabled={pending}
+                onClick={() => save("published")}
+              >
+                {pending ? "Saving…" : "Publish"}
+              </Button>
+              <Button
+                className="flex-1"
+                variant="outline"
+                disabled={pending}
+                onClick={() => save("draft")}
+              >
+                Save draft
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+    </>
   )
 }
