@@ -185,7 +185,7 @@ export default function PostForm({ post }: { post: Post | null }) {
             </Alert>
           ) : null}
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex-wrap gap-2 hidden lg:flex">
             {status === "published" ? (
               <>
                 <Button disabled={pending} onClick={() => save("published")}>
