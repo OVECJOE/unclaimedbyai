@@ -16,7 +16,8 @@ type PaginationWindowProps = {
   currentPage: number
   pageCount: number
   windowSize?: number
-  basePath: string
+  basePath?: string
+  getHref?: (page: number) => string
 }
 
 type DisabledBoundProps = {
@@ -35,9 +36,13 @@ function PaginationBoundButton({ direction, text }: DisabledBoundProps) {
       aria-disabled="true"
       className={isPrevious ? "ps-2!" : "pe-2!"}
     >
-      {isPrevious && <HugeiconsIcon icon={icon} strokeWidth={2} className="rtl:rotate-180" />}
+      {isPrevious && (
+        <HugeiconsIcon icon={icon} strokeWidth={2} className="rtl:rotate-180" />
+      )}
       <span className="hidden sm:block">{text}</span>
-      {!isPrevious && <HugeiconsIcon icon={icon} strokeWidth={2} className="rtl:rotate-180" />}
+      {!isPrevious && (
+        <HugeiconsIcon icon={icon} strokeWidth={2} className="rtl:rotate-180" />
+      )}
     </Button>
   )
 }
@@ -66,7 +71,8 @@ export function PaginationWindow({
   currentPage,
   pageCount,
   windowSize = 3,
-  basePath,
+  basePath = "",
+  getHref,
 }: PaginationWindowProps) {
   if (pageCount <= 1) return null
 
@@ -77,7 +83,7 @@ export function PaginationWindow({
   const lastVisible = windowPages[windowPages.length - 1]
   const showsTrailing = lastVisible < pageCount
 
-  const href = (page: number) => `${basePath}?page=${page}`
+  const href = getHref ?? ((page: number) => `${basePath}?page=${page}`)
 
   return (
     <Pagination>
@@ -102,7 +108,9 @@ export function PaginationWindow({
               <PaginationEllipsis />
             </PaginationItem>
             <PaginationItem>
-              <PaginationLink href={href(pageCount)}>{pageCount}</PaginationLink>
+              <PaginationLink href={href(pageCount)}>
+                {pageCount}
+              </PaginationLink>
             </PaginationItem>
           </>
         )}

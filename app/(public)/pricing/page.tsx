@@ -70,7 +70,7 @@ export default function PricingPage() {
           ))}
         </div>
 
-        <div className="mx-auto mt-16 max-w-5xl space-y-8">
+        <div className="mx-auto mt-16 max-w-7xl space-y-8">
           <h2 className="font-heading text-2xl font-semibold md:text-3xl">
             How reports work
           </h2>
