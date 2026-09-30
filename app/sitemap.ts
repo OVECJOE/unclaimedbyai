@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next"
-import { listPublishedPosts } from "@/lib/blog/store"
+import { listPublishedForSitemap } from "@/lib/blog/store"
 import { SITE_URL } from "@/lib/site"
 
 const lastModified = new Date()
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const posts = await listPublishedPosts()
+  const posts = await listPublishedForSitemap()
 
   return [
     {
