@@ -134,210 +134,212 @@ export default function PostForm({ post }: { post: Post | null }) {
 
   return (
     <>
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10">
-      <div className="space-y-6">
-        <Input
-          value={title}
-          onChange={(event) => {
-            edit(setTitle)(event.target.value)
-            if (!slugTouched) setSlug(slugify(event.target.value))
-          }}
-          placeholder="Post title"
-          aria-label="Post title"
-          className="h-12 font-heading text-2xl sm:h-14 sm:text-3xl md:text-4xl"
-        />
-        <PostEditor
-          initialMarkdown={post?.bodyMdx ?? ""}
-          onChange={(markdown) => {
-            setBody(markdown)
-            setDirty(true)
-          }}
-          uploadImage={uploadImage}
-        />
-      </div>
-
-      <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-        {issues.length ? (
-          <Alert variant="destructive">
-            <AlertTitle>Fix these before saving</AlertTitle>
-            <AlertDescription>
-              <ul className="list-disc space-y-1 ps-4">
-                {issues.map((issue, index) => (
-                  <li key={index}>
-                    {issue.line ? `Line ${issue.line}: ` : ""}
-                    {issue.message}
-                  </li>
-                ))}
-              </ul>
-            </AlertDescription>
-          </Alert>
-        ) : null}
-
-        {savedAt && !issues.length ? (
-          <Alert>
-            <AlertTitle>Saved</AlertTitle>
-            <AlertDescription>
-              {status === "published" ? "Live on the blog." : "Saved as draft."}{" "}
-              {savedAt.toLocaleTimeString()}
-            </AlertDescription>
-          </Alert>
-        ) : null}
-
-        <div className="flex flex-wrap gap-2">
-          {status === "published" ? (
-            <>
-              <Button disabled={pending} onClick={() => save("published")}>
-                {pending ? "Saving…" : "Update"}
-              </Button>
-              <Button
-                variant="outline"
-                disabled={pending}
-                onClick={() => save("draft")}
-              >
-                Unpublish
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button disabled={pending} onClick={() => save("published")}>
-                {pending ? "Saving…" : "Publish"}
-              </Button>
-              <Button
-                variant="outline"
-                disabled={pending}
-                onClick={() => save("draft")}
-              >
-                Save draft
-              </Button>
-            </>
-          )}
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10">
+        <div className="space-y-6">
+          <Input
+            value={title}
+            onChange={(event) => {
+              edit(setTitle)(event.target.value)
+              if (!slugTouched) setSlug(slugify(event.target.value))
+            }}
+            placeholder="Post title"
+            aria-label="Post title"
+            className="h-12 font-heading text-2xl sm:h-14 sm:text-3xl md:text-4xl"
+          />
+          <PostEditor
+            initialMarkdown={post?.bodyMdx ?? ""}
+            onChange={(markdown) => {
+              setBody(markdown)
+              setDirty(true)
+            }}
+            uploadImage={uploadImage}
+          />
         </div>
 
-        {id ? (
-          <div className="flex gap-4 text-sm">
-            <Link
-              href={`/admin/blog/${id}/preview`}
-              target="_blank"
-              className="underline underline-offset-4"
-            >
-              Preview
-            </Link>
+        <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+          {issues.length ? (
+            <Alert variant="destructive">
+              <AlertTitle>Fix these before saving</AlertTitle>
+              <AlertDescription>
+                <ul className="list-disc space-y-1 ps-4">
+                  {issues.map((issue, index) => (
+                    <li key={index}>
+                      {issue.line ? `Line ${issue.line}: ` : ""}
+                      {issue.message}
+                    </li>
+                  ))}
+                </ul>
+              </AlertDescription>
+            </Alert>
+          ) : null}
+
+          {savedAt && !issues.length ? (
+            <Alert>
+              <AlertTitle>Saved</AlertTitle>
+              <AlertDescription>
+                {status === "published"
+                  ? "Live on the blog."
+                  : "Saved as draft."}{" "}
+                {savedAt.toLocaleTimeString()}
+              </AlertDescription>
+            </Alert>
+          ) : null}
+
+          <div className="flex flex-wrap gap-2">
             {status === "published" ? (
+              <>
+                <Button disabled={pending} onClick={() => save("published")}>
+                  {pending ? "Saving…" : "Update"}
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={pending}
+                  onClick={() => save("draft")}
+                >
+                  Unpublish
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button disabled={pending} onClick={() => save("published")}>
+                  {pending ? "Saving…" : "Publish"}
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={pending}
+                  onClick={() => save("draft")}
+                >
+                  Save draft
+                </Button>
+              </>
+            )}
+          </div>
+
+          {id ? (
+            <div className="flex gap-4 text-sm">
               <Link
-                href={`/blog/${liveSlug}`}
+                href={`/admin/blog/${id}/preview`}
                 target="_blank"
                 className="underline underline-offset-4"
               >
-                View live
+                Preview
               </Link>
-            ) : null}
-          </div>
-        ) : null}
+              {status === "published" ? (
+                <Link
+                  href={`/blog/${liveSlug}`}
+                  target="_blank"
+                  className="underline underline-offset-4"
+                >
+                  View live
+                </Link>
+              ) : null}
+            </div>
+          ) : null}
 
-        <div className="space-y-2">
-          <Label htmlFor="slug">URL slug</Label>
-          <div className="flex h-10 items-center border border-transparent border-b-input bg-transparent transition-[color,border-color] focus-within:border-b-ring">
-            <span
-              aria-hidden="true"
-              className="shrink-0 text-base text-muted-foreground md:text-sm"
-            >
-              /blog/
-            </span>
-            <input
-              id="slug"
-              value={slug}
-              onChange={(event) => {
-                setSlugTouched(true)
-                edit(setSlug)(slugify(event.target.value))
-              }}
-              placeholder="my-post"
-              autoComplete="off"
-              spellCheck={false}
-              className="h-full min-w-0 flex-1 bg-transparent px-0 py-1 text-base outline-none placeholder:text-muted-foreground md:text-sm"
+          <div className="mt-8 space-y-2 md:mt-2">
+            <Label htmlFor="slug">URL slug</Label>
+            <div className="flex h-10 items-center border border-transparent border-b-input bg-transparent transition-[color,border-color] focus-within:border-b-ring">
+              <span
+                aria-hidden="true"
+                className="shrink-0 text-base text-muted-foreground md:text-sm"
+              >
+                /blog/
+              </span>
+              <input
+                id="slug"
+                value={slug}
+                onChange={(event) => {
+                  setSlugTouched(true)
+                  edit(setSlug)(slugify(event.target.value))
+                }}
+                placeholder="my-post"
+                autoComplete="off"
+                spellCheck={false}
+                className="h-full min-w-0 flex-1 bg-transparent px-0 py-1 text-base outline-none placeholder:text-muted-foreground md:text-sm"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="excerpt">Excerpt</Label>
+            <Textarea
+              id="excerpt"
+              value={excerpt}
+              onChange={(event) => edit(setExcerpt)(event.target.value)}
+              rows={3}
             />
           </div>
-        </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="excerpt">Excerpt</Label>
-          <Textarea
-            id="excerpt"
-            value={excerpt}
-            onChange={(event) => edit(setExcerpt)(event.target.value)}
-            rows={3}
-          />
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="tags">Tags</Label>
+            <Input
+              id="tags"
+              value={tags}
+              onChange={(event) => edit(setTags)(event.target.value)}
+              placeholder="naming, domains"
+            />
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="tags">Tags</Label>
-          <Input
-            id="tags"
-            value={tags}
-            onChange={(event) => edit(setTags)(event.target.value)}
-            placeholder="naming, domains"
-          />
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="cover">Cover image</Label>
+            <Input
+              id="cover"
+              value={coverImageUrl}
+              onChange={(event) => edit(setCoverImageUrl)(event.target.value)}
+              placeholder="https://"
+            />
+            <input
+              ref={fileInput}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+              className="hidden"
+              onChange={(event) => {
+                void onCoverSelected(event.target.files?.[0])
+                event.target.value = ""
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInput.current?.click()}
+            >
+              Upload image
+            </Button>
+            {uploadError ? (
+              <p className="text-xs text-destructive">{uploadError}</p>
+            ) : null}
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="cover">Cover image</Label>
-          <Input
-            id="cover"
-            value={coverImageUrl}
-            onChange={(event) => edit(setCoverImageUrl)(event.target.value)}
-            placeholder="https://"
-          />
-          <input
-            ref={fileInput}
-            type="file"
-            accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
-            className="hidden"
-            onChange={(event) => {
-              void onCoverSelected(event.target.files?.[0])
-              event.target.value = ""
-            }}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => fileInput.current?.click()}
-          >
-            Upload image
-          </Button>
-          {uploadError ? (
-            <p className="text-xs text-destructive">{uploadError}</p>
-          ) : null}
-        </div>
-
-        <Accordion type="single" collapsible>
-          <AccordionItem value="seo">
-            <AccordionTrigger>Search and sharing</AccordionTrigger>
-            <AccordionContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="seo-title">Search title</Label>
-                <Input
-                  id="seo-title"
-                  value={seoTitle}
-                  onChange={(event) => edit(setSeoTitle)(event.target.value)}
-                  placeholder={title}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="seo-description">Search description</Label>
-                <Textarea
-                  id="seo-description"
-                  value={seoDescription}
-                  onChange={(event) =>
-                    edit(setSeoDescription)(event.target.value)
-                  }
-                  rows={3}
-                  placeholder={excerpt}
-                />
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </aside>
+          <Accordion type="single" collapsible>
+            <AccordionItem value="seo">
+              <AccordionTrigger>Search and sharing</AccordionTrigger>
+              <AccordionContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="seo-title">Search title</Label>
+                  <Input
+                    id="seo-title"
+                    value={seoTitle}
+                    onChange={(event) => edit(setSeoTitle)(event.target.value)}
+                    placeholder={title}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="seo-description">Search description</Label>
+                  <Textarea
+                    id="seo-description"
+                    value={seoDescription}
+                    onChange={(event) =>
+                      edit(setSeoDescription)(event.target.value)
+                    }
+                    rows={3}
+                    placeholder={excerpt}
+                  />
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </aside>
       </div>
 
       <div className="sticky bottom-0 -mx-4 mt-8 border-t bg-background/95 px-4 py-3 backdrop-blur-sm lg:hidden">
