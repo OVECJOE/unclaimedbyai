@@ -1,3 +1,4 @@
+import AppFooter from "@/components/app-footer"
 import DashboardHeader from "@/components/dashboard/dashboard-header"
 
 export default function DashboardLayout({
@@ -9,6 +10,7 @@ export default function DashboardLayout({
     <div>
       <DashboardHeader />
       <main className="min-h-screen">{children}</main>
+      <AppFooter />
     </div>
   )
 }
