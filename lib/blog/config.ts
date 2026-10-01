@@ -3,4 +3,4 @@ export const ADMIN_POSTS_PER_PAGE = 20
 
 export const BLOG_TITLE = "Under the hood"
 export const BLOG_SUBHEADING =
-  "The systems, experiments and mistakes behind checking domains, handles and AI associations."
+  "How we build a name checker that looks at domains, social handles and what AI models already believe about your brand."
