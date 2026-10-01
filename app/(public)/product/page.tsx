@@ -375,10 +375,10 @@ export default function ProductPage() {
               </TableRow>
 
               <TableRow className="hover:bg-transparent">
-                <TableCell className="font-medium">Price</TableCell>
+                <TableCell className="font-medium">Price per report</TableCell>
 
                 <TableCell className="bg-primary/10 text-center font-semibold">
-                  $1.49
+                  $1.99
                 </TableCell>
 
                 <TableCell className="text-center text-muted-foreground">
