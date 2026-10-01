@@ -19,7 +19,7 @@ export default function DashboardPage() {
             Describe it and we&apos;ll generate names, then check them for you.
           </p>
         </div>
-        <Prompter hideFooter />
+        <Prompter />
       </section>
 
       {/* Recent searches */}
