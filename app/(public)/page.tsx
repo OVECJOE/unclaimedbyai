@@ -109,7 +109,7 @@ export default function Page() {
       </section>
 
       {/* How it works */}
-      <section className="border-b px-4 py-10">
+      <section id="how-it-works" className="scroll-mt-20 border-b px-4 py-10">
         <div className="mx-auto max-w-7xl space-y-10 sm:text-center">
           <div className="space-y-1">
             <h2 className="font-heading text-2xl font-semibold">

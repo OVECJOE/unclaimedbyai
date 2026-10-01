@@ -44,11 +44,8 @@ export default function AppHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Link href="/auth" className="text-sm text-muted-foreground transition-colors hover:text-primary">
-            Sign in
-          </Link>
           <Button asChild>
-            <Link href="/auth">Get started</Link>
+            <Link href="/dashboard">Dashboard</Link>
           </Button>
         </div>
 
@@ -80,13 +77,8 @@ export default function AppHeader() {
                 )
               })}
               <SheetClose asChild>
-                <Link href="/auth" className="text-base text-muted-foreground hover:text-primary">
-                  Sign in
-                </Link>
-              </SheetClose>
-              <SheetClose asChild>
                 <Button className="mt-4" asChild>
-                  <Link href="/auth">Get started</Link>
+                  <Link href="/dashboard">Dashboard</Link>
                 </Button>
               </SheetClose>
             </nav>

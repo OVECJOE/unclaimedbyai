@@ -26,7 +26,11 @@ export default async function AuthPage({
     return (
       <section className="space-y-5 px-4 py-10 text-center md:mt-16">
         <div className="space-y-3">
-          <Badge variant="default" className="p-4 text-primary bg-primary/5" asChild>
+          <Badge
+            variant="default"
+            className="bg-primary/5 p-4 text-primary"
+            asChild
+          >
             <HugeiconsIcon icon={MailAtSign02Icon} size="64px" />
           </Badge>
           <h1 className="font-heading text-4xl font-semibold sm:text-5xl">
@@ -46,7 +50,7 @@ export default async function AuthPage({
           The link expires in 15 minutes. Check spam if you don&apos;t see it.
         </p>
         <div className="space-y-2 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2 justify-center">
+          <div className="flex items-center justify-center gap-2">
             <span>Didn&apos;t get it?</span>
             <MagicLinkTimer
               sentAt={sentAt}
@@ -86,7 +90,6 @@ export default async function AuthPage({
       {/* Magic Link */}
       <form
         className="mt-16 space-y-4 sm:mx-auto sm:max-w-lg"
-        method="POST"
         action={sendMagicLink}
       >
         <div className="space-y-2">

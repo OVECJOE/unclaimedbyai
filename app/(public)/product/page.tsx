@@ -395,7 +395,7 @@ export default function ProductPage() {
       </section>
 
       {/* Frequently asked questions */}
-      <section className="border-b px-4 py-10">
+      <section id="faq" className="scroll-mt-20 border-b px-4 py-10">
         <div className="mx-auto max-w-7xl space-y-5">
           <h2 className="font-heading text-3xl font-medium sm:text-center sm:text-4xl">
             Questions people actually ask
