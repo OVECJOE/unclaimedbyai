@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, useTransition } from "react"
 import Link from "next/link"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ImageAdd01Icon } from "@hugeicons/core-free-icons"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
   Accordion,
@@ -13,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
 import { savePost } from "@/lib/blog/actions"
 import type { ContentIssue, Post, PostStatus } from "@/lib/blog/types"
 import { PostEditor } from "./post-editor-loader"
@@ -70,6 +73,8 @@ export default function PostForm({ post }: { post: Post | null }) {
   const [issues, setIssues] = useState<ContentIssue[]>([])
   const [savedAt, setSavedAt] = useState<Date | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [dragging, setDragging] = useState(false)
   const [dirty, setDirty] = useState(false)
   const [pending, startTransition] = useTransition()
   const fileInput = useRef<HTMLInputElement>(null)
@@ -123,12 +128,15 @@ export default function PostForm({ post }: { post: Post | null }) {
   }
 
   async function onCoverSelected(file: File | undefined) {
-    if (!file) return
+    if (!file || uploading) return
     setUploadError(null)
+    setUploading(true)
     try {
       edit(setCoverImageUrl)(await uploadImage(file))
     } catch (error) {
       setUploadError(error instanceof Error ? error.message : "Upload failed")
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -185,7 +193,7 @@ export default function PostForm({ post }: { post: Post | null }) {
             </Alert>
           ) : null}
 
-          <div className="flex-wrap gap-2 hidden lg:flex">
+          <div className="hidden flex-wrap gap-2 lg:flex">
             {status === "published" ? (
               <>
                 <Button disabled={pending} onClick={() => save("published")}>
@@ -282,12 +290,84 @@ export default function PostForm({ post }: { post: Post | null }) {
 
           <div className="space-y-2">
             <Label htmlFor="cover">Cover image</Label>
-            <Input
-              id="cover"
-              value={coverImageUrl}
-              onChange={(event) => edit(setCoverImageUrl)(event.target.value)}
-              placeholder="https://"
-            />
+            {coverImageUrl ? (
+              <div className="space-y-2">
+                <div className="relative border border-input bg-muted/40">
+                  <img
+                    src={coverImageUrl}
+                    alt="Cover preview"
+                    className="aspect-video h-auto w-full object-cover"
+                    onError={() =>
+                      setUploadError(
+                        "That image couldn't be loaded. Check the URL and try again."
+                      )
+                    }
+                  />
+                  {uploading ? (
+                    <div className="absolute inset-0 flex items-center justify-center bg-background/70 text-sm font-medium">
+                      Uploading…
+                    </div>
+                  ) : null}
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={uploading}
+                    onClick={() => fileInput.current?.click()}
+                  >
+                    Replace
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={uploading}
+                    onClick={() => {
+                      setUploadError(null)
+                      edit(setCoverImageUrl)("")
+                    }}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                disabled={uploading}
+                onClick={() => fileInput.current?.click()}
+                onDragOver={(event) => {
+                  event.preventDefault()
+                  setDragging(true)
+                }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={(event) => {
+                  event.preventDefault()
+                  setDragging(false)
+                  void onCoverSelected(event.dataTransfer.files?.[0])
+                }}
+                className={cn(
+                  "flex w-full flex-col items-center gap-1 border border-dashed border-input bg-muted/40 px-4 py-8 text-center transition-colors hover:border-ring hover:bg-muted",
+                  dragging && "border-primary bg-primary/5",
+                  uploading && "opacity-70"
+                )}
+              >
+                <HugeiconsIcon
+                  icon={ImageAdd01Icon}
+                  className="size-8 text-muted-foreground"
+                />
+                <span className="text-sm font-medium">
+                  {uploading
+                    ? "Uploading…"
+                    : "Drop an image here, or click to browse"}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  PNG, JPEG, WebP, GIF or AVIF · up to 4 MB
+                </span>
+              </button>
+            )}
             <input
               ref={fileInput}
               type="file"
@@ -298,14 +378,16 @@ export default function PostForm({ post }: { post: Post | null }) {
                 event.target.value = ""
               }}
             />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => fileInput.current?.click()}
-            >
-              Upload image
-            </Button>
+            <Input
+              id="cover"
+              value={coverImageUrl}
+              onChange={(event) => {
+                setUploadError(null)
+                edit(setCoverImageUrl)(event.target.value)
+              }}
+              placeholder="…or paste an image URL"
+              inputMode="url"
+            />
             {uploadError ? (
               <p className="text-xs text-destructive">{uploadError}</p>
             ) : null}

@@ -49,7 +49,11 @@ export default async function BlogPostPage({ params }: PageProps) {
           description: post.seoDescription ?? post.excerpt,
           datePublished: post.publishedAt,
           dateModified: post.updatedAt,
-          image: post.coverImageUrl ?? undefined,
+          image: post.coverImageUrl
+            ? post.coverImageUrl.startsWith("http")
+              ? post.coverImageUrl
+              : `${SITE_URL}${post.coverImageUrl}`
+            : undefined,
           keywords: post.tags.length ? post.tags.join(", ") : undefined,
           author: { "@type": "Person", name: post.author.name },
           publisher: { "@id": `${SITE_URL}/#organization` },

@@ -38,9 +38,9 @@ export async function POST(request: Request) {
 
   const safeName = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, "-")
   const blob = await put(`blog/${safeName}`, file, {
-    access: "public",
+    access: "private",
     addRandomSuffix: true,
   })
 
-  return NextResponse.json({ url: blob.url })
+  return NextResponse.json({ url: `/api/blog/images/${blob.pathname}` })
 }
