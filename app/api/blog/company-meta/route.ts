@@ -82,60 +82,92 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Domain not found" }, { status: 404 })
   }
 
-  const target = `https://${domain}/`
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), 8000)
+  const targets = domain.startsWith("www.")
+    ? [`https://${domain}/`]
+    : [`https://${domain}/`, `https://www.${domain}/`]
 
-  try {
-    const res = await fetch(target, {
-      signal: controller.signal,
-      headers: {
-        "User-Agent": "UnclaimedByAI-blogbot/1.0",
-        Accept: "text/html",
-      },
-      next: { revalidate: 86400 },
-    })
-    if (!res.ok) {
+  let html: string | null = null
+  let servedFrom = targets[0]
+  let blocked = false
+
+  for (const target of targets) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 6000)
+    try {
+      const res = await fetch(target, {
+        signal: controller.signal,
+        headers: {
+          "User-Agent": "UnclaimedByAI-blogbot/1.0",
+          Accept: "text/html",
+        },
+        next: { revalidate: 86400 },
+      })
+      if (res.ok) {
+        html = await res.text()
+        servedFrom = target
+        break
+      }
+      if (res.status === 401 || res.status === 403 || res.status === 429) {
+        blocked = true
+      }
+    } catch {
+      continue
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+
+  if (html === null) {
+    if (blocked) {
       return NextResponse.json(
-        { error: "Site did not respond" },
-        { status: 502 }
+        {
+          domain,
+          url: targets[0],
+          title: null,
+          description: null,
+          logo: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
+          icon: null,
+        },
+        {
+          headers: {
+            "Cache-Control":
+              "public, s-maxage=86400, stale-while-revalidate=604800",
+          },
+        }
       )
     }
-    const html = await res.text()
-
-    const title =
-      html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim() || null
-    const description =
-      tagAttr(html, "meta", "property", "og:description", "content") ??
-      tagAttr(html, "meta", "name", "description", "content")
-    const logo =
-      [
-        tagAttr(html, "meta", "property", "og:image", "content"),
-        tagAttr(html, "meta", "name", "twitter:image", "content"),
-      ]
-        .map((src) => (src ? absolutize(src, target) : null))
-        .find(Boolean) ?? null
-    const icon =
-      [
-        tagAttr(html, "link", "rel", "icon", "href"),
-        tagAttr(html, "link", "rel", "shortcut icon", "href"),
-        tagAttr(html, "link", "rel", "apple-touch-icon", "href"),
-      ]
-        .map((src) => (src ? absolutize(src, target) : null))
-        .find(Boolean) ?? null
-
-    return NextResponse.json(
-      { domain, url: target, title, description, logo, icon },
-      {
-        headers: {
-          "Cache-Control":
-            "public, s-maxage=86400, stale-while-revalidate=604800",
-        },
-      }
-    )
-  } catch {
     return NextResponse.json({ error: "Site did not respond" }, { status: 502 })
-  } finally {
-    clearTimeout(timer)
   }
+
+  const target = servedFrom
+  const title = html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim() || null
+  const description =
+    tagAttr(html, "meta", "property", "og:description", "content") ??
+    tagAttr(html, "meta", "name", "description", "content")
+  const logo =
+    [
+      tagAttr(html, "meta", "property", "og:image", "content"),
+      tagAttr(html, "meta", "name", "twitter:image", "content"),
+    ]
+      .map((src) => (src ? absolutize(src, target) : null))
+      .find(Boolean) ??
+    `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
+  const icon =
+    [
+      tagAttr(html, "link", "rel", "icon", "href"),
+      tagAttr(html, "link", "rel", "shortcut icon", "href"),
+      tagAttr(html, "link", "rel", "apple-touch-icon", "href"),
+    ]
+      .map((src) => (src ? absolutize(src, target) : null))
+      .find(Boolean) ?? null
+
+  return NextResponse.json(
+    { domain, url: target, title, description, logo, icon },
+    {
+      headers: {
+        "Cache-Control":
+          "public, s-maxage=86400, stale-while-revalidate=604800",
+      },
+    }
+  )
 }
