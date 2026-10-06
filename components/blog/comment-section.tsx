@@ -61,11 +61,13 @@ function CommentItem({
             count={boostCounts[comment.id] ?? 0}
             boosted={boostedIds.has(comment.id)}
           />
-          <ReplyToggle
-            postId={postId}
-            parentId={comment.id}
-            authorName={comment.authorName}
-          />
+          {comment.parentId === null ? (
+            <ReplyToggle
+              postId={postId}
+              parentId={comment.id}
+              authorName={comment.authorName}
+            />
+          ) : null}
         </div>
         {comment.replies.length ? (
           <div className="space-y-4 border-l-2 border-border pt-4 pl-4">
