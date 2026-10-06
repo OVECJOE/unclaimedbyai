@@ -204,7 +204,8 @@ export async function submitComment(
   if (authorName.length < 1 || authorName.length > COMMENT_NAME_MAX) {
     return {
       ok: false,
-      message: "Every transmission needs a codename — 60 characters max.",
+      message:
+        "Every transmission needs a codename. Keep it under 60 characters.",
     }
   }
   if (body.length < 1 || body.length > COMMENT_BODY_MAX) {

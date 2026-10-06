@@ -77,8 +77,9 @@ export default function BoostButton({
           <DialogHeader>
             <DialogTitle>Boost this one?</DialogTitle>
             <DialogDescription>
-              A boost is a one-way trip — once it leaves, it doesn&apos;t come
-              back.
+              Boosting tells the author this resonated and adds your mark to its
+              public count. Every reader gets one boost per post and comment,
+              and it cannot be taken back.
             </DialogDescription>
           </DialogHeader>
           <form action={formAction}>
