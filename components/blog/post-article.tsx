@@ -6,7 +6,7 @@ const dateFormat = new Intl.DateTimeFormat("en", { dateStyle: "long" })
 
 export default function PostArticle({ post }: { post: Post }) {
   return (
-    <article className="mx-auto max-w-3xl space-y-8 px-4 py-10">
+    <article className="mx-auto max-w-7xl space-y-8 px-4 py-10">
       <header className="space-y-3">
         <Link href="/blog" className="text-sm text-muted-foreground">
           Blog

@@ -16,7 +16,7 @@ export default async function PreviewPostPage({
   if (!post) notFound()
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pt-10">
+    <div className="mx-auto max-w-7xl px-4 pt-10">
       <Alert>
         <AlertDescription>
           Preview of the last saved version.{" "}
