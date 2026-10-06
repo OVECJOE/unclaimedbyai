@@ -2,6 +2,7 @@ import Link from "next/link"
 import type { ComponentPropsWithoutRef, ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import CompanyCard from "./company-card"
 
 const toneClass = {
   info: "border-primary",
@@ -85,5 +86,6 @@ export const mdxComponents = {
   Callout,
   Cta,
   Figure,
+  CompanyCard,
   a: Anchor,
 }

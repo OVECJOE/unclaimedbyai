@@ -118,7 +118,7 @@ export function validateMdx(source: string): ContentIssue[] {
       if (prop.pattern && !new RegExp(prop.pattern).test(value)) {
         issues.push({
           line,
-          message: `<${widget.name}> "${prop.label}" must start with / or https://.`,
+          message: `<${widget.name}> "${prop.label}" is invalid.`,
         })
       }
     }

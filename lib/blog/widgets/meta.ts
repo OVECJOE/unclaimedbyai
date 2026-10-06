@@ -71,6 +71,28 @@ export const WIDGETS: WidgetMeta[] = [
       { name: "caption", label: "Caption", type: "string" },
     ],
   },
+  {
+    name: "CompanyCard",
+    label: "Company card",
+    description: "A link to a company that previews its site details on hover.",
+    kind: "text",
+    hasChildren: false,
+    props: [
+      {
+        name: "name",
+        label: "Company name",
+        type: "string",
+        required: true,
+      },
+      {
+        name: "domain",
+        label: "Domain",
+        type: "string",
+        required: true,
+        pattern: "^(https?://)?[A-Za-z0-9.-]+\\.[A-Za-z]{2,}([/?#].*)?$",
+      },
+    ],
+  },
 ]
 
 export const widgetByName = new Map(
