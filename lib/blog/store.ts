@@ -197,9 +197,7 @@ export async function listAllPosts(
   page = 1,
   pageSize = 20
 ): Promise<Paged<AdminPostRow>> {
-  const safePage = Number.isFinite(page)
-    ? Math.max(1, Math.floor(page))
-    : 1
+  const safePage = Number.isFinite(page) ? Math.max(1, Math.floor(page)) : 1
   const safePageSize = Number.isFinite(pageSize)
     ? Math.min(Math.max(1, Math.floor(pageSize)), 100)
     : 20
@@ -397,7 +395,9 @@ function toComment(row: CommentRow): BlogComment {
   }
 }
 
-export async function listApprovedComments(postId: number): Promise<BlogComment[]> {
+export async function listApprovedComments(
+  postId: number
+): Promise<BlogComment[]> {
   if (!configured()) return []
 
   const sql = getSql()
@@ -544,4 +544,104 @@ export async function listRecentApprovedComments(
     postSlug: row.post_slug,
     postTitle: row.post_title,
   }))
+}
+
+export async function getPostBoostCount(postId: number): Promise<number> {
+  if (!configured()) return 0
+
+  const sql = getSql()
+  const rows = (await sql`
+    select count(*)::int as total from blog_signals
+    where post_id = ${postId} and comment_id is null
+  `) as { total: number }[]
+  return rows[0]?.total ?? 0
+}
+
+export async function getCommentBoostCounts(
+  postId: number
+): Promise<Record<number, number>> {
+  if (!configured()) return {}
+
+  const sql = getSql()
+  const rows = (await sql`
+    select comment_id::int as comment_id, count(*)::int as total
+    from blog_signals
+    where post_id = ${postId} and comment_id is not null
+    group by comment_id
+  `) as { comment_id: number; total: number }[]
+
+  const counts: Record<number, number> = {}
+  for (const row of rows) counts[row.comment_id] = row.total
+  return counts
+}
+
+export async function hasBoosted(
+  postId: number,
+  commentId: number | null,
+  fingerprint: string | null
+): Promise<boolean> {
+  if (!configured() || !fingerprint) return false
+
+  const sql = getSql()
+  const rows =
+    commentId === null
+      ? ((await sql`
+          select 1 as one from blog_signals
+          where post_id = ${postId} and comment_id is null
+            and fingerprint = ${fingerprint}
+          limit 1
+        `) as { one: number }[])
+      : ((await sql`
+          select 1 as one from blog_signals
+          where comment_id = ${commentId} and fingerprint = ${fingerprint}
+          limit 1
+        `) as { one: number }[])
+  return rows.length > 0
+}
+
+export async function addBoost(input: {
+  postId: number
+  commentId: number | null
+  fingerprint: string
+}): Promise<{ inserted: boolean; postSlug: string } | null> {
+  if (!configured()) return null
+
+  const sql = getSql()
+  const posts = (await sql`
+    select slug from blog_posts where id = ${input.postId} and status = 'published'
+  `) as { slug: string }[]
+  if (!posts[0]) return null
+
+  if (input.commentId !== null) {
+    const comments = (await sql`
+      select id from blog_comments
+      where id = ${input.commentId} and post_id = ${input.postId}
+        and status = 'approved'
+    `) as { id: number }[]
+    if (!comments[0]) return null
+  }
+
+  const rows = (await sql`
+    insert into blog_signals (post_id, comment_id, fingerprint)
+    values (${input.postId}, ${input.commentId}, ${input.fingerprint})
+    on conflict do nothing
+    returning id::int as id
+  `) as { id: number }[]
+
+  return { inserted: rows.length > 0, postSlug: posts[0].slug }
+}
+
+export async function listMyBoostedCommentIds(
+  postId: number,
+  fingerprint: string | null
+): Promise<number[]> {
+  if (!configured() || !fingerprint) return []
+
+  const sql = getSql()
+  const rows = (await sql`
+    select comment_id::int as comment_id from blog_signals
+    where post_id = ${postId} and comment_id is not null
+      and fingerprint = ${fingerprint}
+  `) as { comment_id: number }[]
+  return rows.map((row) => row.comment_id)
 }

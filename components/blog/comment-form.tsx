@@ -61,7 +61,7 @@ export default function CommentForm({
           <Input
             id={parentId ? `name-${parentId}` : "name"}
             name="authorName"
-            placeholder="Ada"
+            placeholder="Ada, Turing, or something entirely"
             maxLength={60}
             required
           />
@@ -73,7 +73,7 @@ export default function CommentForm({
           <Textarea
             id={parentId ? `body-${parentId}` : "body"}
             name="body"
-            placeholder="Say something worth receiving…"
+            placeholder="Tell me what you think, what I got wrong, or what you would like me to break down next."
             rows={compact ? 2 : 3}
             maxLength={2000}
             required
@@ -91,9 +91,20 @@ export default function CommentForm({
           {state.message}
         </p>
       ) : null}
-      <Button type="submit" disabled={isPending}>
-        {isPending ? "Transmitting…" : parentId !== null ? "Reply" : "Transmit"}
-      </Button>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <Button type="submit" disabled={isPending}>
+          {isPending
+            ? "Transmitting…"
+            : parentId !== null
+              ? "Reply"
+              : "Transmit"}
+        </Button>
+        {compact ? null : (
+          <span className="text-sm text-muted-foreground">
+            Try sending it empty first to see the error messages.
+          </span>
+        )}
+      </div>
     </form>
   )
 }

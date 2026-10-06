@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound, permanentRedirect } from "next/navigation"
 import { JsonLd } from "@/components/app/json-ld"
 import PostArticle from "@/components/blog/post-article"
+import PostBoost from "@/components/blog/post-boost"
 import CommentSection from "@/components/blog/comment-section"
 import { getPublishedPost, listPublishedSlugs } from "@/lib/blog/store"
 import { SITE_URL, pageMetadata } from "@/lib/site"
@@ -62,6 +63,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         }}
       />
       <PostArticle post={post} />
+      <PostBoost postId={post.id} />
       <CommentSection postId={post.id} />
     </>
   )

@@ -3,10 +3,12 @@
 import { randomBytes } from "node:crypto"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { cookies } from "next/headers"
 import { SITE_URL } from "@/lib/site"
 import { sendLoginEmail } from "./email"
 import { createSession, destroySession, requireEditor } from "./session"
 import {
+  addBoost,
   consumeLoginToken,
   createComment,
   createPost,
@@ -19,6 +21,7 @@ import {
 } from "./store"
 import { validateMdx } from "./validate"
 import type {
+  BoostState,
   CommentSubmitState,
   ContentIssue,
   LoginState,
@@ -199,12 +202,15 @@ export async function submitComment(
     return { ok: false, message: "That post no longer exists." }
   }
   if (authorName.length < 1 || authorName.length > COMMENT_NAME_MAX) {
-    return { ok: false, message: "Give a display name up to 60 characters." }
+    return {
+      ok: false,
+      message: "Every transmission needs a codename — 60 characters max.",
+    }
   }
   if (body.length < 1 || body.length > COMMENT_BODY_MAX) {
     return {
       ok: false,
-      message: "Keep transmissions between 1 and 2000 characters.",
+      message: "An empty transmission says nothing. Write something first.",
     }
   }
 
@@ -215,20 +221,22 @@ export async function submitComment(
     body,
   })
   if (!created) {
-    return { ok: false, message: "Could not send that. Try again in a moment." }
+    return {
+      ok: false,
+      message: "The channel dropped that one. Try again in a moment.",
+    }
   }
 
   revalidatePath(`/blog/${created.postSlug}`)
   return {
     ok: true,
-    message: "Transmission received — it appears once approved.",
+    message: "Transmission received. It goes live once we've reviewed it.",
   }
 }
 
 function commentId(formData: FormData): number | null {
   const raw = formData.get("id")
-  const id =
-    typeof raw === "string" ? Number.parseInt(raw, 10) : Number.NaN
+  const id = typeof raw === "string" ? Number.parseInt(raw, 10) : Number.NaN
   return Number.isInteger(id) ? id : null
 }
 
@@ -257,4 +265,65 @@ export async function deleteCommentAction(formData: FormData) {
   const slug = await deleteComment(id)
   if (slug) revalidatePath(`/blog/${slug}`)
   revalidatePath("/admin/blog/comments")
+}
+
+const BOOST_COOKIE = "bid"
+const TWO_YEARS_SECONDS = 60 * 60 * 24 * 365 * 2
+
+export async function boostSignal(
+  _previous: BoostState,
+  formData: FormData
+): Promise<BoostState> {
+  const postId = Number.parseInt(
+    typeof formData.get("postId") === "string"
+      ? (formData.get("postId") as string)
+      : "",
+    10
+  )
+  const commentRaw = formData.get("commentId")
+  const commentId =
+    typeof commentRaw === "string" && commentRaw.trim() !== ""
+      ? Number.parseInt(commentRaw, 10)
+      : null
+  if (!Number.isInteger(postId)) {
+    return { ok: false, boosted: false, message: "That post no longer exists." }
+  }
+  if (commentId !== null && !Number.isInteger(commentId)) {
+    return {
+      ok: false,
+      boosted: false,
+      message: "That comment no longer exists.",
+    }
+  }
+
+  const jar = await cookies()
+  let fingerprint = jar.get(BOOST_COOKIE)?.value ?? ""
+  if (!fingerprint) {
+    fingerprint = randomBytes(16).toString("hex")
+    jar.set(BOOST_COOKIE, fingerprint, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: TWO_YEARS_SECONDS,
+      path: "/",
+    })
+  }
+
+  const result = await addBoost({ postId, commentId, fingerprint })
+  if (!result) {
+    return {
+      ok: false,
+      boosted: false,
+      message: "The boost didn't land. Try again in a moment.",
+    }
+  }
+
+  revalidatePath(`/blog/${result.postSlug}`)
+  return result.inserted
+    ? {
+        ok: true,
+        boosted: true,
+        message: "Boost sent. The signal is stronger now.",
+      }
+    : { ok: true, boosted: true, message: "You already boosted this one." }
 }

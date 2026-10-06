@@ -91,6 +91,12 @@ export type CommentSubmitState = {
   message: string
 }
 
+export type BoostState = {
+  ok: boolean
+  boosted: boolean
+  message: string
+}
+
 export type Paged<T> = {
   items: T[]
   total: number
