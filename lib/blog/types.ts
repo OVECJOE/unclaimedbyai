@@ -68,6 +68,29 @@ export type LoginState = {
   message?: string
 }
 
+export type CommentStatus = "pending" | "approved" | "rejected"
+
+export type BlogComment = {
+  id: number
+  postId: number
+  parentId: number | null
+  authorName: string
+  body: string
+  status: CommentStatus
+  createdAt: string
+  replies: BlogComment[]
+}
+
+export type AdminCommentRow = BlogComment & {
+  postSlug: string
+  postTitle: string
+}
+
+export type CommentSubmitState = {
+  ok: boolean
+  message: string
+}
+
 export type Paged<T> = {
   items: T[]
   total: number

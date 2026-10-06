@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { listAllPosts } from "@/lib/blog/store"
+import { listAllPosts, countPendingComments } from "@/lib/blog/store"
 import { ADMIN_POSTS_PER_PAGE } from "@/lib/blog/config"
 import { clampPage } from "@/lib/pagination"
 import { PaginationWindow } from "@/components/ui/pagination-window"
@@ -25,6 +25,7 @@ export default async function AdminBlogPage({
   const parsed = Number.isNaN(requested) ? 1 : requested
 
   let { items, total } = await listAllPosts(parsed, ADMIN_POSTS_PER_PAGE)
+  const pendingCount = await countPendingComments()
   const pageCount = Math.max(1, Math.ceil(total / ADMIN_POSTS_PER_PAGE))
   const currentPage = clampPage(parsed, pageCount)
   if (currentPage !== parsed) {
@@ -35,9 +36,16 @@ export default async function AdminBlogPage({
     <div className="space-y-8">
       <div className="flex items-center justify-between gap-4">
         <h1 className="font-heading text-4xl font-semibold">Posts</h1>
-        <Button asChild>
-          <Link href="/admin/blog/new">New post</Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/admin/blog/comments">
+              Comments{pendingCount ? ` (${pendingCount})` : ""}
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href="/admin/blog/new">New post</Link>
+          </Button>
+        </div>
       </div>
 
       {items.length ? (

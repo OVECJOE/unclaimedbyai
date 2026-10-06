@@ -2,7 +2,10 @@ import "server-only"
 import { createHash } from "node:crypto"
 import { getSql } from "./db"
 import type {
+  AdminCommentRow,
   AdminPostRow,
+  BlogComment,
+  CommentStatus,
   Editor,
   Paged,
   Post,
@@ -369,4 +372,176 @@ export async function consumeLoginToken(
   `) as { editor_id: number }[]
 
   return rows[0] ? getEditorById(rows[0].editor_id) : null
+}
+
+type CommentRow = {
+  id: number
+  post_id: number
+  parent_id: number | null
+  author_name: string
+  body: string
+  status: CommentStatus
+  created_at: Date | string
+}
+
+function toComment(row: CommentRow): BlogComment {
+  return {
+    id: row.id,
+    postId: row.post_id,
+    parentId: row.parent_id,
+    authorName: row.author_name,
+    body: row.body,
+    status: row.status,
+    createdAt: iso(row.created_at),
+    replies: [],
+  }
+}
+
+export async function listApprovedComments(postId: number): Promise<BlogComment[]> {
+  if (!configured()) return []
+
+  const sql = getSql()
+  const rows = (await sql`
+    select id::int as id, post_id::int as post_id, parent_id::int as parent_id,
+      author_name, body, status, created_at
+    from blog_comments
+    where post_id = ${postId} and status = 'approved'
+    order by created_at asc
+  `) as CommentRow[]
+
+  const byId = new Map<number, BlogComment>()
+  const top: BlogComment[] = []
+  for (const row of rows) byId.set(row.id, toComment(row))
+  for (const comment of byId.values()) {
+    const parent =
+      comment.parentId === null ? undefined : byId.get(comment.parentId)
+    if (parent) parent.replies.push(comment)
+    else top.push(comment)
+  }
+  return top
+}
+
+export async function createComment(input: {
+  postId: number
+  parentId: number | null
+  authorName: string
+  body: string
+}): Promise<{ id: number; postSlug: string } | null> {
+  if (!configured()) return null
+
+  const sql = getSql()
+  const posts = (await sql`
+    select slug from blog_posts where id = ${input.postId} and status = 'published'
+  `) as { slug: string }[]
+  if (!posts[0]) return null
+
+  if (input.parentId !== null) {
+    const parents = (await sql`
+      select id from blog_comments
+      where id = ${input.parentId} and post_id = ${input.postId}
+        and parent_id is null and status = 'approved'
+    `) as { id: number }[]
+    if (!parents[0]) return null
+  }
+
+  const rows = (await sql`
+    insert into blog_comments (post_id, parent_id, author_name, body)
+    values (${input.postId}, ${input.parentId}, ${input.authorName}, ${input.body})
+    returning id::int as id
+  `) as { id: number }[]
+
+  return rows[0] ? { id: rows[0].id, postSlug: posts[0].slug } : null
+}
+
+export async function listPendingComments(): Promise<AdminCommentRow[]> {
+  if (!configured()) return []
+
+  const sql = getSql()
+  const rows = (await sql`
+    select c.id::int as id, c.post_id::int as post_id,
+      c.parent_id::int as parent_id, c.author_name, c.body, c.status,
+      c.created_at, p.slug as post_slug, p.title as post_title
+    from blog_comments c
+    join blog_posts p on p.id = c.post_id
+    where c.status = 'pending'
+    order by c.created_at asc
+  `) as (CommentRow & { post_slug: string; post_title: string })[]
+
+  return rows.map((row) => ({
+    ...toComment(row),
+    postSlug: row.post_slug,
+    postTitle: row.post_title,
+  }))
+}
+
+export async function countPendingComments(): Promise<number> {
+  if (!configured()) return 0
+
+  const sql = getSql()
+  const rows = (await sql`
+    select count(*)::int as total from blog_comments where status = 'pending'
+  `) as { total: number }[]
+  return rows[0]?.total ?? 0
+}
+
+export async function moderateComment(
+  id: number,
+  status: Extract<CommentStatus, "approved" | "rejected">
+): Promise<string | null> {
+  if (!configured()) return null
+
+  const sql = getSql()
+  const rows = (await sql`
+    update blog_comments set status = ${status} where id = ${id}
+    returning post_id::int as post_id
+  `) as { post_id: number }[]
+  if (!rows[0]) return null
+
+  const posts = (await sql`
+    select slug from blog_posts where id = ${rows[0].post_id}
+  `) as { slug: string }[]
+  return posts[0]?.slug ?? null
+}
+
+export async function deleteComment(id: number): Promise<string | null> {
+  if (!configured()) return null
+
+  const sql = getSql()
+  const rows = (await sql`
+    delete from blog_comments where id = ${id}
+    returning post_id::int as post_id
+  `) as { post_id: number }[]
+  if (!rows[0]) return null
+
+  const posts = (await sql`
+    select slug from blog_posts where id = ${rows[0].post_id}
+  `) as { slug: string }[]
+  return posts[0]?.slug ?? null
+}
+
+export async function listRecentApprovedComments(
+  limit = 20
+): Promise<AdminCommentRow[]> {
+  if (!configured()) return []
+
+  const safeLimit = Number.isFinite(limit)
+    ? Math.min(Math.max(1, Math.floor(limit)), 100)
+    : 20
+  const sql = getSql()
+  const rows = (await sql`
+    select c.id::int as id, c.post_id::int as post_id,
+      c.parent_id::int as parent_id, c.author_name, c.body, c.status,
+      c.created_at, p.slug as post_slug, p.title as post_title
+    from blog_comments c
+    join blog_posts p on p.id = c.post_id
+    where c.status = 'approved'
+    order by c.created_at desc
+    limit ${safeLimit}
+  `) as (CommentRow & { post_slug: string; post_title: string })[]
+
+  return rows.map((row) => ({
+    ...toComment(row),
+    postSlug: row.post_slug,
+    postTitle: row.post_title,
+  }))
 }

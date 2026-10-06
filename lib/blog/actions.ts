@@ -8,14 +8,23 @@ import { sendLoginEmail } from "./email"
 import { createSession, destroySession, requireEditor } from "./session"
 import {
   consumeLoginToken,
+  createComment,
   createPost,
+  deleteComment,
   getEditorByEmail,
   hashToken,
+  moderateComment,
   storeLoginToken,
   updatePost,
 } from "./store"
 import { validateMdx } from "./validate"
-import type { ContentIssue, LoginState, PostInput, SaveResult } from "./types"
+import type {
+  CommentSubmitState,
+  ContentIssue,
+  LoginState,
+  PostInput,
+  SaveResult,
+} from "./types"
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/
@@ -150,4 +159,102 @@ export async function savePost(input: PostInput): Promise<SaveResult> {
       issues: [{ message: "Could not save the post. Try again in a moment." }],
     }
   }
+}
+
+const COMMENT_NAME_MAX = 60
+const COMMENT_BODY_MAX = 2000
+
+export async function submitComment(
+  _previous: CommentSubmitState,
+  formData: FormData
+): Promise<CommentSubmitState> {
+  const postId = Number.parseInt(
+    typeof formData.get("postId") === "string"
+      ? (formData.get("postId") as string)
+      : "",
+    10
+  )
+  const parentRaw = formData.get("parentId")
+  const parentId =
+    typeof parentRaw === "string" && parentRaw.trim() !== ""
+      ? Number.parseInt(parentRaw, 10)
+      : null
+  const authorName =
+    typeof formData.get("authorName") === "string"
+      ? (formData.get("authorName") as string).trim()
+      : ""
+  const body =
+    typeof formData.get("body") === "string"
+      ? (formData.get("body") as string).trim()
+      : ""
+  const honeypot =
+    typeof formData.get("website") === "string"
+      ? (formData.get("website") as string)
+      : ""
+
+  if (honeypot) {
+    return { ok: true, message: "Transmission received." }
+  }
+  if (!Number.isInteger(postId)) {
+    return { ok: false, message: "That post no longer exists." }
+  }
+  if (authorName.length < 1 || authorName.length > COMMENT_NAME_MAX) {
+    return { ok: false, message: "Give a display name up to 60 characters." }
+  }
+  if (body.length < 1 || body.length > COMMENT_BODY_MAX) {
+    return {
+      ok: false,
+      message: "Keep transmissions between 1 and 2000 characters.",
+    }
+  }
+
+  const created = await createComment({
+    postId,
+    parentId: parentId !== null && Number.isInteger(parentId) ? parentId : null,
+    authorName,
+    body,
+  })
+  if (!created) {
+    return { ok: false, message: "Could not send that. Try again in a moment." }
+  }
+
+  revalidatePath(`/blog/${created.postSlug}`)
+  return {
+    ok: true,
+    message: "Transmission received — it appears once approved.",
+  }
+}
+
+function commentId(formData: FormData): number | null {
+  const raw = formData.get("id")
+  const id =
+    typeof raw === "string" ? Number.parseInt(raw, 10) : Number.NaN
+  return Number.isInteger(id) ? id : null
+}
+
+export async function approveComment(formData: FormData) {
+  await requireEditor()
+  const id = commentId(formData)
+  if (id === null) return
+  const slug = await moderateComment(id, "approved")
+  if (slug) revalidatePath(`/blog/${slug}`)
+  revalidatePath("/admin/blog/comments")
+}
+
+export async function rejectComment(formData: FormData) {
+  await requireEditor()
+  const id = commentId(formData)
+  if (id === null) return
+  const slug = await moderateComment(id, "rejected")
+  if (slug) revalidatePath(`/blog/${slug}`)
+  revalidatePath("/admin/blog/comments")
+}
+
+export async function deleteCommentAction(formData: FormData) {
+  await requireEditor()
+  const id = commentId(formData)
+  if (id === null) return
+  const slug = await deleteComment(id)
+  if (slug) revalidatePath(`/blog/${slug}`)
+  revalidatePath("/admin/blog/comments")
 }
