@@ -60,6 +60,45 @@ function absolutize(href: string, base: string): string | null {
   }
 }
 
+type RenderedMeta = {
+  title: string | null
+  description: string | null
+  logo: string | null
+}
+
+async function fetchRenderedMeta(target: string): Promise<RenderedMeta | null> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 10000)
+  try {
+    const res = await fetch(
+      `https://api.microlink.io?url=${encodeURIComponent(target)}`,
+      {
+        signal: controller.signal,
+        next: { revalidate: 86400 },
+      }
+    )
+    if (!res.ok) return null
+    const body = (await res.json()) as {
+      status?: string
+      data?: {
+        title?: string | null
+        description?: string | null
+        logo?: { url?: string | null } | null
+      }
+    }
+    if (body.status !== "success" || !body.data) return null
+    return {
+      title: body.data.title?.trim() || null,
+      description: body.data.description?.trim() || null,
+      logo: body.data.logo?.url ?? null,
+    }
+  } catch {
+    return null
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 export async function GET(request: Request) {
   const domain = new URL(request.url).searchParams
     .get("domain")
@@ -119,13 +158,16 @@ export async function GET(request: Request) {
 
   if (html === null) {
     if (blocked) {
+      const rendered = await fetchRenderedMeta(targets[0])
       return NextResponse.json(
         {
           domain,
           url: targets[0],
-          title: null,
-          description: null,
-          logo: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
+          title: rendered?.title ?? null,
+          description: rendered?.description ?? null,
+          logo:
+            rendered?.logo ??
+            `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
           icon: null,
         },
         {

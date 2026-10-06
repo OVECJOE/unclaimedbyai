@@ -133,11 +133,11 @@
 
 @layer components {
   .blog-prose {
-    font-size: 1.0625rem;
-    line-height: 1.75;
+    font-size: 1.1875rem;
+    line-height: 1.8;
   }
   .blog-prose > :where(* + *) {
-    margin-block-start: 1.25rem;
+    margin-block-start: 1.5rem;
   }
   .blog-prose :where(h2, h3, h4) {
     font-family: var(--font-heading);
@@ -146,16 +146,16 @@
     scroll-margin-block-start: 5rem;
   }
   .blog-prose :where(h2) {
-    font-size: 2rem;
-    margin-block-start: 2.5rem;
+    font-size: 2.25rem;
+    margin-block-start: 3rem;
   }
   .blog-prose :where(h3) {
-    font-size: 1.5rem;
-    margin-block-start: 2rem;
+    font-size: 1.625rem;
+    margin-block-start: 2.25rem;
   }
   .blog-prose :where(h4) {
-    font-size: 1.25rem;
-    margin-block-start: 1.5rem;
+    font-size: 1.375rem;
+    margin-block-start: 1.75rem;
   }
   .blog-prose :where(h2, h3, h4) a {
     color: inherit;
@@ -175,7 +175,7 @@
     padding-inline-start: 1.5rem;
   }
   .blog-prose :where(li + li) {
-    margin-block-start: 0.5rem;
+    margin-block-start: 0.625rem;
   }
   .blog-prose :where(blockquote) {
     border-inline-start: 2px solid var(--border);

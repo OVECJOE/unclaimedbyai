@@ -15,7 +15,7 @@ export default function PostArticle({ post }: { post: Post }) {
           {post.title}
         </h1>
         {post.excerpt ? (
-          <p className="text-muted-foreground md:text-lg">{post.excerpt}</p>
+          <p className="text-muted-foreground md:text-xl">{post.excerpt}</p>
         ) : null}
         <p className="text-sm text-muted-foreground">
           {post.author.name}
