@@ -12,7 +12,7 @@ import { SearchResultCard } from "@/components/dashboard/search-result-card"
 import { PaginationWindow } from "@/components/ui/pagination-window"
 import SearchHistoryToolbar from "@/components/dashboard/search-history-toolbar"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { SlashIcon } from "@hugeicons/core-free-icons"
+import { ArrowAllDirectionIcon } from "@hugeicons/core-free-icons"
 
 export default async function SearchHistoryPage({ searchParams }: { searchParams: Promise<{ [key: string]: string }> }) {
   const { page } = await searchParams
@@ -32,7 +32,7 @@ export default async function SearchHistoryPage({ searchParams }: { searchParams
                 <BreadcrumbLink href="/dashboard" className="text-primary">Dashboard</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
-                <HugeiconsIcon icon={SlashIcon} />
+                <HugeiconsIcon icon={ArrowAllDirectionIcon} />
               </BreadcrumbSeparator>
               <BreadcrumbItem>
                 <BreadcrumbPage>History</BreadcrumbPage>

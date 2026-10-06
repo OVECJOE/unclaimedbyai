@@ -33,7 +33,7 @@ import {
   AtSignIcon,
   BrandfetchIcon,
   GlobeIcon,
-  SlashIcon,
+  ArrowAllDirectionIcon,
 } from "@hugeicons/core-free-icons"
 import { notFound } from "next/navigation"
 import { SEARCH_HISTORY, SEARCH_RESULTS } from "@/lib/constants"
@@ -226,7 +226,7 @@ export default async function SearchResultNamePage({
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
-                <HugeiconsIcon icon={SlashIcon} />
+                <HugeiconsIcon icon={ArrowAllDirectionIcon} />
               </BreadcrumbSeparator>
               <BreadcrumbItem>
                 <BreadcrumbLink
@@ -237,7 +237,7 @@ export default async function SearchResultNamePage({
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
-                <HugeiconsIcon icon={SlashIcon} />
+                <HugeiconsIcon icon={ArrowAllDirectionIcon} />
               </BreadcrumbSeparator>
               <BreadcrumbItem className="min-w-0">
                 <BreadcrumbLink
@@ -248,7 +248,7 @@ export default async function SearchResultNamePage({
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
-                <HugeiconsIcon icon={SlashIcon} />
+                <HugeiconsIcon icon={ArrowAllDirectionIcon} />
               </BreadcrumbSeparator>
               <BreadcrumbItem className="min-w-0">
                 <BreadcrumbPage className="truncate">

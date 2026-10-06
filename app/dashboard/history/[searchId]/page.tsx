@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { SEARCH_HISTORY, SEARCH_RESULTS } from "@/lib/constants"
 import { formatDateTime } from "@/lib/utils"
-import { DotIcon, SlashIcon } from "@hugeicons/core-free-icons"
+import { DotIcon, ArrowAllDirectionIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { notFound } from "next/navigation"
 import GradingDistribution from "@/components/dashboard/grading-distribution"
@@ -41,7 +41,7 @@ export default async function HistorySearchPage({
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
-                <HugeiconsIcon icon={SlashIcon} />
+                <HugeiconsIcon icon={ArrowAllDirectionIcon} />
               </BreadcrumbSeparator>
               <BreadcrumbItem>
                 <BreadcrumbLink
@@ -52,7 +52,7 @@ export default async function HistorySearchPage({
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
-                <HugeiconsIcon icon={SlashIcon} />
+                <HugeiconsIcon icon={ArrowAllDirectionIcon} />
               </BreadcrumbSeparator>
               <BreadcrumbItem className="min-w-0">
                 <BreadcrumbPage className="truncate">
