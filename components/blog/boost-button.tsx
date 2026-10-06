@@ -55,8 +55,9 @@ export default function BoostButton({
           }
         >
           <HugeiconsIcon icon={AudioWave02Icon} className="size-5" />
+          Boost
           <span className="font-mono" aria-label={`${count} boosts`}>
-            {count + (state.boosted && !boosted ? 1 : 0)}
+            [{count + (state.boosted && !boosted ? 1 : 0)}]
           </span>
         </Button>
         {state.message ? (

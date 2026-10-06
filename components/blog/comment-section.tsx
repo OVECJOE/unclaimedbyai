@@ -1,4 +1,5 @@
 import { cookies } from "next/headers"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   getCommentBoostCounts,
   listApprovedComments,
@@ -16,12 +17,16 @@ const dateFormat = new Intl.DateTimeFormat("en", {
 
 function SignalAvatar({ name }: { name: string }) {
   return (
-    <span
-      aria-hidden="true"
-      className="flex size-9 shrink-0 items-center justify-center bg-primary/10 font-heading text-lg text-primary"
-    >
-      {name.charAt(0).toUpperCase()}
-    </span>
+    <Avatar className="size-9 shrink-0 rounded-none after:rounded-none">
+      <AvatarImage
+        src={`https://api.dicebear.com/10.x/adventurer-neutral/svg?seed=${encodeURIComponent(name)}`}
+        alt=""
+        className="rounded-none"
+      />
+      <AvatarFallback className="rounded-none bg-primary/10 font-heading text-lg text-primary">
+        {name.charAt(0).toUpperCase()}
+      </AvatarFallback>
+    </Avatar>
   )
 }
 
@@ -49,14 +54,18 @@ function CommentItem({
         <p className="text-[0.95rem] leading-relaxed break-words whitespace-pre-wrap">
           {comment.body}
         </p>
-        <div className="flex items-center gap-1 pt-1">
+        <div className="flex flex-wrap items-center gap-1 pt-1">
           <BoostButton
             postId={postId}
             commentId={comment.id}
             count={boostCounts[comment.id] ?? 0}
             boosted={boostedIds.has(comment.id)}
           />
-          <ReplyToggle postId={postId} parentId={comment.id} />
+          <ReplyToggle
+            postId={postId}
+            parentId={comment.id}
+            authorName={comment.authorName}
+          />
         </div>
         {comment.replies.length ? (
           <div className="space-y-4 border-l-2 border-border pt-4 pl-4">

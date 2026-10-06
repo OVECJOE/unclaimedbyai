@@ -51,7 +51,7 @@ export default function CommentForm({
           "grid gap-3",
           compact
             ? "grid-cols-1"
-            : "grid-cols-1 sm:grid-cols-[12rem_minmax(0,1fr)]"
+            : "grid-cols-1 md:grid-cols-[12rem_minmax(0,1fr)]"
         )}
       >
         <div className="space-y-2">
