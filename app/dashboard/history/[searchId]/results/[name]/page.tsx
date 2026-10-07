@@ -6,7 +6,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,35 +31,48 @@ import {
   AiBrain02Icon,
   ArrowRight01Icon,
   AtSignIcon,
-  BrandfetchIcon,
   GlobeIcon,
   ArrowAllDirectionIcon,
 } from "@hugeicons/core-free-icons"
-import { notFound } from "next/navigation"
-import { SEARCH_HISTORY, SEARCH_RESULTS } from "@/lib/constants"
-import { nameReports } from "@/lib/name-reports"
-import type {
-  CollisionDetail,
-  ModelAssociation,
-} from "@/lib/name-reports"
-import { formatDateTime } from "@/lib/utils"
+import { notFound, redirect } from "next/navigation"
 import { ScoreGauge } from "@/components/app/score-gauge"
-import { TierBadge } from "@/components/tier-badge"
-import { SocialIcon } from "@/components/dashboard/social-icons"
+import { TierBadge, type Tier } from "@/components/tier-badge"
+import { formatDateTime } from "@/lib/utils"
+import { getMeServer, apiServer } from "@/lib/api-server"
+import {
+  ApiError,
+  getReport,
+  type CheckReport,
+  type SearchDetail,
+} from "@/lib/api"
 
-const VERDICT_COLORS: Record<CollisionDetail["verdict"], string> = {
+export const dynamic = "force-dynamic"
+
+const VERDICTS = ["Clean", "Minor", "Hard"] as const
+type Verdict = (typeof VERDICTS)[number]
+
+const VERDICT_COLORS: Record<Verdict, string> = {
   Clean: "bg-green-600 text-white px-1.5 py-0.5",
   Minor: "bg-yellow-500 text-black px-1.5 py-0.5",
   Hard: "bg-red-600 text-white px-1.5 py-0.5",
 }
 
-const RISK_COPY: Record<CollisionDetail["verdict"], string> = {
+const RISK_COPY: Record<Verdict, string> = {
   Clean: "Low risk. Safe to build on.",
   Minor: "A few minor collisions. Proceed with care.",
   Hard: "High collision risk. You may want to reconsider.",
 }
 
-const ASSOCIATION_LABELS = ["Low", "Medium", "High", "Very High"] as const
+function toVerdict(value: string): Verdict {
+  const mapped = value.charAt(0).toUpperCase() + value.slice(1)
+  return (VERDICTS as readonly string[]).includes(mapped)
+    ? (mapped as Verdict)
+    : "Minor"
+}
+
+function toTier(level: CheckReport["overall_risk_level"]): Tier {
+  return (level.charAt(0).toUpperCase() + level.slice(1)) as Tier
+}
 
 type CheckStatus = { status: string; chipClass: string }
 
@@ -125,75 +138,65 @@ function CheckTile({
   )
 }
 
-const CONFIDENCE: Record<
-  ModelAssociation["confidence"],
-  { label: string; className: string }
-> = {
-  none: { label: "None", className: "text-muted-foreground" },
-  weak: { label: "Weak", className: "text-amber-600" },
-  strong: { label: "Strong", className: "text-red-600" },
-}
-
-const CATEGORY_LABELS: Record<ModelAssociation["category"], string> = {
-  none: "None",
-  company: "Company",
-  product: "Product",
-  person: "Person",
-  place: "Place",
-  common_word: "Common word",
-}
-
-const PLATFORM_LABELS = {
-  github: "GitHub",
-  npm: "npm",
-  x: "X",
-  instagram: "Instagram",
-} as const
-
 export default async function SearchResultNamePage({
   params,
 }: {
   params: Promise<{ searchId: string; name: string }>
 }) {
+  const user = await getMeServer().catch(() => null)
+  if (!user) redirect("/auth")
+
   const { searchId, name } = await params
-  const searchDetails = SEARCH_HISTORY.find((search) => search.id === searchId)
-  if (!searchDetails) {
-    notFound()
+  const id = Number.parseInt(searchId, 10)
+  if (!Number.isInteger(id)) notFound()
+
+  let search: SearchDetail
+  try {
+    search = await apiServer<SearchDetail>(`/api/v1/searches/${id}`)
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) notFound()
+    if (error instanceof ApiError && error.status === 401) redirect("/auth")
+    throw error
   }
 
   const decodedName = decodeURIComponent(name)
-  const result = SEARCH_RESULTS[searchId]?.find(
+  const nameItem = search.names.find(
     (item) => item.name.toLowerCase() === decodedName.toLowerCase()
   )
-  if (!result) {
+  if (!nameItem?.latest_check) {
     notFound()
   }
 
-  const grouped = nameReports[searchId]
-  const report =
-    grouped &&
-    Object.entries(grouped).find(
-      ([reportName]) => reportName.toLowerCase() === decodedName.toLowerCase()
-    )?.[1]
-  if (!report) {
-    notFound()
+  let report: CheckReport
+  try {
+    report = await getReport(nameItem.latest_check.public_id)
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) notFound()
+    throw error
   }
 
+  const availableDomains = report.domains.filter(
+    (d) => d.status === "available"
+  ).length
+  const availableSocials = report.socials.filter(
+    (s) => s.status === "available"
+  ).length
   const totalDomains = report.domains.length
   const totalSocials = report.socials.length
-  const availableDomains = report.domains.filter((d) => d.available).length
-  const availableSocials = report.socials.filter((s) => s.available).length
-  const verdict = report.collision.verdict
+  const verdict = toVerdict(
+    report.ai.some((row) => (row.collision_confidence ?? 0) >= 70)
+      ? "hard"
+      : report.ai.some((row) => (row.collision_confidence ?? 0) >= 30)
+        ? "minor"
+        : "clean"
+  )
 
   const domainStatus = checkStatus(availableDomains, totalDomains)
   const socialStatus = checkStatus(availableSocials, totalSocials)
 
-  const associatingModels = report.collision.perModel.filter(
-    (m) => m.confidence !== "none"
-  ).length
-  const totalModels = report.collision.perModel.length
+  const associating = report.ai.filter((row) => row.association).length
   const associationLabel =
-    ASSOCIATION_LABELS[Math.min(associatingModels, ASSOCIATION_LABELS.length - 1)]
+    associating === 0 ? "Low" : associating === 1 ? "Medium" : "High"
   const associationChipClass =
     associationLabel === "Low"
       ? "bg-green-600 text-white px-1.5 py-0.5"
@@ -207,12 +210,6 @@ export default async function SearchResultNamePage({
       : availableDomains >= totalDomains / 2
         ? "strong availability"
         : "weak availability"
-  const associationCopy =
-    associationLabel === "Low"
-      ? "low AI association"
-      : associationLabel === "Medium"
-        ? "moderate AI association"
-        : "high AI association"
 
   return (
     <>
@@ -241,10 +238,10 @@ export default async function SearchResultNamePage({
               </BreadcrumbSeparator>
               <BreadcrumbItem className="min-w-0">
                 <BreadcrumbLink
-                  href={`/dashboard/history/${searchId}`}
+                  href={`/dashboard/history/${search.id}`}
                   className="truncate text-primary"
                 >
-                  {searchDetails.query}
+                  {search.query}
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
@@ -252,7 +249,7 @@ export default async function SearchResultNamePage({
               </BreadcrumbSeparator>
               <BreadcrumbItem className="min-w-0">
                 <BreadcrumbPage className="truncate">
-                  {report.name}
+                  {nameItem.name}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
@@ -261,30 +258,34 @@ export default async function SearchResultNamePage({
           <Card>
             <CardHeader className="text-center">
               <Avatar size="lg" className="mx-auto">
-                <AvatarImage src={report.logo} alt={report.name} />
-                <AvatarFallback>
-                  <HugeiconsIcon icon={BrandfetchIcon} className="size-5" />
+                <AvatarFallback className="font-heading text-2xl">
+                  {nameItem.name.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <CardTitle className="text-3xl md:text-4xl">
-                {report.name}
+                {nameItem.name}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Generated for &apos;{report.query}&apos;
+                Generated for &apos;{search.query}&apos;
               </p>
               <p className="text-sm text-muted-foreground">
-                Searched {formatDateTime(searchDetails.createdAt)}
+                Searched {formatDateTime(search.created_at)}
               </p>
             </CardHeader>
             <CardContent className="space-y-5 text-center">
               <div className="flex flex-col items-center gap-2">
-                <ScoreGauge score={report.score} tier={report.tier} />
-                <TierBadge tier={report.tier} />
+                <ScoreGauge
+                  score={report.overall_score}
+                  tier={toTier(report.overall_risk_level)}
+                />
+                <TierBadge tier={toTier(report.overall_risk_level)} />
                 <p className="text-xs text-muted-foreground">
                   {RISK_COPY[verdict]}
                 </p>
               </div>
-              <Button size="lg">Buy for $1.99</Button>
+              <Button size="lg" asChild>
+                <Link href="/pricing">Buy the full report</Link>
+              </Button>
             </CardContent>
           </Card>
 
@@ -326,8 +327,8 @@ export default async function SearchResultNamePage({
                     <CheckTile
                       icon={AiBrain02Icon}
                       label="AI association"
-                      available={associatingModels}
-                      total={totalModels}
+                      available={associating}
+                      total={report.ai.length}
                       caption="models associate"
                       chip={associationLabel}
                       chipClass={associationChipClass}
@@ -340,14 +341,14 @@ export default async function SearchResultNamePage({
                         Recommended next step
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {report.name} has {availabilityCopy} and{" "}
-                        {associationCopy}. Buy the full report to see raw results
-                        and register the assets with confidence.
+                        {nameItem.name} has {availabilityCopy}. Buy the full
+                        report to see raw results and register the assets
+                        with confidence.
                       </p>
                     </div>
                     <Button asChild className="shrink-0">
                       <Link href="/pricing">
-                        Buy report · $1.99
+                        Buy report
                         <HugeiconsIcon
                           icon={ArrowRight01Icon}
                           strokeWidth={2}
@@ -368,31 +369,29 @@ export default async function SearchResultNamePage({
                       <TableRow>
                         <TableHead>Domain</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead className="text-end">
-                          Checked via
-                        </TableHead>
+                        <TableHead className="text-end">Checked</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {report.domains.map((domain) => (
-                        <TableRow key={domain.tld}>
-                          <TableCell className="font-medium">
-                            .{domain.tld}
+                        <TableRow key={domain.domain}>
+                          <TableCell className="font-mono">
+                            {domain.domain}
                           </TableCell>
                           <TableCell>
                             <span
                               className={
-                                domain.available
+                                domain.status === "available"
                                   ? "font-medium text-green-600"
                                   : "text-muted-foreground"
                               }
                             >
-                              {domain.available ? "Available" : "Taken"}
+                              {domain.status.replace("_", " ")}
                             </span>
                           </TableCell>
                           <TableCell className="text-end">
-                            <span className="break-all text-xs text-muted-foreground">
-                              {domain.checkedVia}
+                            <span className="text-xs text-muted-foreground">
+                              {formatDateTime(domain.checked_at)}
                             </span>
                           </TableCell>
                         </TableRow>
@@ -411,37 +410,34 @@ export default async function SearchResultNamePage({
                       <TableRow>
                         <TableHead>Platform</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead className="text-end">
-                          Checked via
-                        </TableHead>
+                        <TableHead className="text-end">Checked</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {report.socials.map((social) => (
                         <TableRow key={social.platform}>
                           <TableCell>
-                            <span className="flex items-center gap-2 font-medium">
-                              <SocialIcon
-                                platform={social.platform}
-                                className="size-4"
-                              />
-                              {PLATFORM_LABELS[social.platform]}
+                            <span className="font-medium capitalize">
+                              {social.platform}{" "}
+                              <span className="text-muted-foreground">
+                                @{social.handle}
+                              </span>
                             </span>
                           </TableCell>
                           <TableCell>
                             <span
                               className={
-                                social.available
+                                social.status === "available"
                                   ? "font-medium text-green-600"
                                   : "text-muted-foreground"
                               }
                             >
-                              {social.available ? "Available" : "Taken"}
+                              {social.status.replace("_", " ")}
                             </span>
                           </TableCell>
                           <TableCell className="text-end">
-                            <span className="break-all text-xs text-muted-foreground">
-                              {social.checkedVia}
+                            <span className="text-xs text-muted-foreground">
+                              {formatDateTime(social.checked_at)}
                             </span>
                           </TableCell>
                         </TableRow>
@@ -460,7 +456,7 @@ export default async function SearchResultNamePage({
                       {verdict}
                     </Badge>
                     <p className="text-sm text-muted-foreground">
-                      {report.collision.summary}
+                      {report.judgment}
                     </p>
                   </div>
 
@@ -474,55 +470,26 @@ export default async function SearchResultNamePage({
                         <TableHead className="text-end">
                           Confidence
                         </TableHead>
-                        <TableHead className="text-end">Category</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {report.collision.perModel.map((assoc) => (
-                        <TableRow key={assoc.model}>
+                      {report.ai.map((row, index) => (
+                        <TableRow key={`${row.model ?? "unknown"}-${index}`}>
                           <TableCell className="font-mono text-xs">
-                            {assoc.model}
+                            {row.model ?? "unknown model"}
                           </TableCell>
                           <TableCell className="text-muted-foreground">
-                            {assoc.knownAs}
-                          </TableCell>
-                          <TableCell className="text-end">
-                            <span className={CONFIDENCE[assoc.confidence].className}>
-                              {CONFIDENCE[assoc.confidence].label}
-                            </span>
+                            {row.error ?? row.association ?? "None reported"}
                           </TableCell>
                           <TableCell className="text-end text-muted-foreground">
-                            {CATEGORY_LABELS[assoc.category]}
+                            {typeof row.collision_confidence === "number"
+                              ? `${row.collision_confidence}/100`
+                              : "Not reported"}
                           </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
-
-                  {report.similarKnownBrands.length > 0 && (
-                    <>
-                      <Separator />
-                      <div className="space-y-2">
-                        <p className="text-[0.625rem] font-medium tracking-widest uppercase text-muted-foreground">
-                          Similar known brands
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {report.similarKnownBrands.map((brand) => (
-                            <span
-                              key={brand.name}
-                              className="border border-border bg-muted/50 px-2.5 py-1 text-xs font-medium"
-                            >
-                              {brand.name}
-                              <span className="text-muted-foreground">
-                                {" "}
-                                · {Math.round(brand.similarity * 100)}% similar
-                              </span>
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  )}
                 </CardContent>
               </Card>
             </TabsContent>
