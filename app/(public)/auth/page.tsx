@@ -79,7 +79,9 @@ export default async function AuthPage({
 
       {/* Google OAuth */}
       <Button variant="outline" size="lg" asChild>
-        <Link href="/auth/google">
+        <Link
+          href={`${process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8007"}/api/v1/auth/google`}
+        >
           <HugeiconsIcon icon={GoogleIcon} size="48px" />
           <span className="font-semibold">Continue with Google</span>
         </Link>

@@ -26,15 +26,16 @@ Conventions: `[YOU]` owner, `[BE]` backend engineer (provides endpoints), `[SEC]
 
 ### Phase 0 — Client foundations
 
-- [ ] `[YOU]` Build `lib/api.ts`: typed fetch client with `NEXT_PUBLIC_API_URL` base URL (server-side `API_URL` fallback like the prototype), `ApiError` with status, timeouts, one retry on network failure only, cookie credentials for session auth. No auth headers hand-rolled — sessions ride httpOnly cookies.
-- [ ] `[YOU]` Add `.env.example` entries: `NEXT_PUBLIC_API_URL`, `API_URL` (server container/SSR).
-- [ ] `[YOU]` Auth wiring: magic-link + Google buttons on `/auth`, session-aware header (sign in vs account menu), middleware guarding `/dashboard/*` to login with return-to. Agree cookie/session shape with `[BE]` first.
+- [x] `lib/api.ts`: typed fetch client (`NEXT_PUBLIC_API_URL`, `ApiError` with status, per-call timeouts, cookie credentials, no hand-rolled auth headers) + `lib/api-server.ts` cookie-forwarding helpers for server components.
+- [x] Add `.env.example` entries: `NEXT_PUBLIC_API_URL` (browser + server, same origin policy via CORS).
+- [x] Auth wiring: magic-link via API on `/auth`, Google button to API OAuth start, session-aware dashboard header (account menu vs Sign In), sign-out action, logged-out dashboard/history redirect to `/auth`.
 - [ ] `[SEC]` Review: no tokens in `localStorage`, no API keys in client bundle, `redirect`/`returnTo` params validated (no open redirects), checkout return URLs verified server-side.
 
 ### Phase 1 — Replace mocks with live data
 
 - [ ] `[YOU]` Dashboard home: brief form → `POST generate` → candidate list → `POST` report per name (parallel with per-row pending/error states, mirroring prototype `app/page.tsx` flow).
-- [ ] `[YOU]` `/dashboard/history` + `[searchId]` + `results/[name]`: real search list/detail from `GET searches`; delete `SEARCH_HISTORY` mock in `lib/constants.ts`.
+- [x] `/dashboard/history` + `[searchId]`: real search list/detail from the API with per-name live check panels.
+- [x] Public SEO results page `/searches/[query]`: canonical search + names with latest check details + aggregate stats, ISR-cached, keyword-rich metadata.
 - [ ] `[YOU]` Report view: pillar scores, per-model AI output (render as text, never raw HTML — model output is untrusted), reuse/checked-at stamps, unlock CTA when locked. Delete `lib/name-reports.ts` + `lib/name-results.ts` mocks.
 - [ ] `[YOU]` Billing: credit packs + balances from API, checkout button → Stripe redirect, post-payment return revalidates unlock state (agree polling vs revalidate with `[BE]`). Delete `lib/billing.ts` mock URLs.
 - [ ] `[YOU]` Pricing page: render packs + prices from the API (single source of truth), wire each tier to checkout. Prototype pricing page is unwired copy — don't repeat that.

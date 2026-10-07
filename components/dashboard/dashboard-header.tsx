@@ -27,6 +27,8 @@ import { Button } from "@/components/ui/button"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Menu09Icon, UserIcon } from "@hugeicons/core-free-icons"
 import { useCallback } from "react"
+import type { ApiUser } from "@/lib/api"
+import { signOut } from "@/app/dashboard/actions"
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
@@ -34,7 +36,7 @@ const navLinks = [
   { href: "/dashboard/account", label: "Account" },
 ]
 
-export default function DashboardHeader() {
+export default function DashboardHeader({ user }: { user?: ApiUser | null }) {
   const pathname = usePathname()
 
   const isActive = useCallback((href: string) => {
@@ -87,15 +89,26 @@ export default function DashboardHeader() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>
-                <span className="block font-heading text-sm font-semibold text-primary">@username</span>
+                <span className="block font-heading text-sm font-semibold text-primary">
+                  {user?.full_name || user?.email || "Account"}
+                </span>
                 <span className="mt-0.5 block text-xs text-muted-foreground font-normal lowercase">
-                  user@unclaimedby.ai
+                  {user?.email ?? "not signed in"}
                 </span>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive focus:bg-destructive/5 focus:text-destructive">
-                Sign Out
-              </DropdownMenuItem>
+              {user ? (
+                <DropdownMenuItem
+                  className="text-destructive focus:bg-destructive/5 focus:text-destructive"
+                  onSelect={() => void signOut()}
+                >
+                  Sign Out
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem asChild>
+                  <Link href="/auth">Sign In</Link>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 
