@@ -21,7 +21,7 @@ import { formatDateTime } from "@/lib/utils"
 export const dynamic = "force-dynamic"
 
 export default async function SearchHistoryPage({ searchParams }: { searchParams: Promise<{ [key: string]: string }> }) {
-  const user = await getMeServer().catch(() => null)
+  const user = await getMeServer()
   if (!user) redirect("/auth")
 
   const { page } = await searchParams

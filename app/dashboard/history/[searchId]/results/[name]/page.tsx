@@ -9,12 +9,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import {
   Table,
@@ -122,7 +117,7 @@ function CheckTile({
       </span>
       <span className="flex items-end justify-between gap-2">
         <span>
-          <span className="font-heading text-3xl font-semibold leading-none">
+          <span className="font-heading text-3xl leading-none font-semibold">
             {available}
             <span className="text-base font-normal text-muted-foreground">
               /{total}
@@ -143,7 +138,7 @@ export default async function SearchResultNamePage({
 }: {
   params: Promise<{ searchId: string; name: string }>
 }) {
-  const user = await getMeServer().catch(() => null)
+  const user = await getMeServer()
   if (!user) redirect("/auth")
 
   const { searchId, name } = await params
@@ -290,16 +285,12 @@ export default async function SearchResultNamePage({
           </Card>
 
           <Tabs defaultValue="overview">
-            <div className="max-w-full overflow-x-auto pb-1 scrollbar-none">
+            <div className="max-w-full scrollbar-none overflow-x-auto pb-1">
               <TabsList variant="line">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="domains">Domains</TabsTrigger>
-                <TabsTrigger value="social-handles">
-                  Social Handles
-                </TabsTrigger>
-                <TabsTrigger value="ai-association">
-                  AI Association
-                </TabsTrigger>
+                <TabsTrigger value="social-handles">Social Handles</TabsTrigger>
+                <TabsTrigger value="ai-association">AI Association</TabsTrigger>
               </TabsList>
             </div>
             <TabsContent value="overview">
@@ -337,13 +328,13 @@ export default async function SearchResultNamePage({
 
                   <div className="flex flex-col gap-4 border border-border bg-muted/50 p-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="space-y-1">
-                      <p className="text-[0.625rem] font-medium tracking-widest uppercase text-muted-foreground">
+                      <p className="text-[0.625rem] font-medium tracking-widest text-muted-foreground uppercase">
                         Recommended next step
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {nameItem.name} has {availabilityCopy}. Buy the full
-                        report to see raw results and register the assets
-                        with confidence.
+                        report to see raw results and register the assets with
+                        confidence.
                       </p>
                     </div>
                     <Button asChild className="shrink-0">
@@ -452,9 +443,7 @@ export default async function SearchResultNamePage({
               <Card size="sm">
                 <CardContent className="space-y-5">
                   <div className="flex flex-wrap items-center gap-3">
-                    <Badge className={VERDICT_COLORS[verdict]}>
-                      {verdict}
-                    </Badge>
+                    <Badge className={VERDICT_COLORS[verdict]}>{verdict}</Badge>
                     <p className="text-sm text-muted-foreground">
                       {report.judgment}
                     </p>
@@ -467,9 +456,7 @@ export default async function SearchResultNamePage({
                       <TableRow>
                         <TableHead>Model</TableHead>
                         <TableHead>Sees it as</TableHead>
-                        <TableHead className="text-end">
-                          Confidence
-                        </TableHead>
+                        <TableHead className="text-end">Confidence</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>

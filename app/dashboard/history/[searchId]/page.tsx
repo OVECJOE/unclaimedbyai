@@ -22,7 +22,7 @@ export default async function HistorySearchPage({
 }: {
   params: Promise<{ searchId: string }>
 }) {
-  const user = await getMeServer().catch(() => null)
+  const user = await getMeServer()
   if (!user) redirect("/auth")
 
   const { searchId } = await params
