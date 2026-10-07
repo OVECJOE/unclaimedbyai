@@ -167,6 +167,25 @@ export function generateNames(
   })
 }
 
+export type FilledSearch = SearchItem & {
+  names: NameItem[]
+  searches_left?: number
+}
+
+export function generateFilledSearch(input: {
+  query: string
+  category?: string
+  style?: string
+  count?: number
+  anon_session_id?: string
+}): Promise<FilledSearch> {
+  return apiRequest<FilledSearch>("/api/v1/searches/generate", {
+    method: "POST",
+    body: input,
+    timeoutMs: 120000,
+  })
+}
+
 export function createSearch(input: {
   query: string
   category?: string

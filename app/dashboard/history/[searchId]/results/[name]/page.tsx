@@ -6,7 +6,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -253,6 +253,10 @@ export default async function SearchResultNamePage({
           <Card>
             <CardHeader className="text-center">
               <Avatar size="lg" className="mx-auto">
+                <AvatarImage
+                  src={`https://api.dicebear.com/10.x/shapes/svg?seed=${encodeURIComponent(nameItem.name)}`}
+                  alt={nameItem.name}
+                />
                 <AvatarFallback className="font-heading text-2xl">
                   {nameItem.name.charAt(0).toUpperCase()}
                 </AvatarFallback>

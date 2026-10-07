@@ -3,10 +3,13 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ScoreGauge } from "@/components/app/score-gauge"
 import { TierBadge, type Tier } from "@/components/tier-badge"
+import ScoreSummary from "@/components/dashboard/score-summary"
+import GradingDistribution from "@/components/dashboard/grading-distribution"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { JsonLd } from "@/components/app/json-ld"
 import { ApiError, getReport, searchByQuery, type CheckReport } from "@/lib/api"
+import { toNameResult } from "@/lib/dashboard-data"
 import { SITE_URL } from "@/lib/site"
 
 export const revalidate = 3600
@@ -60,7 +63,6 @@ export default async function PublicSearchPage({ params }: PageProps) {
   const checked = await Promise.all(
     search.names.map(async (name) => ({
       name,
-      check: name.latest_check,
       report: await latestReport(name.latest_check?.public_id ?? null),
     }))
   )
@@ -68,12 +70,19 @@ export default async function PublicSearchPage({ params }: PageProps) {
     (entry): entry is typeof entry & { report: CheckReport } =>
       entry.report !== null
   )
-  const average = withReports.length
+  const results = withReports.flatMap((entry) => {
+    const mapped = toNameResult(entry.name, entry.report)
+    return mapped ? [mapped] : []
+  })
+  const topPick = results[0]
+    ? {
+        name: results[0].name,
+        logo: results[0].logo,
+      }
+    : undefined
+  const average = results.length
     ? Math.round(
-        withReports.reduce(
-          (sum, entry) => sum + entry.report.overall_score,
-          0
-        ) / withReports.length
+        results.reduce((sum, result) => sum + result.score, 0) / results.length
       )
     : null
 
@@ -113,6 +122,14 @@ export default async function PublicSearchPage({ params }: PageProps) {
 
       <section className="px-4 py-10">
         <div className="mx-auto max-w-7xl space-y-4">
+          <div className="flex w-full flex-col gap-6 md:flex-row">
+            <div className="min-w-0 flex-1">
+              <ScoreSummary results={results} topPick={topPick} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <GradingDistribution results={results} />
+            </div>
+          </div>
           {withReports.map(({ name, report }) => (
             <article key={name.id} className="space-y-4 border p-4 sm:p-6">
               <div className="flex flex-wrap items-center gap-4">

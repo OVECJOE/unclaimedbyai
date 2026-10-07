@@ -9,8 +9,8 @@ import {
   AvatarFallback,
 } from "@/components/ui/avatar"
 import Link from "next/link"
-import { SEARCH_RESULTS } from "@/lib/constants"
 import { TierBadge } from "@/components/tier-badge"
+import type { GradeTier } from "@/lib/name-results"
 
 export type SearchResultCardProps = {
   id: string
@@ -19,6 +19,7 @@ export type SearchResultCardProps = {
   topPick: { name: string; logo: string }
   namesPreview: { name: string; logo: string }[]
   createdAt: string
+  tier?: GradeTier
 }
 
 export function SearchResultCard({
@@ -28,10 +29,8 @@ export function SearchResultCard({
   namesPreview,
   topPick,
   createdAt,
+  tier,
 }: SearchResultCardProps) {
-  const tier = SEARCH_RESULTS[id]?.find(
-    (result) => result.name.toLowerCase() === topPick.name.toLowerCase()
-  )?.tier
 
   return (
     <Link

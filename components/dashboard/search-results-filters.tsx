@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Toggle } from "@/components/ui/toggle"
 import {
@@ -8,16 +9,27 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select"
 
 type SearchResultsFiltersProps = {
   show?: "mobile" | "desktop" | "both"
 }
 
+const SORT_LABELS = {
+  "overall-score-high-to-low": "Overall score, high to low",
+  "overall-score-low-to-high": "Overall score, low to high",
+  "most-domains-available": "Most domains available",
+  "lowest-ai-association": "Lowest AI association",
+  "name-a-z": "Name, A-Z",
+} as const
+
 export default function SearchResultsFilters({
   show = "mobile",
 }: SearchResultsFiltersProps) {
+  const [sort, setSort] = useState<keyof typeof SORT_LABELS>(
+    "overall-score-high-to-low"
+  )
+
   return (
     <div
       className={cn("mt-2 items-center gap-5", {
@@ -30,25 +42,20 @@ export default function SearchResultsFilters({
         Available only
       </Toggle>
 
-      <Select defaultValue="overall-score-high-to-low">
+      <Select
+        value={sort}
+        onValueChange={(value) => setSort(value as keyof typeof SORT_LABELS)}
+      >
         <SelectTrigger className="text-sm md:text-base">
-          <SelectValue />
+          <span>{SORT_LABELS[sort]}</span>
         </SelectTrigger>
         <SelectContent position="popper">
           <SelectGroup>
-            <SelectItem value="overall-score-high-to-low">
-              Overall score, high to low
-            </SelectItem>
-            <SelectItem value="overall-score-low-to-high">
-              Overall score, low to high
-            </SelectItem>
-            <SelectItem value="most-domains-available">
-              Most domains available
-            </SelectItem>
-            <SelectItem value="lowest-ai-association">
-              Lowest AI association
-            </SelectItem>
-            <SelectItem value="name-a-z">Name, A-Z</SelectItem>
+            {Object.entries(SORT_LABELS).map(([value, label]) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            ))}
           </SelectGroup>
         </SelectContent>
       </Select>
