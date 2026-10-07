@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { ApiError, runCheck, type CheckReport as Report } from "@/lib/api"
 import CheckReport from "./check-report"
@@ -17,16 +18,14 @@ export default function NameCheckPanel({
   void _searchId
   const [report, setReport] = useState<Report | null>(null)
   const [checking, setChecking] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   async function onCheck() {
-    setError(null)
     setReport(null)
     setChecking(true)
     try {
       setReport(await runCheck(nameId, {}))
     } catch (err) {
-      setError(
+      toast.error(
         err instanceof ApiError
           ? err.message
           : "The check failed. Try again in a moment."
@@ -55,7 +54,6 @@ export default function NameCheckPanel({
           minute…
         </p>
       ) : null}
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
       {report ? <CheckReport report={report} /> : null}
     </div>
   )

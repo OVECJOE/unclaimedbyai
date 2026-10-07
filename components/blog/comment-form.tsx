@@ -1,6 +1,7 @@
 "use client"
 
 import { useActionState, useEffect, useRef } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -26,10 +27,16 @@ export default function CommentForm({
   )
   const formRef = useRef<HTMLFormElement>(null)
   const wasOk = useRef(false)
+  const toasted = useRef("")
 
   useEffect(() => {
     if (state.ok && !wasOk.current) formRef.current?.reset()
     wasOk.current = state.ok
+    if (state.message && toasted.current !== state.message) {
+      toasted.current = state.message
+      if (state.ok) toast.success(state.message)
+      else toast.error(state.message)
+    }
   }, [state])
 
   return (
@@ -80,17 +87,6 @@ export default function CommentForm({
           />
         </div>
       </div>
-      {state.message ? (
-        <p
-          role={state.ok ? "status" : "alert"}
-          className={cn(
-            "text-sm",
-            state.ok ? "text-primary" : "text-destructive"
-          )}
-        >
-          {state.message}
-        </p>
-      ) : null}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <Button type="submit" disabled={isPending}>
           {isPending

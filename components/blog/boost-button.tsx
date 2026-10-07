@@ -1,6 +1,7 @@
 "use client"
 
-import { useActionState, useState } from "react"
+import { useActionState, useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { AudioWave02Icon } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
@@ -15,7 +16,6 @@ import {
 } from "@/components/ui/dialog"
 import { boostSignal } from "@/lib/blog/actions"
 import type { BoostState } from "@/lib/blog/types"
-import { cn } from "@/lib/utils"
 import { useBoostState } from "./boost-state"
 
 const initialState: BoostState = { ok: false, boosted: false, message: "" }
@@ -40,6 +40,15 @@ export default function BoostButton({
   const contextBoosted =
     commentId !== null ? commentBoosted.has(commentId) : postBoosted
   const sent = state.boosted || boosted || contextBoosted
+  const toasted = useRef("")
+
+  useEffect(() => {
+    if (state.message && toasted.current !== state.message) {
+      toasted.current = state.message
+      if (state.ok) toast.success(state.message)
+      else toast.error(state.message)
+    }
+  }, [state])
 
   return (
     <>
@@ -64,17 +73,6 @@ export default function BoostButton({
             [{count + (state.boosted && !boosted ? 1 : 0)}]
           </span>
         </Button>
-        {state.message ? (
-          <span
-            role="status"
-            className={cn(
-              "text-xs",
-              state.ok ? "text-primary" : "text-destructive"
-            )}
-          >
-            {state.message}
-          </span>
-        ) : null}
       </div>
 
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>

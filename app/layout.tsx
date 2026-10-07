@@ -4,6 +4,7 @@ import type { Metadata } from "next"
 import { ThemeProvider } from "@/components/app/theme-provider"
 import { cn } from "@/lib/utils"
 import { JsonLd } from "@/components/app/json-ld"
+import { Toaster } from "@/components/ui/sonner"
 import {
   OG_PATH,
   SITE_DESCRIPTION,
@@ -82,6 +83,7 @@ export default function RootLayout({
         />
         <JsonLd data={siteJsonLd} />
         <ThemeProvider>{children}</ThemeProvider>
+        <Toaster position="bottom-center" />
       </body>
     </html>
   )
