@@ -23,15 +23,29 @@ export type PriceCardProps = {
   label: string
   benefits: string[]
   discountage?: number
+  action?: React.ReactNode
 }
 
-export function PriceCard({ price, title, label, benefits, discountage }: PriceCardProps) {
+export function PriceCard({
+  price,
+  title,
+  label,
+  benefits,
+  discountage,
+  action,
+}: PriceCardProps) {
   return (
-    <Card className={cn(
-      "text-start [--card-spacing:--spacing(5)] relative",
-      discountage && "border border-primary/70 bg-primary/5"
-    )}>
-      {discountage && <Badge className="text-xs absolute bg-primary/10 text-primary p-2 right-3.5 top-3.5">Save {discountage}%</Badge>}
+    <Card
+      className={cn(
+        "relative text-start [--card-spacing:--spacing(5)]",
+        discountage && "border border-primary/70 bg-primary/5"
+      )}
+    >
+      {discountage && (
+        <Badge className="absolute top-3.5 right-3.5 bg-primary/10 p-2 text-xs text-primary">
+          Save {discountage}%
+        </Badge>
+      )}
       <CardHeader className="space-y-1">
         <p className="text-base">{title}</p>
         <CardTitle className="text-4xl">
@@ -55,9 +69,11 @@ export function PriceCard({ price, title, label, benefits, discountage }: PriceC
       </CardContent>
       <CardFooter>
         <CardAction className="w-full">
-          <Button size="lg" asChild className="w-full">
-            <Link href="/auth">Get Started</Link>
-          </Button>
+          {action ?? (
+            <Button size="lg" asChild className="w-full">
+              <Link href="/auth">Get Started</Link>
+            </Button>
+          )}
         </CardAction>
       </CardFooter>
     </Card>

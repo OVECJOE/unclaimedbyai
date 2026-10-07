@@ -1,18 +1,37 @@
-import { ProfilePhoto } from "@/components/dashboard/account"
+import {
+  ProfilePhoto,
+  PreferencesForm,
+  DeleteAccount,
+} from "@/components/dashboard/account"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
+import { redirect } from "next/navigation"
+import { getMeServer, apiServer } from "@/lib/api-server"
+import { ApiError, type Preferences } from "@/lib/api"
+import { updateProfile } from "./actions"
+
+export const dynamic = "force-dynamic"
 
 export default async function AccountPage({
-  searchParams
+  searchParams,
 }: {
-  searchParams: Promise<{ tab: 'profile' | 'notifications' }>
-  }) {
+  searchParams: Promise<{ tab: "profile" | "notifications" }>
+}) {
   const { tab } = await searchParams
+  const user = await getMeServer().catch(() => null)
+  if (!user) redirect("/auth")
+
+  let prefs: Preferences | null = null
+  try {
+    prefs = await apiServer<Preferences>("/api/v1/preferences")
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) redirect("/auth")
+    throw error
+  }
 
   return (
     <>
@@ -27,11 +46,9 @@ export default async function AccountPage({
             </p>
           </div>
           <Tabs defaultValue={tab ?? "profile"}>
-            <TabsList variant="line" className="border-b w-full">
+            <TabsList variant="line" className="w-full border-b">
               <TabsTrigger value="profile" asChild>
-                <Link href="/dashboard/account?tab=profile">
-                  Profile
-                </Link>
+                <Link href="/dashboard/account?tab=profile">Profile</Link>
               </TabsTrigger>
               <TabsTrigger value="notifications" asChild>
                 <Link href="/dashboard/account?tab=notifications">
@@ -41,65 +58,43 @@ export default async function AccountPage({
             </TabsList>
             <div className="mt-10">
               <TabsContent value="profile" className="space-y-8">
-                <ProfilePhoto />
-                <form className="space-y-3 max-w-prose">
+                <ProfilePhoto
+                  seed={user.email}
+                  name={user.full_name || user.email}
+                />
+                <form action={updateProfile} className="max-w-prose space-y-3">
                   <div className="space-y-1">
                     <Label htmlFor="name">Name</Label>
-                    <Input id="name" placeholder="Enter your name" />
+                    <Input
+                      id="name"
+                      name="full_name"
+                      defaultValue={user.full_name ?? ""}
+                      placeholder="Enter your name"
+                    />
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" placeholder="Enter your email" />
+                    <Input
+                      id="email"
+                      value={user.email}
+                      disabled
+                      aria-describedby="email-note"
+                    />
+                    <p
+                      id="email-note"
+                      className="text-xs text-muted-foreground"
+                    >
+                      Email is tied to your sign-in and can&apos;t be changed
+                      here.
+                    </p>
                   </div>
                   <Button type="submit">Save changes</Button>
                 </form>
                 <Separator orientation="horizontal" />
-                <form className="space-y-3">
-                  <div className="space-y-0.5">
-                    <h5 className="text-lg md:text-xl font-heading text-destructive font-medium">
-                      Delete account
-                    </h5>
-                    <p className="text-sm text-muted-foreground">
-                      Permanently deletes your account and search history. This can&apos;t be undone.
-                    </p>
-                  </div>
-                  <Button type="submit" variant="destructive">Delete account</Button>
-                </form>
+                <DeleteAccount />
               </TabsContent>
               <TabsContent value="notifications">
-                <form className="space-y-5">
-                  <div className="flex items-start justify-between gap-5">
-                    <div className="space-y-0.5 w-full">
-                      <Label className="text-lg font-heading font-semibold" htmlFor="report-ready">
-                        Report ready
-                      </Label>
-                      <p className="text-sm text-muted-foreground">When a check you started finishes running.</p>
-                    </div>
-                    <Switch id="report-ready" defaultChecked />
-                  </div>
-                  <div className="flex items-start justify-between gap-5">
-                    <div className="space-y-0.5 w-full">
-                      <Label className="text-lg font-heading font-semibold" htmlFor="payment-receipts">
-                        Payment receipts
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Email a receipt after every purchase.
-                      </p>
-                    </div>
-                    <Switch id="payment-receipts" defaultChecked />
-                  </div>
-                  <div className="flex items-start justify-between gap-5">
-                    <div className="space-y-0.5 w-full">
-                      <Label className="text-lg font-heading font-semibold" htmlFor="product-updates">
-                        Product updates
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Occasional emails about new features.
-                      </p>
-                    </div>
-                    <Switch id="product-updates" defaultChecked={false} />
-                  </div>
-                </form>
+                <PreferencesForm initial={prefs} />
               </TabsContent>
             </div>
           </Tabs>

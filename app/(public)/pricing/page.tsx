@@ -10,7 +10,39 @@ import {
   PRICING_DESCRIPTION,
   pageMetadata,
   pricingJsonLd,
+  planBenefits,
 } from "@/lib/site"
+import type { Pack } from "@/lib/api"
+
+export const revalidate = 3600
+
+async function loadPacks(): Promise<Pack[]> {
+  try {
+    const base = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8007"
+    const res = await fetch(`${base}/api/v1/packs`, {
+      next: { revalidate: 3600 },
+    })
+    if (!res.ok) return []
+    const packs = (await res.json()) as Pack[]
+    return packs.filter((pack) => pack.reports > 0)
+  } catch {
+    return []
+  }
+}
+
+function toPriceCard(pack: Pack, singleRate: number): PriceCardProps {
+  const perReport = pack.price_minor / 100 / pack.reports
+  return {
+    title: pack.title,
+    label: `${CURRENCY_SYMBOL}${perReport.toFixed(2)} per report.`,
+    price: { currency: CURRENCY_SYMBOL, amount: pack.price_minor / 100 },
+    benefits: planBenefits(pack.reports),
+    discountage:
+      perReport < singleRate
+        ? Math.round((1 - perReport / singleRate) * 100)
+        : undefined,
+  }
+}
 
 export const metadata: Metadata = pageMetadata({
   title: "Pricing",
@@ -18,30 +50,38 @@ export const metadata: Metadata = pageMetadata({
   path: "/pricing",
 })
 
-const prices: PriceCardProps[] = PLANS.map((plan) => ({
-  title: plan.title,
-  label: plan.label,
-  price: { currency: CURRENCY_SYMBOL, amount: plan.amount },
-  benefits: plan.benefits,
-  discountage: plan.discountage,
-}))
+export default async function PricingPage() {
+  const packs = await loadPacks()
+  const single = packs.find((pack) => pack.reports === 1)
+  const singleRate = single
+    ? single.price_minor / 100
+    : (PLANS[0]?.amount ?? 1.99)
+  const prices: PriceCardProps[] =
+    packs.length > 0
+      ? packs.map((pack) => toPriceCard(pack, singleRate))
+      : PLANS.map((plan) => ({
+          title: plan.title,
+          label: plan.label,
+          price: { currency: CURRENCY_SYMBOL, amount: plan.amount },
+          benefits: plan.benefits,
+          discountage: plan.discountage,
+        }))
 
-const steps = [
-  {
-    title: "Search for free",
-    body: `Every account starts with ${FREE_SEARCHES} searches. The first check on each name is always free.`,
-  },
-  {
-    title: "Re-check with a report",
-    body: "Changed a name or want fresh availability? Spend one report to run the check again.",
-  },
-  {
-    title: "Get more searches",
-    body: `Each report you buy also adds ${SEARCHES_PER_REPORT} searches, so bigger packs go further.`,
-  },
-]
+  const steps = [
+    {
+      title: "Search for free",
+      body: `Every account starts with ${FREE_SEARCHES} searches. The first check on each name is always free.`,
+    },
+    {
+      title: "Re-check with a report",
+      body: "Changed a name or want fresh availability? Spend one report to run the check again.",
+    },
+    {
+      title: "Get more searches",
+      body: `Each report you buy also adds ${SEARCHES_PER_REPORT} searches, so bigger packs go further.`,
+    },
+  ]
 
-export default function PricingPage() {
   return (
     <>
       <JsonLd data={pricingJsonLd} />
@@ -64,7 +104,7 @@ export default function PricingPage() {
           </p>
         </div>
 
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mx-auto max-w-7xl mt-10">
+        <div className="mx-auto mt-10 grid max-w-7xl grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {prices.map((price, index) => (
             <PriceCard key={index} {...price} />
           ))}
@@ -76,10 +116,7 @@ export default function PricingPage() {
           </h2>
           <ol className="grid grid-cols-1 gap-4 text-left md:grid-cols-3">
             {steps.map((step, index) => (
-              <li
-                key={step.title}
-                className="space-y-2 border p-5"
-              >
+              <li key={step.title} className="space-y-2 border p-5">
                 <span className="font-mono text-sm text-muted-foreground">
                   0{index + 1}
                 </span>

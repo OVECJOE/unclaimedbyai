@@ -251,3 +251,50 @@ export function searchByQuery(query: string): Promise<SearchDetail> {
     `/api/v1/searches/by-query?q=${encodeURIComponent(query)}`
   )
 }
+
+export type Pack = {
+  slug: string
+  title: string
+  reports: number
+  extra_searches: number
+  price_minor: number
+  currency: string
+}
+
+export function listPacks(): Promise<Pack[]> {
+  return apiRequest<Pack[]>("/api/v1/packs")
+}
+
+export function createCheckout(
+  packSlug: string
+): Promise<{ checkout_url: string }> {
+  return apiRequest("/api/v1/checkout", {
+    method: "POST",
+    body: { pack_slug: packSlug },
+  })
+}
+
+export type OrderItem = {
+  id: number
+  status: string
+  amount_minor: number
+  currency: string
+  paid_at: string | null
+  created_at: string
+  reports: number
+  searches: number
+}
+
+export function listOrders(): Promise<OrderItem[]> {
+  return apiRequest<OrderItem[]>("/api/v1/orders")
+}
+
+export type Preferences = {
+  report_ready: boolean
+  payment_receipts: boolean
+  product_updates: boolean
+}
+
+export function getPreferences(): Promise<Preferences> {
+  return apiRequest<Preferences>("/api/v1/preferences")
+}

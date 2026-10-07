@@ -6,38 +6,41 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  BriefcaseBusiness,
-  DownloadIcon,
-  RefreshIcon,
-} from "@hugeicons/core-free-icons"
-import { transactions } from "@/lib/billing"
 import { formatDateTime } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
-import Link from "next/link"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { Button } from "@/components/ui/button"
-import { tierColor } from "@/lib/name-results"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { PaginationWindow } from "@/components/ui/pagination-window"
 import { ITEMS_PER_PAGE } from "@/lib/constants"
 import { clampPage } from "@/lib/pagination"
+import { redirect } from "next/navigation"
+import { getMeServer, apiServer } from "@/lib/api-server"
+import { ApiError, type OrderItem } from "@/lib/api"
+
+export const dynamic = "force-dynamic"
 
 export default async function HistoryPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string }>
 }) {
-  const { page } = await searchParams
+  const user = await getMeServer().catch(() => null)
+  if (!user) redirect("/auth")
 
-  const pageCount = Math.ceil(transactions.length / ITEMS_PER_PAGE)
-  const currentPage = clampPage(Number.parseInt(page ?? "", 10), pageCount)
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE
-  const currentTransactions = transactions.slice(
-    offset,
-    offset + ITEMS_PER_PAGE
-  )
+  const { page } = await searchParams
+  const requested = Number.parseInt(page ?? "", 10)
+  const parsed = Number.isNaN(requested) ? 1 : requested
+
+  let orders: OrderItem[]
+  try {
+    orders = await apiServer<OrderItem[]>("/api/v1/orders")
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) redirect("/auth")
+    throw error
+  }
+
+  const pageCount = Math.max(1, Math.ceil(orders.length / ITEMS_PER_PAGE))
+  const currentPage = clampPage(parsed, pageCount)
+  const start = (currentPage - 1) * ITEMS_PER_PAGE
+  const currentOrders = orders.slice(start, start + ITEMS_PER_PAGE)
 
   return (
     <section className="px-4">
@@ -45,92 +48,52 @@ export default async function HistoryPage({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead>Name/Query</TableHead>
+              <TableHead>Pack</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Price</TableHead>
-              <TableHead className="w-10" />
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {currentTransactions.map((transaction) => (
-              <TableRow key={transaction.id}>
+            {currentOrders.map((order) => (
+              <TableRow key={order.id}>
                 <TableCell>
-                  <div className="flex items-start gap-2">
-                    <Avatar>
-                      <AvatarImage src={transaction.logo} />
-                      <AvatarFallback>
-                        <HugeiconsIcon icon={BriefcaseBusiness} />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="space-y-1">
-                      <p
-                        className={cn("text-md font-semibold", {
-                          "text-muted-foreground":
-                            transaction.status === "Failed",
-                        })}
-                      >
-                        {transaction.name}
-                      </p>
-                      <p
-                        className={cn("text-xs text-muted-foreground", {
-                          "font-light": transaction.status === "Failed",
-                        })}
-                      >
-                        {transaction.query}
-                      </p>
-                    </div>
+                  <div className="space-y-1">
+                    <p className="text-md font-semibold">
+                      {order.reports} report{order.reports === 1 ? "" : "s"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      +{order.searches} searches
+                    </p>
                   </div>
                 </TableCell>
                 <TableCell>
                   <span className="text-xs font-medium italic">
-                    {formatDateTime(transaction.purchasedAt)}
+                    {formatDateTime(order.paid_at ?? order.created_at)}
                   </span>
                 </TableCell>
                 <TableCell>
                   <Badge
-                    className={cn({
-                      [tierColor("Excellent")]:
-                        transaction.status === "Completed",
-                      [tierColor("Poor")]: transaction.status === "Failed",
-                    })}
+                    variant={order.status === "paid" ? "default" : "secondary"}
                   >
-                    {transaction.status}
+                    {order.status}
                   </Badge>
                 </TableCell>
                 <TableCell>
                   <span className="font-heading text-lg font-bold">
-                    ${transaction.amount}
+                    {order.currency} {(order.amount_minor / 100).toFixed(2)}
                   </span>
-                </TableCell>
-                <TableCell className="text-center">
-                  {transaction.status === "Completed" ? (
-                    <Button variant="ghost" asChild>
-                      <Link href={transaction.downloadUrl!}>
-                        <HugeiconsIcon
-                          icon={DownloadIcon}
-                          aria-label="Download"
-                          size={24}
-                          className="mx-auto text-destructive"
-                        />
-                      </Link>
-                    </Button>
-                  ) : (
-                    <Button variant="ghost">
-                      <HugeiconsIcon
-                        icon={RefreshIcon}
-                        aria-label="Refresh"
-                        size={24}
-                        className="mx-auto text-primary"
-                      />
-                    </Button>
-                  )}
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+        {orders.length === 0 ? (
+          <p className="text-muted-foreground">
+            No purchases yet. Packs you buy will show up here.
+          </p>
+        ) : null}
         <div className="mt-4 mb-8">
           <PaginationWindow
             currentPage={currentPage}
