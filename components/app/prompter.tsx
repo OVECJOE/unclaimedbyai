@@ -14,12 +14,24 @@ const EXAMPLES = [
   "A workout tracker for climbers",
 ]
 
-export default function Prompter() {
+export default function Prompter({
+  onSubmit,
+  pending = false,
+}: {
+  onSubmit?: (value: string) => void
+  pending?: boolean
+}) {
   const [value, setValue] = useState("")
   const ghostText = useTypewriter(EXAMPLES, value.length === 0)
 
   return (
-    <form className="mx-auto max-w-prose">
+    <form
+      className="mx-auto max-w-prose"
+      onSubmit={(event) => {
+        event.preventDefault()
+        if (value.trim()) onSubmit?.(value.trim())
+      }}
+    >
       <div className="focus-within:border-primary focus-within:ring-primary/15 relative border border-border bg-card p-3 transition-colors focus-within:ring-4 dark:border-primary/30 dark:bg-secondary/40">
         <Textarea
           id="prompt"
@@ -33,7 +45,7 @@ export default function Prompter() {
         />
 
         <div className="mt-2 flex items-center justify-end">
-          <Button type="submit" size="icon" disabled={!value.trim()}>
+          <Button type="submit" size="icon" disabled={!value.trim() || pending}>
             <HugeiconsIcon icon={ArrowUpIcon} className="size-4" />
             <span className="sr-only">Generate names</span>
           </Button>

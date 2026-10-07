@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, useActionState } from "react"
+import { usePathname } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { CheckmarkBadge02Icon } from "@hugeicons/core-free-icons"
 import {
@@ -21,6 +22,8 @@ const initialState: WaitlistState = { status: "idle" }
 
 export function WaitlistDialog() {
   const [open, setOpen] = useState(false)
+  const pathname = usePathname()
+  const suppressed = pathname.startsWith("/auth")
   const [state, formAction, isPending] = useActionState(
     addToWaitlist,
     initialState
@@ -29,10 +32,10 @@ export function WaitlistDialog() {
   const joined = state.status === "success"
 
   useEffect(() => {
-    if (localStorage.getItem(STORAGE_KEY)) return
+    if (suppressed || localStorage.getItem(STORAGE_KEY)) return
     const timer = setTimeout(() => setOpen(true), 6000)
     return () => clearTimeout(timer)
-  }, [])
+  }, [suppressed])
 
   useEffect(() => {
     if (!joined) return
