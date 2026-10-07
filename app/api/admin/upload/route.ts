@@ -1,3 +1,4 @@
+import { imageSize } from "image-size"
 import { put } from "@vercel/blob"
 import { NextResponse } from "next/server"
 import { getCurrentEditor } from "@/lib/blog/session"
@@ -37,10 +38,28 @@ export async function POST(request: Request) {
   }
 
   const safeName = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, "-")
-  const blob = await put(`blog/${safeName}`, file, {
+  const bytes = Buffer.from(await file.arrayBuffer())
+  let width: number | null = null
+  let height: number | null = null
+  try {
+    const dims = imageSize(bytes)
+    if (dims.width && dims.height) {
+      width = dims.width
+      height = dims.height
+    }
+  } catch {
+    width = null
+    height = null
+  }
+  const blob = await put(`blog/${safeName}`, bytes, {
     access: "private",
     addRandomSuffix: true,
+    contentType: file.type,
   })
 
-  return NextResponse.json({ url: `/api/blog/images/${blob.pathname}` })
+  return NextResponse.json({
+    url: `/api/blog/images/${blob.pathname}`,
+    width,
+    height,
+  })
 }

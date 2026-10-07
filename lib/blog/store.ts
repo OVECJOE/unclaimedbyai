@@ -21,6 +21,8 @@ type PostRow = {
   title: string
   excerpt: string
   cover_image_url: string | null
+  cover_image_width: number | null
+  cover_image_height: number | null
   body_mdx: string
   status: PostStatus
   published_at: Date | string | null
@@ -39,6 +41,8 @@ type SummaryRow = Pick<
   | "title"
   | "excerpt"
   | "cover_image_url"
+  | "cover_image_width"
+  | "cover_image_height"
   | "published_at"
   | "updated_at"
   | "tags"
@@ -55,6 +59,8 @@ type EditorRow = {
 
 const POST_SELECT = `
   select p.id::int as id, p.slug, p.title, p.excerpt, p.cover_image_url,
+    p.cover_image_width::int as cover_image_width,
+    p.cover_image_height::int as cover_image_height,
     p.body_mdx, p.status, p.published_at, p.updated_at, p.seo_title,
     p.seo_description, p.tags, e.name as author_name,
     e.avatar_url as author_avatar_url
@@ -63,6 +69,8 @@ const POST_SELECT = `
 
 const SUMMARY_SELECT = `
   select p.id::int as id, p.slug, p.title, p.excerpt, p.cover_image_url,
+    p.cover_image_width::int as cover_image_width,
+    p.cover_image_height::int as cover_image_height,
     p.published_at, p.updated_at, p.tags, e.name as author_name,
     e.avatar_url as author_avatar_url
   from blog_posts p
@@ -79,6 +87,8 @@ function toPost(row: PostRow): Post {
     title: row.title,
     excerpt: row.excerpt,
     coverImageUrl: row.cover_image_url,
+    coverImageWidth: row.cover_image_width,
+    coverImageHeight: row.cover_image_height,
     bodyMdx: row.body_mdx,
     status: row.status,
     publishedAt: row.published_at ? iso(row.published_at) : null,
@@ -97,6 +107,8 @@ function toSummary(row: SummaryRow): PostSummary {
     title: row.title,
     excerpt: row.excerpt,
     coverImageUrl: row.cover_image_url,
+    coverImageWidth: row.cover_image_width,
+    coverImageHeight: row.cover_image_height,
     publishedAt: row.published_at ? iso(row.published_at) : null,
     updatedAt: iso(row.updated_at),
     author: { name: row.author_name, avatarUrl: row.author_avatar_url },
@@ -244,10 +256,12 @@ export async function createPost(
   const sql = getSql()
   const [created] = (await sql`
     insert into blog_posts (
-      slug, title, excerpt, cover_image_url, body_mdx, status, published_at,
+      slug, title, excerpt, cover_image_url, cover_image_width,
+      cover_image_height, body_mdx, status, published_at,
       author_id, seo_title, seo_description, tags
     ) values (
       ${input.slug}, ${input.title}, ${input.excerpt}, ${input.coverImageUrl},
+      ${input.coverImageWidth}, ${input.coverImageHeight},
       ${input.bodyMdx}, ${input.status},
       case when ${input.status} = 'published' then now() else null end,
       ${editorId}, ${input.seoTitle}, ${input.seoDescription},
@@ -284,6 +298,8 @@ export async function updatePost(
         title = ${input.title},
         excerpt = ${input.excerpt},
         cover_image_url = ${input.coverImageUrl},
+        cover_image_width = ${input.coverImageWidth},
+        cover_image_height = ${input.coverImageHeight},
         body_mdx = ${input.bodyMdx},
         status = ${input.status},
         published_at = case

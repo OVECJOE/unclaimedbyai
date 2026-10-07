@@ -18,6 +18,8 @@ export type PostSummary = {
   title: string
   excerpt: string
   coverImageUrl: string | null
+  coverImageWidth: number | null
+  coverImageHeight: number | null
   publishedAt: string | null
   updatedAt: string
   author: PostAuthor
@@ -48,6 +50,8 @@ export type PostInput = {
   title: string
   excerpt: string
   coverImageUrl: string | null
+  coverImageWidth: number | null
+  coverImageHeight: number | null
   bodyMdx: string
   status: PostStatus
   seoTitle: string | null

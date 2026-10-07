@@ -1,6 +1,8 @@
 import { get } from "@vercel/blob"
 import { NextResponse } from "next/server"
 
+export const revalidate = 86400
+
 type Params = { params: Promise<{ pathname: string[] }> }
 
 export async function GET(_request: Request, { params }: Params) {

@@ -1,10 +1,5 @@
-import { cookies } from "next/headers"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  getCommentBoostCounts,
-  listApprovedComments,
-  listMyBoostedCommentIds,
-} from "@/lib/blog/store"
+import { getCommentBoostCounts, listApprovedComments } from "@/lib/blog/store"
 import type { BlogComment } from "@/lib/blog/types"
 import BoostButton from "./boost-button"
 import CommentForm from "./comment-form"
@@ -34,12 +29,10 @@ function CommentItem({
   postId,
   comment,
   boostCounts,
-  boostedIds,
 }: {
   postId: number
   comment: BlogComment
   boostCounts: Record<number, number>
-  boostedIds: Set<number>
 }) {
   return (
     <div className="flex gap-3">
@@ -59,7 +52,7 @@ function CommentItem({
             postId={postId}
             commentId={comment.id}
             count={boostCounts[comment.id] ?? 0}
-            boosted={boostedIds.has(comment.id)}
+            boosted={false}
           />
           {comment.parentId === null ? (
             <ReplyToggle
@@ -77,7 +70,6 @@ function CommentItem({
                 postId={postId}
                 comment={reply}
                 boostCounts={boostCounts}
-                boostedIds={boostedIds}
               />
             ))}
           </div>
@@ -88,14 +80,10 @@ function CommentItem({
 }
 
 export default async function CommentSection({ postId }: { postId: number }) {
-  const jar = await cookies()
-  const fingerprint = jar.get("bid")?.value ?? null
-  const [comments, boostCounts, boostedList] = await Promise.all([
+  const [comments, boostCounts] = await Promise.all([
     listApprovedComments(postId),
     getCommentBoostCounts(postId),
-    listMyBoostedCommentIds(postId, fingerprint),
   ])
-  const boostedIds = new Set(boostedList)
   const total =
     comments.length +
     comments.reduce((sum, comment) => sum + comment.replies.length, 0)
@@ -127,7 +115,6 @@ export default async function CommentSection({ postId }: { postId: number }) {
                 postId={postId}
                 comment={comment}
                 boostCounts={boostCounts}
-                boostedIds={boostedIds}
               />
             </li>
           ))}

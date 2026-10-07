@@ -41,18 +41,34 @@ function parseTags(value: string): string[] {
   ].slice(0, 8)
 }
 
-async function uploadImage(file: File): Promise<string> {
+type UploadedImage = {
+  url: string
+  width: number | null
+  height: number | null
+}
+
+async function uploadImageFile(file: File): Promise<UploadedImage> {
   const body = new FormData()
   body.append("file", file)
 
   const res = await fetch("/api/admin/upload", { method: "POST", body })
   const data = (await res.json().catch(() => ({}))) as {
     url?: string
+    width?: number
+    height?: number
     error?: string
   }
 
   if (!res.ok || !data.url) throw new Error(data.error ?? "Upload failed")
-  return data.url
+  return {
+    url: data.url,
+    width: typeof data.width === "number" ? data.width : null,
+    height: typeof data.height === "number" ? data.height : null,
+  }
+}
+
+async function uploadImage(file: File): Promise<string> {
+  return (await uploadImageFile(file)).url
 }
 
 export default function PostForm({ post }: { post: Post | null }) {
@@ -65,6 +81,12 @@ export default function PostForm({ post }: { post: Post | null }) {
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? "")
   const [tags, setTags] = useState(post?.tags.join(", ") ?? "")
   const [coverImageUrl, setCoverImageUrl] = useState(post?.coverImageUrl ?? "")
+  const [coverImageWidth, setCoverImageWidth] = useState<number | null>(
+    post?.coverImageWidth ?? null
+  )
+  const [coverImageHeight, setCoverImageHeight] = useState<number | null>(
+    post?.coverImageHeight ?? null
+  )
   const [seoTitle, setSeoTitle] = useState(post?.seoTitle ?? "")
   const [seoDescription, setSeoDescription] = useState(
     post?.seoDescription ?? ""
@@ -101,6 +123,8 @@ export default function PostForm({ post }: { post: Post | null }) {
         title,
         excerpt,
         coverImageUrl: coverImageUrl.trim() || null,
+        coverImageWidth: coverImageUrl.trim() ? coverImageWidth : null,
+        coverImageHeight: coverImageUrl.trim() ? coverImageHeight : null,
         bodyMdx: body,
         status: nextStatus,
         seoTitle: seoTitle.trim() || null,
@@ -132,12 +156,29 @@ export default function PostForm({ post }: { post: Post | null }) {
     setUploadError(null)
     setUploading(true)
     try {
-      edit(setCoverImageUrl)(await uploadImage(file))
+      const uploaded = await uploadImageFile(file)
+      edit(setCoverImageUrl)(uploaded.url)
+      edit(setCoverImageWidth)(uploaded.width)
+      edit(setCoverImageHeight)(uploaded.height)
     } catch (error) {
       setUploadError(error instanceof Error ? error.message : "Upload failed")
     } finally {
       setUploading(false)
     }
+  }
+
+  function onCoverRemoved() {
+    setUploadError(null)
+    edit(setCoverImageUrl)("")
+    edit(setCoverImageWidth)(null)
+    edit(setCoverImageHeight)(null)
+  }
+
+  function onCoverUrlChanged(value: string) {
+    setUploadError(null)
+    edit(setCoverImageUrl)(value)
+    edit(setCoverImageWidth)(null)
+    edit(setCoverImageHeight)(null)
   }
 
   return (
@@ -324,10 +365,7 @@ export default function PostForm({ post }: { post: Post | null }) {
                     variant="ghost"
                     size="sm"
                     disabled={uploading}
-                    onClick={() => {
-                      setUploadError(null)
-                      edit(setCoverImageUrl)("")
-                    }}
+                    onClick={onCoverRemoved}
                   >
                     Remove
                   </Button>
@@ -381,10 +419,7 @@ export default function PostForm({ post }: { post: Post | null }) {
             <Input
               id="cover"
               value={coverImageUrl}
-              onChange={(event) => {
-                setUploadError(null)
-                edit(setCoverImageUrl)(event.target.value)
-              }}
+              onChange={(event) => onCoverUrlChanged(event.target.value)}
               placeholder="…or paste an image URL"
               inputMode="url"
             />

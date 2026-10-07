@@ -16,6 +16,7 @@ import {
 import { boostSignal } from "@/lib/blog/actions"
 import type { BoostState } from "@/lib/blog/types"
 import { cn } from "@/lib/utils"
+import { useBoostState } from "./boost-state"
 
 const initialState: BoostState = { ok: false, boosted: false, message: "" }
 
@@ -35,7 +36,10 @@ export default function BoostButton({
     boostSignal,
     initialState
   )
-  const sent = state.boosted || boosted
+  const { postBoosted, commentBoosted } = useBoostState()
+  const contextBoosted =
+    commentId !== null ? commentBoosted.has(commentId) : postBoosted
+  const sent = state.boosted || boosted || contextBoosted
 
   return (
     <>

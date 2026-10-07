@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { MdxContent } from "@/lib/blog/mdx"
 import type { Post } from "@/lib/blog/types"
 
@@ -30,8 +31,26 @@ export default function PostArticle({ post }: { post: Post }) {
         </p>
       </header>
       {post.coverImageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={post.coverImageUrl} alt="" className="h-auto w-full" />
+        post.coverImageWidth && post.coverImageHeight ? (
+          <Image
+            src={post.coverImageUrl}
+            alt=""
+            width={post.coverImageWidth}
+            height={post.coverImageHeight}
+            priority
+            sizes="(max-width: 1280px) 100vw, 1280px"
+            className="h-auto w-full"
+          />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={post.coverImageUrl}
+            alt=""
+            fetchPriority="high"
+            decoding="async"
+            className="h-auto w-full"
+          />
+        )
       ) : null}
       <div className="blog-prose">
         <MdxContent source={post.bodyMdx} />

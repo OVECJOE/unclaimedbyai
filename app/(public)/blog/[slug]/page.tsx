@@ -3,6 +3,7 @@ import { notFound, permanentRedirect } from "next/navigation"
 import { JsonLd } from "@/components/app/json-ld"
 import PostArticle from "@/components/blog/post-article"
 import PostBoost from "@/components/blog/post-boost"
+import BoostStateProvider from "@/components/blog/boost-state"
 import CommentSection from "@/components/blog/comment-section"
 import { getPublishedPost, listPublishedSlugs } from "@/lib/blog/store"
 import { SITE_URL, pageMetadata } from "@/lib/site"
@@ -23,11 +24,29 @@ export async function generateMetadata({
   const post = await getPublishedPost(slug)
   if (!post || "redirectTo" in post) return {}
 
-  return pageMetadata({
+  const metadata = pageMetadata({
     title: post.seoTitle ?? post.title,
     description: post.seoDescription ?? post.excerpt,
     path: `/blog/${post.slug}`,
   })
+
+  if (post.coverImageUrl) {
+    const imageUrl = post.coverImageUrl.startsWith("http")
+      ? post.coverImageUrl
+      : `${SITE_URL}${post.coverImageUrl}`
+    const image =
+      post.coverImageWidth && post.coverImageHeight
+        ? {
+            url: imageUrl,
+            width: post.coverImageWidth,
+            height: post.coverImageHeight,
+          }
+        : { url: imageUrl }
+    metadata.openGraph = { ...metadata.openGraph, images: [image] }
+    metadata.twitter = { ...metadata.twitter, images: [imageUrl] }
+  }
+
+  return metadata
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
@@ -63,8 +82,10 @@ export default async function BlogPostPage({ params }: PageProps) {
         }}
       />
       <PostArticle post={post} />
-      <PostBoost postId={post.id} />
-      <CommentSection postId={post.id} />
+      <BoostStateProvider postId={post.id}>
+        <PostBoost postId={post.id} />
+        <CommentSection postId={post.id} />
+      </BoostStateProvider>
     </>
   )
 }
