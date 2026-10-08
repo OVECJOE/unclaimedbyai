@@ -15,10 +15,10 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowAllDirectionIcon } from "@hugeicons/core-free-icons"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
-import { getMeServer, apiServer } from "@/lib/api-server"
 import { toCardProps } from "@/lib/dashboard-data"
-import type { SearchList } from "@/lib/api"
+import { ApiError, type SearchList } from "@/lib/api"
 import { ListSkeleton } from "@/components/dashboard/skeletons"
+import { apiServer } from "@/lib/api-server"
 
 export const dynamic = "force-dynamic"
 
@@ -29,9 +29,15 @@ async function HistoryList({
   page: number
   pageSize: number
 }) {
-  const data = await apiServer<SearchList>(
-    `/api/v1/searches?page=${page}&page_size=${pageSize}`
-  )
+  let data: SearchList
+  try {
+    data = await apiServer<SearchList>(
+      `/api/v1/searches?page=${page}&page_size=${pageSize}`
+    )
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) redirect("/auth")
+    throw error
+  }
   const pageCount = Math.max(1, Math.ceil(data.total / pageSize))
   const currentPage = clampPage(page, pageCount)
   const items =
@@ -71,9 +77,6 @@ export default async function SearchHistoryPage({
 }: {
   searchParams: Promise<{ [key: string]: string }>
 }) {
-  const user = await getMeServer().catch(() => null)
-  if (!user) redirect("/auth")
-
   const { page } = await searchParams
   const requested = Number.parseInt(page ?? "", 10)
   const parsed = Number.isNaN(requested) ? 1 : requested

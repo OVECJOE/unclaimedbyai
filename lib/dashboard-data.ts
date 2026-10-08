@@ -1,3 +1,4 @@
+import { cache } from "react"
 import { apiServer } from "./api-server"
 import type { CheckReport, NameItem, SearchDetail, SearchItem } from "./api"
 import type { SearchResultCardProps } from "@/components/dashboard/search-result-card"
@@ -7,6 +8,11 @@ import type { GradeTier } from "./name-results"
 export function diceLogo(name: string): string {
   return `https://api.dicebear.com/10.x/shapes/svg?seed=${encodeURIComponent(name)}`
 }
+
+export const getCachedSearchDetail = cache(
+  (searchId: number): Promise<SearchDetail> =>
+    apiServer<SearchDetail>(`/api/v1/searches/${searchId}`)
+)
 
 export function toTier(level: string): GradeTier {
   const tier = level.charAt(0).toUpperCase() + level.slice(1)
@@ -62,7 +68,7 @@ export async function getSearchResults(searchId: number): Promise<{
   search: SearchDetail
   results: NameResult[]
 }> {
-  const search = await apiServer<SearchDetail>(`/api/v1/searches/${searchId}`)
+  const search = await getCachedSearchDetail(searchId)
   const pairs = await Promise.all(
     search.names.map(async (name) => ({
       name,
@@ -77,6 +83,8 @@ export async function getSearchResults(searchId: number): Promise<{
   results.sort((a, b) => b.score - a.score)
   return { search, results }
 }
+
+export const getCachedSearchResults = cache(getSearchResults)
 
 export async function toCardProps(
   item: SearchItem

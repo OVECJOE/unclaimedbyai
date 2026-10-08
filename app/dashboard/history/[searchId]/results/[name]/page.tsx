@@ -33,7 +33,7 @@ import { notFound, redirect } from "next/navigation"
 import { ScoreGauge } from "@/components/app/score-gauge"
 import { TierBadge, type Tier } from "@/components/tier-badge"
 import { formatDateTime } from "@/lib/utils"
-import { getMeServer, apiServer } from "@/lib/api-server"
+import { apiServer } from "@/lib/api-server"
 import {
   ApiError,
   getReport,
@@ -138,9 +138,6 @@ export default async function SearchResultNamePage({
 }: {
   params: Promise<{ searchId: string; name: string }>
 }) {
-  const user = await getMeServer()
-  if (!user) redirect("/auth")
-
   const { searchId, name } = await params
   const id = Number.parseInt(searchId, 10)
   if (!Number.isInteger(id)) notFound()

@@ -2,12 +2,11 @@ import GenerateAndGo from "@/components/dashboard/generate-and-go"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { SearchResultCard } from "@/components/dashboard/search-result-card"
-import { getMeServer, apiServer } from "@/lib/api-server"
 import { toCardProps } from "@/lib/dashboard-data"
 import type { SearchList } from "@/lib/api"
-import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import { ListSkeleton } from "@/components/dashboard/skeletons"
+import { apiServer } from "@/lib/api-server"
 
 export const dynamic = "force-dynamic"
 
@@ -35,9 +34,6 @@ async function RecentSearches() {
 }
 
 export default async function DashboardPage() {
-  const user = await getMeServer().catch(() => null)
-  if (!user) redirect("/auth")
-
   return (
     <>
       {/* Hero (What are you building?) */}

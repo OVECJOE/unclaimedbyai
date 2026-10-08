@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ArrowDown01Icon,
@@ -26,6 +28,7 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import type { NameResult } from "@/lib/constants"
+import { ApiError, runCheck } from "@/lib/api"
 import { aiAssociationColor, tierColor } from "@/lib/name-results"
 import { SocialAvailabilityList } from "@/components/dashboard/social-icons"
 
@@ -34,6 +37,7 @@ const INITIAL_ROWS = 5
 type ResultsTableProps = {
   searchId: string
   results: NameResult[]
+  pending?: { id: number; name: string }[]
 }
 
 function AvailabilityList({
@@ -117,9 +121,84 @@ function NameRow({
   )
 }
 
-export default function ResultsTable({ searchId, results }: ResultsTableProps) {
+function PendingRow({
+  name,
+  nameId,
+  onCheck,
+  checking,
+}: {
+  name: string
+  nameId: number
+  onCheck: (nameId: number) => void
+  checking: boolean
+}) {
+  return (
+    <TableRow>
+      <TableCell>
+        <span className="flex items-center gap-3 font-medium">
+          <Avatar size="sm">
+            <AvatarImage
+              src={`https://api.dicebear.com/10.x/shapes/svg?seed=${encodeURIComponent(name)}`}
+              alt={name}
+            />
+            <AvatarFallback>
+              <HugeiconsIcon icon={BrandfetchIcon} className="size-4" />
+            </AvatarFallback>
+          </Avatar>
+          {name}
+        </span>
+      </TableCell>
+      <TableCell>
+        <span className="text-sm text-muted-foreground">Not checked</span>
+      </TableCell>
+      <TableCell>
+        <span className="text-sm text-muted-foreground">Pending</span>
+      </TableCell>
+      <TableCell>
+        <span className="text-sm text-muted-foreground">Pending</span>
+      </TableCell>
+      <TableCell>
+        <span className="text-sm text-muted-foreground">Pending</span>
+      </TableCell>
+      <TableCell>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={checking}
+          onClick={() => onCheck(nameId)}
+        >
+          {checking ? "Checking…" : "Run check"}
+        </Button>
+      </TableCell>
+    </TableRow>
+  )
+}
+
+export default function ResultsTable({
+  searchId,
+  results,
+  pending = [],
+}: ResultsTableProps) {
   const [expanded, setExpanded] = useState(false)
+  const [checkingId, setCheckingId] = useState<number | null>(null)
   const remaining = results.length - INITIAL_ROWS
+  const router = useRouter()
+
+  async function onCheck(nameId: number) {
+    setCheckingId(nameId)
+    try {
+      await runCheck(nameId, {})
+      router.refresh()
+    } catch (error) {
+      toast.error(
+        error instanceof ApiError
+          ? error.message
+          : "The check failed. Try again in a moment."
+      )
+    } finally {
+      setCheckingId(null)
+    }
+  }
 
   return (
     <Collapsible asChild open={expanded} onOpenChange={setExpanded}>
@@ -138,6 +217,15 @@ export default function ResultsTable({ searchId, results }: ResultsTableProps) {
           <TableBody>
             {results.slice(0, INITIAL_ROWS).map((result) => (
               <NameRow key={result.name} result={result} searchId={searchId} />
+            ))}
+            {pending.map((item) => (
+              <PendingRow
+                key={item.id}
+                name={item.name}
+                nameId={item.id}
+                onCheck={(nameId) => void onCheck(nameId)}
+                checking={checkingId === item.id}
+              />
             ))}
           </TableBody>
           {remaining > 0 && (

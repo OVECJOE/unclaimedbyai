@@ -12,8 +12,8 @@ import { PaginationWindow } from "@/components/ui/pagination-window"
 import { ITEMS_PER_PAGE } from "@/lib/constants"
 import { clampPage } from "@/lib/pagination"
 import { redirect } from "next/navigation"
-import { getMeServer, apiServer } from "@/lib/api-server"
 import { ApiError, type OrderItem } from "@/lib/api"
+import { apiServer } from "@/lib/api-server"
 
 export const dynamic = "force-dynamic"
 
@@ -22,9 +22,6 @@ export default async function HistoryPage({
 }: {
   searchParams: Promise<{ [key: string]: string }>
 }) {
-  const user = await getMeServer().catch(() => null)
-  if (!user) redirect("/auth")
-
   const { page } = await searchParams
   const requested = Number.parseInt(page ?? "", 10)
   const parsed = Number.isNaN(requested) ? 1 : requested
