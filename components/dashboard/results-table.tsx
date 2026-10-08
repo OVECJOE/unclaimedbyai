@@ -14,11 +14,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
-import {
   Table,
   TableBody,
   TableCell,
@@ -200,7 +195,6 @@ export default function ResultsTable({
   const [selected, setSelected] = useState<number[]>([])
   const [checkingId, setCheckingId] = useState<number | null>(null)
   const [running, setRunning] = useState(false)
-  const remaining = results.length - INITIAL_ROWS
   const router = useRouter()
 
   function toggleSelect(nameId: number, value: boolean) {
@@ -227,8 +221,8 @@ export default function ResultsTable({
 
   async function onCheckAll() {
     const targets =
-      selected.length > 0
-        ? pending.filter((item) => selected.includes(item.id))
+      validSelected.length > 0
+        ? pending.filter((item) => validSelected.includes(item.id))
         : pending
     if (!targets.length) return
     setRunning(true)
@@ -251,120 +245,134 @@ export default function ResultsTable({
   }
 
   const pendingCount = pending.length
-  const bulkCount = selected.length > 0 ? selected.length : pendingCount
+  const validSelected = selected.filter((id) =>
+    pending.some((item) => item.id === id)
+  )
+  const bulkCount =
+    validSelected.length > 0 ? validSelected.length : pendingCount
   const bulkLabel =
-    selected.length > 0 ? `Check (${bulkCount})` : `Check all (${bulkCount})`
-  const allSelected = pendingCount > 0 && selected.length === pendingCount
-  const someSelected = selected.length > 0 && selected.length < pendingCount
+    validSelected.length > 0
+      ? `Check (${bulkCount})`
+      : `Check all (${bulkCount})`
+  const allSelected = pendingCount > 0 && validSelected.length === pendingCount
+  const someSelected =
+    validSelected.length > 0 && validSelected.length < pendingCount
 
   function toggleSelectAll() {
     setSelected(allSelected ? [] : pending.map((item) => item.id))
   }
 
+  const visibleChecked = results.slice(0, INITIAL_ROWS)
+  const hiddenChecked = results.slice(INITIAL_ROWS)
+  const visiblePending = pending.slice(
+    0,
+    Math.max(0, INITIAL_ROWS - visibleChecked.length)
+  )
+  const hiddenPending = pending.slice(visiblePending.length)
+  const overflowCount = hiddenChecked.length + hiddenPending.length
+
+  function pendingRowProps(item: { id: number; name: string }) {
+    return {
+      name: item.name,
+      nameId: item.id,
+      selected: validSelected.includes(item.id),
+      checking: checkingId === item.id,
+      disabled: running,
+      onSelect: toggleSelect,
+      onCheck: (nameId: number) => void runOne(nameId),
+    }
+  }
+
   return (
-    <Collapsible asChild open={expanded} onOpenChange={setExpanded}>
-      <div className="w-full">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>
-                <span className="flex items-center gap-3">
-                  {pendingCount > 0 ? (
-                    <Checkbox
-                      checked={
-                        allSelected
-                          ? true
-                          : someSelected
-                            ? "indeterminate"
-                            : false
-                      }
-                      disabled={running}
-                      onCheckedChange={() => toggleSelectAll()}
-                      aria-label={
-                        allSelected
-                          ? "Unselect all unchecked names"
-                          : "Select all unchecked names"
-                      }
-                    />
-                  ) : null}
-                  Name
-                </span>
-              </TableHead>
-              <TableHead>Overall</TableHead>
-              <TableHead>Domains</TableHead>
-              <TableHead>Social</TableHead>
-              <TableHead>AI Association</TableHead>
-              <TableHead className="w-10">
+    <div className="w-full">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>
+              <span className="flex items-center gap-3">
                 {pendingCount > 0 ? (
-                  <Button
-                    size="sm"
-                    disabled={running}
-                    onClick={() => void onCheckAll()}
-                    aria-label={
-                      selected.length > 0
-                        ? `Run check on ${bulkCount} selected names`
-                        : `Run check on all ${bulkCount} unchecked names`
+                  <Checkbox
+                    checked={
+                      allSelected
+                        ? true
+                        : someSelected
+                          ? "indeterminate"
+                          : false
                     }
-                  >
-                    {running ? "Checking…" : bulkLabel}
-                  </Button>
+                    disabled={running}
+                    onCheckedChange={() => toggleSelectAll()}
+                    aria-label={
+                      allSelected
+                        ? "Unselect all unchecked names"
+                        : "Select all unchecked names"
+                    }
+                  />
                 ) : null}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
+                Name
+              </span>
+            </TableHead>
+            <TableHead>Overall</TableHead>
+            <TableHead>Domains</TableHead>
+            <TableHead>Social</TableHead>
+            <TableHead>AI Association</TableHead>
+            <TableHead className="w-10">
+              {pendingCount > 0 ? (
+                <Button
+                  size="sm"
+                  disabled={running}
+                  onClick={() => void onCheckAll()}
+                  aria-label={
+                    validSelected.length > 0
+                      ? `Run check on ${bulkCount} selected names`
+                      : `Run check on all ${bulkCount} unchecked names`
+                  }
+                >
+                  {running ? "Checking…" : bulkLabel}
+                </Button>
+              ) : null}
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {visibleChecked.map((result) => (
+            <NameRow key={result.name} result={result} searchId={searchId} />
+          ))}
+          {visiblePending.map((item) => (
+            <PendingRow key={item.id} {...pendingRowProps(item)} />
+          ))}
+        </TableBody>
+        {expanded && overflowCount > 0 ? (
           <TableBody>
-            {results.slice(0, INITIAL_ROWS).map((result) => (
+            {hiddenChecked.map((result) => (
               <NameRow key={result.name} result={result} searchId={searchId} />
             ))}
-            {pending.map((item) => (
-              <PendingRow
-                key={item.id}
-                name={item.name}
-                nameId={item.id}
-                selected={selected.includes(item.id)}
-                checking={checkingId === item.id}
-                disabled={running}
-                onSelect={toggleSelect}
-                onCheck={(nameId) => void runOne(nameId)}
-              />
+            {hiddenPending.map((item) => (
+              <PendingRow key={item.id} {...pendingRowProps(item)} />
             ))}
           </TableBody>
-          {remaining > 0 && (
-            <CollapsibleContent asChild>
-              <TableBody>
-                {results.slice(INITIAL_ROWS).map((result) => (
-                  <NameRow
-                    key={result.name}
-                    result={result}
-                    searchId={searchId}
-                  />
-                ))}
-              </TableBody>
-            </CollapsibleContent>
+        ) : null}
+      </Table>
+      {overflowCount > 0 ? (
+        <Button
+          variant="ghost"
+          onClick={() => setExpanded((value) => !value)}
+          aria-expanded={expanded}
+          className="flex h-12 w-full items-center justify-center rounded-none border-t bg-muted/50 font-medium text-primary"
+        >
+          {expanded ? (
+            <>Show fewer</>
+          ) : (
+            <>
+              Show {overflowCount} more {overflowCount === 1 ? "name" : "names"}
+            </>
           )}
-        </Table>
-        {remaining > 0 && (
-          <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              className="flex h-12 w-full items-center justify-center rounded-none border-t bg-muted/50 font-medium text-primary"
-            >
-              {expanded ? (
-                <>Show fewer</>
-              ) : (
-                <>
-                  Show {remaining} more {remaining === 1 ? "name" : "names"}
-                </>
-              )}
-              <HugeiconsIcon
-                icon={expanded ? ArrowUp01Icon : ArrowDown01Icon}
-                strokeWidth={2}
-                className="size-3.5"
-              />
-            </Button>
-          </CollapsibleTrigger>
-        )}
-      </div>
-    </Collapsible>
+          <HugeiconsIcon
+            icon={expanded ? ArrowUp01Icon : ArrowDown01Icon}
+            strokeWidth={2}
+            className="size-3.5"
+          />
+        </Button>
+      ) : null}
+    </div>
   )
 }
