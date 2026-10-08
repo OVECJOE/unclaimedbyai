@@ -2,10 +2,10 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { toast } from "sonner"
 import Prompter from "@/components/app/prompter"
 import { getAnonSessionId } from "@/lib/anon"
 import { generateFilledSearch, getMe } from "@/lib/api"
+import { toastApiError } from "@/lib/api-errors"
 
 export const PENDING_BRIEF_KEY = "uba-pending-brief"
 
@@ -35,11 +35,7 @@ export default function PrompterCta() {
       )
     } catch (error) {
       setPending(false)
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Something went wrong. Try again."
-      )
+      toastApiError(error, "Something went wrong. Try again.")
     }
   }
 

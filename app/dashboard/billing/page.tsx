@@ -1,9 +1,12 @@
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { InfoIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
+import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { PriceCard } from "@/components/price-card"
 import BuyButton from "@/components/dashboard/buy-button"
+import ClearPlanCookie from "@/components/dashboard/clear-plan-cookie"
+import { PENDING_PLAN_COOKIE } from "@/components/public/plan-cookie"
 import { getMeServer, apiServer } from "@/lib/api-server"
 import { ApiError, type Pack } from "@/lib/api"
 import { CURRENCY_SYMBOL, planBenefits } from "@/lib/site"
@@ -19,6 +22,7 @@ export default async function BillingPage({
   if (!user) redirect("/auth")
 
   const params = await searchParams
+  const pendingPlan = (await cookies()).get(PENDING_PLAN_COOKIE)?.value ?? null
   let packs: Pack[] = []
   try {
     packs = await apiServer<Pack[]>("/api/v1/packs")
@@ -30,6 +34,7 @@ export default async function BillingPage({
 
   return (
     <>
+      {pendingPlan ? <ClearPlanCookie /> : null}
       <section className="px-4">
         <div className="mx-auto max-w-7xl space-y-4">
           {params.success ? (
@@ -79,6 +84,7 @@ export default async function BillingPage({
                       ? Math.round((1 - perReport / singleRate) * 100)
                       : undefined
                   }
+                  highlight={pendingPlan === pack.slug}
                   action={
                     <BuyButton
                       packSlug={pack.slug}

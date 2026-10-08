@@ -1,7 +1,11 @@
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { PriceCard, PriceCardProps } from "@/components/price-card"
 import type { Metadata } from "next"
+import Link from "next/link"
 import { JsonLd } from "@/components/app/json-ld"
+import BuyButton from "@/components/dashboard/buy-button"
+import { getMeServer } from "@/lib/api-server"
 import {
   PLANS,
   FREE_SEARCHES,
@@ -52,20 +56,18 @@ export const metadata: Metadata = pageMetadata({
 
 export default async function PricingPage() {
   const packs = await loadPacks()
+  const user = await getMeServer().catch(() => null)
   const single = packs.find((pack) => pack.reports === 1)
   const singleRate = single
     ? single.price_minor / 100
     : (PLANS[0]?.amount ?? 1.99)
-  const prices: PriceCardProps[] =
-    packs.length > 0
-      ? packs.map((pack) => toPriceCard(pack, singleRate))
-      : PLANS.map((plan) => ({
-          title: plan.title,
-          label: plan.label,
-          price: { currency: CURRENCY_SYMBOL, amount: plan.amount },
-          benefits: plan.benefits,
-          discountage: plan.discountage,
-        }))
+  const fallback: PriceCardProps[] = PLANS.map((plan) => ({
+    title: plan.title,
+    label: plan.label,
+    price: { currency: CURRENCY_SYMBOL, amount: plan.amount },
+    benefits: plan.benefits,
+    discountage: plan.discountage,
+  }))
 
   const steps = [
     {
@@ -105,9 +107,30 @@ export default async function PricingPage() {
         </div>
 
         <div className="mx-auto mt-10 grid max-w-7xl grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {prices.map((price, index) => (
-            <PriceCard key={index} {...price} />
-          ))}
+          {packs.length > 0
+            ? packs.map((pack) => (
+                <PriceCard
+                  key={pack.slug}
+                  {...toPriceCard(pack, singleRate)}
+                  action={
+                    user ? (
+                      <BuyButton
+                        packSlug={pack.slug}
+                        label={`Buy ${pack.title}`}
+                      />
+                    ) : (
+                      <Button size="lg" asChild className="w-full">
+                        <Link href={`/auth?plan=${pack.slug}`}>
+                          Get Started
+                        </Link>
+                      </Button>
+                    )
+                  }
+                />
+              ))
+            : fallback.map((price, index) => (
+                <PriceCard key={index} {...price} />
+              ))}
         </div>
 
         <div className="mx-auto mt-16 max-w-7xl space-y-8">

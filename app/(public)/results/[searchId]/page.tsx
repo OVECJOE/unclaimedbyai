@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { formatDateTime } from "@/lib/utils"
-import { DotIcon, ArrowAllDirectionIcon } from "@hugeicons/core-free-icons"
+import { DotIcon, ChevronRightIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
@@ -55,7 +55,7 @@ async function SearchHeaderBlock({ searchId, sid }: Viewer) {
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
-            <HugeiconsIcon icon={ArrowAllDirectionIcon} />
+            <HugeiconsIcon icon={ChevronRightIcon} />
           </BreadcrumbSeparator>
           <BreadcrumbItem className="min-w-0">
             <BreadcrumbPage className="truncate">{header.query}</BreadcrumbPage>
@@ -109,10 +109,17 @@ async function SearchTableBlock({
   sid,
   availableOnly,
   sort,
-}: Viewer & { availableOnly: boolean; sort: string }) {
+  q,
+}: Viewer & { availableOnly: boolean; sort: string; q?: string }) {
   let data
   try {
-    data = await getCachedSearchResultsPage(searchId, availableOnly, sort, sid)
+    data = await getCachedSearchResultsPage(
+      searchId,
+      availableOnly,
+      sort,
+      sid,
+      q
+    )
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound()
     if (error instanceof ApiError && error.status === 429)
@@ -129,6 +136,7 @@ async function SearchTableBlock({
         searchId={String(searchId)}
         pending={data.pending}
         anonSessionId={sid}
+        detailBase={null}
       />
     </>
   )
@@ -149,6 +157,7 @@ export default async function PublicResultsPage({
   const sid = query.sid
   const availableOnly = query.available === "1"
   const sort = query.sort || "overall-score-high-to-low"
+  const q = query.q || undefined
 
   return (
     <>
@@ -177,6 +186,7 @@ export default async function PublicResultsPage({
               sid={sid}
               availableOnly={availableOnly}
               sort={sort}
+              q={q}
             />
           </Suspense>
           <div className="flex flex-col items-center gap-3 border border-dashed p-6 text-center">

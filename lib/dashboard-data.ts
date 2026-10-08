@@ -43,12 +43,14 @@ export const getCachedSearchResultsPage = cache(
     searchId: number,
     availableOnly: boolean,
     sort: string,
-    anonSessionId?: string
+    anonSessionId?: string,
+    q?: string
   ): Promise<SearchResultsPayload> => {
     const params = new URLSearchParams()
     if (anonSessionId) params.set("anon_session_id", anonSessionId)
     if (availableOnly) params.set("available_only", "true")
     if (sort) params.set("sort", sort)
+    if (q) params.set("q", q)
     const query = params.toString()
     return apiServer<SearchResultsPayload>(
       `/api/v1/searches/${searchId}/results${query ? `?${query}` : ""}`
@@ -167,6 +169,6 @@ export function toCardProps(item: SearchItem): SearchResultCardProps {
     topPick,
     namesPreview: preview,
     createdAt: item.created_at,
-    tier: item.top ? toTier(item.top.tier) : "Okay",
+    tier: item.top ? toTier(item.top.tier) : undefined,
   }
 }

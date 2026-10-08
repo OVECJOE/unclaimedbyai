@@ -12,7 +12,9 @@ import { SearchResultCard } from "@/components/dashboard/search-result-card"
 import { PaginationWindow } from "@/components/ui/pagination-window"
 import SearchHistoryToolbar from "@/components/dashboard/search-history-toolbar"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { ArrowAllDirectionIcon } from "@hugeicons/core-free-icons"
+import { ChevronRightIcon } from "@hugeicons/core-free-icons"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import { toCardProps } from "@/lib/dashboard-data"
@@ -104,9 +106,15 @@ async function HistoryList({
           ))}
         </div>
       ) : (
-        <p className="text-muted-foreground">
-          No searches match. Run your first check from the dashboard.
-        </p>
+        <div className="space-y-3 border border-dashed p-6 text-center">
+          <p className="text-muted-foreground">
+            No searches match. Describe what you&apos;re building and we&apos;ll
+            generate names for it.
+          </p>
+          <Button asChild>
+            <Link href="/dashboard">Run your first check</Link>
+          </Button>
+        </div>
       )}
       <PaginationWindow
         currentPage={currentPage}
@@ -159,7 +167,7 @@ export default async function SearchHistoryPage({
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
-                <HugeiconsIcon icon={ArrowAllDirectionIcon} />
+                <HugeiconsIcon icon={ChevronRightIcon} />
               </BreadcrumbSeparator>
               <BreadcrumbItem>
                 <BreadcrumbPage>History</BreadcrumbPage>

@@ -1,9 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
+import { useRouter, useSearchParams } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ArrowDown01Icon,
@@ -24,7 +23,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import type { NameResult } from "@/lib/constants"
-import { ApiError, runCheck } from "@/lib/api"
+import { runCheck } from "@/lib/api"
+import { toastApiError } from "@/lib/api-errors"
 import { aiAssociationColor, tierColor } from "@/lib/name-results"
 import { SocialAvailabilityList } from "@/components/dashboard/social-icons"
 
@@ -35,6 +35,7 @@ type ResultsTableProps = {
   results: NameResult[]
   pending?: { id: number; name: string }[]
   anonSessionId?: string
+  detailBase?: string | null
 }
 
 function AvailabilityList({
@@ -63,21 +64,38 @@ function AvailabilityList({
 function NameRow({
   result,
   searchId,
+  detailBase,
 }: {
   result: NameResult
   searchId: string
+  detailBase?: string | null
 }) {
-  const href = `/dashboard/history/${searchId}/results/${encodeURIComponent(result.name)}`
+  const searchParams = useSearchParams()
+  const carry = new URLSearchParams()
+  for (const key of ["available", "sort", "q"]) {
+    const value = searchParams.get(key)
+    if (value) carry.set(key, value)
+  }
+  const suffix = carry.toString()
+  const base = detailBase ?? `/dashboard/history/${searchId}/results`
+  const href = `${base}/${encodeURIComponent(result.name)}${suffix ? `?${suffix}` : ""}`
+  const clickable = detailBase !== null
 
   return (
-    <TableRow className="group relative cursor-pointer">
+    <TableRow
+      className={clickable ? "group relative cursor-pointer" : undefined}
+    >
       <TableCell>
-        <Link
-          href={href}
-          aria-label={`View ${result.name} details`}
-          className="absolute inset-0 z-0"
-        />
-        <span className="flex items-center gap-3 font-medium transition-colors group-hover:text-primary">
+        {clickable ? (
+          <Link
+            href={href}
+            aria-label={`View ${result.name} details`}
+            className="absolute inset-0 z-0"
+          />
+        ) : null}
+        <span
+          className={`flex items-center gap-3 font-medium transition-colors ${clickable ? "group-hover:text-primary" : ""}`}
+        >
           <Avatar size="sm">
             <AvatarImage src={result.logo} alt={result.name} />
             <AvatarFallback>
@@ -88,7 +106,10 @@ function NameRow({
         </span>
       </TableCell>
       <TableCell>
-        <Badge className={tierColor(result.tier)}>{result.tier}</Badge>
+        <span className="flex items-center gap-2">
+          <span className="font-medium tabular-nums">{result.score}</span>
+          <Badge className={tierColor(result.tier)}>{result.tier}</Badge>
+        </span>
       </TableCell>
       <TableCell>
         <AvailabilityList
@@ -107,12 +128,14 @@ function NameRow({
         </Badge>
       </TableCell>
       <TableCell>
-        <HugeiconsIcon
-          icon={ArrowRight01Icon}
-          strokeWidth={2}
-          aria-hidden="true"
-          className="size-4 text-muted-foreground transition-colors group-hover:text-foreground"
-        />
+        {clickable ? (
+          <HugeiconsIcon
+            icon={ArrowRight01Icon}
+            strokeWidth={2}
+            aria-hidden="true"
+            className="size-4 text-muted-foreground transition-colors group-hover:text-foreground"
+          />
+        ) : null}
       </TableCell>
     </TableRow>
   )
@@ -192,11 +215,17 @@ export default function ResultsTable({
   results,
   pending = [],
   anonSessionId,
+  detailBase,
 }: ResultsTableProps) {
   const [expanded, setExpanded] = useState(false)
   const [selected, setSelected] = useState<number[]>([])
   const [checkingId, setCheckingId] = useState<number | null>(null)
   const [running, setRunning] = useState(false)
+  const [progress, setProgress] = useState<{
+    done: number
+    total: number
+  } | null>(null)
+  const cancelRef = useRef(false)
   const router = useRouter()
 
   function toggleSelect(nameId: number, value: boolean) {
@@ -214,11 +243,7 @@ export default function ResultsTable({
       )
       router.refresh()
     } catch (error) {
-      toast.error(
-        error instanceof ApiError
-          ? error.message
-          : "The check failed. Try again in a moment."
-      )
+      toastApiError(error, "The check failed. Try again in a moment.")
     } finally {
       setCheckingId(null)
     }
@@ -230,8 +255,11 @@ export default function ResultsTable({
         ? pending.filter((item) => validSelected.includes(item.id))
         : pending
     if (!targets.length) return
+    cancelRef.current = false
     setRunning(true)
-    for (const item of targets) {
+    setProgress({ done: 0, total: targets.length })
+    for (const [index, item] of targets.entries()) {
+      if (cancelRef.current) break
       setCheckingId(item.id)
       try {
         await runCheck(
@@ -239,15 +267,13 @@ export default function ResultsTable({
           anonSessionId ? { anon_session_id: anonSessionId } : {}
         )
       } catch (error) {
-        toast.error(
-          error instanceof ApiError
-            ? error.message
-            : "The check failed. Try again in a moment."
-        )
+        toastApiError(error, "The check failed. Try again in a moment.")
       }
+      setProgress({ done: index + 1, total: targets.length })
     }
     setCheckingId(null)
     setRunning(false)
+    setProgress(null)
     setSelected([])
     router.refresh()
   }
@@ -325,25 +351,47 @@ export default function ResultsTable({
             <TableHead>AI Association</TableHead>
             <TableHead className="w-10">
               {pendingCount > 0 ? (
-                <Button
-                  size="sm"
-                  disabled={running}
-                  onClick={() => void onCheckAll()}
-                  aria-label={
-                    validSelected.length > 0
-                      ? `Run check on ${bulkCount} selected names`
-                      : `Run check on all ${bulkCount} unchecked names`
-                  }
-                >
-                  {running ? "Checking…" : bulkLabel}
-                </Button>
+                <span className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    disabled={running}
+                    onClick={() => void onCheckAll()}
+                    aria-label={
+                      validSelected.length > 0
+                        ? `Run check on ${bulkCount} selected names`
+                        : `Run check on all ${bulkCount} unchecked names`
+                    }
+                  >
+                    {running && progress
+                      ? `Checking ${progress.done} of ${progress.total}…`
+                      : running
+                        ? "Checking…"
+                        : bulkLabel}
+                  </Button>
+                  {running ? (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        cancelRef.current = true
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  ) : null}
+                </span>
               ) : null}
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {visibleChecked.map((result) => (
-            <NameRow key={result.name} result={result} searchId={searchId} />
+            <NameRow
+              key={result.name}
+              result={result}
+              searchId={searchId}
+              detailBase={detailBase}
+            />
           ))}
           {visiblePending.map((item) => (
             <PendingRow key={item.id} {...pendingRowProps(item)} />
@@ -352,7 +400,12 @@ export default function ResultsTable({
         {expanded && overflowCount > 0 ? (
           <TableBody>
             {hiddenChecked.map((result) => (
-              <NameRow key={result.name} result={result} searchId={searchId} />
+              <NameRow
+                key={result.name}
+                result={result}
+                searchId={searchId}
+                detailBase={detailBase}
+              />
             ))}
             {hiddenPending.map((item) => (
               <PendingRow key={item.id} {...pendingRowProps(item)} />

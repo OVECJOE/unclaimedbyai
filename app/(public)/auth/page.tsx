@@ -1,13 +1,12 @@
-import { TextDivider } from "@/components/app/text-divider"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { GoogleIcon, MailAtSign02Icon } from "@hugeicons/core-free-icons"
-import { HugeiconsIcon } from "@hugeicons/react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
-import { sendMagicLink } from "./actions"
+import { MailAtSign02Icon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { TextDivider } from "@/components/app/text-divider"
+import GoogleButton from "@/components/public/google-button"
+import MagicLinkForm from "@/components/public/magic-link-form"
 import { MagicLinkTimer } from "@/components/public/magic-link-timer"
+import { sendMagicLink } from "./actions"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -15,12 +14,27 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
+async function planTitle(slug: string): Promise<string | null> {
+  try {
+    const base = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8007"
+    const res = await fetch(`${base}/api/v1/packs`, {
+      next: { revalidate: 3600 },
+    })
+    if (!res.ok) return null
+    const packs = (await res.json()) as { slug: string; title: string }[]
+    return packs.find((pack) => pack.slug === slug)?.title ?? null
+  } catch {
+    return null
+  }
+}
+
 export default async function AuthPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string }>
 }) {
-  const { email, sentAt } = await searchParams
+  const { email, sentAt, plan } = await searchParams
+  const picked = plan ? await planTitle(plan) : null
 
   if (email) {
     return (
@@ -37,7 +51,7 @@ export default async function AuthPage({
             Check your email
           </h1>
           <p className="text-sm text-muted-foreground">
-            We sent a link to <br />
+            We sent a sign-in link to <br />
             <Link
               href={`mailto:${email}`}
               className="text-foreground underline"
@@ -47,7 +61,8 @@ export default async function AuthPage({
           </p>
         </div>
         <p className="text-sm text-muted-foreground">
-          The link expires in 15 minutes. Check spam if you don&apos;t see it.
+          The link works for the next 15 minutes. Check spam if you don&apos;t
+          see it.
         </p>
         <div className="space-y-2 text-sm text-muted-foreground">
           <div className="flex items-center justify-center gap-2">
@@ -55,10 +70,14 @@ export default async function AuthPage({
             <MagicLinkTimer
               sentAt={sentAt}
               email={email}
+              plan={plan}
               onResendAction={sendMagicLink}
             />
           </div>
-          <Link href="/auth" className="text-primary">
+          <Link
+            href={plan ? `/auth?plan=${encodeURIComponent(plan)}` : "/auth"}
+            className="text-primary"
+          >
             Use a different email
           </Link>
         </div>
@@ -75,55 +94,19 @@ export default async function AuthPage({
         <p className="text-sm text-muted-foreground">
           Sign in or create an account — it&apos;s the same either way.
         </p>
+        {picked ? (
+          <p className="text-sm font-medium text-primary">
+            You picked the {picked} pack. Sign in and it will be waiting on the
+            billing page.
+          </p>
+        ) : null}
       </div>
 
-      {/* Google OAuth */}
-      <Button variant="outline" size="lg" asChild>
-        <Link
-          href={`${process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8007"}/api/v1/auth/google`}
-        >
-          <HugeiconsIcon icon={GoogleIcon} size="48px" />
-          <span className="font-semibold">Continue with Google</span>
-        </Link>
-      </Button>
+      <GoogleButton plan={plan} />
 
       <TextDivider className="mx-auto max-w-lg" />
 
-      {/* Magic Link */}
-      <form
-        className="mt-16 space-y-4 sm:mx-auto sm:max-w-lg"
-        action={sendMagicLink}
-      >
-        <div className="space-y-2">
-          <Label
-            htmlFor="email"
-            className="font-medium text-muted-foreground uppercase"
-          >
-            Email
-          </Label>
-          <Input
-            id="email"
-            name="email"
-            placeholder="you@example.com"
-            autoComplete="off"
-            autoFocus
-          />
-        </div>
-        <Button size="lg" className="w-full" type="submit">
-          <span className="font-semibold">Continue with email</span>
-        </Button>
-        <p className="mt-4 text-sm text-muted-foreground">
-          By continuing, you agree to our{" "}
-          <Link href="/terms" className="text-primary">
-            Terms
-          </Link>{" "}
-          and{" "}
-          <Link href="/privacy" className="text-primary">
-            Privacy Policy
-          </Link>
-          .
-        </p>
-      </form>
+      <MagicLinkForm plan={plan} />
     </section>
   )
 }

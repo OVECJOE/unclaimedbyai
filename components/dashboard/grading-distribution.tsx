@@ -51,7 +51,7 @@ export default function GradingDistribution({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Score</TableHead>
+            <TableHead>Tier</TableHead>
             <TableHead className="text-end">Count</TableHead>
             <TableHead className="text-end">Share</TableHead>
           </TableRow>

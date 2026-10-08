@@ -7,7 +7,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { formatDateTime } from "@/lib/utils"
-import { DotIcon, ArrowAllDirectionIcon } from "@hugeicons/core-free-icons"
+import { DotIcon, ChevronRightIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { notFound, redirect } from "next/navigation"
 import { Suspense } from "react"
@@ -52,7 +52,7 @@ async function SearchHeaderBlock({ searchId }: { searchId: number }) {
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
-            <HugeiconsIcon icon={ArrowAllDirectionIcon} />
+            <HugeiconsIcon icon={ChevronRightIcon} />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
             <BreadcrumbLink href="/dashboard/history" className="text-primary">
@@ -60,7 +60,7 @@ async function SearchHeaderBlock({ searchId }: { searchId: number }) {
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
-            <HugeiconsIcon icon={ArrowAllDirectionIcon} />
+            <HugeiconsIcon icon={ChevronRightIcon} />
           </BreadcrumbSeparator>
           <BreadcrumbItem className="min-w-0">
             <BreadcrumbPage className="truncate">{header.query}</BreadcrumbPage>
@@ -114,14 +114,22 @@ async function SearchTableBlock({
   searchId,
   availableOnly,
   sort,
+  q,
 }: {
   searchId: number
   availableOnly: boolean
   sort: string
+  q?: string
 }) {
   let data
   try {
-    data = await getCachedSearchResultsPage(searchId, availableOnly, sort)
+    data = await getCachedSearchResultsPage(
+      searchId,
+      availableOnly,
+      sort,
+      undefined,
+      q
+    )
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound()
     if (error instanceof ApiError && error.status === 401) redirect("/auth")
@@ -156,6 +164,7 @@ export default async function HistorySearchPage({
   const query = await searchParams
   const availableOnly = query.available === "1"
   const sort = query.sort || "overall-score-high-to-low"
+  const q = query.q || undefined
 
   return (
     <>
@@ -183,6 +192,7 @@ export default async function HistorySearchPage({
               searchId={id}
               availableOnly={availableOnly}
               sort={sort}
+              q={q}
             />
           </Suspense>
         </div>

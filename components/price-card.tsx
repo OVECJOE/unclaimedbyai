@@ -23,6 +23,7 @@ export type PriceCardProps = {
   label: string
   benefits: string[]
   discountage?: number
+  highlight?: boolean
   action?: React.ReactNode
 }
 
@@ -32,20 +33,29 @@ export function PriceCard({
   label,
   benefits,
   discountage,
+  highlight,
   action,
 }: PriceCardProps) {
   return (
     <Card
       className={cn(
         "relative text-start [--card-spacing:--spacing(5)]",
-        discountage && "border border-primary/70 bg-primary/5"
+        discountage && "border border-primary/70 bg-primary/5",
+        highlight && "border-2 border-primary"
       )}
     >
-      {discountage && (
-        <Badge className="absolute top-3.5 right-3.5 bg-primary/10 p-2 text-xs text-primary">
-          Save {discountage}%
-        </Badge>
-      )}
+      <div className="absolute top-3.5 right-3.5 flex gap-1">
+        {highlight && (
+          <Badge className="bg-primary p-2 text-xs text-primary-foreground">
+            Your pick
+          </Badge>
+        )}
+        {discountage && (
+          <Badge className="bg-primary/10 p-2 text-xs text-primary">
+            Save {discountage}%
+          </Badge>
+        )}
+      </div>
       <CardHeader className="space-y-1">
         <p className="text-base">{title}</p>
         <CardTitle className="text-4xl">

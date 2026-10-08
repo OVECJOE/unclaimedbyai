@@ -21,7 +21,7 @@ async function RecentSearches() {
   if (!cards.length) {
     return (
       <p className="text-muted-foreground">
-        No searches yet — run your first check above.
+        No searches yet — describe what you&apos;re building above.
       </p>
     )
   }

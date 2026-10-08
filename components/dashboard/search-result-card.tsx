@@ -78,9 +78,11 @@ export function SearchResultCard({
                 </AvatarFallback>
               </Avatar>
             ))}
-            <AvatarGroupCount>
-              +{nameCount - namesPreview.length}
-            </AvatarGroupCount>
+            {nameCount > namesPreview.length ? (
+              <AvatarGroupCount>
+                +{nameCount - namesPreview.length}
+              </AvatarGroupCount>
+            ) : null}
           </AvatarGroup>
         </div>
       </div>

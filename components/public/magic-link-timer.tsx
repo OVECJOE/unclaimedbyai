@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { useActionState, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import type { MagicLinkState } from "@/app/(public)/auth/actions"
 
 const COOLDOWN_SECONDS = 45
 
@@ -16,15 +17,22 @@ function secondsLeft(sentAt: number) {
 export function MagicLinkTimer({
   sentAt,
   email,
+  plan,
   onResendAction,
 }: {
   sentAt?: string
   email: string
-  onResendAction: (formData: FormData) => void | Promise<void>
+  plan?: string
+  onResendAction: (
+    prevState: MagicLinkState,
+    formData: FormData
+  ) => Promise<MagicLinkState>
 }) {
   const [sentAtMs] = useState(() => (sentAt ? Number(sentAt) : Date.now()))
   const [remaining, setRemaining] = useState(() => secondsLeft(sentAtMs))
-  const [isPending, startTransition] = useTransition()
+  const [state, resend, isPending] = useActionState(onResendAction, {
+    error: null,
+  })
 
   useEffect(() => {
     if (remaining <= 0) return
@@ -43,19 +51,25 @@ export function MagicLinkTimer({
   }
 
   return (
-    <form
-      action={(formData) => startTransition(() => onResendAction(formData))}
-    >
-      <Input type="hidden" name="email" value={email} />
-      <Button
-        variant="link"
-        size="sm"
-        className="h-auto p-0 text-primary"
-        type="submit"
-        disabled={isPending}
-      >
-        {isPending ? "Sending…" : "Resend"}
-      </Button>
-    </form>
+    <span className="space-y-1">
+      <form action={resend}>
+        <Input type="hidden" name="email" value={email} />
+        {plan ? <Input type="hidden" name="plan" value={plan} /> : null}
+        <Button
+          variant="link"
+          size="sm"
+          className="h-auto p-0 text-primary"
+          type="submit"
+          disabled={isPending}
+        >
+          {isPending ? "Sending…" : "Resend"}
+        </Button>
+      </form>
+      {state.error ? (
+        <p role="alert" className="text-sm text-destructive">
+          {state.error}
+        </p>
+      ) : null}
+    </span>
   )
 }

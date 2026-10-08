@@ -14,6 +14,7 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { JsonLd } from "@/components/app/json-ld"
 import { homeJsonLd, pageMetadata } from "@/lib/site"
+import { getMeServer } from "@/lib/api-server"
 
 const AUDIENCE_EXAMPLE = ["Founders", "Creators", "Makers", "Marketers"]
 
@@ -40,6 +41,7 @@ export default async function Page() {
   } catch {
     communityCount = 308
   }
+  const user = await getMeServer().catch(() => null)
   return (
     <>
       <JsonLd data={homeJsonLd} />
@@ -192,7 +194,7 @@ export default async function Page() {
           </AvatarGroup>
         </div>
         <Button size="lg" className="py-8 text-xl">
-          <Link href="/auth">Claim yours</Link>
+          <Link href={user ? "/dashboard" : "/auth"}>Claim yours</Link>
         </Button>
       </section>
     </>

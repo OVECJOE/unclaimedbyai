@@ -27,7 +27,7 @@ import {
   ArrowRight01Icon,
   AtSignIcon,
   GlobeIcon,
-  ArrowAllDirectionIcon,
+  ChevronRightIcon,
 } from "@hugeicons/core-free-icons"
 import { notFound, redirect } from "next/navigation"
 import { ScoreGauge } from "@/components/app/score-gauge"
@@ -135,12 +135,21 @@ function CheckTile({
 
 export default async function SearchResultNamePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ searchId: string; name: string }>
+  searchParams: Promise<{ [key: string]: string }>
 }) {
   const { searchId, name } = await params
   const id = Number.parseInt(searchId, 10)
   if (!Number.isInteger(id)) notFound()
+  const incoming = await searchParams
+  const backParams = new URLSearchParams()
+  for (const key of ["available", "sort", "q"]) {
+    if (incoming[key]) backParams.set(key, incoming[key])
+  }
+  const backSuffix = backParams.toString()
+  const backHref = `/dashboard/history/${id}${backSuffix ? `?${backSuffix}` : ""}`
 
   let search: SearchDetail
   try {
@@ -215,7 +224,7 @@ export default async function SearchResultNamePage({
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
-                <HugeiconsIcon icon={ArrowAllDirectionIcon} />
+                <HugeiconsIcon icon={ChevronRightIcon} />
               </BreadcrumbSeparator>
               <BreadcrumbItem>
                 <BreadcrumbLink
@@ -226,18 +235,18 @@ export default async function SearchResultNamePage({
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
-                <HugeiconsIcon icon={ArrowAllDirectionIcon} />
+                <HugeiconsIcon icon={ChevronRightIcon} />
               </BreadcrumbSeparator>
               <BreadcrumbItem className="min-w-0">
                 <BreadcrumbLink
-                  href={`/dashboard/history/${search.id}`}
+                  href={backHref}
                   className="truncate text-primary"
                 >
                   {search.query}
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
-                <HugeiconsIcon icon={ArrowAllDirectionIcon} />
+                <HugeiconsIcon icon={ChevronRightIcon} />
               </BreadcrumbSeparator>
               <BreadcrumbItem className="min-w-0">
                 <BreadcrumbPage className="truncate">

@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { toast } from "sonner"
 import Prompter from "@/components/app/prompter"
 import { PENDING_BRIEF_KEY } from "@/components/public/prompter-cta"
-import { ApiError, generateFilledSearch } from "@/lib/api"
+import { generateFilledSearch } from "@/lib/api"
+import { toastApiError } from "@/lib/api-errors"
 
 export default function GenerateAndGo({
   initialBrief = "",
@@ -23,11 +23,7 @@ export default function GenerateAndGo({
       router.push(`/dashboard/history/${search.id}`)
     } catch (err) {
       setPending(false)
-      toast.error(
-        err instanceof ApiError
-          ? err.message
-          : "Something went wrong. Try again."
-      )
+      toastApiError(err, "Something went wrong. Try again.")
     }
   }
 
