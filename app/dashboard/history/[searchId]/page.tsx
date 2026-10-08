@@ -81,6 +81,28 @@ async function SearchHeader({ searchId }: { searchId: number }) {
 }
 
 async function SearchResults({ searchId }: { searchId: number }) {
+  const { results } = await getSearchResults(searchId).catch((error) => {
+    if (error instanceof ApiError && error.status === 404) notFound()
+    if (error instanceof ApiError && error.status === 401) redirect("/auth")
+    throw error
+  })
+  const topPick = results[0]
+    ? { name: results[0].name, logo: results[0].logo }
+    : undefined
+
+  return (
+    <div className="flex w-full flex-col gap-6 md:flex-row">
+      <div className="min-w-0 flex-1">
+        <ScoreSummary results={results} topPick={topPick} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <GradingDistribution results={results} />
+      </div>
+    </div>
+  )
+}
+
+async function UncheckedNames({ searchId }: { searchId: number }) {
   const { search, results } = await getSearchResults(searchId).catch(
     (error) => {
       if (error instanceof ApiError && error.status === 404) notFound()
@@ -88,24 +110,18 @@ async function SearchResults({ searchId }: { searchId: number }) {
       throw error
     }
   )
-  const topPick = results[0]
-    ? { name: results[0].name, logo: results[0].logo }
-    : undefined
   const checkedIds = new Set(results.map((result) => result.name.toLowerCase()))
   const unchecked = search.names.filter(
     (name) => !checkedIds.has(name.name.toLowerCase())
   )
 
+  if (!unchecked.length) return null
+
   return (
-    <>
-      <div className="flex w-full flex-col gap-6 md:flex-row">
-        <div className="min-w-0 flex-1">
-          <ScoreSummary results={results} topPick={topPick} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <GradingDistribution results={results} />
-        </div>
-      </div>
+    <div className="space-y-4">
+      <h2 className="font-heading text-2xl font-semibold">
+        Awaiting first check
+      </h2>
       {unchecked.map((name) => (
         <NameCheckPanel
           key={name.id}
@@ -114,7 +130,7 @@ async function SearchResults({ searchId }: { searchId: number }) {
           name={name.name}
         />
       ))}
-    </>
+    </div>
   )
 }
 
@@ -168,6 +184,9 @@ export default async function HistorySearchPage({
         <div className="mx-auto max-w-7xl space-y-5">
           <Suspense fallback={<TableSkeleton />}>
             <SearchTable searchId={id} />
+          </Suspense>
+          <Suspense fallback={null}>
+            <UncheckedNames searchId={id} />
           </Suspense>
         </div>
       </section>
