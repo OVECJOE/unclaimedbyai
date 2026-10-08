@@ -27,6 +27,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import type { NameResult } from "@/lib/constants"
 import { ApiError, runCheck } from "@/lib/api"
 import { aiAssociationColor, tierColor } from "@/lib/name-results"
@@ -124,18 +125,28 @@ function NameRow({
 function PendingRow({
   name,
   nameId,
-  onCheck,
+  selected,
   checking,
+  disabled,
+  onSelect,
 }: {
   name: string
   nameId: number
-  onCheck: (nameId: number) => void
+  selected: boolean
   checking: boolean
+  disabled: boolean
+  onSelect: (nameId: number, selected: boolean) => void
 }) {
   return (
     <TableRow>
       <TableCell>
         <span className="flex items-center gap-3 font-medium">
+          <Checkbox
+            checked={selected}
+            disabled={disabled}
+            onCheckedChange={(value) => onSelect(nameId, value === true)}
+            aria-label={`Select ${name} for checking`}
+          />
           <Avatar size="sm">
             <AvatarImage
               src={`https://api.dicebear.com/10.x/shapes/svg?seed=${encodeURIComponent(name)}`}
@@ -161,14 +172,9 @@ function PendingRow({
         <span className="text-sm text-muted-foreground">Pending</span>
       </TableCell>
       <TableCell>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={checking}
-          onClick={() => onCheck(nameId)}
-        >
-          {checking ? "Checking…" : "Run check"}
-        </Button>
+        {checking ? (
+          <span className="text-xs text-muted-foreground">Checking…</span>
+        ) : null}
       </TableCell>
     </TableRow>
   )
@@ -180,25 +186,45 @@ export default function ResultsTable({
   pending = [],
 }: ResultsTableProps) {
   const [expanded, setExpanded] = useState(false)
+  const [selected, setSelected] = useState<number[]>([])
   const [checkingId, setCheckingId] = useState<number | null>(null)
+  const [running, setRunning] = useState(false)
   const remaining = results.length - INITIAL_ROWS
   const router = useRouter()
 
-  async function onCheck(nameId: number) {
-    setCheckingId(nameId)
-    try {
-      await runCheck(nameId, {})
-      router.refresh()
-    } catch (error) {
-      toast.error(
-        error instanceof ApiError
-          ? error.message
-          : "The check failed. Try again in a moment."
-      )
-    } finally {
-      setCheckingId(null)
-    }
+  function toggleSelect(nameId: number, value: boolean) {
+    setSelected((current) =>
+      value ? [...current, nameId] : current.filter((id) => id !== nameId)
+    )
   }
+
+  async function onCheckAll() {
+    const targets =
+      selected.length > 0
+        ? pending.filter((item) => selected.includes(item.id))
+        : pending
+    if (!targets.length) return
+    setRunning(true)
+    for (const item of targets) {
+      setCheckingId(item.id)
+      try {
+        await runCheck(item.id, {})
+      } catch (error) {
+        toast.error(
+          error instanceof ApiError
+            ? error.message
+            : "The check failed. Try again in a moment."
+        )
+      }
+    }
+    setCheckingId(null)
+    setRunning(false)
+    setSelected([])
+    router.refresh()
+  }
+
+  const pendingCount = pending.length
+  const bulkCount = selected.length > 0 ? selected.length : pendingCount
 
   return (
     <Collapsible asChild open={expanded} onOpenChange={setExpanded}>
@@ -211,7 +237,23 @@ export default function ResultsTable({
               <TableHead>Domains</TableHead>
               <TableHead>Social</TableHead>
               <TableHead>AI Association</TableHead>
-              <TableHead className="w-10" />
+              <TableHead className="w-10">
+                {pendingCount > 0 ? (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={running}
+                    onClick={() => void onCheckAll()}
+                    aria-label={
+                      selected.length > 0
+                        ? `Run check on ${bulkCount} selected names`
+                        : `Run check on all ${bulkCount} unchecked names`
+                    }
+                  >
+                    {running ? "Checking…" : `Check all (${bulkCount})`}
+                  </Button>
+                ) : null}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -223,8 +265,10 @@ export default function ResultsTable({
                 key={item.id}
                 name={item.name}
                 nameId={item.id}
-                onCheck={(nameId) => void onCheck(nameId)}
+                selected={selected.includes(item.id)}
                 checking={checkingId === item.id}
+                disabled={running}
+                onSelect={toggleSelect}
               />
             ))}
           </TableBody>
