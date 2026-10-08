@@ -6,7 +6,7 @@ import type { NameResult } from "@/lib/constants"
 import type { SearchSummaryPayload } from "@/lib/api"
 import { summarizeResults, tierForScore } from "@/lib/name-results"
 import { TierBadge } from "@/components/tier-badge"
-import { diceLogo } from "@/lib/dashboard-data"
+import { diceLogo } from "@/lib/result-mappers"
 
 type ScoreSummaryProps = {
   results?: NameResult[]

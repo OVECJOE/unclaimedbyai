@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { JsonLd } from "@/components/app/json-ld"
 import { ApiError, getReport, searchByQuery, type CheckReport } from "@/lib/api"
-import { toNameResult } from "@/lib/dashboard-data"
+import { toNameResult } from "@/lib/result-mappers"
 import { SITE_URL } from "@/lib/site"
 
 export const revalidate = 3600

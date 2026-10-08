@@ -28,7 +28,7 @@ import {
   type SearchSummaryPayload,
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
-import { toNameResultFromPayload } from "@/lib/dashboard-data"
+import { toNameResultFromPayload } from "@/lib/result-mappers"
 
 const POLL_MS = 2500
 
