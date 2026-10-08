@@ -46,6 +46,7 @@ export default function PostArticle({ post }: { post: Post }) {
           <img
             src={post.coverImageUrl}
             alt=""
+            loading="eager"
             fetchPriority="high"
             decoding="async"
             className="h-auto w-full"
