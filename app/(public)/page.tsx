@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import Prompter from "@/components/app/prompter"
+import PrompterCta from "@/components/public/prompter-cta"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { AtIcon, BrainIcon, InternetIcon } from "@hugeicons/core-free-icons"
 import {
@@ -64,7 +64,7 @@ export default async function Page() {
             and AI associations before you build around one.
           </p>
         </div>
-        <Prompter />
+        <PrompterCta />
       </section>
 
       {/* Things to know */}

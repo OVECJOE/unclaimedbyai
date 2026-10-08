@@ -33,7 +33,12 @@ async function RecentSearches() {
   )
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string }>
+}) {
+  const { brief } = await searchParams
   return (
     <>
       {/* Hero (What are you building?) */}
@@ -46,7 +51,7 @@ export default async function DashboardPage() {
             Describe it and we&apos;ll generate names, then check them for you.
           </p>
         </div>
-        <GenerateAndGo />
+        <GenerateAndGo initialBrief={brief ?? ""} />
       </section>
 
       {/* Recent searches */}

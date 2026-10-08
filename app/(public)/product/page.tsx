@@ -17,7 +17,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import Prompter from "@/components/app/prompter"
+import PrompterCta from "@/components/public/prompter-cta"
 import type { Metadata } from "next"
 import { JsonLd } from "@/components/app/json-ld"
 import { SITE_NAME, SITE_URL, offersJsonLd, pageMetadata } from "@/lib/site"
@@ -428,7 +428,7 @@ export default function ProductPage() {
             We&apos;ll tell you the truth about it in under a minute.
           </p>
         </div>
-        <Prompter />
+        <PrompterCta />
       </section>
     </>
   )

@@ -1,13 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import Prompter from "@/components/app/prompter"
+import { PENDING_BRIEF_KEY } from "@/components/public/prompter-cta"
 import { ApiError, generateFilledSearch } from "@/lib/api"
 
-export default function GenerateAndGo() {
+export default function GenerateAndGo({
+  initialBrief = "",
+}: {
+  initialBrief?: string
+}) {
   const [pending, setPending] = useState(false)
+  const submittedRef = useRef(false)
   const router = useRouter()
 
   async function onSubmit(brief: string) {
@@ -25,9 +31,31 @@ export default function GenerateAndGo() {
     }
   }
 
+  useEffect(() => {
+    if (submittedRef.current || pending) return
+    let brief = initialBrief
+    if (!brief) {
+      try {
+        brief = sessionStorage.getItem(PENDING_BRIEF_KEY) ?? ""
+        sessionStorage.removeItem(PENDING_BRIEF_KEY)
+      } catch {
+        brief = ""
+      }
+    }
+    if (brief.trim()) {
+      submittedRef.current = true
+      void onSubmit(brief.trim())
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialBrief])
+
   return (
     <div className="mx-auto max-w-prose space-y-3">
-      <Prompter onSubmit={(value) => void onSubmit(value)} pending={pending} />
+      <Prompter
+        onSubmit={(value) => void onSubmit(value)}
+        pending={pending}
+        defaultValue={initialBrief}
+      />
       {pending ? (
         <p className="text-center text-sm text-muted-foreground">
           Generating names and saving your search…

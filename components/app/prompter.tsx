@@ -17,11 +17,13 @@ const EXAMPLES = [
 export default function Prompter({
   onSubmit,
   pending = false,
+  defaultValue = "",
 }: {
   onSubmit?: (value: string) => void
   pending?: boolean
+  defaultValue?: string
 }) {
-  const [value, setValue] = useState("")
+  const [value, setValue] = useState(defaultValue)
   const ghostText = useTypewriter(EXAMPLES, value.length === 0)
 
   return (
