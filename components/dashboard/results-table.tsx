@@ -1,8 +1,8 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useState } from "react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ArrowDown01Icon,
@@ -23,19 +23,39 @@ import {
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import type { NameResult } from "@/lib/constants"
-import { runCheck } from "@/lib/api"
+import {
+  ApiError,
+  cancelAllChecks,
+  cancelCheck,
+  checkAllNames,
+  runCheck,
+  type PendingName,
+} from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
 import { aiAssociationColor, tierColor } from "@/lib/name-results"
 import { SocialAvailabilityList } from "@/components/dashboard/social-icons"
 
 const INITIAL_ROWS = 5
 
+const STEP_LABELS: Record<string, string> = {
+  domains: "Checking domains",
+  socials: "Checking handles",
+  ai: "Consulting AI models",
+  scoring: "Scoring",
+}
+
+function stepLabel(step: string | null): string {
+  if (!step) return "Working"
+  return STEP_LABELS[step] ?? "Working"
+}
+
 type ResultsTableProps = {
   searchId: string
   results: NameResult[]
-  pending?: { id: number; name: string }[]
+  pending?: PendingName[]
   anonSessionId?: string
   detailBase?: string | null
+  onMutation?: () => void
 }
 
 function AvailabilityList({
@@ -142,42 +162,44 @@ function NameRow({
 }
 
 function PendingRow({
-  name,
-  nameId,
+  item,
   selected,
-  checking,
   disabled,
   onSelect,
   onCheck,
+  onCancel,
 }: {
-  name: string
-  nameId: number
+  item: PendingName
   selected: boolean
-  checking: boolean
   disabled: boolean
   onSelect: (nameId: number, selected: boolean) => void
   onCheck: (nameId: number) => void
+  onCancel: (nameId: number) => void
 }) {
+  const job = item.job
+  const active =
+    job !== null && (job.status === "queued" || job.status === "running")
+
   return (
     <TableRow>
       <TableCell>
         <span className="flex items-center gap-3 font-medium">
           <Checkbox
             checked={selected}
-            disabled={disabled}
-            onCheckedChange={(value) => onSelect(nameId, value === true)}
-            aria-label={`Select ${name} for checking`}
+            disabled={disabled || active}
+            onCheckedChange={(value) => onSelect(item.id, value === true)}
+            aria-label={`Select ${item.name} for checking`}
           />
           <Avatar size="sm">
             <AvatarImage
-              src={`https://api.dicebear.com/10.x/shapes/svg?seed=${encodeURIComponent(name)}`}
-              alt={name}
+              src={`https://api.dicebear.com/10.x/shapes/svg?seed=${encodeURIComponent(item.name)}`}
+              alt={item.name}
             />
             <AvatarFallback>
               <HugeiconsIcon icon={BrandfetchIcon} className="size-4" />
             </AvatarFallback>
           </Avatar>
-          {name}
+          {item.name}
         </span>
       </TableCell>
       <TableCell>
@@ -193,14 +215,57 @@ function PendingRow({
         <span className="text-sm text-muted-foreground">Pending</span>
       </TableCell>
       <TableCell>
-        {checking ? (
-          <span className="text-xs text-muted-foreground">Checking…</span>
+        {active && job ? (
+          <span className="flex min-w-32 flex-col gap-1">
+            <span className="text-xs text-muted-foreground" role="status">
+              {job.status === "queued"
+                ? "Queued…"
+                : `${stepLabel(job.current_step)}… {job.progress}%`}
+            </span>
+            <span
+              className="h-1 w-full bg-muted"
+              role="progressbar"
+              aria-valuenow={job.progress}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`Checking ${item.name}`}
+            >
+              <span
+                className="block h-full bg-primary transition-all"
+                style={{ width: `${job.progress}%` }}
+              />
+            </span>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-auto justify-start p-0 text-xs"
+              onClick={() => onCancel(item.id)}
+            >
+              Cancel
+            </Button>
+          </span>
+        ) : job && (job.status === "failed" || job.status === "canceled") ? (
+          <span className="flex flex-col gap-1">
+            <span className="text-xs text-destructive">
+              {job.status === "failed"
+                ? (job.error ?? "The check failed.")
+                : "Canceled."}
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={disabled}
+              onClick={() => onCheck(item.id)}
+            >
+              Retry
+            </Button>
+          </span>
         ) : (
           <Button
             size="sm"
             variant="outline"
             disabled={disabled}
-            onClick={() => onCheck(nameId)}
+            onClick={() => onCheck(item.id)}
           >
             Run check
           </Button>
@@ -216,17 +281,11 @@ export default function ResultsTable({
   pending = [],
   anonSessionId,
   detailBase,
+  onMutation,
 }: ResultsTableProps) {
   const [expanded, setExpanded] = useState(false)
   const [selected, setSelected] = useState<number[]>([])
-  const [checkingId, setCheckingId] = useState<number | null>(null)
-  const [running, setRunning] = useState(false)
-  const [progress, setProgress] = useState<{
-    done: number
-    total: number
-  } | null>(null)
-  const cancelRef = useRef(false)
-  const router = useRouter()
+  const [firing, setFiring] = useState(false)
 
   function toggleSelect(nameId: number, value: boolean) {
     setSelected((current) =>
@@ -234,48 +293,61 @@ export default function ResultsTable({
     )
   }
 
+  function anonInput() {
+    return anonSessionId ? { anon_session_id: anonSessionId } : {}
+  }
+
   async function runOne(nameId: number) {
-    setCheckingId(nameId)
+    setFiring(true)
     try {
-      await runCheck(
-        nameId,
-        anonSessionId ? { anon_session_id: anonSessionId } : {}
-      )
-      router.refresh()
+      await runCheck(nameId, anonInput())
+      onMutation?.()
     } catch (error) {
       toastApiError(error, "The check failed. Try again in a moment.")
     } finally {
-      setCheckingId(null)
+      setFiring(false)
+    }
+  }
+
+  async function cancelOne(nameId: number) {
+    try {
+      await cancelCheck(nameId, anonInput())
+      onMutation?.()
+    } catch (error) {
+      toastApiError(error, "Could not cancel. Try again in a moment.")
     }
   }
 
   async function onCheckAll() {
-    const targets =
-      validSelected.length > 0
-        ? pending.filter((item) => validSelected.includes(item.id))
-        : pending
-    if (!targets.length) return
-    cancelRef.current = false
-    setRunning(true)
-    setProgress({ done: 0, total: targets.length })
-    for (const [index, item] of targets.entries()) {
-      if (cancelRef.current) break
-      setCheckingId(item.id)
-      try {
-        await runCheck(
-          item.id,
-          anonSessionId ? { anon_session_id: anonSessionId } : {}
+    if (!pending.length || firing) return
+    setFiring(true)
+    try {
+      const result = await checkAllNames(Number(searchId), {
+        ...anonInput(),
+        ...(validSelected.length > 0 ? { name_ids: validSelected } : {}),
+      })
+      if (result.skipped > 0) {
+        toastApiError(
+          new ApiError(402, "Some re-checks need credits."),
+          "Some checks need credits."
         )
-      } catch (error) {
-        toastApiError(error, "The check failed. Try again in a moment.")
       }
-      setProgress({ done: index + 1, total: targets.length })
+      setSelected([])
+      onMutation?.()
+    } catch (error) {
+      toastApiError(error, "The checks failed to start. Try again in a moment.")
+    } finally {
+      setFiring(false)
     }
-    setCheckingId(null)
-    setRunning(false)
-    setProgress(null)
-    setSelected([])
-    router.refresh()
+  }
+
+  async function onCancelAll() {
+    try {
+      await cancelAllChecks(Number(searchId), anonInput())
+      onMutation?.()
+    } catch (error) {
+      toastApiError(error, "Could not cancel. Try again in a moment.")
+    }
   }
 
   const pendingCount = pending.length
@@ -291,6 +363,11 @@ export default function ResultsTable({
   const allSelected = pendingCount > 0 && validSelected.length === pendingCount
   const someSelected =
     validSelected.length > 0 && validSelected.length < pendingCount
+  const activeJobs = pending.filter(
+    (item) =>
+      item.job !== null &&
+      (item.job.status === "queued" || item.job.status === "running")
+  ).length
 
   function toggleSelectAll() {
     setSelected(allSelected ? [] : pending.map((item) => item.id))
@@ -305,15 +382,14 @@ export default function ResultsTable({
   const hiddenPending = pending.slice(visiblePending.length)
   const overflowCount = hiddenChecked.length + hiddenPending.length
 
-  function pendingRowProps(item: { id: number; name: string }) {
+  function pendingRowProps(item: PendingName) {
     return {
-      name: item.name,
-      nameId: item.id,
+      item,
       selected: validSelected.includes(item.id),
-      checking: checkingId === item.id,
-      disabled: running,
+      disabled: firing,
       onSelect: toggleSelect,
       onCheck: (nameId: number) => void runOne(nameId),
+      onCancel: (nameId: number) => void cancelOne(nameId),
     }
   }
 
@@ -333,7 +409,7 @@ export default function ResultsTable({
                           ? "indeterminate"
                           : false
                     }
-                    disabled={running}
+                    disabled={firing}
                     onCheckedChange={() => toggleSelectAll()}
                     aria-label={
                       allSelected
@@ -352,33 +428,33 @@ export default function ResultsTable({
             <TableHead className="w-10">
               {pendingCount > 0 ? (
                 <span className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    disabled={running}
-                    onClick={() => void onCheckAll()}
-                    aria-label={
-                      validSelected.length > 0
-                        ? `Run check on ${bulkCount} selected names`
-                        : `Run check on all ${bulkCount} unchecked names`
-                    }
-                  >
-                    {running && progress
-                      ? `Checking ${progress.done} of ${progress.total}…`
-                      : running
-                        ? "Checking…"
-                        : bulkLabel}
-                  </Button>
-                  {running ? (
+                  {activeJobs > 0 ? (
+                    <>
+                      <Button size="sm" disabled>
+                        Checking {pendingCount - activeJobs} of {pendingCount}…
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => void onCancelAll()}
+                      >
+                        Cancel
+                      </Button>
+                    </>
+                  ) : (
                     <Button
                       size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        cancelRef.current = true
-                      }}
+                      disabled={firing}
+                      onClick={() => void onCheckAll()}
+                      aria-label={
+                        validSelected.length > 0
+                          ? `Run check on ${bulkCount} selected names`
+                          : `Run check on all ${bulkCount} unchecked names`
+                      }
                     >
-                      Cancel
+                      {bulkLabel}
                     </Button>
-                  ) : null}
+                  )}
                 </span>
               ) : null}
             </TableHead>

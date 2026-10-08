@@ -1,0 +1,207 @@
+"use client"
+
+import Link from "next/link"
+import { useEffect, useRef, useState } from "react"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { formatDateTime } from "@/lib/utils"
+import { DotIcon, ChevronRightIcon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
+import GradingDistribution from "@/components/dashboard/grading-distribution"
+import ScoreSummary from "@/components/dashboard/score-summary"
+import ResultsTable from "@/components/dashboard/results-table"
+import SearchResultsToolbar from "@/components/dashboard/search-results-toolbar"
+import {
+  ApiError,
+  getSearchHeader,
+  getSearchResults,
+  getSearchSummary,
+  type PendingName,
+  type SearchHeader,
+  type SearchResultsPayload,
+  type SearchSummaryPayload,
+} from "@/lib/api"
+import { toastApiError } from "@/lib/api-errors"
+import { toNameResultFromPayload } from "@/lib/dashboard-data"
+
+const POLL_MS = 2500
+
+type LiveSearchProps = {
+  searchId: number
+  sid?: string
+  availableOnly: boolean
+  sort: string
+  q?: string
+  homeHref: string
+  homeLabel: string
+  historyHref?: string
+  detailBase?: string | null
+  banner?: React.ReactNode
+  initialHeader: SearchHeader
+  initialSummary: SearchSummaryPayload
+  initialItems: SearchResultsPayload["items"]
+  initialPending: PendingName[]
+}
+
+export default function LiveSearch({
+  searchId,
+  sid,
+  availableOnly,
+  sort,
+  q,
+  homeHref,
+  homeLabel,
+  historyHref,
+  detailBase,
+  banner,
+  initialHeader,
+  initialSummary,
+  initialItems,
+  initialPending,
+}: LiveSearchProps) {
+  const [header, setHeader] = useState(initialHeader)
+  const [summary, setSummary] = useState(initialSummary)
+  const [items, setItems] = useState(initialItems)
+  const [pending, setPending] = useState(initialPending)
+  const failuresRef = useRef(0)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const generating = header.generation.status === "generating"
+  const active = generating || pending.length > 0
+
+  async function refresh(signal?: AbortSignal): Promise<boolean> {
+    const [nextHeader, nextSummary, nextResults] = await Promise.all([
+      getSearchHeader(searchId, sid),
+      getSearchSummary(searchId, sid),
+      getSearchResults(searchId, {
+        availableOnly,
+        sort,
+        q,
+        anonSessionId: sid,
+      }),
+    ])
+    if (signal?.aborted) return false
+    failuresRef.current = 0
+    setHeader(nextHeader)
+    setSummary(nextSummary)
+    setItems(nextResults.items)
+    setPending(nextResults.pending)
+    return true
+  }
+
+  useEffect(() => {
+    if (!active) return
+    const controller = new AbortController()
+    timerRef.current = setInterval(() => {
+      refresh(controller.signal).catch((error) => {
+        if (error instanceof ApiError && error.status === 429) return
+        failuresRef.current += 1
+        if (failuresRef.current >= 3) {
+          if (timerRef.current) clearInterval(timerRef.current)
+          toastApiError(error, "Live updates paused. Refresh the page.")
+        }
+      })
+    }, POLL_MS)
+    return () => {
+      controller.abort()
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, searchId, sid, availableOnly, sort, q])
+
+  const results = items.map(toNameResultFromPayload)
+
+  return (
+    <div className="space-y-8">
+      <Breadcrumb>
+        <BreadcrumbList className="flex-nowrap">
+          <BreadcrumbItem>
+            <BreadcrumbLink href={homeHref} className="text-primary">
+              {homeLabel}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <HugeiconsIcon icon={ChevronRightIcon} />
+          </BreadcrumbSeparator>
+          {historyHref ? (
+            <>
+              <BreadcrumbItem>
+                <BreadcrumbLink href={historyHref} className="text-primary">
+                  History
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator>
+                <HugeiconsIcon icon={ChevronRightIcon} />
+              </BreadcrumbSeparator>
+            </>
+          ) : null}
+          <BreadcrumbItem className="min-w-0">
+            <BreadcrumbPage className="truncate">{header.query}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <div className="space-y-1">
+        <h1 className="font-heading text-4xl font-semibold md:text-5xl">
+          Results for &apos;
+          <span className="text-primary">{header.query}</span>&apos;
+        </h1>
+        <div className="flex flex-wrap items-center gap-1">
+          <span className="text-xs text-muted-foreground">
+            {header.name_count} names generated
+          </span>
+          <HugeiconsIcon icon={DotIcon} />
+          <span className="text-xs text-muted-foreground">
+            {formatDateTime(header.created_at)}
+          </span>
+        </div>
+        {generating ? (
+          <p className="text-sm text-muted-foreground" role="status">
+            Finding names… {header.generation.progress}% — results appear below
+            as they arrive.
+          </p>
+        ) : null}
+        {header.generation.status === "failed" ? (
+          <p className="text-sm text-destructive" role="alert">
+            {header.generation.error ??
+              "Name generation failed. Try a new search from "}
+            {header.generation.error ? null : (
+              <Link href={homeHref} className="underline">
+                {homeLabel}
+              </Link>
+            )}
+          </p>
+        ) : null}
+      </div>
+      <div className="flex w-full flex-col gap-6 md:flex-row">
+        <div className="min-w-0 flex-1">
+          <ScoreSummary summary={summary} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <GradingDistribution summary={summary} />
+        </div>
+      </div>
+      <div className="space-y-5">
+        <SearchResultsToolbar />
+        <ResultsTable
+          results={results}
+          searchId={String(searchId)}
+          pending={pending}
+          anonSessionId={sid}
+          detailBase={detailBase}
+          onMutation={() => {
+            refresh().catch(() => {
+              // Poll loop picks it up on the next tick.
+            })
+          }}
+        />
+        {banner}
+      </div>
+    </div>
+  )
+}

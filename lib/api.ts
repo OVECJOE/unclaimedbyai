@@ -169,8 +169,16 @@ export function generateNames(
   })
 }
 
-export type FilledSearch = SearchItem & {
-  names: NameItem[]
+export type FilledSearch = {
+  id: number
+  query: string
+  category: string
+  generation: {
+    status: "generating" | "ready" | "failed"
+    progress: number
+    error: string | null
+  }
+  created_at: string
   searches_left?: number
 }
 
@@ -216,11 +224,20 @@ export type SearchHeader = {
   category: string
   name_count: number
   checked_count: number
+  generation: {
+    status: "generating" | "ready" | "failed"
+    progress: number
+    error: string | null
+  }
   created_at: string
 }
 
-export function getSearchHeader(searchId: number): Promise<SearchHeader> {
-  return apiRequest<SearchHeader>(`/api/v1/searches/${searchId}/header`)
+export function getSearchHeader(
+  searchId: number,
+  anonSessionId?: string
+): Promise<SearchHeader> {
+  const sid = anonSessionId ? `?anon_session_id=${anonSessionId}` : ""
+  return apiRequest<SearchHeader>(`/api/v1/searches/${searchId}/header${sid}`)
 }
 
 export type SearchSummaryPayload = {
@@ -233,11 +250,24 @@ export type SearchSummaryPayload = {
 }
 
 export function getSearchSummary(
-  searchId: number
+  searchId: number,
+  anonSessionId?: string
 ): Promise<SearchSummaryPayload> {
+  const sid = anonSessionId ? `?anon_session_id=${anonSessionId}` : ""
   return apiRequest<SearchSummaryPayload>(
-    `/api/v1/searches/${searchId}/summary`
+    `/api/v1/searches/${searchId}/summary${sid}`
   )
+}
+
+export type PendingName = {
+  id: number
+  name: string
+  job: {
+    status: "queued" | "running" | "succeeded" | "failed" | "canceled"
+    progress: number
+    current_step: string | null
+    error: string | null
+  } | null
 }
 
 export type SearchResultsPayload = {
@@ -249,16 +279,24 @@ export type SearchResultsPayload = {
     socials: { platform: string; available: boolean }[]
     aiAssociation: string
   }[]
-  pending: { id: number; name: string }[]
+  pending: PendingName[]
 }
 
 export function getSearchResults(
   searchId: number,
-  options?: { availableOnly?: boolean; sort?: string }
+  options?: {
+    availableOnly?: boolean
+    sort?: string
+    q?: string
+    anonSessionId?: string
+  }
 ): Promise<SearchResultsPayload> {
   const params = new URLSearchParams()
+  if (options?.anonSessionId)
+    params.set("anon_session_id", options.anonSessionId)
   if (options?.availableOnly) params.set("available_only", "true")
   if (options?.sort) params.set("sort", options.sort)
+  if (options?.q) params.set("q", options.q)
   const query = params.toString()
   return apiRequest<SearchResultsPayload>(
     `/api/v1/searches/${searchId}/results${query ? `?${query}` : ""}`
@@ -284,15 +322,50 @@ export function createName(
   })
 }
 
+export type CheckEnqueued = {
+  attempt_no: number
+  status: string
+}
+
 export function runCheck(
   nameId: number,
   input: { tlds?: string[]; platforms?: string[]; anon_session_id?: string }
-): Promise<CheckReport> {
-  return apiRequest<CheckReport>(`/api/v1/names/${nameId}/checks`, {
+): Promise<CheckEnqueued> {
+  return apiRequest<CheckEnqueued>(`/api/v1/names/${nameId}/checks`, {
     method: "POST",
     body: input,
-    timeoutMs: 150000,
+    timeoutMs: 15000,
   })
+}
+
+export function cancelCheck(
+  nameId: number,
+  input: { anon_session_id?: string } = {}
+): Promise<{ canceled: boolean }> {
+  return apiRequest<{ canceled: boolean }>(
+    `/api/v1/names/${nameId}/checks/cancel`,
+    { method: "POST", body: input, timeoutMs: 15000 }
+  )
+}
+
+export function checkAllNames(
+  searchId: number,
+  input: { anon_session_id?: string; name_ids?: number[] } = {}
+): Promise<{ queued: number; skipped: number }> {
+  return apiRequest<{ queued: number; skipped: number }>(
+    `/api/v1/searches/${searchId}/check-all`,
+    { method: "POST", body: input, timeoutMs: 15000 }
+  )
+}
+
+export function cancelAllChecks(
+  searchId: number,
+  input: { anon_session_id?: string } = {}
+): Promise<{ canceled: number }> {
+  return apiRequest<{ canceled: number }>(
+    `/api/v1/searches/${searchId}/check-all/cancel`,
+    { method: "POST", body: input, timeoutMs: 15000 }
+  )
 }
 
 export function listChecks(nameId: number): Promise<AttemptItem[]> {

@@ -3,7 +3,6 @@ import { apiServer } from "./api-server"
 import type {
   CheckReport,
   NameItem,
-  SearchDetail,
   SearchHeader,
   SearchItem,
   SearchResultsPayload,
@@ -16,11 +15,6 @@ import type { GradeTier } from "./name-results"
 export function diceLogo(name: string): string {
   return `https://api.dicebear.com/10.x/shapes/svg?seed=${encodeURIComponent(name)}`
 }
-
-export const getCachedSearchDetail = cache(
-  (searchId: number): Promise<SearchDetail> =>
-    apiServer<SearchDetail>(`/api/v1/searches/${searchId}`)
-)
 
 export const getCachedSearchHeader = cache(
   (searchId: number, anonSessionId?: string): Promise<SearchHeader> => {
@@ -122,37 +116,6 @@ export function toNameResult(
     aiAssociation: associationFor(report),
   }
 }
-
-async function reportFor(publicId: string | null): Promise<CheckReport | null> {
-  if (!publicId) return null
-  try {
-    return await apiServer<CheckReport>(`/api/v1/reports/${publicId}`)
-  } catch {
-    return null
-  }
-}
-
-export async function getSearchResults(searchId: number): Promise<{
-  search: SearchDetail
-  results: NameResult[]
-}> {
-  const search = await getCachedSearchDetail(searchId)
-  const pairs = await Promise.all(
-    search.names.map(async (name) => ({
-      name,
-      report: await reportFor(name.latest_check?.public_id ?? null),
-    }))
-  )
-  const results: NameResult[] = []
-  for (const { name, report } of pairs) {
-    const mapped = report ? toNameResult(name, report) : null
-    if (mapped) results.push(mapped)
-  }
-  results.sort((a, b) => b.score - a.score)
-  return { search, results }
-}
-
-export const getCachedSearchResults = cache(getSearchResults)
 
 export function toCardProps(item: SearchItem): SearchResultCardProps {
   const preview = item.preview_names.map((name) => ({

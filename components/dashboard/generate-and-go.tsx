@@ -54,7 +54,7 @@ export default function GenerateAndGo({
       />
       {pending ? (
         <p className="text-center text-sm text-muted-foreground">
-          Generating names and saving your search…
+          Starting your search… results open right away and fill in live.
         </p>
       ) : null}
     </div>
