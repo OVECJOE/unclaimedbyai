@@ -16,26 +16,66 @@ import { ArrowAllDirectionIcon } from "@hugeicons/core-free-icons"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import { toCardProps } from "@/lib/dashboard-data"
+import RateLimited from "@/components/dashboard/rate-limited"
 import { ApiError, type SearchList } from "@/lib/api"
 import { ListSkeleton } from "@/components/dashboard/skeletons"
 import { apiServer } from "@/lib/api-server"
 
 export const dynamic = "force-dynamic"
 
+export type HistoryFilters = {
+  q?: string
+  sort?: string
+  from?: string
+  to?: string
+  quality?: string
+}
+
+function historyQuery(
+  page: number,
+  pageSize: number,
+  filters: HistoryFilters
+): string {
+  const params = new URLSearchParams()
+  params.set("page", String(page))
+  params.set("page_size", String(pageSize))
+  if (filters.q) params.set("q", filters.q)
+  if (filters.sort) params.set("sort", filters.sort)
+  if (filters.from) params.set("from", filters.from)
+  if (filters.to) params.set("to", filters.to)
+  if (filters.quality) params.set("quality", filters.quality)
+  return `/api/v1/searches?${params.toString()}`
+}
+
+function pageHref(page: number, filters: HistoryFilters): string {
+  const params = new URLSearchParams()
+  if (page > 1) params.set("page", String(page))
+  if (filters.q) params.set("q", filters.q)
+  if (filters.sort) params.set("sort", filters.sort)
+  if (filters.from) params.set("from", filters.from)
+  if (filters.to) params.set("to", filters.to)
+  if (filters.quality) params.set("quality", filters.quality)
+  const query = params.toString()
+  return query ? `/dashboard/history?${query}` : "/dashboard/history"
+}
+
 async function HistoryList({
   page,
   pageSize,
+  filters,
 }: {
   page: number
   pageSize: number
+  filters: HistoryFilters
 }) {
   let data: SearchList
   try {
-    data = await apiServer<SearchList>(
-      `/api/v1/searches?page=${page}&page_size=${pageSize}`
-    )
+    data = await apiServer<SearchList>(historyQuery(page, pageSize, filters))
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) redirect("/auth")
+    if (error instanceof ApiError && error.status === 429) {
+      return <RateLimited />
+    }
     throw error
   }
   const pageCount = Math.max(1, Math.ceil(data.total / pageSize))
@@ -43,12 +83,17 @@ async function HistoryList({
   const items =
     currentPage === page
       ? data.items
-      : (
+      : ((
           await apiServer<SearchList>(
-            `/api/v1/searches?page=${currentPage}&page_size=${pageSize}`
-          )
-        ).items
-  const cards = await Promise.all(items.map((item) => toCardProps(item)))
+            historyQuery(currentPage, pageSize, filters)
+          ).catch((error) => {
+            if (error instanceof ApiError && error.status === 401)
+              redirect("/auth")
+            if (error instanceof ApiError && error.status === 429) return null
+            throw error
+          })
+        )?.items ?? [])
+  const cards = items.map((item) => toCardProps(item))
 
   return (
     <div className="space-y-5">
@@ -60,13 +105,13 @@ async function HistoryList({
         </div>
       ) : (
         <p className="text-muted-foreground">
-          No searches yet. Run your first check from the dashboard.
+          No searches match. Run your first check from the dashboard.
         </p>
       )}
       <PaginationWindow
         currentPage={currentPage}
         pageCount={pageCount}
-        basePath="/dashboard/history"
+        getHref={(target) => pageHref(target, filters)}
       />
     </div>
   )
@@ -77,12 +122,27 @@ export default async function SearchHistoryPage({
 }: {
   searchParams: Promise<{ [key: string]: string }>
 }) {
-  const { page } = await searchParams
-  const requested = Number.parseInt(page ?? "", 10)
+  const params = await searchParams
+  const requested = Number.parseInt(params.page ?? "", 10)
   const parsed = Number.isNaN(requested) ? 1 : requested
+  const filters: HistoryFilters = {
+    q: params.q || undefined,
+    sort: params.sort || undefined,
+    from: params.from || undefined,
+    to: params.to || undefined,
+    quality: params.quality || undefined,
+  }
 
+  const totalParams = new URLSearchParams()
+  totalParams.set("page", "1")
+  totalParams.set("page_size", "1")
+  if (filters.q) totalParams.set("q", filters.q)
+  if (filters.sort) totalParams.set("sort", filters.sort)
+  if (filters.from) totalParams.set("from", filters.from)
+  if (filters.to) totalParams.set("to", filters.to)
+  if (filters.quality) totalParams.set("quality", filters.quality)
   const total = await apiServer<SearchList>(
-    `/api/v1/searches?page=1&page_size=1`
+    `/api/v1/searches?${totalParams.toString()}`
   )
     .then((data) => data.total)
     .catch(() => null)
@@ -118,7 +178,11 @@ export default async function SearchHistoryPage({
           </div>
           <SearchHistoryToolbar />
           <Suspense fallback={<ListSkeleton rows={ITEMS_PER_PAGE} />}>
-            <HistoryList page={parsed} pageSize={ITEMS_PER_PAGE} />
+            <HistoryList
+              page={parsed}
+              pageSize={ITEMS_PER_PAGE}
+              filters={filters}
+            />
           </Suspense>
         </div>
       </section>

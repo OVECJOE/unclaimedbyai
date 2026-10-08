@@ -71,6 +71,8 @@ export type SearchItem = {
   category: string
   name_count: number
   created_at: string
+  top: { name: string; score: number; tier: string } | null
+  preview_names: string[]
 }
 
 export type SearchList = {

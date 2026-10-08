@@ -86,42 +86,14 @@ export async function getSearchResults(searchId: number): Promise<{
 
 export const getCachedSearchResults = cache(getSearchResults)
 
-export async function toCardProps(
-  item: SearchItem
-): Promise<SearchResultCardProps> {
-  let topPick = { name: "", logo: "" }
-  let preview: { name: string; logo: string }[] = []
-  let tier: GradeTier = "Okay"
-  try {
-    const search = await apiServer<SearchDetail>(`/api/v1/searches/${item.id}`)
-    const pairs = await Promise.all(
-      search.names.map(async (name) => ({
-        name,
-        report: await reportFor(name.latest_check?.public_id ?? null),
-      }))
-    )
-    const scored = pairs.filter(
-      (entry): entry is { name: NameItem; report: CheckReport } =>
-        entry.report !== null
-    )
-    scored.sort((a, b) => b.report.overall_score - a.report.overall_score)
-    if (scored[0]) {
-      topPick = {
-        name: scored[0].name.name,
-        logo: diceLogo(scored[0].name.name),
-      }
-      tier = toTier(scored[0].report.overall_risk_level)
-    }
-    preview = search.names.slice(0, 4).map((name) => ({
-      name: name.name,
-      logo: diceLogo(name.name),
-    }))
-    if (!topPick.name && preview[0]) {
-      topPick = { ...preview[0] }
-    }
-  } catch {
-    preview = []
-  }
+export function toCardProps(item: SearchItem): SearchResultCardProps {
+  const preview = item.preview_names.map((name) => ({
+    name,
+    logo: diceLogo(name),
+  }))
+  const topPick = item.top
+    ? { name: item.top.name, logo: diceLogo(item.top.name) }
+    : (preview[0] ?? { name: "", logo: "" })
   return {
     id: String(item.id),
     query: item.query,
@@ -129,6 +101,6 @@ export async function toCardProps(
     topPick,
     namesPreview: preview,
     createdAt: item.created_at,
-    tier,
+    tier: item.top ? toTier(item.top.tier) : "Okay",
   }
 }

@@ -55,10 +55,16 @@ export function SearchResultCard({
                   <HugeiconsIcon icon={BrandfetchIcon} className="size-4" />
                 </AvatarFallback>
               </Avatar>
-              <p className="text-sm font-medium italic">
-                <span className="text-primary">{topPick.name}</span> is the top
-                pick
-              </p>
+              {topPick.name ? (
+                <p className="text-sm font-medium italic">
+                  <span className="text-primary">{topPick.name}</span> is the
+                  top pick
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">
+                  No names yet
+                </p>
+              )}
               {tier && <TierBadge tier={tier} />}
             </div>
           </div>

@@ -20,6 +20,7 @@ import {
   TableSkeleton,
 } from "@/components/dashboard/skeletons"
 import { ApiError, type SearchDetail } from "@/lib/api"
+import type { NameResult } from "@/lib/constants"
 import {
   getCachedSearchDetail,
   getCachedSearchResults,
@@ -97,7 +98,51 @@ async function SearchContent({ searchId }: { searchId: number }) {
   )
 }
 
-async function SearchTableBlock({ searchId }: { searchId: number }) {
+function sortResults(results: NameResult[], sort: string): NameResult[] {
+  const rows = [...results]
+  switch (sort) {
+    case "overall-score-low-to-high":
+      return rows.sort((a, b) => a.score - b.score)
+    case "most-domains-available":
+      return rows.sort(
+        (a, b) =>
+          b.domains.filter((domain) => domain.available).length -
+          a.domains.filter((domain) => domain.available).length
+      )
+    case "lowest-ai-association":
+      return rows.sort(
+        (a, b) =>
+          aiRank(a.aiAssociation) - aiRank(b.aiAssociation) || b.score - a.score
+      )
+    case "name-a-z":
+      return rows.sort((a, b) => a.name.localeCompare(b.name))
+    default:
+      return rows.sort((a, b) => b.score - a.score)
+  }
+}
+
+function aiRank(level: NameResult["aiAssociation"]): number {
+  switch (level) {
+    case "Low":
+      return 0
+    case "Medium":
+      return 1
+    case "High":
+      return 2
+    case "Very High":
+      return 3
+  }
+}
+
+async function SearchTableBlock({
+  searchId,
+  availableOnly,
+  sort,
+}: {
+  searchId: number
+  availableOnly: boolean
+  sort: string
+}) {
   const { search, results } = await getCachedSearchResults(searchId).catch(
     (error) => {
       if (error instanceof ApiError && error.status === 404) notFound()
@@ -109,12 +154,22 @@ async function SearchTableBlock({ searchId }: { searchId: number }) {
   const unchecked = search.names.filter(
     (name) => !checkedIds.has(name.name.toLowerCase())
   )
+  const visible = sortResults(
+    availableOnly
+      ? results.filter(
+          (result) =>
+            result.domains.every((domain) => domain.available) &&
+            result.socials.every((social) => social.available)
+        )
+      : results,
+    sort
+  )
 
   return (
     <>
       <SearchResultsToolbar />
       <ResultsTable
-        results={results}
+        results={visible}
         searchId={String(searchId)}
         pending={unchecked.map((name) => ({ id: name.id, name: name.name }))}
       />
@@ -124,12 +179,17 @@ async function SearchTableBlock({ searchId }: { searchId: number }) {
 
 export default async function HistorySearchPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ searchId: string }>
+  searchParams: Promise<{ [key: string]: string }>
 }) {
   const { searchId } = await params
   const id = Number.parseInt(searchId, 10)
   if (!Number.isInteger(id)) notFound()
+  const query = await searchParams
+  const availableOnly = query.available === "1"
+  const sort = query.sort || "overall-score-high-to-low"
 
   return (
     <>
@@ -153,7 +213,11 @@ export default async function HistorySearchPage({
       <section className="px-4 py-10">
         <div className="mx-auto max-w-7xl space-y-5">
           <Suspense fallback={<TableSkeleton />}>
-            <SearchTableBlock searchId={id} />
+            <SearchTableBlock
+              searchId={id}
+              availableOnly={availableOnly}
+              sort={sort}
+            />
           </Suspense>
         </div>
       </section>
