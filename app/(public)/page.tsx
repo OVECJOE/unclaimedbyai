@@ -24,7 +24,22 @@ export const metadata: Metadata = pageMetadata({
   path: "/",
 })
 
-export default function Page() {
+export default async function Page() {
+  let communityCount = 308
+  try {
+    const base = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8007"
+    const res = await fetch(`${base}/api/v1/stats`, {
+      next: { revalidate: 3600 },
+    })
+    if (res.ok) {
+      const stats = (await res.json()) as { users?: number }
+      if (typeof stats.users === "number" && stats.users > 0) {
+        communityCount = stats.users
+      }
+    }
+  } catch {
+    communityCount = 308
+  }
   return (
     <>
       <JsonLd data={homeJsonLd} />
@@ -173,7 +188,7 @@ export default function Page() {
                 <AvatarFallback>{name.charAt(0)}</AvatarFallback>
               </Avatar>
             ))}
-            <AvatarGroupCount>+308</AvatarGroupCount>
+            <AvatarGroupCount>+{communityCount}</AvatarGroupCount>
           </AvatarGroup>
         </div>
         <Button size="lg" className="py-8 text-xl">

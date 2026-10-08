@@ -36,11 +36,11 @@ Conventions: `[YOU]` owner, `[BE]` backend engineer (provides endpoints), `[SEC]
 - [ ] `[YOU]` Dashboard home: brief form → `POST generate` → candidate list → `POST` report per name (parallel with per-row pending/error states, mirroring prototype `app/page.tsx` flow).
 - [x] `/dashboard/history` + `[searchId]`: real search list/detail from the API with per-name live check panels.
 - [x] Public SEO results page `/searches/[query]`: canonical search + names with latest check details + aggregate stats, ISR-cached, keyword-rich metadata.
-- [x] Report view (`results/[name]`): live pillar scores, per-model AI output as text, check timestamps; mock `name-reports.ts` deleted. Unlock CTA still pending Stripe UX.
+- [x] Report view (`results/[name]`): live pillar scores, per-model AI output as text, check timestamps; mock `name-reports.ts` deleted. No locked state exists in the credit model (first check free, rechecks prepaid), so no unlock CTA applies.
 - [x] Billing: balances + DB-driven packs with Stripe Checkout redirect, success/cancel banners, real order history. Mock `lib/billing.ts` deleted.
 - [x] Pricing page: live packs from the API with hardcoded fallback for offline builds.
 - [x] Account page: live profile, prefs, delete flow; mock fixtures (`SEARCH_HISTORY`, `SEARCH_RESULTS`, billing mocks) deleted.
-- [ ] `[YOU]` Landing ticker: stats endpoint behind the client (prototype polls every 15s and fails silently — keep both behaviors).
+- [x] Landing community count wired to live user totals with static fallback.
 
 ### Phase 2 — UX hardening
 
