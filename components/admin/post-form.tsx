@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ImageAdd01Icon } from "@hugeicons/core-free-icons"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -333,11 +334,13 @@ export default function PostForm({ post }: { post: Post | null }) {
             <Label htmlFor="cover">Cover image</Label>
             {coverImageUrl ? (
               <div className="space-y-2">
-                <div className="relative border border-input bg-muted/40">
-                  <img
+                <div className="relative aspect-video border border-input bg-muted/40">
+                  <Image
                     src={coverImageUrl}
                     alt="Cover preview"
-                    className="aspect-video h-auto w-full object-cover"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 640px"
+                    className="object-cover"
                     onError={() =>
                       setUploadError(
                         "That image couldn't be loaded. Check the URL and try again."

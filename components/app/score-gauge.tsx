@@ -58,11 +58,16 @@ export function ScoreGauge({
           strokeLinecap="round"
           strokeDasharray={100}
           strokeDashoffset={100 - score}
-          className={cn("transition-[stroke-dashoffset] duration-500 ease-out", strokeByTier[tier])}
+          className={cn(
+            "transition-[stroke-dashoffset] duration-500 ease-out",
+            strokeByTier[tier]
+          )}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className={cn("text-xl font-semibold", textByTier[tier])}>{score}</span>
+        <span className={cn("text-xl font-semibold", textByTier[tier])}>
+          {score}
+        </span>
         <span className="text-[10px] text-muted-foreground">/100</span>
       </div>
     </div>

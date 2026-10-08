@@ -7,7 +7,10 @@ import { Input } from "@/components/ui/input"
 const COOLDOWN_SECONDS = 45
 
 function secondsLeft(sentAt: number) {
-  return Math.max(0, COOLDOWN_SECONDS - Math.floor((Date.now() - sentAt) / 1000))
+  return Math.max(
+    0,
+    COOLDOWN_SECONDS - Math.floor((Date.now() - sentAt) / 1000)
+  )
 }
 
 export function MagicLinkTimer({
@@ -18,8 +21,8 @@ export function MagicLinkTimer({
   sentAt?: string
   email: string
   onResendAction: (formData: FormData) => void | Promise<void>
-  }) {
-  const [sentAtMs] = useState(() => sentAt ? Number(sentAt) : Date.now())
+}) {
+  const [sentAtMs] = useState(() => (sentAt ? Number(sentAt) : Date.now()))
   const [remaining, setRemaining] = useState(() => secondsLeft(sentAtMs))
   const [isPending, startTransition] = useTransition()
 
@@ -32,13 +35,25 @@ export function MagicLinkTimer({
   if (remaining > 0) {
     const m = Math.floor(remaining / 60)
     const s = String(remaining % 60).padStart(2, "0")
-    return <span className="text-muted-foreground">Resend in {m}:{s}</span>
+    return (
+      <span className="text-muted-foreground">
+        Resend in {m}:{s}
+      </span>
+    )
   }
 
   return (
-    <form action={(formData) => startTransition(() => onResendAction(formData))}>
+    <form
+      action={(formData) => startTransition(() => onResendAction(formData))}
+    >
       <Input type="hidden" name="email" value={email} />
-      <Button variant="link" size="sm" className="h-auto p-0 text-primary" type="submit" disabled={isPending}>
+      <Button
+        variant="link"
+        size="sm"
+        className="h-auto p-0 text-primary"
+        type="submit"
+        disabled={isPending}
+      >
         {isPending ? "Sending…" : "Resend"}
       </Button>
     </form>

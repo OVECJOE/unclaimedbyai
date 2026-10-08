@@ -1,9 +1,4 @@
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { BrandfetchIcon } from "@hugeicons/core-free-icons"
@@ -19,11 +14,14 @@ type ScoreSummaryProps = {
 export default function ScoreSummary({ results, topPick }: ScoreSummaryProps) {
   const { total, passCount, passRate, overall } = summarizeResults(results)
   const scoreColor =
-    overall >= 80 ? "text-green-600" : overall >= 60 ? "text-yellow-600" : "text-red-600"
+    overall >= 80
+      ? "text-green-600"
+      : overall >= 60
+        ? "text-yellow-600"
+        : "text-red-600"
   const topPickResult = topPick
     ? results.find(
-        (result) =>
-          result.name.toLowerCase() === topPick.name.toLowerCase()
+        (result) => result.name.toLowerCase() === topPick.name.toLowerCase()
       )
     : undefined
 
@@ -36,12 +34,16 @@ export default function ScoreSummary({ results, topPick }: ScoreSummaryProps) {
         <div className="flex items-end justify-between gap-4">
           <div className="flex items-end gap-3">
             <div>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs tracking-wider text-muted-foreground uppercase">
                 Overall score
               </p>
-              <p className={`mt-1 font-heading text-4xl font-semibold leading-none ${scoreColor}`}>
+              <p
+                className={`mt-1 font-heading text-4xl leading-none font-semibold ${scoreColor}`}
+              >
                 {overall}
-                <span className="text-base font-normal text-muted-foreground">/100</span>
+                <span className="text-base font-normal text-muted-foreground">
+                  /100
+                </span>
               </p>
             </div>
             <div className="mb-1">

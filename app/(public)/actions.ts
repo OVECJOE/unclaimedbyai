@@ -34,9 +34,9 @@ export async function addToWaitlist(
       },
       body: JSON.stringify({ email: normalized }),
     })
-    const data = (await res.json().catch(() => null)) as
-      | { success?: boolean }
-      | null
+    const data = (await res.json().catch(() => null)) as {
+      success?: boolean
+    } | null
 
     if (!res.ok || !data?.success) {
       return {
@@ -45,7 +45,10 @@ export async function addToWaitlist(
       }
     }
 
-    return { status: "success", message: "You're on the list — we'll be in touch." }
+    return {
+      status: "success",
+      message: "You're on the list — we'll be in touch.",
+    }
   } catch {
     return { status: "error", message: "Network error. Please try again." }
   }

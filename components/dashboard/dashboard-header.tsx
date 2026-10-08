@@ -12,10 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  Avatar,
-  AvatarFallback,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   Sheet,
   SheetClose,
@@ -39,19 +36,32 @@ const navLinks = [
 export default function DashboardHeader({ user }: { user?: ApiUser | null }) {
   const pathname = usePathname()
 
-  const isActive = useCallback((href: string) => {
-    const excludedPathsForDashboard = ["/dashboard/billing", "/dashboard/account"]
-    if (href === "/dashboard" && excludedPathsForDashboard.some((path) => pathname.startsWith(path))) return false
-    const slices = href.split("/").filter(Boolean)
-    return slices.every((slice) => pathname.includes(slice))
-  }, [pathname])
+  const isActive = useCallback(
+    (href: string) => {
+      const excludedPathsForDashboard = [
+        "/dashboard/billing",
+        "/dashboard/account",
+      ]
+      if (
+        href === "/dashboard" &&
+        excludedPathsForDashboard.some((path) => pathname.startsWith(path))
+      )
+        return false
+      const slices = href.split("/").filter(Boolean)
+      return slices.every((slice) => pathname.includes(slice))
+    },
+    [pathname]
+  )
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4">
         <Logo className="h-8 w-auto" />
 
-        <nav aria-label="Primary" className="hidden items-center gap-6 text-sm md:flex">
+        <nav
+          aria-label="Primary"
+          className="hidden items-center gap-6 text-sm md:flex"
+        >
           {navLinks.map((link) => {
             const active = isActive(link.href)
             return (
@@ -62,7 +72,9 @@ export default function DashboardHeader({ user }: { user?: ApiUser | null }) {
                 className={cn(
                   "relative py-1 text-muted-foreground transition-colors hover:text-primary",
                   "after:absolute after:-bottom-px after:left-0 after:h-[1.5px] after:bg-primary after:transition-all after:content-['']",
-                  active ? "font-medium text-primary after:w-full" : "after:w-0 hover:after:w-full"
+                  active
+                    ? "font-medium text-primary after:w-full"
+                    : "after:w-0 hover:after:w-full"
                 )}
               >
                 {link.label}
@@ -92,7 +104,7 @@ export default function DashboardHeader({ user }: { user?: ApiUser | null }) {
                 <span className="block font-heading text-sm font-semibold text-primary">
                   {user?.full_name || user?.email || "Account"}
                 </span>
-                <span className="mt-0.5 block text-xs text-muted-foreground font-normal lowercase">
+                <span className="mt-0.5 block text-xs font-normal text-muted-foreground lowercase">
                   {user?.email ?? "not signed in"}
                 </span>
               </DropdownMenuLabel>
@@ -125,7 +137,10 @@ export default function DashboardHeader({ user }: { user?: ApiUser | null }) {
             </SheetTrigger>
             <SheetContent side="right">
               <SheetTitle className="sr-only">Navigation menu</SheetTitle>
-              <nav aria-label="Mobile" className="mt-8 flex flex-col gap-4 px-4">
+              <nav
+                aria-label="Mobile"
+                className="mt-8 flex flex-col gap-4 px-4"
+              >
                 {navLinks.map((link) => {
                   const active = isActive(link.href)
                   return (
@@ -135,7 +150,9 @@ export default function DashboardHeader({ user }: { user?: ApiUser | null }) {
                         aria-current={active ? "page" : undefined}
                         className={cn(
                           "text-base transition-colors hover:text-primary",
-                          active ? "font-medium text-primary" : "text-muted-foreground"
+                          active
+                            ? "font-medium text-primary"
+                            : "text-muted-foreground"
                         )}
                       >
                         {link.label}

@@ -13,5 +13,7 @@ export function formatDateTime(value: string | Date): string {
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
-  }).format(date).replace(",", "")
+  })
+    .format(date)
+    .replace(",", "")
 }

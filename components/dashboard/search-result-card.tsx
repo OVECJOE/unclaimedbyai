@@ -31,7 +31,6 @@ export function SearchResultCard({
   createdAt,
   tier,
 }: SearchResultCardProps) {
-
   return (
     <Link
       href={`/dashboard/history/${id}`}
@@ -57,8 +56,8 @@ export function SearchResultCard({
                 </AvatarFallback>
               </Avatar>
               <p className="text-sm font-medium italic">
-                <span className="text-primary">{topPick.name}</span> is
-                the top pick
+                <span className="text-primary">{topPick.name}</span> is the top
+                pick
               </p>
               {tier && <TierBadge tier={tier} />}
             </div>

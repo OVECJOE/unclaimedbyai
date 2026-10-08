@@ -1,5 +1,5 @@
-import AppFooter from "@/components/app-footer";
-import AppHeader from "@/components/app-header";
+import AppFooter from "@/components/app-footer"
+import AppHeader from "@/components/app-header"
 import {
   Card,
   CardContent,
@@ -7,20 +7,17 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Toggle } from "@/components/ui/toggle";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Globe02Icon,
-  SmileIcon,
-} from "@hugeicons/core-free-icons";
-import Link from "next/link";
-import type { Metadata } from "next";
+} from "@/components/ui/card"
+import { Toggle } from "@/components/ui/toggle"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Globe02Icon, SmileIcon } from "@hugeicons/core-free-icons"
+import Link from "next/link"
+import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "404",
   robots: { index: false, follow: false },
-};
+}
 
 export default function NotFound() {
   return (
@@ -30,7 +27,7 @@ export default function NotFound() {
       <main className="flex flex-1">
         <div className="mx-auto flex w-full max-w-6xl flex-col px-6 py-20 sm:px-8 md:py-24">
           <section className="mx-auto w-full max-w-3xl text-center">
-            <h1 className="font-heading text-7xl font-medium leading-none tracking-tight text-primary sm:text-8xl md:text-9xl">
+            <h1 className="font-heading text-7xl leading-none font-medium tracking-tight text-primary sm:text-8xl md:text-9xl">
               404
             </h1>
 
@@ -39,8 +36,8 @@ export default function NotFound() {
             </h2>
 
             <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-              Looks like this page went unclaimed. Here is a fun fact and a
-              joke to help soften your poor landing.
+              Looks like this page went unclaimed. Here is a fun fact and a joke
+              to help soften your poor landing.
             </p>
           </section>
 
@@ -56,7 +53,7 @@ export default function NotFound() {
                     />
                   </span>
 
-                  <span className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                  <span className="text-xs font-medium tracking-[0.12em] text-muted-foreground uppercase">
                     Fun fact
                   </span>
                 </div>
@@ -112,7 +109,7 @@ export default function NotFound() {
                     />
                   </span>
 
-                  <span className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                  <span className="text-xs font-medium tracking-[0.12em] text-muted-foreground uppercase">
                     Joke
                   </span>
                 </div>
@@ -122,8 +119,8 @@ export default function NotFound() {
                 </CardTitle>
 
                 <CardDescription className="mt-3 text-base leading-6">
-                  Why did the startup founder refuse to name their company
-                  until 2 a.m.?
+                  Why did the startup founder refuse to name their company until
+                  2 a.m.?
                 </CardDescription>
               </CardHeader>
 
@@ -162,7 +159,7 @@ export default function NotFound() {
           </section>
 
           <div className="mt-8 text-center">
-            <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
+            <p className="text-xs tracking-[0.12em] text-muted-foreground uppercase">
               Nothing to claim here
             </p>
           </div>
@@ -171,5 +168,5 @@ export default function NotFound() {
 
       <AppFooter />
     </div>
-  );
+  )
 }

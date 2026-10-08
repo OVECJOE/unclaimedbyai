@@ -9,11 +9,7 @@ import {
   ArrowUp01Icon,
   BrandfetchIcon,
 } from "@hugeicons/core-free-icons"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import {
   Collapsible,
@@ -121,10 +117,7 @@ function NameRow({
   )
 }
 
-export default function ResultsTable({
-  searchId,
-  results,
-}: ResultsTableProps) {
+export default function ResultsTable({ searchId, results }: ResultsTableProps) {
   const [expanded, setExpanded] = useState(false)
   const remaining = results.length - INITIAL_ROWS
 
@@ -165,7 +158,7 @@ export default function ResultsTable({
           <CollapsibleTrigger asChild>
             <Button
               variant="ghost"
-              className="flex h-12 w-full items-center justify-center rounded-none border-t bg-muted/50 text-primary font-medium"
+              className="flex h-12 w-full items-center justify-center rounded-none border-t bg-muted/50 font-medium text-primary"
             >
               {expanded ? (
                 <>Show fewer</>

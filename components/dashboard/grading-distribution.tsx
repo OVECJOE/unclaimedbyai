@@ -20,7 +20,9 @@ const SEGMENTS = [
   { key: "Poor", label: "Poor", color: "bg-red-500" },
 ] as const
 
-export default function GradingDistribution({ results }: GradingDistributionProps) {
+export default function GradingDistribution({
+  results,
+}: GradingDistributionProps) {
   const { grading, total } = summarizeResults(results)
 
   return (
@@ -58,10 +60,10 @@ export default function GradingDistribution({ results }: GradingDistributionProp
                   <span className="font-medium">{label}</span>
                 </span>
               </TableCell>
-              <TableCell className="text-end tabular-nums text-muted-foreground">
+              <TableCell className="text-end text-muted-foreground tabular-nums">
                 {grading[key]}
               </TableCell>
-              <TableCell className="text-end tabular-nums text-muted-foreground">
+              <TableCell className="text-end text-muted-foreground tabular-nums">
                 {total ? Math.round((grading[key] / total) * 100) : 0}%
               </TableCell>
             </TableRow>

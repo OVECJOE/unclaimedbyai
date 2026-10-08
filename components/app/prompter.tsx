@@ -32,7 +32,7 @@ export default function Prompter({
         if (value.trim()) onSubmit?.(value.trim())
       }}
     >
-      <div className="focus-within:border-primary focus-within:ring-primary/15 relative border border-border bg-card p-3 transition-colors focus-within:ring-4 dark:border-primary/30 dark:bg-secondary/40">
+      <div className="relative border border-border bg-card p-3 transition-colors focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/15 dark:border-primary/30 dark:bg-secondary/40">
         <Textarea
           id="prompt"
           name="prompt"

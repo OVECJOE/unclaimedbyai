@@ -27,11 +27,19 @@ export default function PaymentMethodCard({
   isPrimary,
 }: PaymentMethodCardProps) {
   return (
-    <Card size="sm" className={cn({ "border border-dashed border-primary/50 bg-primary/10": isPrimary })}>
+    <Card
+      size="sm"
+      className={cn({
+        "border border-dashed border-primary/50 bg-primary/10": isPrimary,
+      })}
+    >
       <CardContent>
         {method === "card" && cardDetails && (
           <div className="flex items-center gap-5">
-            <HugeiconsIcon icon={CreditCardIcon} className={cn({ "text-primary": isPrimary })} />
+            <HugeiconsIcon
+              icon={CreditCardIcon}
+              className={cn({ "text-primary": isPrimary })}
+            />
             <div className="flex flex-1 items-center justify-between gap-5">
               <div>
                 <h5 className="flex items-center gap-2 font-heading text-lg font-semibold md:text-xl">
@@ -42,7 +50,11 @@ export default function PaymentMethodCard({
                   Expires {cardDetails?.expiryDate}
                 </p>
               </div>
-              {isPrimary && <Badge variant="destructive" className="text-sm md:text-md">Primary</Badge>}
+              {isPrimary && (
+                <Badge variant="destructive" className="md:text-md text-sm">
+                  Primary
+                </Badge>
+              )}
             </div>
           </div>
         )}

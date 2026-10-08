@@ -38,8 +38,7 @@ export function SocialAvailabilityList({
   return (
     <span className="flex items-center gap-2">
       {socials.map(({ platform, available }) => {
-        const icon =
-          SOCIAL_ICONS[platform as keyof typeof SOCIAL_ICONS] ?? null
+        const icon = SOCIAL_ICONS[platform as keyof typeof SOCIAL_ICONS] ?? null
         if (!icon) {
           return (
             <span

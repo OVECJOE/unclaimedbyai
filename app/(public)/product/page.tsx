@@ -400,7 +400,10 @@ export default function ProductPage() {
           <h2 className="font-heading text-3xl font-medium sm:text-center sm:text-4xl">
             Questions people actually ask
           </h2>
-          <Accordion type="single" defaultValue={"what-does-unclaimedbyai-check-when-i-enter-a-name"}>
+          <Accordion
+            type="single"
+            defaultValue={"what-does-unclaimedbyai-check-when-i-enter-a-name"}
+          >
             {FAQS.map((faq) => (
               <AccordionItem key={faq.id} value={faq.id}>
                 <AccordionTrigger className="text-xl">

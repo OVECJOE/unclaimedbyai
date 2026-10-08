@@ -6,7 +6,13 @@ import Logo from "@/components/app/logo"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Menu09Icon } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+  SheetClose,
+} from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 
 const navLinks = [
@@ -23,7 +29,10 @@ export default function AppHeader() {
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4">
         <Logo />
 
-        <nav aria-label="Primary" className="hidden items-center gap-6 text-sm md:flex">
+        <nav
+          aria-label="Primary"
+          className="hidden items-center gap-6 text-sm md:flex"
+        >
           {navLinks.map((link) => {
             const active = pathname === link.href
             return (
@@ -34,7 +43,9 @@ export default function AppHeader() {
                 className={cn(
                   "relative py-1 text-muted-foreground transition-colors hover:text-primary",
                   "after:absolute after:-bottom-px after:left-0 after:h-[1.5px] after:bg-primary after:transition-all after:content-['']",
-                  active ? "font-medium text-primary after:w-full" : "after:w-0 hover:after:w-full"
+                  active
+                    ? "font-medium text-primary after:w-full"
+                    : "after:w-0 hover:after:w-full"
                 )}
               >
                 {link.label}
@@ -51,7 +62,12 @@ export default function AppHeader() {
 
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" size="icon" aria-label="Open menu" className="p-1 md:hidden">
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="Open menu"
+              className="p-1 md:hidden"
+            >
               <HugeiconsIcon icon={Menu09Icon} />
             </Button>
           </SheetTrigger>
@@ -68,7 +84,9 @@ export default function AppHeader() {
                       aria-current={active ? "page" : undefined}
                       className={cn(
                         "text-base transition-colors hover:text-primary",
-                        active ? "font-medium text-primary" : "text-muted-foreground"
+                        active
+                          ? "font-medium text-primary"
+                          : "text-muted-foreground"
                       )}
                     >
                       {link.label}

@@ -7,12 +7,12 @@ export default function SearchResultsToolbar() {
   return (
     <div className="space-y-4">
       <div className="flex items-end gap-10">
-        <div className="flex items-center gap-2 flex-1">
+        <div className="flex flex-1 items-center gap-2">
           <HugeiconsIcon icon={Search01Icon} className="text-primary" />
           <Input
             type="search"
             placeholder="Filter names"
-            className="text-lg md:text-xl placeholder:text-lg md:placeholder:text-xl [&::-webkit-search-cancel-button]:appearance-none"
+            className="text-lg placeholder:text-lg md:text-xl md:placeholder:text-xl [&::-webkit-search-cancel-button]:appearance-none"
           />
         </div>
         <SearchResultsFilters show="desktop" />

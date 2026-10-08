@@ -1,12 +1,12 @@
-import Link from "next/link";
-import type { ReactNode } from "react";
-import { cn } from "@/lib/utils";
+import Link from "next/link"
+import type { ReactNode } from "react"
+import { cn } from "@/lib/utils"
 
 type LogoProps = {
-  className?: string;
-  href?: string;
-  children?: ReactNode;
-};
+  className?: string
+  href?: string
+  children?: ReactNode
+}
 
 function LogoImage({ href, className }: { href: string; className: string }) {
   return (
@@ -27,7 +27,7 @@ function LogoImage({ href, className }: { href: string; className: string }) {
         preserveAspectRatio="none"
       />
     </svg>
-  );
+  )
 }
 
 export default function Logo({
@@ -37,9 +37,15 @@ export default function Logo({
 }: LogoProps) {
   return (
     <Link href={href} className="relative inline-flex">
-      <LogoImage href="/logo.png" className={cn("h-8 w-auto dark:hidden", className)} />
-      <LogoImage href="/logo-dark.png" className={cn("hidden h-8 w-auto dark:block", className)} />
+      <LogoImage
+        href="/logo.png"
+        className={cn("h-8 w-auto dark:hidden", className)}
+      />
+      <LogoImage
+        href="/logo-dark.png"
+        className={cn("hidden h-8 w-auto dark:block", className)}
+      />
       {children}
     </Link>
-  );
+  )
 }

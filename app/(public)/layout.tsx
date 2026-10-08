@@ -1,11 +1,11 @@
-import AppHeader from "@/components/app-header";
-import AppFooter from "@/components/app-footer";
-import { WaitlistDialog } from "@/components/waitlist-dialog";
+import AppHeader from "@/components/app-header"
+import AppFooter from "@/components/app-footer"
+import { WaitlistDialog } from "@/components/waitlist-dialog"
 
 export default function PublicLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <div>
@@ -14,5 +14,5 @@ export default function PublicLayout({
       <AppFooter />
       <WaitlistDialog />
     </div>
-  );
+  )
 }

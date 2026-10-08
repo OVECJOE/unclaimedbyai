@@ -123,7 +123,7 @@ export default function CompanyCard({
               loading="lazy"
               width={44}
               height={44}
-              className="size-11 shrink-0 border border-primary border-dashed p-1.5 object-contain"
+              className="size-11 shrink-0 border border-dashed border-primary object-contain p-1.5"
               onError={() =>
                 setMeta((current) =>
                   current ? { ...current, logo: null, icon: null } : current
