@@ -14,37 +14,33 @@ import { Suspense } from "react"
 import GradingDistribution from "@/components/dashboard/grading-distribution"
 import ScoreSummary from "@/components/dashboard/score-summary"
 import ResultsTable from "@/components/dashboard/results-table"
+import RateLimited from "@/components/dashboard/rate-limited"
 import SearchResultsToolbar from "@/components/dashboard/search-results-toolbar"
 import {
   SummarySkeleton,
   TableSkeleton,
 } from "@/components/dashboard/skeletons"
-import { ApiError, type SearchDetail } from "@/lib/api"
-import type { NameResult } from "@/lib/constants"
+import { ApiError } from "@/lib/api"
 import {
-  getCachedSearchDetail,
-  getCachedSearchResults,
+  getCachedSearchHeader,
+  getCachedSearchResultsPage,
+  getCachedSearchSummary,
+  toNameResultFromPayload,
 } from "@/lib/dashboard-data"
 
 export const dynamic = "force-dynamic"
 
-async function SearchContent({ searchId }: { searchId: number }) {
-  let search: SearchDetail
+async function SearchHeaderBlock({ searchId }: { searchId: number }) {
+  let header
   try {
-    search = await getCachedSearchDetail(searchId)
+    header = await getCachedSearchHeader(searchId)
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound()
     if (error instanceof ApiError && error.status === 401) redirect("/auth")
+    if (error instanceof ApiError && error.status === 429)
+      return <RateLimited />
     throw error
   }
-  const { results } = await getCachedSearchResults(searchId).catch((error) => {
-    if (error instanceof ApiError && error.status === 404) notFound()
-    if (error instanceof ApiError && error.status === 401) redirect("/auth")
-    throw error
-  })
-  const topPick = results[0]
-    ? { name: results[0].name, logo: results[0].logo }
-    : undefined
 
   return (
     <>
@@ -67,71 +63,51 @@ async function SearchContent({ searchId }: { searchId: number }) {
             <HugeiconsIcon icon={ArrowAllDirectionIcon} />
           </BreadcrumbSeparator>
           <BreadcrumbItem className="min-w-0">
-            <BreadcrumbPage className="truncate">{search.query}</BreadcrumbPage>
+            <BreadcrumbPage className="truncate">{header.query}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="space-y-1">
         <h1 className="font-heading text-4xl font-semibold md:text-5xl">
           Results for &apos;
-          <span className="text-primary">{search.query}</span>&apos;
+          <span className="text-primary">{header.query}</span>&apos;
         </h1>
         <div className="flex flex-wrap items-center gap-1">
           <span className="text-xs text-muted-foreground">
-            {search.names.length} names generated
+            {header.name_count} names generated
           </span>
           <HugeiconsIcon icon={DotIcon} />
           <span className="text-xs text-muted-foreground">
-            {formatDateTime(search.created_at)}
+            {formatDateTime(header.created_at)}
           </span>
-        </div>
-      </div>
-      <div className="flex w-full flex-col gap-6 md:flex-row">
-        <div className="min-w-0 flex-1">
-          <ScoreSummary results={results} topPick={topPick} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <GradingDistribution results={results} />
         </div>
       </div>
     </>
   )
 }
 
-function sortResults(results: NameResult[], sort: string): NameResult[] {
-  const rows = [...results]
-  switch (sort) {
-    case "overall-score-low-to-high":
-      return rows.sort((a, b) => a.score - b.score)
-    case "most-domains-available":
-      return rows.sort(
-        (a, b) =>
-          b.domains.filter((domain) => domain.available).length -
-          a.domains.filter((domain) => domain.available).length
-      )
-    case "lowest-ai-association":
-      return rows.sort(
-        (a, b) =>
-          aiRank(a.aiAssociation) - aiRank(b.aiAssociation) || b.score - a.score
-      )
-    case "name-a-z":
-      return rows.sort((a, b) => a.name.localeCompare(b.name))
-    default:
-      return rows.sort((a, b) => b.score - a.score)
+async function SearchSummaryBlock({ searchId }: { searchId: number }) {
+  let summary
+  try {
+    summary = await getCachedSearchSummary(searchId)
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) notFound()
+    if (error instanceof ApiError && error.status === 401) redirect("/auth")
+    if (error instanceof ApiError && error.status === 429)
+      return <RateLimited />
+    throw error
   }
-}
 
-function aiRank(level: NameResult["aiAssociation"]): number {
-  switch (level) {
-    case "Low":
-      return 0
-    case "Medium":
-      return 1
-    case "High":
-      return 2
-    case "Very High":
-      return 3
-  }
+  return (
+    <div className="flex w-full flex-col gap-6 md:flex-row">
+      <div className="min-w-0 flex-1">
+        <ScoreSummary summary={summary} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <GradingDistribution summary={summary} />
+      </div>
+    </div>
+  )
 }
 
 async function SearchTableBlock({
@@ -143,35 +119,25 @@ async function SearchTableBlock({
   availableOnly: boolean
   sort: string
 }) {
-  const { search, results } = await getCachedSearchResults(searchId).catch(
-    (error) => {
-      if (error instanceof ApiError && error.status === 404) notFound()
-      if (error instanceof ApiError && error.status === 401) redirect("/auth")
-      throw error
-    }
-  )
-  const checkedIds = new Set(results.map((result) => result.name.toLowerCase()))
-  const unchecked = search.names.filter(
-    (name) => !checkedIds.has(name.name.toLowerCase())
-  )
-  const visible = sortResults(
-    availableOnly
-      ? results.filter(
-          (result) =>
-            result.domains.every((domain) => domain.available) &&
-            result.socials.every((social) => social.available)
-        )
-      : results,
-    sort
-  )
+  let data
+  try {
+    data = await getCachedSearchResultsPage(searchId, availableOnly, sort)
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) notFound()
+    if (error instanceof ApiError && error.status === 401) redirect("/auth")
+    if (error instanceof ApiError && error.status === 429)
+      return <RateLimited />
+    throw error
+  }
+  const results = data.items.map(toNameResultFromPayload)
 
   return (
     <>
       <SearchResultsToolbar />
       <ResultsTable
-        results={visible}
+        results={results}
         searchId={String(searchId)}
-        pending={unchecked.map((name) => ({ id: name.id, name: name.name }))}
+        pending={data.pending}
       />
     </>
   )
@@ -197,16 +163,16 @@ export default async function HistorySearchPage({
         <div className="mx-auto max-w-7xl space-y-8">
           <Suspense
             fallback={
-              <div className="space-y-8">
-                <div className="space-y-3" aria-label="Loading">
-                  <div className="h-9 w-2/3 animate-pulse bg-muted" />
-                  <div className="h-4 w-1/3 animate-pulse bg-muted" />
-                </div>
-                <SummarySkeleton />
+              <div className="space-y-3" aria-label="Loading">
+                <div className="h-9 w-2/3 animate-pulse bg-muted" />
+                <div className="h-4 w-1/3 animate-pulse bg-muted" />
               </div>
             }
           >
-            <SearchContent searchId={id} />
+            <SearchHeaderBlock searchId={id} />
+          </Suspense>
+          <Suspense fallback={<SummarySkeleton />}>
+            <SearchSummaryBlock searchId={id} />
           </Suspense>
         </div>
       </section>

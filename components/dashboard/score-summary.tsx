@@ -3,25 +3,44 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { BrandfetchIcon } from "@hugeicons/core-free-icons"
 import type { NameResult } from "@/lib/constants"
+import type { SearchSummaryPayload } from "@/lib/api"
 import { summarizeResults, tierForScore } from "@/lib/name-results"
 import { TierBadge } from "@/components/tier-badge"
+import { diceLogo } from "@/lib/dashboard-data"
 
 type ScoreSummaryProps = {
-  results: NameResult[]
+  results?: NameResult[]
   topPick?: { name: string; logo: string }
+  summary?: SearchSummaryPayload
 }
 
-export default function ScoreSummary({ results, topPick }: ScoreSummaryProps) {
-  const { total, passCount, passRate, overall } = summarizeResults(results)
+export default function ScoreSummary({
+  results = [],
+  topPick,
+  summary,
+}: ScoreSummaryProps) {
+  const computed = summarizeResults(results)
+  const total = summary?.total ?? computed.total
+  const passCount = summary?.pass_count ?? computed.passCount
+  const passRate = summary?.pass_rate ?? computed.passRate
+  const overall = summary?.overall ?? computed.overall
+  const summaryTopPick = summary?.top_pick
+    ? {
+        name: summary.top_pick.name,
+        logo: diceLogo(summary.top_pick.name),
+      }
+    : undefined
+  const effectiveTopPick = summaryTopPick ?? topPick
   const scoreColor =
     overall >= 80
       ? "text-green-600"
       : overall >= 60
         ? "text-yellow-600"
         : "text-red-600"
-  const topPickResult = topPick
+  const topPickResult = effectiveTopPick
     ? results.find(
-        (result) => result.name.toLowerCase() === topPick.name.toLowerCase()
+        (result) =>
+          result.name.toLowerCase() === effectiveTopPick.name.toLowerCase()
       )
     : undefined
 
@@ -68,16 +87,21 @@ export default function ScoreSummary({ results, topPick }: ScoreSummaryProps) {
           </div>
         </div>
 
-        {topPick && (
+        {effectiveTopPick && (
           <div className="flex items-center gap-3 border border-border bg-muted/50 p-3">
             <Avatar size="sm">
-              <AvatarImage src={topPick.logo} alt={topPick.name} />
+              <AvatarImage
+                src={effectiveTopPick.logo}
+                alt={effectiveTopPick.name}
+              />
               <AvatarFallback>
                 <HugeiconsIcon icon={BrandfetchIcon} className="size-4" />
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium">{topPick.name}</p>
+              <p className="truncate text-sm font-medium">
+                {effectiveTopPick.name}
+              </p>
               <p className="text-xs text-muted-foreground">Top pick</p>
             </div>
             {topPickResult && (

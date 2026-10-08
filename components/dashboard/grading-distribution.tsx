@@ -7,10 +7,12 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import type { NameResult } from "@/lib/constants"
+import type { SearchSummaryPayload } from "@/lib/api"
 import { summarizeResults } from "@/lib/name-results"
 
 type GradingDistributionProps = {
-  results: NameResult[]
+  results?: NameResult[]
+  summary?: SearchSummaryPayload
 }
 
 const SEGMENTS = [
@@ -21,9 +23,12 @@ const SEGMENTS = [
 ] as const
 
 export default function GradingDistribution({
-  results,
+  results = [],
+  summary,
 }: GradingDistributionProps) {
-  const { grading, total } = summarizeResults(results)
+  const computed = summarizeResults(results)
+  const grading = summary?.grading ?? computed.grading
+  const total = summary?.total ?? computed.total
 
   return (
     <div className="space-y-4">

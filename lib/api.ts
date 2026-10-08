@@ -210,6 +210,61 @@ export function getSearch(searchId: number): Promise<SearchDetail> {
   return apiRequest<SearchDetail>(`/api/v1/searches/${searchId}`)
 }
 
+export type SearchHeader = {
+  id: number
+  query: string
+  category: string
+  name_count: number
+  checked_count: number
+  created_at: string
+}
+
+export function getSearchHeader(searchId: number): Promise<SearchHeader> {
+  return apiRequest<SearchHeader>(`/api/v1/searches/${searchId}/header`)
+}
+
+export type SearchSummaryPayload = {
+  total: number
+  pass_count: number
+  pass_rate: number
+  overall: number
+  grading: Record<"Excellent" | "Good" | "Okay" | "Poor", number>
+  top_pick: { name: string; score: number; tier: string } | null
+}
+
+export function getSearchSummary(
+  searchId: number
+): Promise<SearchSummaryPayload> {
+  return apiRequest<SearchSummaryPayload>(
+    `/api/v1/searches/${searchId}/summary`
+  )
+}
+
+export type SearchResultsPayload = {
+  items: {
+    name: string
+    score: number
+    tier: string
+    domains: { tld: string; available: boolean }[]
+    socials: { platform: string; available: boolean }[]
+    aiAssociation: string
+  }[]
+  pending: { id: number; name: string }[]
+}
+
+export function getSearchResults(
+  searchId: number,
+  options?: { availableOnly?: boolean; sort?: string }
+): Promise<SearchResultsPayload> {
+  const params = new URLSearchParams()
+  if (options?.availableOnly) params.set("available_only", "true")
+  if (options?.sort) params.set("sort", options.sort)
+  const query = params.toString()
+  return apiRequest<SearchResultsPayload>(
+    `/api/v1/searches/${searchId}/results${query ? `?${query}` : ""}`
+  )
+}
+
 export function claimSearches(
   anonSessionId: string
 ): Promise<{ claimed: number }> {

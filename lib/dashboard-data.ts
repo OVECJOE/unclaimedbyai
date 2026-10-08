@@ -1,6 +1,14 @@
 import { cache } from "react"
 import { apiServer } from "./api-server"
-import type { CheckReport, NameItem, SearchDetail, SearchItem } from "./api"
+import type {
+  CheckReport,
+  NameItem,
+  SearchDetail,
+  SearchHeader,
+  SearchItem,
+  SearchResultsPayload,
+  SearchSummaryPayload,
+} from "./api"
 import type { SearchResultCardProps } from "@/components/dashboard/search-result-card"
 import type { NameResult } from "./constants"
 import type { GradeTier } from "./name-results"
@@ -13,6 +21,56 @@ export const getCachedSearchDetail = cache(
   (searchId: number): Promise<SearchDetail> =>
     apiServer<SearchDetail>(`/api/v1/searches/${searchId}`)
 )
+
+export const getCachedSearchHeader = cache(
+  (searchId: number): Promise<SearchHeader> =>
+    apiServer<SearchHeader>(`/api/v1/searches/${searchId}/header`)
+)
+
+export const getCachedSearchSummary = cache(
+  (searchId: number): Promise<SearchSummaryPayload> =>
+    apiServer<SearchSummaryPayload>(`/api/v1/searches/${searchId}/summary`)
+)
+
+export const getCachedSearchResultsPage = cache(
+  (
+    searchId: number,
+    availableOnly: boolean,
+    sort: string
+  ): Promise<SearchResultsPayload> => {
+    const params = new URLSearchParams()
+    if (availableOnly) params.set("available_only", "true")
+    if (sort) params.set("sort", sort)
+    const query = params.toString()
+    return apiServer<SearchResultsPayload>(
+      `/api/v1/searches/${searchId}/results${query ? `?${query}` : ""}`
+    )
+  }
+)
+
+export function toNameResultFromPayload(
+  item: SearchResultsPayload["items"][number]
+): NameResult {
+  return {
+    name: item.name,
+    logo: diceLogo(item.name),
+    score: item.score,
+    tier: toTier(item.tier),
+    domains: item.domains.map((domain) => ({
+      tld: domain.tld as NameResult["domains"][number]["tld"],
+      available: domain.available,
+    })),
+    socials: item.socials.map((social) => ({
+      platform: social.platform as NameResult["socials"][number]["platform"],
+      available: social.available,
+    })),
+    aiAssociation: (["Low", "Medium", "High", "Very High"] as const).includes(
+      item.aiAssociation as NameResult["aiAssociation"]
+    )
+      ? (item.aiAssociation as NameResult["aiAssociation"])
+      : "Low",
+  }
+}
 
 export function toTier(level: string): GradeTier {
   const tier = level.charAt(0).toUpperCase() + level.slice(1)

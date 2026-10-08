@@ -129,6 +129,7 @@ function PendingRow({
   checking,
   disabled,
   onSelect,
+  onCheck,
 }: {
   name: string
   nameId: number
@@ -136,6 +137,7 @@ function PendingRow({
   checking: boolean
   disabled: boolean
   onSelect: (nameId: number, selected: boolean) => void
+  onCheck: (nameId: number) => void
 }) {
   return (
     <TableRow>
@@ -174,7 +176,16 @@ function PendingRow({
       <TableCell>
         {checking ? (
           <span className="text-xs text-muted-foreground">Checking…</span>
-        ) : null}
+        ) : (
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={disabled}
+            onClick={() => onCheck(nameId)}
+          >
+            Run check
+          </Button>
+        )}
       </TableCell>
     </TableRow>
   )
@@ -196,6 +207,22 @@ export default function ResultsTable({
     setSelected((current) =>
       value ? [...current, nameId] : current.filter((id) => id !== nameId)
     )
+  }
+
+  async function runOne(nameId: number) {
+    setCheckingId(nameId)
+    try {
+      await runCheck(nameId, {})
+      router.refresh()
+    } catch (error) {
+      toast.error(
+        error instanceof ApiError
+          ? error.message
+          : "The check failed. Try again in a moment."
+      )
+    } finally {
+      setCheckingId(null)
+    }
   }
 
   async function onCheckAll() {
@@ -225,6 +252,14 @@ export default function ResultsTable({
 
   const pendingCount = pending.length
   const bulkCount = selected.length > 0 ? selected.length : pendingCount
+  const bulkLabel =
+    selected.length > 0 ? `Check (${bulkCount})` : `Check all (${bulkCount})`
+  const allSelected = pendingCount > 0 && selected.length === pendingCount
+  const someSelected = selected.length > 0 && selected.length < pendingCount
+
+  function toggleSelectAll() {
+    setSelected(allSelected ? [] : pending.map((item) => item.id))
+  }
 
   return (
     <Collapsible asChild open={expanded} onOpenChange={setExpanded}>
@@ -232,7 +267,29 @@ export default function ResultsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
+              <TableHead>
+                <span className="flex items-center gap-3">
+                  {pendingCount > 0 ? (
+                    <Checkbox
+                      checked={
+                        allSelected
+                          ? true
+                          : someSelected
+                            ? "indeterminate"
+                            : false
+                      }
+                      disabled={running}
+                      onCheckedChange={() => toggleSelectAll()}
+                      aria-label={
+                        allSelected
+                          ? "Unselect all unchecked names"
+                          : "Select all unchecked names"
+                      }
+                    />
+                  ) : null}
+                  Name
+                </span>
+              </TableHead>
               <TableHead>Overall</TableHead>
               <TableHead>Domains</TableHead>
               <TableHead>Social</TableHead>
@@ -241,7 +298,6 @@ export default function ResultsTable({
                 {pendingCount > 0 ? (
                   <Button
                     size="sm"
-                    variant="ghost"
                     disabled={running}
                     onClick={() => void onCheckAll()}
                     aria-label={
@@ -250,7 +306,7 @@ export default function ResultsTable({
                         : `Run check on all ${bulkCount} unchecked names`
                     }
                   >
-                    {running ? "Checking…" : `Check all (${bulkCount})`}
+                    {running ? "Checking…" : bulkLabel}
                   </Button>
                 ) : null}
               </TableHead>
@@ -269,6 +325,7 @@ export default function ResultsTable({
                 checking={checkingId === item.id}
                 disabled={running}
                 onSelect={toggleSelect}
+                onCheck={(nameId) => void runOne(nameId)}
               />
             ))}
           </TableBody>
