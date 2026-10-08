@@ -34,6 +34,7 @@ type ResultsTableProps = {
   searchId: string
   results: NameResult[]
   pending?: { id: number; name: string }[]
+  anonSessionId?: string
 }
 
 function AvailabilityList({
@@ -190,6 +191,7 @@ export default function ResultsTable({
   searchId,
   results,
   pending = [],
+  anonSessionId,
 }: ResultsTableProps) {
   const [expanded, setExpanded] = useState(false)
   const [selected, setSelected] = useState<number[]>([])
@@ -206,7 +208,10 @@ export default function ResultsTable({
   async function runOne(nameId: number) {
     setCheckingId(nameId)
     try {
-      await runCheck(nameId, {})
+      await runCheck(
+        nameId,
+        anonSessionId ? { anon_session_id: anonSessionId } : {}
+      )
       router.refresh()
     } catch (error) {
       toast.error(
@@ -229,7 +234,10 @@ export default function ResultsTable({
     for (const item of targets) {
       setCheckingId(item.id)
       try {
-        await runCheck(item.id, {})
+        await runCheck(
+          item.id,
+          anonSessionId ? { anon_session_id: anonSessionId } : {}
+        )
       } catch (error) {
         toast.error(
           error instanceof ApiError

@@ -1,4 +1,5 @@
 import GenerateAndGo from "@/components/dashboard/generate-and-go"
+import ClaimSearches from "@/components/dashboard/claim-searches"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { SearchResultCard } from "@/components/dashboard/search-result-card"
@@ -41,6 +42,7 @@ export default async function DashboardPage({
   const { brief } = await searchParams
   return (
     <>
+      <ClaimSearches />
       {/* Hero (What are you building?) */}
       <section className="space-y-5 border-b px-4 py-10 sm:text-center">
         <div className="space-y-3">

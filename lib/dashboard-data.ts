@@ -23,22 +23,30 @@ export const getCachedSearchDetail = cache(
 )
 
 export const getCachedSearchHeader = cache(
-  (searchId: number): Promise<SearchHeader> =>
-    apiServer<SearchHeader>(`/api/v1/searches/${searchId}/header`)
+  (searchId: number, anonSessionId?: string): Promise<SearchHeader> => {
+    const sid = anonSessionId ? `?anon_session_id=${anonSessionId}` : ""
+    return apiServer<SearchHeader>(`/api/v1/searches/${searchId}/header${sid}`)
+  }
 )
 
 export const getCachedSearchSummary = cache(
-  (searchId: number): Promise<SearchSummaryPayload> =>
-    apiServer<SearchSummaryPayload>(`/api/v1/searches/${searchId}/summary`)
+  (searchId: number, anonSessionId?: string): Promise<SearchSummaryPayload> => {
+    const sid = anonSessionId ? `?anon_session_id=${anonSessionId}` : ""
+    return apiServer<SearchSummaryPayload>(
+      `/api/v1/searches/${searchId}/summary${sid}`
+    )
+  }
 )
 
 export const getCachedSearchResultsPage = cache(
   (
     searchId: number,
     availableOnly: boolean,
-    sort: string
+    sort: string,
+    anonSessionId?: string
   ): Promise<SearchResultsPayload> => {
     const params = new URLSearchParams()
+    if (anonSessionId) params.set("anon_session_id", anonSessionId)
     if (availableOnly) params.set("available_only", "true")
     if (sort) params.set("sort", sort)
     const query = params.toString()
