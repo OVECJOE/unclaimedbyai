@@ -32,6 +32,21 @@ import { toNameResultFromPayload } from "@/lib/result-mappers"
 
 const POLL_MS = 2500
 
+const GENERATION_STAGES: { at: number; label: string }[] = [
+  { at: 0, label: "Reading your brief" },
+  { at: 20, label: "Brainstorming names" },
+  { at: 50, label: "Screening against live .com lookups" },
+  { at: 85, label: "Wrapping up" },
+]
+
+function generationStage(progress: number): string {
+  let label = GENERATION_STAGES[0].label
+  for (const stage of GENERATION_STAGES) {
+    if (progress >= stage.at) label = stage.label
+  }
+  return label
+}
+
 type LiveSearchProps = {
   searchId: number
   sid?: string
@@ -158,6 +173,7 @@ export default function LiveSearch({
   }, [active, searchId, sid, filters])
 
   const results = items.map(toNameResultFromPayload)
+  const noNamesYet = header.name_count === 0
 
   return (
     <div className="space-y-8">
@@ -200,8 +216,8 @@ export default function LiveSearch({
         </div>
         {generating ? (
           <p className="text-sm text-muted-foreground" role="status">
-            Finding names… {header.generation.progress}%. New results appear
-            below as they arrive.
+            {generationStage(header.generation.progress)}… results appear below
+            as they arrive.
           </p>
         ) : null}
         {header.generation.status === "failed" ? (
@@ -216,36 +232,67 @@ export default function LiveSearch({
           </p>
         ) : null}
       </div>
-      <div className="flex w-full flex-col gap-6 md:flex-row">
-        <div className="min-w-0 flex-1">
-          <ScoreSummary summary={summary} />
+      {generating && noNamesYet ? (
+        <div
+          role="status"
+          className="space-y-4 border border-dashed p-8 text-center"
+        >
+          <p className="font-heading text-2xl">
+            Generating names for &apos;{header.query}&apos;
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {generationStage(header.generation.progress)}… usually takes under a
+            minute. Names, scores, and availability appear here the moment
+            they&apos;re ready.
+          </p>
+          <div
+            className="mx-auto h-2 w-full max-w-md bg-muted"
+            role="progressbar"
+            aria-valuenow={header.generation.progress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Generation progress"
+          >
+            <div
+              className="h-full bg-primary transition-all duration-700"
+              style={{ width: `${Math.max(5, header.generation.progress)}%` }}
+            />
+          </div>
         </div>
-        <div className="min-w-0 flex-1">
-          <GradingDistribution summary={summary} />
-        </div>
-      </div>
-      <div className="space-y-5">
-        <SearchResultsToolbar
-          q={filters.q}
-          availableOnly={filters.availableOnly}
-          sort={filters.sort}
-          onFilter={(next) => applyFilters({ q: next })}
-          onChange={(patch) => applyFilters(patch)}
-        />
-        <ResultsTable
-          results={results}
-          searchId={String(searchId)}
-          pending={pending}
-          anonSessionId={sid}
-          detailBase={detailBase}
-          onMutation={() => {
-            refresh().catch(() => {
-              // Poll loop picks it up on the next tick.
-            })
-          }}
-        />
-        {banner}
-      </div>
+      ) : (
+        <>
+          <div className="flex w-full flex-col gap-6 md:flex-row">
+            <div className="min-w-0 flex-1">
+              <ScoreSummary summary={summary} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <GradingDistribution summary={summary} />
+            </div>
+          </div>
+          <div className="space-y-5">
+            <SearchResultsToolbar
+              q={filters.q}
+              availableOnly={filters.availableOnly}
+              sort={filters.sort}
+              onFilter={(next) => applyFilters({ q: next })}
+              onChange={(patch) => applyFilters(patch)}
+            />
+            <ResultsTable
+              results={results}
+              searchId={String(searchId)}
+              pending={pending}
+              anonSessionId={sid}
+              detailBase={detailBase}
+              onMutation={() => {
+                refresh().catch(() => {
+                  // Poll loop picks it up on the next tick.
+                })
+              }}
+            />
+            {banner}
+          </div>
+        </>
+      )}
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import PrompterCta from "@/components/public/prompter-cta"
+import PublicSearchesStrip from "@/components/public/public-searches-strip"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { AtIcon, BrainIcon, InternetIcon } from "@hugeicons/core-free-icons"
 import {
@@ -68,6 +69,8 @@ export default async function Page() {
         </div>
         <PrompterCta />
       </section>
+
+      <PublicSearchesStrip />
 
       {/* Things to know */}
       <section className="border-b px-4 py-10">

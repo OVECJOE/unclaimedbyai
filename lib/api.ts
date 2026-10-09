@@ -138,8 +138,8 @@ export type CheckReport = {
   }[]
 }
 
-export function getMe(): Promise<ApiUser> {
-  return apiRequest<ApiUser>("/api/v1/me")
+export function getMe(timeoutMs?: number): Promise<ApiUser> {
+  return apiRequest<ApiUser>("/api/v1/me", { timeoutMs })
 }
 
 export function requestMagicLink(email: string): Promise<{ sent: boolean }> {

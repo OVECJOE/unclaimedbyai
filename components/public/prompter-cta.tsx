@@ -20,7 +20,7 @@ export default function PrompterCta({
   async function onSubmit(value: string) {
     setPending(true)
     try {
-      const user = await getMe().catch(() => null)
+      const user = await getMe(5000).catch(() => null)
       if (user) {
         try {
           sessionStorage.setItem(PENDING_BRIEF_KEY, value)
@@ -44,10 +44,17 @@ export default function PrompterCta({
   }
 
   return (
-    <Prompter
-      onSubmit={(brief) => void onSubmit(brief)}
-      pending={pending}
-      defaultValue={defaultValue}
-    />
+    <div className="space-y-3">
+      <Prompter
+        onSubmit={(brief) => void onSubmit(brief)}
+        pending={pending}
+        defaultValue={defaultValue}
+      />
+      {pending ? (
+        <p role="status" className="text-center text-sm text-muted-foreground">
+          Starting your search… you&apos;ll see names arrive live.
+        </p>
+      ) : null}
+    </div>
   )
 }
