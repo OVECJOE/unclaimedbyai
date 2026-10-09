@@ -9,7 +9,11 @@ import { toastApiError } from "@/lib/api-errors"
 
 export const PENDING_BRIEF_KEY = "uba-pending-brief"
 
-export default function PrompterCta() {
+export default function PrompterCta({
+  defaultValue = "",
+}: {
+  defaultValue?: string
+}) {
   const [pending, setPending] = useState(false)
   const router = useRouter()
 
@@ -40,6 +44,10 @@ export default function PrompterCta() {
   }
 
   return (
-    <Prompter onSubmit={(brief) => void onSubmit(brief)} pending={pending} />
+    <Prompter
+      onSubmit={(brief) => void onSubmit(brief)}
+      pending={pending}
+      defaultValue={defaultValue}
+    />
   )
 }

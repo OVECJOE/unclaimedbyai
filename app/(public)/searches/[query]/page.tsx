@@ -8,8 +8,10 @@ import GradingDistribution from "@/components/dashboard/grading-distribution"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { JsonLd } from "@/components/app/json-ld"
+import PrompterCta from "@/components/public/prompter-cta"
 import { ApiError, getReport, searchByQuery, type CheckReport } from "@/lib/api"
 import { toNameResult } from "@/lib/result-mappers"
+import { formatDateTime } from "@/lib/utils"
 import { SITE_URL } from "@/lib/site"
 
 export const revalidate = 3600
@@ -102,7 +104,9 @@ export default async function PublicSearchPage({ params }: PageProps) {
           className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
           asChild
         >
-          <p className="px-2 py-1 sm:px-3">Live availability results</p>
+          <p className="px-2 py-1 sm:px-3">
+            Availability results checked {formatDateTime(search.created_at)}
+          </p>
         </Badge>
         <div className="space-y-3">
           <h1 className="font-heading text-4xl font-semibold md:text-5xl">
@@ -116,7 +120,7 @@ export default async function PublicSearchPage({ params }: PageProps) {
           </p>
         </div>
         <Button size="lg" asChild>
-          <Link href="/auth">Check your own name</Link>
+          <Link href="#check-yours">Check your own name</Link>
         </Button>
       </section>
 
@@ -234,11 +238,17 @@ export default async function PublicSearchPage({ params }: PageProps) {
                 </p>
               </article>
             ))}
-          <p className="text-center">
-            <Button size="lg" asChild>
-              <Link href="/auth">Check your own name</Link>
-            </Button>
-          </p>
+          <div
+            id="check-yours"
+            className="space-y-3 pt-4 sm:mx-auto sm:max-w-prose sm:text-center"
+          >
+            <p className="font-heading text-2xl">Check a name of your own</p>
+            <p className="text-sm text-muted-foreground">
+              Describe what you&apos;re building, or type a name you&apos;re
+              considering. We&apos;ll check it right here, no account needed.
+            </p>
+            <PrompterCta defaultValue={term} />
+          </div>
         </div>
       </section>
     </>
