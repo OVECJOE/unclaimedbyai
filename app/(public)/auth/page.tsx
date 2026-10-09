@@ -28,13 +28,27 @@ async function planTitle(slug: string): Promise<string | null> {
   }
 }
 
+const AUTH_ERRORS: Record<string, string> = {
+  link: "That sign-in link expired or was already used. Send a new one below.",
+  "oauth-config":
+    "Google sign-in isn't set up on this deployment yet. Use email instead.",
+  "oauth-state": "That sign-in attempt expired. Please try Google again.",
+  "oauth-exchange":
+    "Google sign-in didn't complete. Please try again, or use email instead.",
+  "oauth-email":
+    "That Google account's email address isn't verified. Verify it with Google, or use email instead.",
+  oauth:
+    "Google sign-in didn't complete. Please try again, or use email instead.",
+}
+
 export default async function AuthPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string }>
 }) {
-  const { email, sentAt, plan } = await searchParams
+  const { email, sentAt, plan, error } = await searchParams
   const picked = plan ? await planTitle(plan) : null
+  const errorMessage = error ? (AUTH_ERRORS[error] ?? AUTH_ERRORS.oauth) : null
 
   if (email) {
     return (
@@ -101,6 +115,15 @@ export default async function AuthPage({
           </p>
         ) : null}
       </div>
+
+      {errorMessage ? (
+        <p
+          role="alert"
+          className="mx-auto max-w-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
+          {errorMessage}
+        </p>
+      ) : null}
 
       <GoogleButton plan={plan} />
 
