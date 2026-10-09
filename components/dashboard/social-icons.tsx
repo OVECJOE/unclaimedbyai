@@ -1,10 +1,22 @@
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
+  Behance01Icon,
+  DiscordIcon,
+  DribbbleIcon,
   GithubIcon,
   InstagramIcon,
+  Linkedin01Icon,
+  MediumIcon,
   NewTwitterIcon,
   NpmIcon,
+  PinterestIcon,
+  RedditIcon,
+  SnapchatIcon,
+  TelegramIcon,
+  ThreadsIcon,
   TiktokIcon,
+  TwitchIcon,
+  VimeoIcon,
   YoutubeIcon,
 } from "@hugeicons/core-free-icons"
 
@@ -15,7 +27,23 @@ const SOCIAL_ICONS = {
   instagram: InstagramIcon,
   tiktok: TiktokIcon,
   youtube: YoutubeIcon,
+  linkedin: Linkedin01Icon,
+  discord: DiscordIcon,
+  reddit: RedditIcon,
+  pinterest: PinterestIcon,
+  snapchat: SnapchatIcon,
+  threads: ThreadsIcon,
+  telegram: TelegramIcon,
+  twitch: TwitchIcon,
+  medium: MediumIcon,
+  behance: Behance01Icon,
+  dribbble: DribbbleIcon,
+  vimeo: VimeoIcon,
 } as const
+
+const TEXT_MARKS: Record<string, string> = {
+  producthunt: "PH",
+}
 
 export function SocialIcon({
   platform,
@@ -34,6 +62,40 @@ export function SocialIcon({
   )
 }
 
+function AvailabilityMark({
+  platform,
+  available,
+}: {
+  platform: string
+  available: boolean
+}) {
+  const icon = SOCIAL_ICONS[platform as keyof typeof SOCIAL_ICONS] ?? null
+  const dimmed = available
+    ? "text-foreground"
+    : "text-muted-foreground opacity-60"
+  if (icon) {
+    return (
+      <span title={platform} className="inline-flex">
+        <HugeiconsIcon
+          icon={icon}
+          strokeWidth={2}
+          aria-hidden="true"
+          className={`size-4 ${dimmed}`}
+        />
+      </span>
+    )
+  }
+  return (
+    <span
+      title={platform}
+      aria-label={`${platform} ${available ? "available" : "taken"}`}
+      className={`flex size-4 items-center justify-center text-[10px] font-bold ${dimmed}`}
+    >
+      {TEXT_MARKS[platform] ?? platform.slice(0, 2).toUpperCase()}
+    </span>
+  )
+}
+
 export function SocialAvailabilityList({
   socials,
 }: {
@@ -41,36 +103,13 @@ export function SocialAvailabilityList({
 }) {
   return (
     <span className="flex items-center gap-2">
-      {socials.map(({ platform, available }) => {
-        const icon = SOCIAL_ICONS[platform as keyof typeof SOCIAL_ICONS] ?? null
-        if (!icon) {
-          return (
-            <span
-              key={platform}
-              title={platform}
-              aria-label={platform}
-              className={
-                available
-                  ? "size-2 rounded-full bg-foreground"
-                  : "size-2 rounded-full bg-muted-foreground opacity-60"
-              }
-            />
-          )
-        }
-        return (
-          <HugeiconsIcon
-            key={platform}
-            icon={icon}
-            strokeWidth={2}
-            aria-hidden="true"
-            className={
-              available
-                ? "size-4 text-foreground"
-                : "size-4 text-muted-foreground opacity-60"
-            }
-          />
-        )
-      })}
+      {socials.map(({ platform, available }) => (
+        <AvailabilityMark
+          key={platform}
+          platform={platform}
+          available={available}
+        />
+      ))}
     </span>
   )
 }

@@ -10,7 +10,7 @@ export default function RateLimited() {
     <div className="space-y-3 border border-dashed p-6 text-center">
       <p className="font-heading text-xl">Too many requests</p>
       <p className="mx-auto max-w-prose text-sm text-muted-foreground">
-        Slow down a little, then try again — nothing was lost.
+        Slow down a little, then try again. Nothing was lost.
       </p>
       <Button variant="outline" onClick={() => router.refresh()}>
         Try again

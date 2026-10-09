@@ -55,9 +55,7 @@ async function SearchLiveBlock({
       initialPending={data.pending}
       banner={
         <div className="flex flex-col items-center gap-3 border border-dashed p-6 text-center">
-          <p className="font-heading text-xl">
-            Like what you see? Keep these names.
-          </p>
+          <p className="font-heading text-xl">Keep these names.</p>
           <p className="max-w-prose text-sm text-muted-foreground">
             Sign in and this search moves into your dashboard history
             automatically.

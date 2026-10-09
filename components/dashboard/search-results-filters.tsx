@@ -1,6 +1,5 @@
 "use client"
 
-import { useRouter, useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Toggle } from "@/components/ui/toggle"
 import {
@@ -11,8 +10,16 @@ import {
   SelectTrigger,
 } from "@/components/ui/select"
 
+export type ResultsFilterPatch = {
+  availableOnly?: boolean
+  sort?: string
+}
+
 type SearchResultsFiltersProps = {
   show?: "mobile" | "desktop" | "both"
+  availableOnly: boolean
+  sort: string
+  onChange: (patch: ResultsFilterPatch) => void
 }
 
 const SORT_LABELS: Record<string, string> = {
@@ -25,28 +32,13 @@ const SORT_LABELS: Record<string, string> = {
 
 export default function SearchResultsFilters({
   show = "mobile",
+  availableOnly,
+  sort,
+  onChange,
 }: SearchResultsFiltersProps) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-
-  function setParams(patch: Record<string, string | undefined>) {
-    const params = new URLSearchParams(searchParams.toString())
-    for (const [key, value] of Object.entries(patch)) {
-      if (value === undefined || value === "") params.delete(key)
-      else params.set(key, value)
-    }
-    const query = params.toString()
-    router.push(`${window.location.pathname}${query ? `?${query}` : ""}`, {
-      scroll: false,
-    })
-  }
-
-  const sort = searchParams.get("sort") ?? "overall-score-high-to-low"
-  const availableOnly = searchParams.get("available") === "1"
-
   return (
     <div
-      className={cn("mt-2 items-center gap-5", {
+      className={cn("mt-2 flex-wrap items-center gap-x-5 gap-y-2", {
         "flex md:hidden": show === "mobile",
         "hidden md:flex": show === "desktop",
         flex: show === "both",
@@ -56,21 +48,12 @@ export default function SearchResultsFilters({
         variant="outline"
         size="sm"
         pressed={availableOnly}
-        onPressedChange={(pressed) =>
-          setParams({ available: pressed ? "1" : undefined })
-        }
+        onPressedChange={(pressed) => onChange({ availableOnly: pressed })}
       >
         Available only
       </Toggle>
 
-      <Select
-        value={sort}
-        onValueChange={(value) =>
-          setParams({
-            sort: value === "overall-score-high-to-low" ? undefined : value,
-          })
-        }
-      >
+      <Select value={sort} onValueChange={(value) => onChange({ sort: value })}>
         <SelectTrigger className="text-sm md:text-base">
           <span>{SORT_LABELS[sort] ?? sort}</span>
         </SelectTrigger>

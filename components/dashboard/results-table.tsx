@@ -395,7 +395,7 @@ export default function ResultsTable({
 
   return (
     <div className="w-full">
-      <Table>
+      <Table className="min-w-[680px]">
         <TableHeader>
           <TableRow>
             <TableHead>
@@ -425,7 +425,7 @@ export default function ResultsTable({
             <TableHead>Domains</TableHead>
             <TableHead>Social</TableHead>
             <TableHead>AI Association</TableHead>
-            <TableHead className="w-10">
+            <TableHead className="text-right whitespace-nowrap">
               {pendingCount > 0 ? (
                 <span className="flex items-center gap-2">
                   {activeJobs > 0 ? (

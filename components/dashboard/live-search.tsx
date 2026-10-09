@@ -69,20 +69,58 @@ export default function LiveSearch({
   const [summary, setSummary] = useState(initialSummary)
   const [items, setItems] = useState(initialItems)
   const [pending, setPending] = useState(initialPending)
+  const [filters, setFilters] = useState({
+    availableOnly,
+    sort,
+    q: q ?? "",
+  })
   const failuresRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const generating = header.generation.status === "generating"
   const active = generating || pending.length > 0
 
-  async function refresh(signal?: AbortSignal): Promise<boolean> {
+  function syncUrl(next: { availableOnly: boolean; sort: string; q: string }) {
+    const params = new URLSearchParams(window.location.search)
+    if (next.availableOnly) params.set("available", "1")
+    else params.delete("available")
+    if (next.sort && next.sort !== "overall-score-high-to-low")
+      params.set("sort", next.sort)
+    else params.delete("sort")
+    if (next.q) params.set("q", next.q)
+    else params.delete("q")
+    const query = params.toString()
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}${query ? `?${query}` : ""}`
+    )
+  }
+
+  function applyFilters(patch: {
+    availableOnly?: boolean
+    sort?: string
+    q?: string
+  }) {
+    const next = { ...filters, ...patch }
+    setFilters(next)
+    syncUrl(next)
+    refreshWith(next).catch(() => {
+      // Poll loop picks it up on the next tick.
+    })
+  }
+
+  async function refreshWith(
+    f: { availableOnly: boolean; sort: string; q: string },
+    signal?: AbortSignal
+  ): Promise<boolean> {
     const [nextHeader, nextSummary, nextResults] = await Promise.all([
       getSearchHeader(searchId, sid),
       getSearchSummary(searchId, sid),
       getSearchResults(searchId, {
-        availableOnly,
-        sort,
-        q,
+        availableOnly: f.availableOnly,
+        sort: f.sort,
+        q: f.q || undefined,
         anonSessionId: sid,
       }),
     ])
@@ -93,6 +131,10 @@ export default function LiveSearch({
     setItems(nextResults.items)
     setPending(nextResults.pending)
     return true
+  }
+
+  async function refresh(signal?: AbortSignal): Promise<boolean> {
+    return refreshWith(filters, signal)
   }
 
   useEffect(() => {
@@ -113,7 +155,7 @@ export default function LiveSearch({
       if (timerRef.current) clearInterval(timerRef.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, searchId, sid, availableOnly, sort, q])
+  }, [active, searchId, sid, filters])
 
   const results = items.map(toNameResultFromPayload)
 
@@ -162,8 +204,8 @@ export default function LiveSearch({
         </div>
         {generating ? (
           <p className="text-sm text-muted-foreground" role="status">
-            Finding names… {header.generation.progress}% — results appear below
-            as they arrive.
+            Finding names… {header.generation.progress}%. New results appear
+            below as they arrive.
           </p>
         ) : null}
         {header.generation.status === "failed" ? (
@@ -187,7 +229,13 @@ export default function LiveSearch({
         </div>
       </div>
       <div className="space-y-5">
-        <SearchResultsToolbar />
+        <SearchResultsToolbar
+          q={filters.q}
+          availableOnly={filters.availableOnly}
+          sort={filters.sort}
+          onFilter={(next) => applyFilters({ q: next })}
+          onChange={(patch) => applyFilters(patch)}
+        />
         <ResultsTable
           results={results}
           searchId={String(searchId)}
