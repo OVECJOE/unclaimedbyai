@@ -1,5 +1,5 @@
 import { cookies } from "next/headers"
-import { ApiError, apiRequest } from "./api"
+import { ApiError, API_ORIGIN, apiRequest } from "./api"
 import type { ApiUser } from "./api"
 
 async function serverHeaders(): Promise<Record<string, string>> {
@@ -15,7 +15,11 @@ export async function apiServer<T>(
   path: string,
   init?: { method?: string; body?: unknown }
 ): Promise<T> {
-  return apiRequest<T>(path, { ...init, headers: await serverHeaders() })
+  return apiRequest<T>(path, {
+    ...init,
+    headers: await serverHeaders(),
+    base: API_ORIGIN,
+  })
 }
 
 export async function getMeServer(): Promise<ApiUser | null> {

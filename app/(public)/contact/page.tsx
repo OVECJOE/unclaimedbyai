@@ -22,7 +22,7 @@ import { pageMetadata, SITE_NAME, SITE_URL } from "@/lib/site"
 export const metadata: Metadata = pageMetadata({
   title: "Contact",
   description:
-    "Talk to a human. Support, billing, press, privacy requests — one inbox, read by the people who build the product. We aim to reply within a few business days.",
+    "Talk to a human. Support, billing, press, privacy requests, one inbox, read by the people who build the product. We aim to reply within a few business days.",
   path: "/contact",
 })
 
@@ -47,14 +47,14 @@ const CHANNELS = [
   {
     icon: Mail01Icon,
     title: "Support",
-    body: "Something broke, a check looks wrong, a name won't generate. Tell us what you were doing and what you expected — specifics get faster answers.",
-    meta: "Typically 1–2 business days",
+    body: "Something broke, a check looks wrong, a name won't generate. Tell us what you were doing and what you expected: specifics get faster answers.",
+    meta: "Typically 1-2 business days",
   },
   {
     icon: CreditCardIcon,
     title: "Billing",
     body: "Credits missing after a purchase, a receipt you need again, or a refund question. Include the email you checked out with and we'll find the order.",
-    meta: "Typically 1–2 business days",
+    meta: "Typically 1-2 business days",
   },
   {
     icon: Megaphone01Icon,
@@ -65,7 +65,7 @@ const CHANNELS = [
   {
     icon: Shield01Icon,
     title: "Privacy requests",
-    body: "Access, export, or deletion of your data — email us and we'll handle it. The full mechanics live in our privacy policy.",
+    body: "Access, export, or deletion of your data, email us and we'll handle it. The full mechanics live in our privacy policy.",
     meta: "Fulfilled within 30 days",
     link: { href: "/privacy#your-rights", label: "Read your rights" },
   },
@@ -75,7 +75,7 @@ const QUICK_ANSWERS = [
   {
     icon: Message01Icon,
     question: "How does the checker actually work?",
-    answer: "No black box — the whole pipeline is documented, receipts included.",
+    answer: "No black box: the whole pipeline is documented, receipts included.",
     href: "/product",
     cta: "See the product",
   },
@@ -97,7 +97,7 @@ const QUICK_ANSWERS = [
     icon: HandshakeIcon,
     question: "What happens to the names I check?",
     answer:
-      "Including what AI providers see — it's all in the privacy policy, written to be read.",
+      "Including what AI providers see: it's all in the privacy policy, written to be read.",
     href: "/privacy",
     cta: "Read privacy policy",
   },
@@ -180,7 +180,7 @@ export default function ContactPage() {
                     href={channel.link.href}
                     className="font-mono text-xs text-primary hover:underline"
                   >
-                    {channel.link.label} →
+                    {channel.link.label}
                   </Link>
                 ) : null}
               </div>
@@ -197,13 +197,13 @@ export default function ContactPage() {
               Or write to us here
             </h2>
             <p className="max-w-prose text-base leading-7 sm:text-lg">
-              Same inbox as the email above — this just saves you opening a
+              Same inbox as the email above. This just saves you opening a
               mail app. We&apos;ll reply to the address you leave, and
               we&apos;ll never add you to a mailing list for it.
             </p>
             <ul className="space-y-2 pt-2">
               {[
-                "Include the name you checked — it makes diagnosis ten minutes instead of ten emails.",
+                "Include the name you checked. It makes diagnosis ten minutes instead of ten emails.",
                 "Screenshots of a wrong result are gold. Redact anything private.",
                 "Billing questions: the email you checked out with is enough to find your order.",
               ].map((tip) => (
@@ -220,7 +220,7 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Quick answers — maybe you don't need to write at all */}
+      {/* Quick answers: maybe you don't need to write at all */}
       <section className="border-b bg-primary/5 px-4 py-10 md:py-16">
         <GsapReveal className="mx-auto max-w-7xl space-y-8">
           <div className="space-y-1 sm:text-center">
@@ -252,7 +252,7 @@ export default function ContactPage() {
                   {item.answer}
                 </p>
                 <span className="font-mono text-xs text-primary">
-                  {item.cta} →
+                  {item.cta}
                 </span>
               </Link>
             ))}

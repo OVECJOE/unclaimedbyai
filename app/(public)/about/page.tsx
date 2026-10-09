@@ -15,7 +15,7 @@ import { pageMetadata, SITE_NAME, SITE_URL } from "@/lib/site"
 export const metadata: Metadata = pageMetadata({
   title: "About us",
   description:
-    "Why we built a name checker for the age of AI: 401.6 million domains are registered, name disputes hit a record 6,282 last year, and 900 million people ask ChatGPT about everything — including whatever your name already means.",
+    "Why we built a name checker for the age of AI: 401.6 million domains are registered, name disputes hit a record 6,282 last year, and 900 million people ask ChatGPT about everything, including whatever your name already means.",
   path: "/about",
 })
 
@@ -39,7 +39,7 @@ const PRINCIPLES = [
   {
     index: "01",
     title: "Live, not cached",
-    body: "Domain availability comes straight from RDAP — the protocol registrars use internally — seconds before you see it. If we said it's open, it was open.",
+    body: "Domain availability comes straight from RDAP, the protocol registrars use internally, seconds before you see it. If we said it's open, it was open.",
   },
   {
     index: "02",
@@ -49,7 +49,7 @@ const PRINCIPLES = [
   {
     index: "03",
     title: "The check nobody else runs",
-    body: "Every name gets asked to GPT, Claude, and Gemini — independently. If a chatbot already has an answer for it, you deserve to know before you print the logo.",
+    body: "Every name gets asked to GPT, Claude, and Gemini independently. If a chatbot already has an answer for it, you deserve to know before you print the logo.",
   },
   {
     index: "04",
@@ -78,7 +78,7 @@ export default function AboutPage() {
           </h1>
           <p className="mx-auto max-w-prose md:text-lg">
             {SITE_NAME} exists because naming something in 2026 means clearing
-            three land grabs at once — and nobody was selling a map.
+            three land grabs at once, and nobody was selling a map.
           </p>
         </div>
       </section>
@@ -123,7 +123,7 @@ export default function AboutPage() {
                 <CountUp value={6282} />
               </p>
               <p className="text-sm text-muted-foreground sm:text-base">
-                cybersquatting cases filed at WIPO — the highest count in the
+                cybersquatting cases filed at WIPO, the highest count in the
                 policy&apos;s 25-year history
               </p>
             </article>
@@ -138,7 +138,7 @@ export default function AboutPage() {
                 <CountUp value={900} suffix="M" />
               </p>
               <p className="text-sm text-muted-foreground sm:text-base">
-                people asking models questions — and inheriting whatever the
+                people asking models questions, and inheriting whatever the
                 model already believes about your name
               </p>
             </article>
@@ -163,7 +163,7 @@ export default function AboutPage() {
               The internet passed{" "}
               <strong>400 million registered domain names</strong> in mid-2026.
               The good two-word .coms ran out long ago; the gold-rush pace of
-              the last two years — up 8.1% year over year — is mostly everyone
+              the last two years, up 8.1% year over year, is mostly everyone
               else racing to park names before you do.
             </p>
             <p className="text-sm text-muted-foreground">
@@ -192,7 +192,7 @@ export default function AboutPage() {
             </h2>
             <p className="max-w-prose text-base leading-7 sm:text-lg">
               WIPO&apos;s cybersquatting docket set its{" "}
-              <strong>all-time record in 2025</strong> — 6,282 cases, on top of
+              <strong>all-time record in 2025</strong>: 6,282 cases, on top of
               three straight record-ish years before it. Pick a name that
               brushes against someone else&apos;s mark and this chart is where
               you end up.
@@ -223,14 +223,14 @@ export default function AboutPage() {
             </h2>
             <p className="max-w-prose text-base leading-7 sm:text-lg">
               <strong>900 million people</strong> ask ChatGPT something every
-              week — four times the count of two years ago. Whatever a model
+              week, four times the count of two years ago. Whatever a model
               already associates with your name, that&apos;s what it tells all
               of them. No domain search on earth catches that collision. So we
               run it: three models, one question, independent answers.
             </p>
             <p className="text-sm text-muted-foreground">
               Source: OpenAI figures reported by TechCrunch, The Verge, CNBC,
-              and Business Insider, Nov 2023 – Feb 2026.
+              and Business Insider, Nov 2023 to Feb 2026.
             </p>
           </GsapReveal>
           <GsapReveal y={32}>
@@ -249,14 +249,14 @@ export default function AboutPage() {
           </div>
           <div className="space-y-4 text-base leading-7 sm:text-lg">
             <p>
-              We picked a name for our own thing the hard way — typing
+              We picked a name for our own thing the hard way, typing
               candidates into a registrar tab, a handle checker tab, and a
               chatbot window, then trying to hold three maybe-answers in our
               head at once. It felt like doing arithmetic on a moving train.
             </p>
             <p>
               The frustrating part wasn&apos;t the work. It was realizing the
-              third check — the AI one — was the one that mattered most and
+              third check, the AI one, was the one that mattered most and
               existed nowhere. Domain tools told us about domains. Handle tools
               told us about handles. Nothing told us whether the name already{" "}
               <em>meant</em> something to the models a billion people ask every
@@ -322,7 +322,7 @@ export default function AboutPage() {
           <Link href="/contact" className="text-primary hover:underline">
             Write in
           </Link>{" "}
-          — a human reads every message.
+, a human reads every message.
         </p>
       </section>
     </>

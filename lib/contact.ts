@@ -22,7 +22,7 @@ export async function sendContactMessage(
   // Honeypot: real users never fill this. Pretend success so bots learn nothing.
   const honeypot = formData.get("website")
   if (typeof honeypot === "string" && honeypot.trim() !== "") {
-    return { ok: true, message: "Thanks — we'll be in touch." }
+    return { ok: true, message: "Thanks, we'll be in touch." }
   }
 
   const name = String(formData.get("name") ?? "").trim()
@@ -32,7 +32,7 @@ export async function sendContactMessage(
   const started = Number(formData.get("started") ?? 0)
 
   if (name.length < 1 || name.length > 120) {
-    return { ok: false, message: "Tell us what to call you (1–120 characters)." }
+    return { ok: false, message: "Tell us what to call you (1-120 characters)." }
   }
   if (!EMAIL_PATTERN.test(email) || email.length > 254) {
     return { ok: false, message: "That email doesn't look right." }
@@ -43,12 +43,12 @@ export async function sendContactMessage(
   if (message.length < 10 || message.length > 5000) {
     return {
       ok: false,
-      message: "Messages need 10–5000 characters. The details help us help you.",
+      message: "Messages need 10-5000 characters. The details help us help you.",
     }
   }
-  // Submitted suspiciously fast — almost certainly a script. Accept quietly.
+  // Submitted suspiciously fast, almost certainly a script. Accept quietly.
   if (started > 0 && Date.now() - started < 2000) {
-    return { ok: true, message: "Thanks — we'll be in touch." }
+    return { ok: true, message: "Thanks, we'll be in touch." }
   }
 
   const key = process.env.RESEND_API_KEY
@@ -82,8 +82,8 @@ export async function sendContactMessage(
         from,
         to: ["hello@unclaimedbyai.com"],
         reply_to: email,
-        subject: `[${SITE_NAME} contact] ${TOPIC_LABELS[topic]} — ${name}`,
-        text: `${message}\n\n— ${name}\n${email}`,
+        subject: `[${SITE_NAME} contact] ${TOPIC_LABELS[topic]}: ${name}`,
+        text: `${message}\n\n- ${name}\n${email}`,
       }),
     })
     if (!res.ok) {

@@ -1,4 +1,6 @@
-export const API_BASE =
+export const API_BASE = ""
+
+export const API_ORIGIN =
   process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8007"
 
 export class ApiError extends Error {
@@ -14,16 +16,23 @@ type RequestOptions = {
   body?: unknown
   timeoutMs?: number
   headers?: Record<string, string>
+  base?: string
 }
 
 export async function apiRequest<T>(
   path: string,
-  { method = "GET", body, timeoutMs = 30000, headers = {} }: RequestOptions = {}
+  {
+    method = "GET",
+    body,
+    timeoutMs = 30000,
+    headers = {},
+    base = API_BASE,
+  }: RequestOptions = {}
 ): Promise<T> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {
-    const res = await fetch(`${API_BASE}${path}`, {
+    const res = await fetch(`${base}${path}`, {
       method,
       credentials: "include",
       headers: {
@@ -151,10 +160,6 @@ export function requestMagicLink(email: string): Promise<{ sent: boolean }> {
 
 export function logout(): Promise<{ signed_out: boolean }> {
   return apiRequest("/api/v1/auth/logout", { method: "POST" })
-}
-
-export function googleAuthUrl(): string {
-  return `${API_BASE}/api/v1/auth/google`
 }
 
 export function generateNames(

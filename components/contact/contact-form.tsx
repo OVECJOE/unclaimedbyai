@@ -18,10 +18,10 @@ import { sendContactMessage, type ContactState } from "@/lib/contact"
 const initialState: ContactState = { ok: false, message: "" }
 
 const TOPICS = [
-  { value: "support", label: "Support — something isn't working" },
-  { value: "billing", label: "Billing — credits, receipts, refunds" },
+  { value: "support", label: "Support: something isn't working" },
+  { value: "billing", label: "Billing: credits, receipts, refunds" },
   { value: "press", label: "Press & partnerships" },
-  { value: "privacy", label: "Privacy request — access or deletion" },
+  { value: "privacy", label: "Privacy request: access or deletion" },
   { value: "other", label: "Something else" },
 ]
 
@@ -63,7 +63,7 @@ export default function ContactForm() {
 
   return (
     <form ref={formRef} action={formAction} className="space-y-4">
-      {/* Honeypot — hidden from humans, tempting to bots */}
+      {/* Honeypot: hidden from humans, tempting to bots */}
       <input
         type="text"
         name="website"
@@ -124,7 +124,7 @@ export default function ContactForm() {
         <Textarea
           id="contact-message"
           name="message"
-          placeholder="The details — what happened, what you expected, links, the name you checked. The more specific, the faster we can help."
+          placeholder="The details: what happened, what you expected, links, the name you checked. The more specific, the faster we can help."
           rows={6}
           maxLength={5000}
           required
@@ -133,7 +133,7 @@ export default function ContactForm() {
 
       <div className="flex flex-wrap items-center gap-4">
         <Button type="submit" size="lg" disabled={isPending}>
-          {isPending ? "Sending…" : "Send message"}
+          {isPending ? "Sending..." : "Send message"}
         </Button>
         <p className="text-sm text-muted-foreground">
           Or just email{" "}
