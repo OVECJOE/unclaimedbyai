@@ -220,7 +220,7 @@ function PendingRow({
             <span className="text-xs text-muted-foreground" role="status">
               {job.status === "queued"
                 ? "Queued…"
-                : `${stepLabel(job.current_step)}… {job.progress}%`}
+                : `${stepLabel(job.current_step)}… ${job.progress}%`}
             </span>
             <span
               className="h-1 w-full bg-muted"
