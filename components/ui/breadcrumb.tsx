@@ -3,7 +3,7 @@ import { cn } from "cn"
 import { Slot } from "radix-ui"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
-  ArrowRight01Icon,
+  ChevronRightIcon,
   MoreHorizontalCircle01Icon,
 } from "@hugeicons/core-free-icons"
 
@@ -87,7 +87,7 @@ function BreadcrumbSeparator({
     >
       {children ?? (
         <HugeiconsIcon
-          icon={ArrowRight01Icon}
+          icon={ChevronRightIcon}
           strokeWidth={2}
           className="rtl:rotate-180"
         />
