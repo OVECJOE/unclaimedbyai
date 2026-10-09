@@ -1,5 +1,5 @@
-import AppFooter from "@/components/app-footer"
-import AppHeader from "@/components/app-header"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -11,7 +11,6 @@ import {
 import { Toggle } from "@/components/ui/toggle"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Globe02Icon, SmileIcon } from "@hugeicons/core-free-icons"
-import Link from "next/link"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -21,9 +20,7 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <AppHeader />
-
+    <div className="bg-background text-foreground">
       <main className="flex flex-1">
         <div className="mx-auto flex w-full max-w-6xl flex-col px-6 py-20 sm:px-8 md:py-24">
           <section className="mx-auto w-full max-w-3xl text-center">
@@ -39,6 +36,15 @@ export default function NotFound() {
               Looks like this page went unclaimed. Here is a fun fact and a joke
               to help soften your poor landing.
             </p>
+
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <Button asChild>
+                <Link href="/">Back to home</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/dashboard">Go to dashboard</Link>
+              </Button>
+            </div>
           </section>
 
           <section className="mx-auto mt-14 grid w-full max-w-5xl gap-px overflow-hidden border border-border bg-border md:grid-cols-2">
@@ -165,8 +171,6 @@ export default function NotFound() {
           </div>
         </div>
       </main>
-
-      <AppFooter />
     </div>
   )
 }
