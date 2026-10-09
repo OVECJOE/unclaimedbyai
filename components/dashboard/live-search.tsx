@@ -11,7 +11,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { formatDateTime } from "@/lib/utils"
-import { DotIcon, ChevronRightIcon } from "@hugeicons/core-free-icons"
+import { DotIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import GradingDistribution from "@/components/dashboard/grading-distribution"
 import ScoreSummary from "@/components/dashboard/score-summary"
@@ -168,9 +168,7 @@ export default function LiveSearch({
               {homeLabel}
             </BreadcrumbLink>
           </BreadcrumbItem>
-          <BreadcrumbSeparator>
-            <HugeiconsIcon icon={ChevronRightIcon} />
-          </BreadcrumbSeparator>
+          <BreadcrumbSeparator />
           {historyHref ? (
             <>
               <BreadcrumbItem>
@@ -178,9 +176,7 @@ export default function LiveSearch({
                   History
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <HugeiconsIcon icon={ChevronRightIcon} />
-              </BreadcrumbSeparator>
+              <BreadcrumbSeparator />
             </>
           ) : null}
           <BreadcrumbItem className="min-w-0">

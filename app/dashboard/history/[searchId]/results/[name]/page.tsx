@@ -27,7 +27,6 @@ import {
   ArrowRight01Icon,
   AtSignIcon,
   GlobeIcon,
-  ChevronRightIcon,
 } from "@hugeicons/core-free-icons"
 import { notFound, redirect } from "next/navigation"
 import { ScoreGauge } from "@/components/app/score-gauge"
@@ -223,9 +222,7 @@ export default async function SearchResultNamePage({
                   Dashboard
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <HugeiconsIcon icon={ChevronRightIcon} />
-              </BreadcrumbSeparator>
+              <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink
                   href="/dashboard/history"
@@ -234,9 +231,7 @@ export default async function SearchResultNamePage({
                   History
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <HugeiconsIcon icon={ChevronRightIcon} />
-              </BreadcrumbSeparator>
+              <BreadcrumbSeparator />
               <BreadcrumbItem className="min-w-0">
                 <BreadcrumbLink
                   href={backHref}
@@ -245,9 +240,7 @@ export default async function SearchResultNamePage({
                   {search.query}
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <HugeiconsIcon icon={ChevronRightIcon} />
-              </BreadcrumbSeparator>
+              <BreadcrumbSeparator />
               <BreadcrumbItem className="min-w-0">
                 <BreadcrumbPage className="truncate">
                   {nameItem.name}

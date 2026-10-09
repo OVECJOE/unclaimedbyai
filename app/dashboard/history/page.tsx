@@ -11,8 +11,6 @@ import { clampPage } from "@/lib/pagination"
 import { SearchResultCard } from "@/components/dashboard/search-result-card"
 import { PaginationWindow } from "@/components/ui/pagination-window"
 import SearchHistoryToolbar from "@/components/dashboard/search-history-toolbar"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { ChevronRightIcon } from "@hugeicons/core-free-icons"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { redirect } from "next/navigation"
@@ -166,9 +164,7 @@ export default async function SearchHistoryPage({
                   Dashboard
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <HugeiconsIcon icon={ChevronRightIcon} />
-              </BreadcrumbSeparator>
+              <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbPage>History</BreadcrumbPage>
               </BreadcrumbItem>
