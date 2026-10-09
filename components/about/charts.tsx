@@ -109,10 +109,9 @@ export function DomainGrowthChart() {
           content={
             <ChartTooltipContent
               labelStyle={tooltipLabelStyle}
-              formatter={(value) => [
-                `${Number(value).toFixed(1)}M registrations`,
-                "domains",
-              ]}
+              formatter={(value) =>
+                `${Number(value).toFixed(1)}M registrations (domains)`
+              }
             />
           }
         />
@@ -162,10 +161,9 @@ export function DisputeFilingsChart() {
           content={
             <ChartTooltipContent
               labelStyle={tooltipLabelStyle}
-              formatter={(value) => [
-                `${Number(value).toLocaleString("en-US")} cases`,
-                "filed at WIPO",
-              ]}
+              formatter={(value) =>
+                `${Number(value).toLocaleString("en-US")} cases filed at WIPO`
+              }
             />
           }
         />
@@ -213,10 +211,9 @@ export function ChatGptGrowthChart() {
           content={
             <ChartTooltipContent
               labelStyle={tooltipLabelStyle}
-              formatter={(value) => [
-                `${Number(value).toLocaleString("en-US")}M weekly users`,
-                "ChatGPT",
-              ]}
+              formatter={(value) =>
+                `${Number(value).toLocaleString("en-US")}M weekly users (ChatGPT)`
+              }
             />
           }
         />

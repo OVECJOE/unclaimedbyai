@@ -222,7 +222,8 @@ export default function AboutPage() {
               Now there&apos;s a land grab inside people&apos;s heads
             </h2>
             <p className="max-w-prose text-base leading-7 sm:text-lg">
-              <strong>900 million people</strong> ask ChatGPT something every
+              <strong>900 million people</strong>
+              {" "}ask ChatGPT something every
               week, four times the count of two years ago. Whatever a model
               already associates with your name, that&apos;s what it tells all
               of them. No domain search on earth catches that collision. So we
