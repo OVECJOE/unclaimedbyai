@@ -270,7 +270,7 @@ export default function ContactPage() {
             We post check teardowns and naming wreckage in public.
           </p>
         </div>
-        <div className="flex justify-center gap-4">
+        <div className="flex md:justify-center gap-4">
           {SOCIALS.map((social) => (
             <a
               key={social.label}
