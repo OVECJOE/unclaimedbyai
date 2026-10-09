@@ -322,11 +322,16 @@ export default function ResultsTable({
     if (!pending.length || firing) return
     setFiring(true)
     try {
-      const result = await checkAllNames(Number(searchId), {
-        ...anonInput(),
-        ...(validSelected.length > 0 ? { name_ids: validSelected } : {}),
-      })
-      if (result.skipped > 0) {
+      let skipped = 0
+      for (let round = 0; round < 20; round += 1) {
+        const result = await checkAllNames(Number(searchId), {
+          ...anonInput(),
+          ...(validSelected.length > 0 ? { name_ids: validSelected } : {}),
+        })
+        skipped += result.skipped
+        if (result.queued === 0) break
+      }
+      if (skipped > 0) {
         toastApiError(
           new ApiError(402, "Some re-checks need credits."),
           "Some checks need credits."
