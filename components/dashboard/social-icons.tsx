@@ -4,6 +4,8 @@ import {
   InstagramIcon,
   NewTwitterIcon,
   NpmIcon,
+  TiktokIcon,
+  YoutubeIcon,
 } from "@hugeicons/core-free-icons"
 
 const SOCIAL_ICONS = {
@@ -11,6 +13,8 @@ const SOCIAL_ICONS = {
   npm: NpmIcon,
   x: NewTwitterIcon,
   instagram: InstagramIcon,
+  tiktok: TiktokIcon,
+  youtube: YoutubeIcon,
 } as const
 
 export function SocialIcon({
