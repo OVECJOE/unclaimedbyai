@@ -3,6 +3,13 @@ export const API_BASE = ""
 export const API_ORIGIN =
   process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8007"
 
+// In the browser a relative path is correct: it goes through the same-origin
+// rewrite proxy so the session cookie lands on the frontend domain. On the
+// server there is no origin to resolve a relative URL against, so Node's
+// fetch would throw "Failed to parse URL". Server Components and server
+// actions must therefore use the absolute API origin.
+const DEFAULT_BASE = typeof window === "undefined" ? API_ORIGIN : API_BASE
+
 export class ApiError extends Error {
   status: number
   constructor(status: number, message: string) {
@@ -26,7 +33,7 @@ export async function apiRequest<T>(
     body,
     timeoutMs = 30000,
     headers = {},
-    base = API_BASE,
+    base = DEFAULT_BASE,
   }: RequestOptions = {}
 ): Promise<T> {
   const controller = new AbortController()

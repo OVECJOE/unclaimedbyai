@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
-import { API_BASE } from "@/lib/api"
+import { API_ORIGIN } from "@/lib/api"
 
 async function authed(path: string, init?: RequestInit): Promise<Response> {
   const jar = await cookies()
@@ -11,7 +11,7 @@ async function authed(path: string, init?: RequestInit): Promise<Response> {
     .getAll()
     .map((entry) => `${entry.name}=${entry.value}`)
     .join("; ")
-  return fetch(`${API_BASE}${path}`, {
+  return fetch(`${API_ORIGIN}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",

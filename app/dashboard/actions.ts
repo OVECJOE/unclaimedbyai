@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
-import { API_BASE } from "@/lib/api"
+import { API_ORIGIN } from "@/lib/api"
 
 export async function signOut() {
   const jar = await cookies()
@@ -11,7 +11,7 @@ export async function signOut() {
     .map((entry) => `${entry.name}=${entry.value}`)
     .join("; ")
   try {
-    await fetch(`${API_BASE}/api/v1/auth/logout`, {
+    await fetch(`${API_ORIGIN}/api/v1/auth/logout`, {
       method: "POST",
       headers: cookie ? { cookie } : {},
     })
