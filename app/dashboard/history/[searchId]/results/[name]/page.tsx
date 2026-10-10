@@ -474,13 +474,20 @@ export default async function SearchResultNamePage({
                           <TableCell className="font-mono text-xs">
                             {row.model ?? "unknown model"}
                           </TableCell>
-                          <TableCell className="text-muted-foreground">
-                            {row.error ?? row.association ?? "None reported"}
+                          <TableCell
+                            className="text-muted-foreground"
+                            title={row.error ?? undefined}
+                          >
+                            {row.error
+                              ? "Couldn't check this model"
+                              : (row.association ?? "None reported")}
                           </TableCell>
                           <TableCell className="text-end text-muted-foreground">
-                            {typeof row.collision_confidence === "number"
-                              ? `${row.collision_confidence}/100`
-                              : "Not reported"}
+                            {row.error
+                              ? "—"
+                              : typeof row.collision_confidence === "number"
+                                ? `${row.collision_confidence}/100`
+                                : "Not reported"}
                           </TableCell>
                         </TableRow>
                       ))}
