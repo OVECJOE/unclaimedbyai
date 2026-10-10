@@ -29,18 +29,20 @@ export default function GenerateAndGo({
 
   useEffect(() => {
     if (submittedRef.current || pending) return
-    let brief = initialBrief
-    if (!brief) {
-      try {
-        brief = sessionStorage.getItem(PENDING_BRIEF_KEY) ?? ""
-        sessionStorage.removeItem(PENDING_BRIEF_KEY)
-      } catch {
-        brief = ""
-      }
+    // The stored brief is single-use: clear it no matter which source we
+    // end up reading, so a later visit can't auto-start a phantom search.
+    let stored = ""
+    try {
+      stored = sessionStorage.getItem(PENDING_BRIEF_KEY) ?? ""
+      if (stored) sessionStorage.removeItem(PENDING_BRIEF_KEY)
+    } catch {
+      stored = ""
     }
-    if (brief.trim()) {
+    const brief = (initialBrief || stored).trim()
+    if (brief) {
       submittedRef.current = true
-      void onSubmit(brief.trim())
+      const id = setTimeout(() => void onSubmit(brief), 0)
+      return () => clearTimeout(id)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialBrief])

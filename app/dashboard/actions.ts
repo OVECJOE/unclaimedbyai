@@ -16,7 +16,10 @@ export async function signOut() {
       headers: cookie ? { cookie } : {},
     })
   } catch {
-    // fall through to local redirect either way
+    // fall through to local sign-out either way
   }
+  // The API's Set-Cookie deletion header never reaches the browser through
+  // this server-side fetch, so drop the session cookie locally too.
+  jar.delete("sid")
   redirect("/")
 }
