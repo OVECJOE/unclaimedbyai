@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button"
 import GradingDistribution from "@/components/dashboard/grading-distribution"
 import ScoreSummary from "@/components/dashboard/score-summary"
 import ResultsTable from "@/components/dashboard/results-table"
+import QueryUnfurl from "@/components/dashboard/query-unfurl"
 import SearchResultsToolbar from "@/components/dashboard/search-results-toolbar"
 import {
   ApiError,
@@ -204,10 +205,7 @@ export default function LiveSearch({
         </BreadcrumbList>
       </Breadcrumb>
       <div className="space-y-1">
-        <h1 className="font-heading text-4xl font-semibold md:text-5xl">
-          Results for &apos;
-          <span className="text-primary">{header.query}</span>&apos;
-        </h1>
+        <QueryUnfurl query={header.query} />
         <div className="flex flex-wrap items-center gap-1">
           <span className="text-xs text-muted-foreground">
             {header.name_count} names generated
