@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation"
 import { Suspense } from "react"
 import LiveSearch from "@/components/dashboard/live-search"
-import { TableSkeleton } from "@/components/dashboard/skeletons"
+import { SearchDetailSkeleton } from "@/components/dashboard/skeletons"
 import { ApiError } from "@/lib/api"
 import {
   getCachedSearchHeader,
@@ -71,7 +71,7 @@ export default async function HistorySearchPage({
   return (
     <section className="px-4 py-10">
       <div className="mx-auto max-w-7xl">
-        <Suspense fallback={<TableSkeleton />}>
+        <Suspense fallback={<SearchDetailSkeleton />}>
           <SearchLiveBlock
             searchId={id}
             availableOnly={availableOnly}
