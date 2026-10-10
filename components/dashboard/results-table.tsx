@@ -60,12 +60,16 @@ type ResultsTableProps = {
 
 function AvailabilityList({
   items,
+  max = 3,
 }: {
   items: { label: string; available: boolean }[]
+  max?: number
 }) {
+  const shown = items.slice(0, max)
+  const remaining = items.length - shown.length
   return (
     <span className="flex items-center gap-2">
-      {items.map((item) => (
+      {shown.map((item) => (
         <span
           key={item.label}
           className={
@@ -77,6 +81,17 @@ function AvailabilityList({
           {item.label}
         </span>
       ))}
+      {remaining > 0 ? (
+        <span
+          className="text-xs text-muted-foreground"
+          title={items
+            .slice(max)
+            .map((i) => i.label)
+            .join(", ")}
+        >
+          +{remaining}
+        </span>
+      ) : null}
     </span>
   )
 }
