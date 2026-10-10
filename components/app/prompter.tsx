@@ -41,12 +41,20 @@ export default function Prompter({
           rows={2}
           value={value}
           onChange={(e) => setValue(e.target.value)}
+          maxLength={400}
           aria-label="Describe what you're building"
+          aria-describedby="prompt-limit"
           placeholder={value.length === 0 ? ghostText : undefined}
           className="min-h-16 resize-none border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
         />
 
-        <div className="mt-2 flex items-center justify-end">
+        <div className="mt-2 flex items-center justify-between">
+          <span
+            id="prompt-limit"
+            className="text-xs text-muted-foreground tabular-nums"
+          >
+            {value.length >= 360 ? `${value.length}/400` : null}
+          </span>
           <Button type="submit" size="icon" disabled={!value.trim() || pending}>
             <HugeiconsIcon icon={ArrowUpIcon} className="size-4" />
             <span className="sr-only">Generate names</span>
