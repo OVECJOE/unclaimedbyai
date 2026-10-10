@@ -263,8 +263,8 @@ export default async function SearchResultNamePage({
               <CardTitle className="text-3xl md:text-4xl">
                 {nameItem.name}
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Generated for &apos;{search.query}&apos;
+              <p className="mx-auto max-w-prose text-sm text-muted-foreground">
+                {nameItem.about ?? `Generated for '${search.query}'`}
               </p>
               <p className="text-sm text-muted-foreground">
                 Searched {formatDateTime(search.created_at)}
