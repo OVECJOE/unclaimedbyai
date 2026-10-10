@@ -10,7 +10,7 @@ export const metadata: Metadata = pageMetadata({
   path: "/privacy",
 })
 
-const UPDATED = "October 1, 2026"
+const UPDATED = "October 10, 2026"
 
 const sections: LegalSection[] = [
   {
@@ -136,21 +136,44 @@ const sections: LegalSection[] = [
     id: "cookies",
     title: "Cookies",
     plain:
-      "We use a small number of strictly necessary cookies to keep you signed in and remember your theme. No advertising trackers.",
+      "A handful of strictly necessary cookies to keep you signed in and remember choices, plus analytics — which only runs if you allow it. No advertising trackers.",
     body: (
       <>
-        <p>
-          We use a limited set of cookies and similar storage, all strictly
-          necessary to operate the Service:
-        </p>
+        <p>We use a small, honest set of cookies:</p>
         <ul>
-          <li>Sign-in session cookies that keep you logged in.</li>
-          <li>A theme preference so the site remembers light or dark mode.</li>
+          <li>
+            <strong>sid</strong> — your sign-in session (30 days, strictly
+            necessary).
+          </li>
+          <li>
+            <strong>tb</strong> — a one-hour marker that you&apos;ve passed our
+            Cloudflare bot check, so it doesn&apos;t nag you repeatedly
+            (strictly necessary).
+          </li>
+          <li>
+            <strong>uba-consent</strong> — remembers the choice you make in the
+            cookie banner for a year (strictly necessary).
+          </li>
+          <li>
+            <strong>bid</strong> — makes sure a boost you send counts once
+            (two years).
+          </li>
+          <li>
+            <strong>uba-pending-plan</strong> — carries your selected credit
+            pack through checkout (one hour, strictly necessary).
+          </li>
         </ul>
         <p>
-          We do not use advertising cookies, cross-site trackers, or third-party
-          analytics beacons. If that ever changes, we&apos;ll update this policy
-          and ask for consent where the law requires it.
+          Some pages load Cloudflare Turnstile to verify that requests come
+          from humans rather than bots. We also use privacy-friendly,
+          first-party analytics (no cross-site identifiers) to understand
+          aggregate usage — it only loads if you allow it in the cookie
+          banner, and declining it doesn&apos;t limit the Service in any way.
+        </p>
+        <p>
+          We do not use advertising cookies or cross-site trackers. If that
+          ever changes, we&apos;ll update this policy and ask for consent where
+          the law requires it.
         </p>
       </>
     ),

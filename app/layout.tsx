@@ -1,10 +1,11 @@
-import Script from "next/script"
 import localFont from "next/font/local"
 import type { Metadata } from "next"
 import { ThemeProvider } from "@/components/app/theme-provider"
 import { cn } from "@/lib/utils"
 import { JsonLd } from "@/components/app/json-ld"
 import { Toaster } from "@/components/ui/sonner"
+import Analytics from "@/components/app/analytics"
+import CookieBanner from "@/components/app/cookie-banner"
 import {
   OG_PATH,
   SITE_DESCRIPTION,
@@ -74,16 +75,11 @@ export default function RootLayout({
       )}
     >
       <body>
-        <Script
-          async
-          src="https://www.sabilytics.com/script.js"
-          data-site="tl6y296p08at"
-          data-domain="unclaimedbyai.com"
-          strategy="afterInteractive"
-        />
+        <Analytics />
         <JsonLd data={siteJsonLd} />
         <ThemeProvider>{children}</ThemeProvider>
         <Toaster position="bottom-center" />
+        <CookieBanner />
       </body>
     </html>
   )
