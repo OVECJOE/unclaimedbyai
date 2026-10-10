@@ -5,7 +5,7 @@ import { ApiError } from "@/lib/api"
 
 export function toastApiError(error: unknown, fallback: string): void {
   if (error instanceof ApiError && error.status === 402) {
-    toast.error("You're out. Top up to keep going.", {
+    toast.error("You're out of report credits. Top up to keep going.", {
       action: {
         label: "See plans",
         onClick: () => {

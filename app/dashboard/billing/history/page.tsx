@@ -46,7 +46,7 @@ export default async function HistoryPage({
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead>Pack</TableHead>
-              <TableHead>Date</TableHead>
+              <TableHead className="hidden sm:table-cell">Date</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Price</TableHead>
             </TableRow>
@@ -65,7 +65,7 @@ export default async function HistoryPage({
                     </p>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden sm:table-cell">
                   <span className="text-xs font-medium italic">
                     {formatDateTime(order.paid_at ?? order.created_at)}
                   </span>

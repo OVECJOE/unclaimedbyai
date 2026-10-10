@@ -43,11 +43,16 @@ export default function BoostButton({
   const toasted = useRef("")
 
   useEffect(() => {
-    if (state.message && toasted.current !== state.message) {
+    if (!state.message) return
+    if (toasted.current !== state.message) {
       toasted.current = state.message
       if (state.ok) toast.success(state.message)
       else toast.error(state.message)
     }
+    // Close the confirm dialog only once the action actually resolved, so
+    // failures aren't hidden behind an already-dismissed dialog.
+    const id = setTimeout(() => setConfirmOpen(false), 0)
+    return () => clearTimeout(id)
   }, [state])
 
   return (
@@ -96,11 +101,7 @@ export default function BoostButton({
                   Cancel
                 </Button>
               </DialogClose>
-              <Button
-                type="submit"
-                disabled={isPending}
-                onClick={() => setConfirmOpen(false)}
-              >
+              <Button type="submit" disabled={isPending}>
                 <HugeiconsIcon icon={AudioWave02Icon} />
                 {isPending ? "Sending…" : "Send boost"}
               </Button>

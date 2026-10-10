@@ -13,6 +13,23 @@ import {
 
 export const dynamic = "force-dynamic"
 
+function LinkNotice({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="mx-auto max-w-prose space-y-4 border border-dashed p-10 text-center">
+      <h1 className="font-heading text-3xl font-semibold">{title}</h1>
+      <p className="text-sm text-muted-foreground">{body}</p>
+      <div className="flex flex-wrap justify-center gap-3">
+        <Button asChild>
+          <Link href="/dashboard">Start your own search</Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link href="/auth">Sign in</Link>
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 async function SearchLiveBlock({
   searchId,
   sid,
@@ -34,7 +51,14 @@ async function SearchLiveBlock({
       getCachedSearchResultsPage(searchId, availableOnly, sort, sid, q),
     ])
   } catch (error) {
-    if (error instanceof ApiError && error.status === 404) notFound()
+    if (error instanceof ApiError && error.status === 404) {
+      return (
+        <LinkNotice
+          title="This results link has moved on"
+          body="The link is missing its access token, or the search no longer exists. Shared links only work for the browser that created them — sign in to keep names, or start a fresh search."
+        />
+      )
+    }
     throw error
   }
 
@@ -80,7 +104,16 @@ export default async function PublicResultsPage({
   const id = Number.parseInt(searchId, 10)
   if (!Number.isInteger(id)) notFound()
   const query = await searchParams
-  if (!query.sid) notFound()
+  if (!query.sid) {
+    return (
+      <section className="px-4 py-10">
+        <LinkNotice
+          title="This results link is incomplete"
+          body="It's missing the session token that keeps your names private. If you shared it from another browser or device, open the original link there — or start your own search; it only takes a moment."
+        />
+      </section>
+    )
+  }
   const sid = query.sid
   const availableOnly = query.available === "1"
   const sort = query.sort || "overall-score-high-to-low"

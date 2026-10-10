@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { ApiError, createCheckout } from "@/lib/api"
+import { createCheckout } from "@/lib/api"
+import { toastApiError } from "@/lib/api-errors"
 
 export default function BuyButton({
   packSlug,
@@ -21,9 +21,7 @@ export default function BuyButton({
       window.location.href = checkout_url
     } catch (err) {
       setPending(false)
-      toast.error(
-        err instanceof ApiError ? err.message : "Checkout failed. Try again."
-      )
+      toastApiError(err, "Checkout failed. Try again.")
     }
   }
 

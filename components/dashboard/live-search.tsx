@@ -13,6 +13,7 @@ import {
 import { formatDateTime } from "@/lib/utils"
 import { DotIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
+import { Button } from "@/components/ui/button"
 import GradingDistribution from "@/components/dashboard/grading-distribution"
 import ScoreSummary from "@/components/dashboard/score-summary"
 import ResultsTable from "@/components/dashboard/results-table"
@@ -89,6 +90,7 @@ export default function LiveSearch({
     sort,
     q: q ?? "",
   })
+  const [paused, setPaused] = useState(false)
   const failuresRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -120,8 +122,8 @@ export default function LiveSearch({
     const next = { ...filters, ...patch }
     setFilters(next)
     syncUrl(next)
-    refreshWith(next).catch(() => {
-      // Poll loop picks it up on the next tick.
+    refreshWith(next).catch((error) => {
+      toastApiError(error, "Couldn't refresh the results. Try again.")
     })
   }
 
@@ -153,7 +155,7 @@ export default function LiveSearch({
   }
 
   useEffect(() => {
-    if (!active) return
+    if (!active || paused) return
     const controller = new AbortController()
     timerRef.current = setInterval(() => {
       refresh(controller.signal).catch((error) => {
@@ -161,6 +163,7 @@ export default function LiveSearch({
         failuresRef.current += 1
         if (failuresRef.current >= 3) {
           if (timerRef.current) clearInterval(timerRef.current)
+          setPaused(true)
           toastApiError(error, "Live updates paused. Refresh the page.")
         }
       })
@@ -170,7 +173,7 @@ export default function LiveSearch({
       if (timerRef.current) clearInterval(timerRef.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, searchId, sid, filters])
+  }, [active, paused, searchId, sid, filters])
 
   const results = items.map(toNameResultFromPayload)
   const noNamesYet = header.name_count === 0
@@ -270,6 +273,27 @@ export default function LiveSearch({
             </div>
           </div>
           <div className="space-y-5">
+            {paused ? (
+              <div
+                role="alert"
+                className="flex flex-wrap items-center justify-between gap-3 border border-destructive/40 bg-destructive/5 p-3 text-sm"
+              >
+                <span>
+                  Live updates paused — we lost the connection. What you see
+                  is the last loaded snapshot.
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    failuresRef.current = 0
+                    setPaused(false)
+                  }}
+                >
+                  Resume updates
+                </Button>
+              </div>
+            ) : null}
             <SearchResultsToolbar
               q={filters.q}
               availableOnly={filters.availableOnly}

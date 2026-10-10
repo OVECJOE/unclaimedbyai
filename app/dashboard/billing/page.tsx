@@ -5,6 +5,7 @@ import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { PriceCard } from "@/components/price-card"
 import BuyButton from "@/components/dashboard/buy-button"
+import CheckoutBanner from "@/components/dashboard/checkout-banner"
 import ClearPlanCookie from "@/components/dashboard/clear-plan-cookie"
 import { PENDING_PLAN_COOKIE } from "@/components/public/plan-cookie"
 import { getMeServer, apiServer } from "@/lib/api-server"
@@ -37,20 +38,8 @@ export default async function BillingPage({
       {pendingPlan ? <ClearPlanCookie /> : null}
       <section className="px-4">
         <div className="mx-auto max-w-7xl space-y-4">
-          {params.success ? (
-            <Alert className="bg-secondary">
-              <AlertDescription>
-                Payment received — your credits are on the account.
-              </AlertDescription>
-            </Alert>
-          ) : null}
-          {params.canceled ? (
-            <Alert className="bg-secondary">
-              <AlertDescription>
-                Checkout was canceled. No charge was made.
-              </AlertDescription>
-            </Alert>
-          ) : null}
+          {params.success ? <CheckoutBanner kind="success" /> : null}
+          {params.canceled ? <CheckoutBanner kind="canceled" /> : null}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="border p-5">
               <p className="text-sm text-muted-foreground">Searches left</p>

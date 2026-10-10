@@ -97,7 +97,7 @@ export default function CommentForm({
         </Button>
         {compact ? null : (
           <span className="text-sm text-muted-foreground">
-            Try sending it empty first to see the error messages.
+            Comments are public — be kind, be useful.
           </span>
         )}
       </div>

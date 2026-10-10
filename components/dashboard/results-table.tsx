@@ -120,7 +120,7 @@ function NameRow({
     <TableRow
       className={clickable ? "group relative cursor-pointer" : undefined}
     >
-      <TableCell>
+      <TableCell className="max-w-[10rem] md:max-w-none">
         {clickable ? (
           <Link
             href={href}
@@ -137,7 +137,7 @@ function NameRow({
               <HugeiconsIcon icon={BrandfetchIcon} className="size-4" />
             </AvatarFallback>
           </Avatar>
-          {result.name}
+          <span className="truncate">{result.name}</span>
         </span>
       </TableCell>
       <TableCell>
@@ -154,10 +154,10 @@ function NameRow({
           }))}
         />
       </TableCell>
-      <TableCell>
+      <TableCell className="hidden md:table-cell">
         <SocialAvailabilityList socials={result.socials} />
       </TableCell>
-      <TableCell>
+      <TableCell className="hidden md:table-cell">
         <Badge className={aiAssociationColor(result.aiAssociation)}>
           {result.aiAssociation}
         </Badge>
@@ -220,13 +220,13 @@ function PendingRow({
       <TableCell>
         <span className="text-sm text-muted-foreground">Not checked</span>
       </TableCell>
-      <TableCell>
+      <TableCell className="hidden md:table-cell">
         <span className="text-sm text-muted-foreground">Pending</span>
       </TableCell>
-      <TableCell>
+      <TableCell className="hidden md:table-cell">
         <span className="text-sm text-muted-foreground">Pending</span>
       </TableCell>
-      <TableCell>
+      <TableCell className="hidden md:table-cell">
         <span className="text-sm text-muted-foreground">Pending</span>
       </TableCell>
       <TableCell>
@@ -415,7 +415,7 @@ export default function ResultsTable({
 
   return (
     <div className="w-full">
-      <Table className="min-w-[680px]">
+      <Table className="min-w-[340px] md:min-w-[680px]">
         <TableHeader>
           <TableRow>
             <TableHead>
@@ -443,8 +443,10 @@ export default function ResultsTable({
             </TableHead>
             <TableHead>Overall</TableHead>
             <TableHead>Domains</TableHead>
-            <TableHead>Social</TableHead>
-            <TableHead>AI Association</TableHead>
+            <TableHead className="hidden md:table-cell">Social</TableHead>
+            <TableHead className="hidden md:table-cell">
+              AI Association
+            </TableHead>
             <TableHead className="text-right whitespace-nowrap">
               {pendingCount > 0 ? (
                 <span className="flex items-center gap-2">

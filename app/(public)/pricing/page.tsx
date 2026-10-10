@@ -107,6 +107,16 @@ export default async function PricingPage() {
         </div>
 
         <div className="mx-auto mt-10 grid max-w-7xl grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+          {packs.length === 0 ? (
+            <p className="sm:col-span-2 md:col-span-3 text-sm text-muted-foreground">
+              We couldn&apos;t load live pack prices right now — these are our
+              standard rates.{" "}
+              <Link href="/contact" className="text-primary">
+                Contact us
+              </Link>{" "}
+              if you need help before they&apos;re back.
+            </p>
+          ) : null}
           {packs.length > 0
             ? packs.map((pack) => (
                 <PriceCard
@@ -129,7 +139,15 @@ export default async function PricingPage() {
                 />
               ))
             : fallback.map((price, index) => (
-                <PriceCard key={index} {...price} />
+                <PriceCard
+                  key={index}
+                  {...price}
+                  action={
+                    <Button size="lg" asChild className="w-full">
+                      <Link href="/auth">Get Started</Link>
+                    </Button>
+                  }
+                />
               ))}
         </div>
 

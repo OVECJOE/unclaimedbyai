@@ -184,13 +184,13 @@ export default async function Page() {
             Built for founders, creators, and makers launching in the age of AI.
           </p>
           <AvatarGroup className="flex sm:justify-center">
-            {AUDIENCE_EXAMPLE.map((name) => (
-              <Avatar size="lg" key={name}>
+            {AUDIENCE_EXAMPLE.map((audience, index) => (
+              <Avatar size="lg" key={audience}>
                 <AvatarImage
-                  src={`https://i.pravatar.cc/150?img=${name}`}
-                  alt={name}
+                  src={`https://i.pravatar.cc/150?img=${index + 11}`}
+                  alt={audience}
                 />
-                <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+                <AvatarFallback>{audience.charAt(0)}</AvatarFallback>
               </Avatar>
             ))}
             <AvatarGroupCount>+{communityCount}</AvatarGroupCount>

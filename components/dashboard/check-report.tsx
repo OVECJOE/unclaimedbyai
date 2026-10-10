@@ -7,11 +7,11 @@ function toTier(level: Report["overall_risk_level"]): Tier {
 }
 
 const STATUS_TONE: Record<string, string> = {
-  available: "text-green-600",
-  taken: "text-red-600",
+  available: "text-green-600 dark:text-green-400",
+  taken: "text-red-600 dark:text-red-400",
   unknown: "text-muted-foreground",
-  error: "text-yellow-600",
-  rate_limited: "text-yellow-600",
+  error: "text-yellow-600 dark:text-yellow-400",
+  rate_limited: "text-yellow-600 dark:text-yellow-400",
 }
 
 export default function CheckReport({ report }: { report: Report }) {
@@ -104,7 +104,9 @@ export default function CheckReport({ report }: { report: Report }) {
                 {row.model ?? "unknown model"}
               </p>
               {row.error ? (
-                <p className="text-yellow-600">Check failed: {row.error}</p>
+                <p className="text-yellow-600 dark:text-yellow-400">
+                  Check failed: {row.error}
+                </p>
               ) : (
                 <>
                   <p>{row.association ?? "No strong association"}</p>
