@@ -162,7 +162,7 @@ export default function ContactPage() {
                   className="bg-primary/20 p-2 text-primary dark:bg-primary/30 dark:text-primary-foreground"
                   asChild
                 >
-                  <HugeiconsIcon icon={channel.icon} className="size-5" />
+                  <HugeiconsIcon icon={channel.icon} size={24} />
                 </Badge>
                 <h2 className="font-heading text-xl font-medium md:text-2xl">
                   {channel.title}
