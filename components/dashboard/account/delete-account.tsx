@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -16,10 +18,23 @@ import { deleteAccount } from "@/app/dashboard/account/actions"
 export default function DeleteAccount() {
   const [open, setOpen] = useState(false)
   const [pending, setPending] = useState(false)
+  const router = useRouter()
 
   async function confirm() {
     setPending(true)
-    await deleteAccount()
+    try {
+      const result = await deleteAccount()
+      if (result.error) {
+        toast.error(result.error)
+        setPending(false)
+        return
+      }
+      router.push("/")
+      router.refresh()
+    } catch {
+      toast.error("We couldn't delete your account. Try again.")
+      setPending(false)
+    }
   }
 
   return (

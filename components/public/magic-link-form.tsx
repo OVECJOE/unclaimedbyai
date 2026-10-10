@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { sendMagicLink } from "@/app/(public)/auth/actions"
+import { useTurnstile } from "@/components/public/turnstile"
 
 function SubmitButton() {
   const { pending } = useFormStatus()
@@ -21,9 +22,18 @@ function SubmitButton() {
 
 export default function MagicLinkForm({ plan }: { plan?: string }) {
   const [state, action] = useActionState(sendMagicLink, { error: null })
+  const turnstile = useTurnstile("magic_link")
 
   return (
-    <form className="mt-16 space-y-4 sm:mx-auto sm:max-w-lg" action={action}>
+    <form
+      className="mt-16 space-y-4 sm:mx-auto sm:max-w-lg"
+      action={(formData) => {
+        formData.set("cf_turnstile_token", turnstile.getToken() ?? "")
+        // Tokens are single-use; pre-solve a fresh one for a retry.
+        turnstile.reset()
+        return action(formData)
+      }}
+    >
       <div className="space-y-2">
         <Label
           htmlFor="email"
@@ -47,6 +57,7 @@ export default function MagicLinkForm({ plan }: { plan?: string }) {
         </p>
       ) : null}
       <SubmitButton />
+      {turnstile.widget}
       <p className="mt-4 text-sm text-muted-foreground">
         By continuing, you agree to our{" "}
         <Link href="/terms" className="text-primary">

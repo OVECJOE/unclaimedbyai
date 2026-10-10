@@ -1,6 +1,5 @@
 "use server"
 
-import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { API_ORIGIN } from "@/lib/api"
@@ -20,14 +19,25 @@ async function authed(path: string, init?: RequestInit): Promise<Response> {
   })
 }
 
-export async function updateProfile(formData: FormData) {
+export type ProfileState = { error: string | null; saved: boolean }
+
+export async function updateProfile(
+  _prevState: ProfileState,
+  formData: FormData
+): Promise<ProfileState> {
   const fullName = formData.get("full_name")
-  if (typeof fullName !== "string" || !fullName.trim()) return
-  await authed("/api/v1/me", {
+  if (typeof fullName !== "string" || !fullName.trim()) {
+    return { error: "Enter a name to save.", saved: false }
+  }
+  const res = await authed("/api/v1/me", {
     method: "PATCH",
     body: JSON.stringify({ full_name: fullName.trim().slice(0, 255) }),
   })
+  if (!res.ok) {
+    return { error: "We couldn't save your name. Try again.", saved: false }
+  }
   revalidatePath("/dashboard/account")
+  return { error: null, saved: true }
 }
 
 export async function updatePreferences(prefs: {
@@ -48,9 +58,12 @@ export async function updatePreferences(prefs: {
   }
 }
 
-export async function deleteAccount() {
-  await authed("/api/v1/me", { method: "DELETE" })
+export async function deleteAccount(): Promise<{ error: string | null }> {
+  const res = await authed("/api/v1/me", { method: "DELETE" })
+  if (!res.ok) {
+    return { error: "We couldn't delete your account. Try again." }
+  }
   const jar = await cookies()
   jar.delete("sid")
-  redirect("/")
+  return { error: null }
 }

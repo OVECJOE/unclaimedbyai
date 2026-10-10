@@ -158,10 +158,13 @@ export function getMe(timeoutMs?: number): Promise<ApiUser> {
   return apiRequest<ApiUser>("/api/v1/me", { timeoutMs })
 }
 
-export function requestMagicLink(email: string): Promise<{ sent: boolean }> {
+export function requestMagicLink(
+  email: string,
+  cfTurnstileToken?: string
+): Promise<{ sent: boolean }> {
   return apiRequest("/api/v1/auth/magic-link", {
     method: "POST",
-    body: { email },
+    body: { email, cf_turnstile_token: cfTurnstileToken },
   })
 }
 
@@ -200,6 +203,7 @@ export function generateFilledSearch(input: {
   style?: string
   count?: number
   anon_session_id?: string
+  cf_turnstile_token?: string
 }): Promise<FilledSearch> {
   return apiRequest<FilledSearch>("/api/v1/searches/generate", {
     method: "POST",
@@ -212,6 +216,7 @@ export function createSearch(input: {
   query: string
   category?: string
   anon_session_id?: string
+  cf_turnstile_token?: string
 }): Promise<SearchItem & { searches_left?: number }> {
   return apiRequest("/api/v1/searches", {
     method: "POST",
@@ -326,7 +331,12 @@ export function claimSearches(
 
 export function createName(
   searchId: number,
-  input: { name: string; about?: string; anon_session_id?: string }
+  input: {
+    name: string
+    about?: string
+    anon_session_id?: string
+    cf_turnstile_token?: string
+  }
 ): Promise<NameItem> {
   return apiRequest<NameItem>(`/api/v1/searches/${searchId}/names`, {
     method: "POST",
@@ -341,7 +351,12 @@ export type CheckEnqueued = {
 
 export function runCheck(
   nameId: number,
-  input: { tlds?: string[]; platforms?: string[]; anon_session_id?: string }
+  input: {
+    tlds?: string[]
+    platforms?: string[]
+    anon_session_id?: string
+    cf_turnstile_token?: string
+  }
 ): Promise<CheckEnqueued> {
   return apiRequest<CheckEnqueued>(`/api/v1/names/${nameId}/checks`, {
     method: "POST",
@@ -362,7 +377,11 @@ export function cancelCheck(
 
 export function checkAllNames(
   searchId: number,
-  input: { anon_session_id?: string; name_ids?: number[] } = {}
+  input: {
+    anon_session_id?: string
+    name_ids?: number[]
+    cf_turnstile_token?: string
+  } = {}
 ): Promise<{ queued: number; skipped: number }> {
   return apiRequest<{ queued: number; skipped: number }>(
     `/api/v1/searches/${searchId}/check-all`,

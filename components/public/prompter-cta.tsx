@@ -2,9 +2,11 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import Prompter from "@/components/app/prompter"
+import { useTurnstile } from "@/components/public/turnstile"
 import { getAnonSessionId } from "@/lib/anon"
-import { generateFilledSearch, getMe } from "@/lib/api"
+import { ApiError, generateFilledSearch, getMe } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
 
 export const PENDING_BRIEF_KEY = "uba-pending-brief"
@@ -16,6 +18,7 @@ export default function PrompterCta({
 }) {
   const [pending, setPending] = useState(false)
   const router = useRouter()
+  const turnstile = useTurnstile("anonymous_generate")
 
   async function onSubmit(value: string) {
     setPending(true)
@@ -33,12 +36,20 @@ export default function PrompterCta({
       const search = await generateFilledSearch({
         query: value,
         anon_session_id: getAnonSessionId(),
+        cf_turnstile_token: turnstile.getToken() ?? undefined,
       })
       router.push(
         `/results/${search.id}?sid=${encodeURIComponent(getAnonSessionId())}`
       )
     } catch (error) {
       setPending(false)
+      turnstile.reset()
+      if (error instanceof ApiError && error.status === 403) {
+        toast.error(
+          "The human check didn't pass. Give it another go in a moment."
+        )
+        return
+      }
       toastApiError(error, "Something went wrong. Try again.")
     }
   }
@@ -55,6 +66,7 @@ export default function PrompterCta({
           Starting your search… you&apos;ll see names arrive live.
         </p>
       ) : null}
+      {turnstile.widget}
     </div>
   )
 }
