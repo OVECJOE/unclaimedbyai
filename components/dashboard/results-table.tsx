@@ -120,7 +120,7 @@ function NameRow({
     <TableRow
       className={clickable ? "group relative cursor-pointer" : undefined}
     >
-      <TableCell className="max-w-[10rem] md:max-w-none">
+      <TableCell className="min-w-28 max-w-[10rem] md:max-w-none">
         {clickable ? (
           <Link
             href={href}
@@ -214,13 +214,13 @@ function PendingRow({
               <HugeiconsIcon icon={BrandfetchIcon} className="size-4" />
             </AvatarFallback>
           </Avatar>
-          {item.name}
+          <span className="truncate">{item.name}</span>
         </span>
       </TableCell>
       <TableCell>
         <span className="text-sm text-muted-foreground">Not checked</span>
       </TableCell>
-      <TableCell className="hidden md:table-cell">
+      <TableCell>
         <span className="text-sm text-muted-foreground">Pending</span>
       </TableCell>
       <TableCell className="hidden md:table-cell">
@@ -414,8 +414,8 @@ export default function ResultsTable({
   }
 
   return (
-    <div className="w-full">
-      <Table className="min-w-[340px] md:min-w-[680px]">
+    <div className="w-full overflow-x-auto">
+      <Table className="min-w-[420px] md:min-w-[680px]">
         <TableHeader>
           <TableRow>
             <TableHead>
