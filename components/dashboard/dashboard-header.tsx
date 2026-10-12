@@ -29,7 +29,7 @@ import { signOut } from "@/app/dashboard/actions"
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/dashboard/watch", label: "Watch" },
+  { href: "/dashboard/watch", label: "Watchlist" },
   { href: "/dashboard/billing", label: "Billing" },
   { href: "/dashboard/account", label: "Account" },
 ]

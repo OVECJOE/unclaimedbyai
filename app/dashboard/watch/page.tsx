@@ -22,7 +22,7 @@ export default async function WatchPage() {
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="space-y-2">
           <h1 className="font-heading text-4xl font-semibold md:text-5xl">
-            Watch
+            Watchlist
           </h1>
           <p className="max-w-prose text-sm text-muted-foreground md:text-base">
             The names you care about, guarded. We recheck their domains and

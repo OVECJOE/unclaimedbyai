@@ -31,6 +31,7 @@ import {
 import { notFound, redirect } from "next/navigation"
 import { ScoreGauge } from "@/components/app/score-gauge"
 import { TierBadge, type Tier } from "@/components/tier-badge"
+import WatchToggle from "@/components/dashboard/watch-toggle"
 import { formatDateTime } from "@/lib/utils"
 import { apiServer } from "@/lib/api-server"
 import {
@@ -38,6 +39,7 @@ import {
   getReport,
   type CheckReport,
   type SearchDetail,
+  type WatchList,
 } from "@/lib/api"
 
 export const dynamic = "force-dynamic"
@@ -151,8 +153,12 @@ export default async function SearchResultNamePage({
   const backHref = `/dashboard/history/${id}${backSuffix ? `?${backSuffix}` : ""}`
 
   let search: SearchDetail
+  let watches: WatchList | null
   try {
-    search = await apiServer<SearchDetail>(`/api/v1/searches/${id}`)
+    ;[search, watches] = await Promise.all([
+      apiServer<SearchDetail>(`/api/v1/searches/${id}`),
+      apiServer<WatchList>("/api/v1/watches").catch(() => null),
+    ])
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound()
     if (error instanceof ApiError && error.status === 401) redirect("/auth")
@@ -166,6 +172,10 @@ export default async function SearchResultNamePage({
   if (!nameItem?.latest_check) {
     notFound()
   }
+
+  const existingWatch = watches?.items.find(
+    (item) => item.name.toLowerCase() === nameItem.name.toLowerCase()
+  )
 
   let report: CheckReport
   try {
@@ -260,9 +270,17 @@ export default async function SearchResultNamePage({
                   {nameItem.name.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <CardTitle className="text-3xl md:text-4xl">
-                {nameItem.name}
-              </CardTitle>
+              <span className="flex items-center justify-center gap-2">
+                <CardTitle className="text-3xl md:text-4xl">
+                  {nameItem.name}
+                </CardTitle>
+                <WatchToggle
+                  name={nameItem.name}
+                  searchId={id}
+                  initialWatching={existingWatch !== undefined}
+                  initialWatchId={existingWatch?.id}
+                />
+              </span>
               {nameItem.about ? (
                 <p className="mx-auto max-w-prose text-3xl text-muted-foreground">
                   {nameItem.about}

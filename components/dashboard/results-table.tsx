@@ -204,6 +204,10 @@ function PendingRow({
   onSelect,
   onCheck,
   onCancel,
+  showWatch,
+  watching,
+  watchPending,
+  onToggleWatch,
 }: {
   item: PendingName
   selected: boolean
@@ -211,6 +215,10 @@ function PendingRow({
   onSelect: (nameId: number, selected: boolean) => void
   onCheck: (nameId: number) => void
   onCancel: (nameId: number) => void
+  showWatch?: boolean
+  watching?: boolean
+  watchPending?: boolean
+  onToggleWatch?: (name: string) => void
 }) {
   const job = item.job
   const active =
@@ -236,6 +244,14 @@ function PendingRow({
             </AvatarFallback>
           </Avatar>
           <span className="truncate">{item.name}</span>
+          {showWatch && onToggleWatch ? (
+            <WatchStar
+              name={item.name}
+              watching={watching ?? false}
+              pending={watchPending ?? false}
+              onToggle={onToggleWatch}
+            />
+          ) : null}
         </span>
       </TableCell>
       <TableCell>
@@ -326,7 +342,9 @@ export default function ResultsTable({
   const [watched, setWatched] = useState<Record<string, number>>(initialWatched)
   const [watchInFlight, setWatchInFlight] = useState<string[]>([])
 
-  const showWatch = !anonSessionId && detailBase != null
+  // The dashboard leaves detailBase undefined while the public page
+  // passes an explicit null, so compare strictly against null here.
+  const showWatch = !anonSessionId && detailBase !== null
 
   async function toggleWatch(name: string) {
     const existingId = watched[name]
@@ -473,6 +491,10 @@ export default function ResultsTable({
       onSelect: toggleSelect,
       onCheck: (nameId: number) => void runOne(nameId),
       onCancel: (nameId: number) => void cancelOne(nameId),
+      showWatch,
+      watching: watched[item.name] !== undefined,
+      watchPending: watchInFlight.includes(item.name),
+      onToggleWatch: toggleWatch,
     }
   }
 
