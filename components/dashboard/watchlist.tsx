@@ -77,8 +77,8 @@ export default function Watchlist({ initial }: { initial: WatchList }) {
         <p className="font-heading text-2xl">Nothing on watch yet</p>
         <p className="mx-auto max-w-prose text-sm text-muted-foreground">
           Open any search and star a name to keep it here. We recheck its
-          domains and handles every few hours and email you the moment
-          something changes.
+          domains and handles every few hours and email you the moment something
+          changes.
         </p>
         <Button asChild>
           <Link href="/dashboard/history">Browse your searches</Link>
@@ -101,7 +101,7 @@ export default function Watchlist({ initial }: { initial: WatchList }) {
             <li key={item.id} className="relative overflow-hidden border">
               <div className="watch-aura" aria-hidden="true" />
               <div className="relative space-y-4 bg-background/60 p-5 backdrop-blur-md sm:p-6">
-                <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex flex-col items-start justify-between gap-4 md:flex-row">
                   <div className="space-y-2">
                     <span className="flex items-center gap-3">
                       <Link
@@ -122,12 +122,14 @@ export default function Watchlist({ initial }: { initial: WatchList }) {
                     </span>
                     <p className="max-w-prose text-sm text-muted-foreground">
                       Rechecking {item.tlds.map((tld) => `.${tld}`).join(", ")}{" "}
-                      and {item.platforms.length} handle
+                      among others and {item.platforms.length} handle
                       {item.platforms.length === 1 ? "" : "s"} every few hours.
                       Last sweep{" "}
-                      {item.last_swept_at
-                        ? formatDateTime(item.last_swept_at)
-                        : "has not run yet"}
+                      <strong>
+                        {item.last_swept_at
+                          ? formatDateTime(item.last_swept_at)
+                          : "has not run yet"}
+                      </strong>
                       .
                     </p>
                   </div>
@@ -143,11 +145,13 @@ export default function Watchlist({ initial }: { initial: WatchList }) {
                       </>
                     ) : (
                       <>
-                        <p className="font-heading text-4xl font-semibold leading-none tabular-nums">
+                        <p className="text-start font-heading text-4xl leading-none font-bold text-primary tabular-nums md:text-end">
                           {item.days_clean ?? 0}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {(item.days_clean ?? 0) === 1 ? "day clear" : "days clear"}
+                          {(item.days_clean ?? 0) === 1
+                            ? "day clear"
+                            : "days clear"}
                         </p>
                       </>
                     )}
@@ -161,7 +165,13 @@ export default function Watchlist({ initial }: { initial: WatchList }) {
                         key={event.id}
                         className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-2"
                       >
-                        <span className={event.kind.endsWith("_taken") ? undefined : "text-muted-foreground"}>
+                        <span
+                          className={
+                            event.kind.endsWith("_taken")
+                              ? undefined
+                              : "text-muted-foreground"
+                          }
+                        >
                           {eventSentence(event)}
                         </span>
                         <span className="text-xs text-muted-foreground">
@@ -172,8 +182,8 @@ export default function Watchlist({ initial }: { initial: WatchList }) {
                   </ul>
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    Nothing has changed since the first sweep, which is
-                    exactly what you want to keep seeing here.
+                    Nothing has changed since the first sweep, which is exactly
+                    what you want to keep seeing here.
                   </p>
                 )}
 
