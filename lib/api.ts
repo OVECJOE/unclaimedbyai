@@ -454,8 +454,64 @@ export type Preferences = {
   report_ready: boolean
   payment_receipts: boolean
   product_updates: boolean
+  watch_alerts: boolean
 }
 
 export function getPreferences(): Promise<Preferences> {
   return apiRequest<Preferences>("/api/v1/preferences")
+}
+
+export type WatchEventItem = {
+  id: number
+  kind: "domain_taken" | "domain_released" | "handle_taken" | "handle_released"
+  label: string
+  created_at: string
+}
+
+export type WatchItem = {
+  id: number
+  name_id: number
+  search_id: number
+  name: string
+  status: "clean" | "threatened"
+  tlds: string[]
+  platforms: string[]
+  clean_since: string | null
+  days_clean: number | null
+  last_swept_at: string | null
+  created_at: string
+  events: WatchEventItem[]
+}
+
+export type WatchList = {
+  items: WatchItem[]
+  slots: { used: number; total: number }
+}
+
+export function listWatches(): Promise<WatchList> {
+  return apiRequest<WatchList>("/api/v1/watches")
+}
+
+export function addWatch(input: {
+  search_id: number
+  name: string
+}): Promise<WatchItem> {
+  return apiRequest<WatchItem>("/api/v1/watches", {
+    method: "POST",
+    body: input,
+    timeoutMs: 15000,
+  })
+}
+
+export function removeWatch(watchId: number): Promise<void> {
+  return apiRequest(`/api/v1/watches/${watchId}`, { method: "DELETE" })
+}
+
+export function sweepWatch(
+  watchId: number
+): Promise<{ events: number; status: "clean" | "threatened" }> {
+  return apiRequest(`/api/v1/watches/${watchId}/sweep`, {
+    method: "POST",
+    timeoutMs: 60000,
+  })
 }

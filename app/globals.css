@@ -311,3 +311,49 @@
 .mdxeditor [class*="_contentEditable_"] {
   padding: 1rem 1.25rem;
 }
+
+/* Name watch aura: the one deliberate flourish in the design system.
+   A slow color drift behind the watchlist cards, softened into glass by
+   the card layer above it. */
+@keyframes uba-watch-aura-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes uba-watch-aura-drift {
+  0%,
+  100% {
+    transform: translate3d(-4%, -3%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(4%, 3%, 0) scale(1.12);
+  }
+}
+
+.watch-aura {
+  position: absolute;
+  inset: -55%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    var(--primary) 72deg,
+    transparent 150deg,
+    color-mix(in oklab, var(--primary) 45%, transparent) 240deg,
+    transparent 330deg
+  );
+  opacity: 0.14;
+  filter: blur(64px);
+  animation:
+    uba-watch-aura-spin 18s linear infinite,
+    uba-watch-aura-drift 11s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .watch-aura {
+    animation: none;
+  }
+}

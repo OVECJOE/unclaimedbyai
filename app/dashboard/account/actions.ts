@@ -44,6 +44,7 @@ export async function updatePreferences(prefs: {
   report_ready?: boolean
   payment_receipts?: boolean
   product_updates?: boolean
+  watch_alerts?: boolean
 }) {
   const res = await authed("/api/v1/preferences", {
     method: "PATCH",
@@ -55,6 +56,7 @@ export async function updatePreferences(prefs: {
     report_ready: boolean
     payment_receipts: boolean
     product_updates: boolean
+    watch_alerts: boolean
   }
 }
 

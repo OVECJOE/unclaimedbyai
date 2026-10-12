@@ -29,6 +29,7 @@ import { signOut } from "@/app/dashboard/actions"
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/dashboard/watch", label: "Watch" },
   { href: "/dashboard/billing", label: "Billing" },
   { href: "/dashboard/account", label: "Account" },
 ]
@@ -39,6 +40,7 @@ export default function DashboardHeader({ user }: { user?: ApiUser | null }) {
   const isActive = useCallback(
     (href: string) => {
       const excludedPathsForDashboard = [
+        "/dashboard/watch",
         "/dashboard/billing",
         "/dashboard/account",
       ]

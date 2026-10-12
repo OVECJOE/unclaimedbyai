@@ -2,12 +2,13 @@ import { notFound, redirect } from "next/navigation"
 import { Suspense } from "react"
 import LiveSearch from "@/components/dashboard/live-search"
 import { SearchDetailSkeleton } from "@/components/dashboard/skeletons"
-import { ApiError } from "@/lib/api"
+import { ApiError, type WatchList } from "@/lib/api"
 import {
   getCachedSearchHeader,
   getCachedSearchResultsPage,
   getCachedSearchSummary,
 } from "@/lib/dashboard-data"
+import { apiServer } from "@/lib/api-server"
 
 export const dynamic = "force-dynamic"
 
@@ -22,18 +23,22 @@ async function SearchLiveBlock({
   sort: string
   q?: string
 }) {
-  let header, summary, data
+  let header, summary, data, watches
   try {
-    ;[header, summary, data] = await Promise.all([
+    ;[header, summary, data, watches] = await Promise.all([
       getCachedSearchHeader(searchId),
       getCachedSearchSummary(searchId),
       getCachedSearchResultsPage(searchId, availableOnly, sort, undefined, q),
+      apiServer<WatchList>("/api/v1/watches").catch(() => null),
     ])
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound()
     if (error instanceof ApiError && error.status === 401) redirect("/auth")
     throw error
   }
+
+  const watched: Record<string, number> = {}
+  for (const item of watches?.items ?? []) watched[item.name] = item.id
 
   return (
     <LiveSearch
@@ -45,6 +50,7 @@ async function SearchLiveBlock({
       homeHref="/dashboard"
       homeLabel="Dashboard"
       historyHref="/dashboard/history"
+      initialWatched={watched}
       initialHeader={header}
       initialSummary={summary}
       initialItems={data.items}

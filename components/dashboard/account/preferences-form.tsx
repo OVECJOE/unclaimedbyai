@@ -23,6 +23,11 @@ const ROWS = [
     title: "Product updates",
     body: "Occasional emails about new features.",
   },
+  {
+    key: "watch_alerts",
+    title: "Watch alerts",
+    body: "When a domain or handle on a name you watch gets claimed.",
+  },
 ] as const
 
 export default function PreferencesForm({ initial }: { initial: Preferences }) {

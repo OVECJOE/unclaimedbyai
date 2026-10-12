@@ -60,6 +60,7 @@ type LiveSearchProps = {
   historyHref?: string
   detailBase?: string | null
   banner?: React.ReactNode
+  initialWatched?: Record<string, number>
   initialHeader: SearchHeader
   initialSummary: SearchSummaryPayload
   initialItems: SearchResultsPayload["items"]
@@ -77,6 +78,7 @@ export default function LiveSearch({
   historyHref,
   detailBase,
   banner,
+  initialWatched,
   initialHeader,
   initialSummary,
   initialItems,
@@ -305,6 +307,7 @@ export default function LiveSearch({
               pending={pending}
               anonSessionId={sid}
               detailBase={detailBase}
+              initialWatched={initialWatched}
               onMutation={() => {
                 refresh().catch(() => {
                   // Poll loop picks it up on the next tick.
