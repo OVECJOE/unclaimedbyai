@@ -1,22 +1,24 @@
 import { redirect } from "next/navigation"
-import Watchlist from "@/components/dashboard/watchlist"
-import { ApiError, type WatchList } from "@/lib/api"
-import { apiServer, getMeServer } from "@/lib/api-server"
+import { Suspense } from "react"
+import WatchlistTabs from "@/components/dashboard/watchlist-tabs"
+import { ListSkeleton } from "@/components/dashboard/skeletons"
+import { ApiError, type CheckedList } from "@/lib/api"
+import { apiServer } from "@/lib/api-server"
 
 export const dynamic = "force-dynamic"
 
-export default async function WatchPage() {
-  const user = await getMeServer().catch(() => null)
-  if (!user) redirect("/auth")
-
-  let data: WatchList
+async function InitialChecked() {
+  let data: CheckedList
   try {
-    data = await apiServer<WatchList>("/api/v1/watches")
+    data = await apiServer<CheckedList>("/api/v1/names/checked?watched=0")
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) redirect("/auth")
     throw error
   }
+  return <WatchlistTabs initialChecked={data} />
+}
 
+export default function WatchPage() {
   return (
     <section className="px-4 py-10">
       <div className="mx-auto max-w-7xl space-y-6">
@@ -25,12 +27,15 @@ export default async function WatchPage() {
             Watchlist
           </h1>
           <p className="max-w-prose text-sm text-muted-foreground md:text-base">
-            The names you care about, guarded. We recheck their domains and
-            handles every few hours and email you the moment something changes,
-            so you hear it here before you read it anywhere else.
+            Pick the names you are considering, then let us guard them. We
+            recheck their domains and handles every few hours and email you the
+            moment something changes, so you hear it here before you read it
+            anywhere else.
           </p>
         </div>
-        <Watchlist initial={data} />
+        <Suspense fallback={<ListSkeleton rows={5} />}>
+          <InitialChecked />
+        </Suspense>
       </div>
     </section>
   )

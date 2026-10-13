@@ -485,11 +485,82 @@ export type WatchItem = {
 
 export type WatchList = {
   items: WatchItem[]
+  total: number
+  page: number | null
+  page_size: number
   slots: { used: number; total: number }
 }
 
-export function listWatches(): Promise<WatchList> {
-  return apiRequest<WatchList>("/api/v1/watches")
+export type WatchNameItem = {
+  id: number
+  name: string
+  search_id: number
+}
+
+export function listWatches(params?: {
+  q?: string
+  status?: "clean" | "threatened"
+  page?: number
+  pageSize?: number
+}): Promise<WatchList> {
+  const search = new URLSearchParams()
+  if (params?.q) search.set("q", params.q)
+  if (params?.status) search.set("status", params.status)
+  if (params?.page) search.set("page", String(params.page))
+  if (params?.pageSize) search.set("page_size", String(params.pageSize))
+  const query = search.toString()
+  return apiRequest<WatchList>(`/api/v1/watches${query ? `?${query}` : ""}`)
+}
+
+export function listWatchNames(params?: {
+  q?: string
+}): Promise<{ items: WatchNameItem[] }> {
+  const search = new URLSearchParams()
+  if (params?.q) search.set("q", params.q)
+  const query = search.toString()
+  return apiRequest(
+    `/api/v1/watches/names${query ? `?${query}` : ""}`
+  )
+}
+
+export type CheckedNameItem = {
+  name_id: number
+  search_id: number
+  name: string
+  query: string
+  score: number | null
+  tier: "excellent" | "good" | "okay" | "poor" | null
+  checked_at: string | null
+  search_date: string
+  watch_id: number | null
+}
+
+export type CheckedList = {
+  items: CheckedNameItem[]
+  total: number
+  page: number
+  page_size: number
+}
+
+export function listCheckedNames(params?: {
+  q?: string
+  watched?: "0" | "1"
+  tier?: string
+  sort?: "recent" | "score" | "name"
+  page?: number
+  pageSize?: number
+}): Promise<CheckedList> {
+  const search = new URLSearchParams()
+  if (params?.q) search.set("q", params.q)
+  if (params?.watched) search.set("watched", params.watched)
+  if (params?.tier) search.set("tier", params.tier)
+  if (params?.sort) search.set("sort", params.sort)
+  if (params?.page) search.set("page", String(params.page))
+  if (params?.pageSize) search.set("page_size", String(params.pageSize))
+  const query = search.toString()
+  return apiRequest<CheckedList>(
+    `/api/v1/names/checked${query ? `?${query}` : ""}`
+  )
 }
 
 export function addWatch(input: {

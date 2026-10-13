@@ -1,10 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { toast } from "sonner"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Search01Icon } from "@hugeicons/core-free-icons"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { formatDateTime } from "@/lib/utils"
 import {
   WatchConfigButton,
@@ -15,9 +18,10 @@ import {
   sweepWatch,
   type WatchEventItem,
   type WatchItem,
-  type WatchList,
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
+
+const PAGE_SIZE = 12
 
 function eventSentence(event: WatchEventItem): string {
   switch (event.kind) {
@@ -32,13 +36,54 @@ function eventSentence(event: WatchEventItem): string {
   }
 }
 
-export default function Watchlist({ initial }: { initial: WatchList }) {
-  const [items, setItems] = useState(initial.items)
+export default function Watchlist({ onChanged }: { onChanged?: () => void }) {
+  const [items, setItems] = useState<WatchItem[]>([])
+  const [total, setTotal] = useState(0)
+  const [slots, setSlots] = useState<{ used: number; total: number }>({
+    used: 0,
+    total: 0,
+  })
+  const [loaded, setLoaded] = useState(false)
   const [sweeping, setSweeping] = useState<number[]>([])
+  const [query, setQuery] = useState("")
+  const [status, setStatus] = useState<"all" | "clean" | "threatened">("all")
+  const [page, setPage] = useState(1)
+  const seq = useRef(0)
+
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE))
+
+  useEffect(() => {
+    const current = ++seq.current
+    listWatches({
+      q: query.trim() || undefined,
+      status: status === "all" ? undefined : status,
+      page,
+      pageSize: PAGE_SIZE,
+    })
+      .then((data) => {
+        if (seq.current !== current) return
+        setItems(data.items)
+        setTotal(data.total)
+        if (data.slots) setSlots(data.slots)
+        setLoaded(true)
+      })
+      .catch(() => {
+        if (seq.current === current) setLoaded(true)
+      })
+  }, [query, status, page])
 
   async function refresh() {
-    const fresh = await listWatches().catch(() => null)
-    if (fresh) setItems(fresh.items)
+    const fresh = await listWatches({
+      q: query.trim() || undefined,
+      status: status === "all" ? undefined : status,
+      page,
+      pageSize: PAGE_SIZE,
+    }).catch(() => null)
+    if (fresh) {
+      setItems(fresh.items)
+      setTotal(fresh.total)
+      if (fresh.slots) setSlots(fresh.slots)
+    }
   }
 
   async function sweep(item: WatchItem) {
@@ -62,27 +107,63 @@ export default function Watchlist({ initial }: { initial: WatchList }) {
     }
   }
 
-  if (items.length === 0) {
+  if (!loaded) {
     return (
-      <div className="space-y-3 border border-dashed p-10 text-center">
-        <p className="font-heading text-2xl">Nothing on watch yet</p>
-        <p className="mx-auto max-w-prose text-sm text-muted-foreground">
-          Open any search and star a name to keep it here. We recheck its
-          domains and handles every few hours and email you the moment something
-          changes.
-        </p>
-        <Button asChild>
-          <Link href="/dashboard/history">Browse your searches</Link>
-        </Button>
+      <div className="space-y-4" aria-busy="true">
+        {Array.from({ length: 2 }).map((_, index) => (
+          <div key={index} className="h-32 animate-pulse border bg-muted/40" />
+        ))}
+      </div>
+    )
+  }
+
+  if (items.length === 0) {
+    const filtering = query.trim() !== "" || status !== "all"
+    return (
+      <div className="space-y-4">
+        <Toolbar
+          query={query}
+          status={status}
+          onQuery={(value) => {
+            setQuery(value)
+            setPage(1)
+          }}
+          onStatus={(value) => {
+            setStatus(value)
+            setPage(1)
+          }}
+        />
+        <div className="border border-dashed p-10 text-center">
+          <p className="font-heading text-2xl">
+            {filtering ? "Nothing matches" : "Nothing on watch yet"}
+          </p>
+          <p className="mx-auto mt-2 max-w-prose text-sm text-muted-foreground">
+            {filtering
+              ? "Try a different search or clear the filters to see everything you are watching."
+              : "Head to the Pick a name tab and star anything you want guarded. We recheck its domains and handles every few hours and email you the moment something changes."}
+          </p>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="space-y-4">
+      <Toolbar
+        query={query}
+        status={status}
+        onQuery={(value) => {
+          setQuery(value)
+          setPage(1)
+        }}
+        onStatus={(value) => {
+          setStatus(value)
+          setPage(1)
+        }}
+      />
       <p className="text-sm text-muted-foreground">
-        Watching {items.length} of {initial.slots.total}{" "}
-        {initial.slots.total === 1 ? "name" : "names"}.
+        Watching {slots.used} of {slots.total}{" "}
+        {slots.total === 1 ? "name" : "names"}.
       </p>
       <ul className="space-y-4">
         {items.map((item) => {
@@ -201,11 +282,12 @@ export default function Watchlist({ initial }: { initial: WatchList }) {
                   <WatchRemoveButton
                     name={item.name}
                     watchId={item.id}
-                    onRemoved={() =>
+                    onRemoved={() => {
                       setItems((current) =>
                         current.filter((entry) => entry.id !== item.id)
                       )
-                    }
+                      onChanged?.()
+                    }}
                   >
                     <Button
                       size="sm"
@@ -221,6 +303,81 @@ export default function Watchlist({ initial }: { initial: WatchList }) {
           )
         })}
       </ul>
+
+      {pageCount > 1 ? (
+        <nav
+          aria-label="Pagination"
+          className="flex items-center justify-between pt-2"
+        >
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page <= 1}
+            onClick={() => setPage((current) => Math.max(1, current - 1))}
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-muted-foreground tabular-nums">
+            Page {page} of {pageCount}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page >= pageCount}
+            onClick={() => setPage((current) => current + 1)}
+          >
+            Next
+          </Button>
+        </nav>
+      ) : null}
+    </div>
+  )
+}
+
+function Toolbar({
+  query,
+  status,
+  onQuery,
+  onStatus,
+}: {
+  query: string
+  status: "all" | "clean" | "threatened"
+  onQuery: (value: string) => void
+  onStatus: (value: "all" | "clean" | "threatened") => void
+}) {
+  return (
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+      <div className="relative flex-1">
+        <HugeiconsIcon
+          icon={Search01Icon}
+          className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+        />
+        <Input
+          value={query}
+          onChange={(event) => onQuery(event.target.value)}
+          placeholder="Search watched names…"
+          aria-label="Search watched names"
+          className="pr-3 pl-9"
+        />
+      </div>
+      <div className="flex gap-1" role="group" aria-label="Filter by status">
+        {(
+          [
+            ["all", "All"],
+            ["clean", "Clean"],
+            ["threatened", "Threatened"],
+          ] as const
+        ).map(([value, label]) => (
+          <Button
+            key={value}
+            size="sm"
+            variant={status === value ? "default" : "outline"}
+            onClick={() => onStatus(value)}
+          >
+            {label}
+          </Button>
+        ))}
+      </div>
     </div>
   )
 }

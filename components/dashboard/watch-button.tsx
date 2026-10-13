@@ -1,6 +1,11 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
+import {
+  useState,
+  forwardRef,
+  type ReactNode,
+  type ButtonHTMLAttributes,
+} from "react"
 import { toast } from "sonner"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { StarIcon } from "@hugeicons/core-free-icons"
@@ -25,7 +30,7 @@ import { ApiError, addWatch, removeWatch, updateWatch } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
 import { cn } from "@/lib/utils"
 
-const TLD_OPTIONS = [
+export const TLD_OPTIONS = [
   "com",
   "ai",
   "io",
@@ -39,7 +44,7 @@ const TLD_OPTIONS = [
   "so",
   "sh",
 ]
-const PLATFORM_OPTIONS = [
+export const PLATFORM_OPTIONS = [
   "github",
   "x",
   "instagram",
@@ -51,8 +56,8 @@ const PLATFORM_OPTIONS = [
   "threads",
   "producthunt",
 ]
-const MAX_TLDS = 5
-const MAX_PLATFORMS = 3
+export const MAX_TLDS = 5
+export const MAX_PLATFORMS = 3
 const DEFAULT_TLDS = ["com", "ai"]
 const DEFAULT_PLATFORMS = ["github", "x"]
 
@@ -64,7 +69,7 @@ function toggleValue(list: string[], value: string, max: number): string[] {
   return [...list, value]
 }
 
-function ChipGroup({
+export function ChipGroup({
   label,
   unit,
   options,
@@ -117,7 +122,7 @@ function ChipGroup({
   )
 }
 
-function WatchForm({
+export function WatchForm({
   name,
   searchId,
   watchId,
@@ -267,14 +272,26 @@ function RemoveWatchDialog({
   )
 }
 
-function StarTrigger({ name, watched }: { name: string; watched: boolean }) {
+// Spreads incoming props so Radix asChild triggers can inject their
+// ref and click handlers onto the underlying button element.
+const StarTrigger = forwardRef<
+  HTMLButtonElement,
+  { name: string; watched: boolean } & ButtonHTMLAttributes<HTMLButtonElement>
+>(function StarTrigger({ name, watched, className, ...props }, ref) {
   return (
     <button
+      ref={ref}
       type="button"
       aria-pressed={watched}
-      aria-label={watched ? `Stop watching ${name}` : `Watch ${name} for changes`}
+      aria-label={
+        watched ? `Stop watching ${name}` : `Watch ${name} for changes`
+      }
       title={watched ? "Watching this name" : "Watch this name"}
-      className="relative z-10 shrink-0 rounded-sm p-0.5 transition-colors hover:text-primary"
+      className={cn(
+        "relative z-10 shrink-0 rounded-sm p-0.5 transition-colors hover:text-primary",
+        className
+      )}
+      {...props}
     >
       <HugeiconsIcon
         icon={StarIcon}
@@ -288,7 +305,7 @@ function StarTrigger({ name, watched }: { name: string; watched: boolean }) {
       />
     </button>
   )
-}
+})
 
 /**
  * Star toggle for name rows and report headers. Unwatched names open a
