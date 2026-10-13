@@ -41,13 +41,21 @@ function loadTurnstile(): Promise<void> {
  * for anonymous API calls. The backend accepts a verified browser through
  * a short-lived cookie, so the token is only needed for the first request
  * (or once the cookie expires). Call `reset()` after a token has been
- * consumed to pre-solve a fresh one.
+ * consumed to pre-solve a fresh one, and `waitForToken()` before a submit
+ * so fast typists never fire a request ahead of the first solve.
  */
 export function useTurnstile(action: string) {
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
   const containerRef = useRef<HTMLDivElement>(null)
   const widgetIdRef = useRef<string | null>(null)
   const tokenRef = useRef<string | null>(null)
+  const waitersRef = useRef<Array<(token: string) => void>>([])
+
+  const settleWaiters = useCallback((token: string) => {
+    const waiters = waitersRef.current
+    waitersRef.current = []
+    for (const waiter of waiters) waiter(token)
+  }, [])
 
   const getToken = useCallback(() => tokenRef.current, [])
 
@@ -58,6 +66,33 @@ export function useTurnstile(action: string) {
       turnstile.reset(widgetIdRef.current)
     }
   }, [])
+
+  /**
+   * Resolves with the current token, or waits up to `timeoutMs` for an
+   * in-flight solve to deliver one. Returns null on timeout so the caller
+   * can fall through to the backend's own response.
+   */
+  const waitForToken = useCallback(
+    (timeoutMs = 2000): Promise<string | null> => {
+      if (tokenRef.current) return Promise.resolve(tokenRef.current)
+      if (!siteKey || !widgetIdRef.current) return Promise.resolve(null)
+      return new Promise((resolve) => {
+        const box: { timer?: ReturnType<typeof setTimeout> } = {}
+        const settle = (token: string) => {
+          if (box.timer) clearTimeout(box.timer)
+          resolve(token)
+        }
+        box.timer = setTimeout(() => {
+          waitersRef.current = waitersRef.current.filter(
+            (waiter) => waiter !== settle
+          )
+          resolve(tokenRef.current)
+        }, timeoutMs)
+        waitersRef.current.push(settle)
+      })
+    },
+    [siteKey]
+  )
 
   useEffect(() => {
     if (!siteKey) return
@@ -72,9 +107,13 @@ export function useTurnstile(action: string) {
             appearance: "interaction-only",
             callback: (token: string) => {
               tokenRef.current = token
+              settleWaiters(token)
             },
             "expired-callback": () => {
-              tokenRef.current = null
+              // Tokens die after about five minutes. Re-solve immediately
+              // in the background so an idle user's next action finds a
+              // fresh token instead of a doomed request.
+              reset()
             },
             "error-callback": () => {
               tokenRef.current = null
@@ -88,12 +127,13 @@ export function useTurnstile(action: string) {
       })
     return () => {
       cancelled = true
+      waitersRef.current = []
     }
-  }, [siteKey, action])
+  }, [siteKey, action, reset, settleWaiters])
 
   const widget = siteKey ? (
     <div ref={containerRef} className="flex justify-center" />
   ) : null
 
-  return { widget, getToken, reset, enabled: Boolean(siteKey) }
+  return { widget, getToken, waitForToken, reset, enabled: Boolean(siteKey) }
 }

@@ -27,8 +27,11 @@ export default function MagicLinkForm({ plan }: { plan?: string }) {
   return (
     <form
       className="mt-16 space-y-4 sm:mx-auto sm:max-w-lg"
-      action={(formData) => {
-        formData.set("cf_turnstile_token", turnstile.getToken() ?? "")
+      action={async (formData) => {
+        // Wait briefly for an in-flight first solve so a fast submit does
+        // not race the widget and eat an avoidable 403.
+        const token = await turnstile.waitForToken(2000)
+        formData.set("cf_turnstile_token", token ?? "")
         // Tokens are single-use; pre-solve a fresh one for a retry.
         turnstile.reset()
         return action(formData)

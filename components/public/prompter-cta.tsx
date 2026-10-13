@@ -33,10 +33,13 @@ export default function PrompterCta({
         router.push(`/dashboard?brief=${encodeURIComponent(value)}`)
         return
       }
+      // Wait briefly for an in-flight first solve so a fast submit does
+      // not race the widget and eat an avoidable 403.
+      const token = await turnstile.waitForToken(2000)
       const search = await generateFilledSearch({
         query: value,
         anon_session_id: getAnonSessionId(),
-        cf_turnstile_token: turnstile.getToken() ?? undefined,
+        cf_turnstile_token: token ?? undefined,
       })
       router.push(
         `/results/${search.id}?sid=${encodeURIComponent(getAnonSessionId())}`
