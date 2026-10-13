@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -50,6 +50,18 @@ function stepLabel(step: string | null): string {
   return STEP_LABELS[step] ?? "Working"
 }
 
+function liveStepLabel(job: PendingName["job"]): string {
+  if (!job) return "Working"
+  if (job.current_step) return stepLabel(job.current_step)
+  const snapshot = job.snapshot
+  if (!snapshot) return "Starting checks"
+  if (snapshot.ai?.verdict) return "Scoring"
+  if (snapshot.ai) return "Consulting AI models"
+  if (snapshot.socials) return "Checking handles"
+  if (snapshot.domains) return "Checking domains"
+  return "Starting checks"
+}
+
 type ResultsTableProps = {
   searchId: string
   results: NameResult[]
@@ -96,6 +108,75 @@ function AvailabilityList({
       ) : null}
     </span>
   )
+}
+
+function AnimatedScore({ value }: { value: number }) {
+  const [display, setDisplay] = useState(0)
+
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (reduce || value === 0) {
+      const id = setTimeout(() => setDisplay(value), 0)
+      return () => clearTimeout(id)
+    }
+    const start = performance.now()
+    let raf = 0
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / 800, 1)
+      const eased = 1 - Math.pow(1 - t, 3)
+      setDisplay(Math.round(value * eased))
+      if (t < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [value])
+
+  return <>{display}</>
+}
+
+function ModelDots({
+  models,
+}: {
+  models: { model: string; ok: boolean }[]
+}) {
+  const slots = Math.max(models.length, 3)
+  return (
+    <span
+      role="status"
+      aria-label={`${models.length} of ${slots} AI models responded`}
+      className="flex items-center gap-1.5"
+    >
+      {Array.from({ length: slots }).map((_, index) => {
+        const probe = models[index]
+        return (
+          <span
+            key={index}
+            title={probe ? probe.model : "Waiting on a model"}
+            className={
+              probe
+                ? probe.ok
+                  ? "size-2 rounded-full bg-primary"
+                  : "size-2 rounded-full bg-destructive"
+                : "size-2 animate-pulse rounded-full bg-muted-foreground/30"
+            }
+          />
+        )
+      })}
+    </span>
+  )
+}
+
+const AI_VERDICT_LABEL: Record<string, string> = {
+  clean: "Clean",
+  minor: "Minor",
+  hard: "Hard",
+}
+
+const AI_VERDICT_TONE: Record<string, string> = {
+  clean:
+    "bg-green-600/10 text-green-700 dark:bg-green-400/10 dark:text-green-400",
+  minor: "bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-500",
+  hard: "bg-destructive/10 text-destructive",
 }
 
 function NameRow({
@@ -160,8 +241,14 @@ function NameRow({
       </TableCell>
       <TableCell>
         <span className="flex items-center gap-2">
-          <span className="font-medium tabular-nums">{result.score}</span>
-          <Badge className={tierColor(result.tier)}>{result.tier}</Badge>
+          <span className="font-medium tabular-nums">
+            <AnimatedScore value={result.score} />
+          </span>
+          <Badge
+            className={`${tierColor(result.tier)} animate-in fade-in-0 zoom-in-95 duration-500`}
+          >
+            {result.tier}
+          </Badge>
         </span>
       </TableCell>
       <TableCell>
@@ -216,6 +303,7 @@ function PendingRow({
   watchId?: number
 }) {
   const job = item.job
+  const snapshot = job?.snapshot ?? null
   const active =
     job !== null && (job.status === "queued" || job.status === "running")
 
@@ -252,13 +340,38 @@ function PendingRow({
         <span className="text-sm text-muted-foreground">Not checked</span>
       </TableCell>
       <TableCell>
-        <span className="text-sm text-muted-foreground">Pending</span>
+        {snapshot?.domains?.length ? (
+          <AvailabilityList
+            items={snapshot.domains.map(({ tld, available }) => ({
+              label: `.${tld}`,
+              available,
+            }))}
+          />
+        ) : (
+          <span className="text-sm text-muted-foreground">Pending</span>
+        )}
       </TableCell>
       <TableCell className="hidden md:table-cell">
-        <span className="text-sm text-muted-foreground">Pending</span>
+        {snapshot?.socials?.length ? (
+          <SocialAvailabilityList socials={snapshot.socials} />
+        ) : (
+          <span className="text-sm text-muted-foreground">Pending</span>
+        )}
       </TableCell>
       <TableCell className="hidden md:table-cell">
-        <span className="text-sm text-muted-foreground">Pending</span>
+        {snapshot?.ai?.verdict ? (
+          <Badge
+            className={`animate-in fade-in-0 zoom-in-95 duration-500 ${
+              AI_VERDICT_TONE[snapshot.ai.verdict] ?? ""
+            }`}
+          >
+            {AI_VERDICT_LABEL[snapshot.ai.verdict] ?? "Checked"}
+          </Badge>
+        ) : snapshot?.ai?.models.length ? (
+          <ModelDots models={snapshot.ai.models} />
+        ) : (
+          <span className="text-sm text-muted-foreground">Pending</span>
+        )}
       </TableCell>
       <TableCell>
         {active && job ? (
@@ -266,7 +379,7 @@ function PendingRow({
             <span className="text-xs text-muted-foreground" role="status">
               {job.status === "queued"
                 ? "Queued…"
-                : `${stepLabel(job.current_step)}… ${job.progress}%`}
+                : `${liveStepLabel(job)}… ${job.progress}%`}
             </span>
             <span
               className="h-1 w-full bg-muted"

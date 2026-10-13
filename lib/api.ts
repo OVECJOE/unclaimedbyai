@@ -303,6 +303,14 @@ export type PendingName = {
     progress: number
     current_step: string | null
     error: string | null
+    snapshot?: {
+      domains?: { tld: string; available: boolean }[]
+      socials?: { platform: string; available: boolean }[]
+      ai?: {
+        models: { model: string; ok: boolean }[]
+        verdict: "clean" | "minor" | "hard" | null
+      }
+    } | null
   } | null
 }
 
