@@ -7,8 +7,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { formatDateTime } from "@/lib/utils"
 import {
+  WatchConfigButton,
+  WatchRemoveButton,
+} from "@/components/dashboard/watch-button"
+import {
   listWatches,
-  removeWatch,
   sweepWatch,
   type WatchEventItem,
   type WatchItem,
@@ -56,18 +59,6 @@ export default function Watchlist({ initial }: { initial: WatchList }) {
       toastApiError(error, `Could not sweep ${item.name} right now.`)
     } finally {
       setSweeping((current) => current.filter((id) => id !== item.id))
-    }
-  }
-
-  async function unwatch(item: WatchItem) {
-    const previous = items
-    setItems((current) => current.filter((entry) => entry.id !== item.id))
-    try {
-      await removeWatch(item.id)
-      toast.success(`No longer watching ${item.name}.`)
-    } catch (error) {
-      setItems(previous)
-      toastApiError(error, "Could not update your watchlist.")
     }
   }
 
@@ -195,14 +186,35 @@ export default function Watchlist({ initial }: { initial: WatchList }) {
                   >
                     {active ? "Sweeping…" : "Sweep now"}
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-muted-foreground"
-                    onClick={() => void unwatch(item)}
+                  <WatchConfigButton
+                    name={item.name}
+                    searchId={item.search_id}
+                    watchId={item.id}
+                    initialTlds={item.tlds}
+                    initialPlatforms={item.platforms}
+                    onSaved={() => void refresh()}
                   >
-                    Stop watching
-                  </Button>
+                    <Button size="sm" variant="outline">
+                      Edit watch
+                    </Button>
+                  </WatchConfigButton>
+                  <WatchRemoveButton
+                    name={item.name}
+                    watchId={item.id}
+                    onRemoved={() =>
+                      setItems((current) =>
+                        current.filter((entry) => entry.id !== item.id)
+                      )
+                    }
+                  >
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-muted-foreground"
+                    >
+                      Stop watching
+                    </Button>
+                  </WatchRemoveButton>
                 </div>
               </div>
             </li>

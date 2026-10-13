@@ -31,7 +31,7 @@ import {
 import { notFound, redirect } from "next/navigation"
 import { ScoreGauge } from "@/components/app/score-gauge"
 import { TierBadge, type Tier } from "@/components/tier-badge"
-import WatchToggle from "@/components/dashboard/watch-toggle"
+import { WatchButton } from "@/components/dashboard/watch-button"
 import { formatDateTime } from "@/lib/utils"
 import { apiServer } from "@/lib/api-server"
 import {
@@ -72,22 +72,31 @@ function toTier(level: CheckReport["overall_risk_level"]): Tier {
 
 type CheckStatus = { status: string; chipClass: string }
 
+// Tinted chips where the color always matches whether the news is good
+// or bad for the user, never where the number sits on a scale.
+const CHIP_GREEN =
+  "bg-green-600/10 text-green-700 dark:bg-green-400/10 dark:text-green-400 px-1.5 py-0.5 text-xs font-medium"
+const CHIP_AMBER =
+  "bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400 px-1.5 py-0.5 text-xs font-medium"
+const CHIP_RED =
+  "bg-destructive/10 text-destructive px-1.5 py-0.5 text-xs font-medium"
+
 function checkStatus(available: number, total: number): CheckStatus {
   if (available === total) {
     return {
-      status: "All clear",
-      chipClass: "bg-green-600 text-white px-1.5 py-0.5",
+      status: "Fully open",
+      chipClass: CHIP_GREEN,
     }
   }
   if (available >= total / 2) {
     return {
-      status: "Mostly available",
-      chipClass: "bg-yellow-500 text-black px-1.5 py-0.5",
+      status: "Strong availability",
+      chipClass: CHIP_GREEN,
     }
   }
   return {
-    status: "Mostly taken",
-    chipClass: "bg-red-600 text-white px-1.5 py-0.5",
+    status: "Limited availability",
+    chipClass: CHIP_AMBER,
   }
 }
 
@@ -205,14 +214,20 @@ export default async function SearchResultNamePage({
   const socialStatus = checkStatus(availableSocials, totalSocials)
 
   const associating = report.ai.filter((row) => row.association).length
+  // More associations is worse news, so the chip names the risk rather
+  // than a bare High/Medium/Low with no noun.
   const associationLabel =
-    associating === 0 ? "Low" : associating === 1 ? "Medium" : "High"
+    associating === 0
+      ? "No collision risk"
+      : associating === 1
+        ? "Minor collision risk"
+        : "High collision risk"
   const associationChipClass =
-    associationLabel === "Low"
-      ? "bg-green-600 text-white px-1.5 py-0.5"
-      : associationLabel === "Medium"
-        ? "bg-yellow-500 text-black px-1.5 py-0.5"
-        : "bg-red-600 text-white px-1.5 py-0.5"
+    associating === 0
+      ? CHIP_GREEN
+      : associating === 1
+        ? CHIP_AMBER
+        : CHIP_RED
 
   const availabilityCopy =
     availableDomains === totalDomains
@@ -274,11 +289,10 @@ export default async function SearchResultNamePage({
                 <CardTitle className="text-3xl md:text-4xl">
                   {nameItem.name}
                 </CardTitle>
-                <WatchToggle
+                <WatchButton
                   name={nameItem.name}
                   searchId={id}
-                  initialWatching={existingWatch !== undefined}
-                  initialWatchId={existingWatch?.id}
+                  watchId={existingWatch?.id ?? null}
                 />
               </span>
               {nameItem.about ? (
@@ -347,7 +361,7 @@ export default async function SearchResultNamePage({
                       label="AI association"
                       available={associating}
                       total={report.ai.length}
-                      caption="models associate"
+                      caption={associating === 1 ? "model knows this name" : "models already know this name"}
                       chip={associationLabel}
                       chipClass={associationChipClass}
                     />
@@ -502,7 +516,7 @@ export default async function SearchResultNamePage({
                           </TableCell>
                           <TableCell className="text-end text-muted-foreground">
                             {row.error
-                              ? "—"
+                              ? "n/a"
                               : typeof row.collision_confidence === "number"
                                 ? `${row.collision_confidence}/100`
                                 : "Not reported"}

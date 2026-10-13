@@ -495,6 +495,8 @@ export function listWatches(): Promise<WatchList> {
 export function addWatch(input: {
   search_id: number
   name: string
+  tlds?: string[]
+  platforms?: string[]
 }): Promise<WatchItem> {
   return apiRequest<WatchItem>("/api/v1/watches", {
     method: "POST",
@@ -505,6 +507,16 @@ export function addWatch(input: {
 
 export function removeWatch(watchId: number): Promise<void> {
   return apiRequest(`/api/v1/watches/${watchId}`, { method: "DELETE" })
+}
+
+export function updateWatch(
+  watchId: number,
+  input: { tlds?: string[]; platforms?: string[] }
+): Promise<WatchItem> {
+  return apiRequest<WatchItem>(`/api/v1/watches/${watchId}`, {
+    method: "PATCH",
+    body: input,
+  })
 }
 
 export function sweepWatch(

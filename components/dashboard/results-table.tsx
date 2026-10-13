@@ -12,7 +12,6 @@ import {
 } from "@hugeicons/core-free-icons"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { toast } from "sonner"
 import {
   Table,
   TableBody,
@@ -26,18 +25,16 @@ import { Checkbox } from "@/components/ui/checkbox"
 import type { NameResult } from "@/lib/constants"
 import {
   ApiError,
-  addWatch,
   cancelAllChecks,
   cancelCheck,
   checkAllNames,
-  removeWatch,
   runCheck,
   type PendingName,
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
 import { aiAssociationColor, tierColor } from "@/lib/name-results"
 import { SocialAvailabilityList } from "@/components/dashboard/social-icons"
-import WatchStar from "@/components/dashboard/watch-star"
+import { WatchButton } from "@/components/dashboard/watch-button"
 
 const INITIAL_ROWS = 5
 
@@ -59,7 +56,7 @@ type ResultsTableProps = {
   pending?: PendingName[]
   anonSessionId?: string
   detailBase?: string | null
-  initialWatched?: Record<string, number>
+  watched?: Record<string, number>
   onMutation?: () => void
 }
 
@@ -106,17 +103,13 @@ function NameRow({
   searchId,
   detailBase,
   showWatch,
-  watching,
-  watchPending,
-  onToggleWatch,
+  watchId,
 }: {
   result: NameResult
   searchId: string
   detailBase?: string | null
   showWatch?: boolean
-  watching?: boolean
-  watchPending?: boolean
-  onToggleWatch?: (name: string) => void
+  watchId?: number
 }) {
   const searchParams = useSearchParams()
   const carry = new URLSearchParams()
@@ -151,12 +144,11 @@ function NameRow({
             </AvatarFallback>
           </Avatar>
           <span className="truncate">{result.name}</span>
-          {showWatch && onToggleWatch ? (
-            <WatchStar
+          {showWatch ? (
+            <WatchButton
               name={result.name}
-              watching={watching ?? false}
-              pending={watchPending ?? false}
-              onToggle={onToggleWatch}
+              searchId={Number(searchId)}
+              watchId={watchId}
             />
           ) : null}
         </span>
@@ -199,26 +191,24 @@ function NameRow({
 
 function PendingRow({
   item,
+  searchId,
   selected,
   disabled,
   onSelect,
   onCheck,
   onCancel,
   showWatch,
-  watching,
-  watchPending,
-  onToggleWatch,
+  watchId,
 }: {
   item: PendingName
+  searchId: string
   selected: boolean
   disabled: boolean
   onSelect: (nameId: number, selected: boolean) => void
   onCheck: (nameId: number) => void
   onCancel: (nameId: number) => void
   showWatch?: boolean
-  watching?: boolean
-  watchPending?: boolean
-  onToggleWatch?: (name: string) => void
+  watchId?: number
 }) {
   const job = item.job
   const active =
@@ -244,12 +234,11 @@ function PendingRow({
             </AvatarFallback>
           </Avatar>
           <span className="truncate">{item.name}</span>
-          {showWatch && onToggleWatch ? (
-            <WatchStar
+          {showWatch ? (
+            <WatchButton
               name={item.name}
-              watching={watching ?? false}
-              pending={watchPending ?? false}
-              onToggle={onToggleWatch}
+              searchId={Number(searchId)}
+              watchId={watchId}
             />
           ) : null}
         </span>
@@ -333,55 +322,16 @@ export default function ResultsTable({
   pending = [],
   anonSessionId,
   detailBase,
-  initialWatched = {},
+  watched = {},
   onMutation,
 }: ResultsTableProps) {
   const [expanded, setExpanded] = useState(false)
   const [selected, setSelected] = useState<number[]>([])
   const [firing, setFiring] = useState(false)
-  const [watched, setWatched] = useState<Record<string, number>>(initialWatched)
-  const [watchInFlight, setWatchInFlight] = useState<string[]>([])
 
   // The dashboard leaves detailBase undefined while the public page
   // passes an explicit null, so compare strictly against null here.
   const showWatch = !anonSessionId && detailBase !== null
-
-  async function toggleWatch(name: string) {
-    const existingId = watched[name]
-    setWatchInFlight((current) => [...current, name])
-    try {
-      if (existingId !== undefined) {
-        setWatched((current) => {
-          const next = { ...current }
-          delete next[name]
-          return next
-        })
-        await removeWatch(existingId)
-        toast.success(`No longer watching ${name}.`)
-      } else {
-        setWatched((current) => ({ ...current, [name]: -1 }))
-        const watch = await addWatch({ search_id: Number(searchId), name })
-        setWatched((current) => ({ ...current, [name]: watch.id }))
-        toast.success(
-          `Now watching ${name}. We will email you if any of its domains or handles get claimed.`
-        )
-      }
-    } catch (error) {
-      setWatched((current) => {
-        const next = { ...current }
-        if (existingId !== undefined) next[name] = existingId
-        else delete next[name]
-        return next
-      })
-      if (error instanceof ApiError && error.status === 402) {
-        toast.error(error.message)
-      } else {
-        toastApiError(error, "Could not update your watchlist.")
-      }
-    } finally {
-      setWatchInFlight((current) => current.filter((item) => item !== name))
-    }
-  }
 
   function toggleSelect(nameId: number, value: boolean) {
     setSelected((current) =>
@@ -486,15 +436,14 @@ export default function ResultsTable({
   function pendingRowProps(item: PendingName) {
     return {
       item,
+      searchId,
       selected: validSelected.includes(item.id),
       disabled: firing,
       onSelect: toggleSelect,
       onCheck: (nameId: number) => void runOne(nameId),
       onCancel: (nameId: number) => void cancelOne(nameId),
       showWatch,
-      watching: watched[item.name] !== undefined,
-      watchPending: watchInFlight.includes(item.name),
-      onToggleWatch: toggleWatch,
+      watchId: watched[item.name],
     }
   }
 
@@ -575,9 +524,7 @@ export default function ResultsTable({
               searchId={searchId}
               detailBase={detailBase}
               showWatch={showWatch}
-              watching={watched[result.name] !== undefined}
-              watchPending={watchInFlight.includes(result.name)}
-              onToggleWatch={toggleWatch}
+              watchId={watched[result.name]}
             />
           ))}
           {visiblePending.map((item) => (
@@ -593,9 +540,7 @@ export default function ResultsTable({
                 searchId={searchId}
                 detailBase={detailBase}
                 showWatch={showWatch}
-                watching={watched[result.name] !== undefined}
-                watchPending={watchInFlight.includes(result.name)}
-                onToggleWatch={toggleWatch}
+                watchId={watched[result.name]}
               />
             ))}
             {hiddenPending.map((item) => (

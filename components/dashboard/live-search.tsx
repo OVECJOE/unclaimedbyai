@@ -24,6 +24,7 @@ import {
   getSearchHeader,
   getSearchResults,
   getSearchSummary,
+  listWatches,
   type PendingName,
   type SearchHeader,
   type SearchResultsPayload,
@@ -94,8 +95,30 @@ export default function LiveSearch({
     q: q ?? "",
   })
   const [paused, setPaused] = useState(false)
+  const [watched, setWatched] = useState<Record<string, number>>(
+    initialWatched ?? {}
+  )
   const failuresRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Stars should reflect the account's current watches even when the
+  // results component remounts on a filter change.
+  useEffect(() => {
+    let cancelled = false
+    listWatches()
+      .then((data) => {
+        if (cancelled) return
+        const map: Record<string, number> = {}
+        for (const item of data.items) map[item.name] = item.id
+        setWatched(map)
+      })
+      .catch(() => {
+        // The server-rendered seed stays in place.
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const generating = header.generation.status === "generating"
   const active = generating || pending.length > 0
@@ -307,7 +330,7 @@ export default function LiveSearch({
               pending={pending}
               anonSessionId={sid}
               detailBase={detailBase}
-              initialWatched={initialWatched}
+              watched={watched}
               onMutation={() => {
                 refresh().catch(() => {
                   // Poll loop picks it up on the next tick.

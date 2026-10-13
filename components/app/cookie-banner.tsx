@@ -22,7 +22,7 @@ export default function CookieBanner() {
     <div
       role="region"
       aria-label="Cookie notice"
-      className="fixed inset-x-4 bottom-4 z-[60] mx-auto max-w-lg border bg-background p-4 md:inset-x-auto md:right-4"
+      className="fixed inset-x-4 bottom-4 z-60 mx-auto max-w-lg border bg-background p-4 md:inset-x-auto md:right-4"
     >
       <div className="space-y-3">
         <p className="text-sm text-muted-foreground">
