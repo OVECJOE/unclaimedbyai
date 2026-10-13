@@ -1,16 +1,12 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ScoreGauge } from "@/components/app/score-gauge"
 import { TierBadge, type Tier } from "@/components/tier-badge"
-import ScoreSummary from "@/components/dashboard/score-summary"
-import GradingDistribution from "@/components/dashboard/grading-distribution"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { JsonLd } from "@/components/app/json-ld"
 import PrompterCta from "@/components/public/prompter-cta"
-import { ApiError, getReport, searchByQuery, type CheckReport } from "@/lib/api"
-import { toNameResult } from "@/lib/result-mappers"
+import { ApiError, searchByQuery } from "@/lib/api"
 import { formatDateTime } from "@/lib/utils"
 import { SITE_URL } from "@/lib/site"
 
@@ -22,31 +18,35 @@ function toTier(level: "excellent" | "good" | "okay" | "poor"): Tier {
   return (level.charAt(0).toUpperCase() + level.slice(1)) as Tier
 }
 
+const AI_VERDICT_LABEL: Record<string, string> = {
+  excellent: "AI clean",
+  good: "AI light overlap",
+  okay: "AI overlap",
+  poor: "AI collision",
+}
+
+const AI_VERDICT_TONE: Record<string, string> = {
+  excellent:
+    "border-green-600/30 text-green-700 dark:border-green-400/30 dark:text-green-400",
+  good: "border-primary/40 text-primary",
+  okay: "border-amber-500/40 text-amber-700 dark:text-amber-500",
+  poor: "border-destructive/40 text-destructive",
+}
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { query } = await params
   const term = decodeURIComponent(query).replace(/-/g, " ")
   return {
-    title: `Is "${term}" taken? Domain, handle & AI check results`,
-    description: `Live availability results for "${term}": domain registrations, social handle checks, and AI association screening.`,
+    title: `Name ideas for "${term}", scored and ranked`,
+    description: `A real Unclaimed by AI report: name candidates for "${term}", each scored on domain availability, open social handles, and AI associations.`,
     alternates: { canonical: `/searches/${query}` },
     openGraph: {
-      title: `Is "${term}" taken?`,
+      title: `Name ideas for "${term}", scored`,
       description: `Domain, social handle, and AI association results for "${term}".`,
       url: `${SITE_URL}/searches/${query}`,
     },
-  }
-}
-
-async function latestReport(
-  publicId: string | null
-): Promise<CheckReport | null> {
-  if (!publicId) return null
-  try {
-    return await getReport(publicId)
-  } catch {
-    return null
   }
 }
 
@@ -62,29 +62,18 @@ export default async function PublicSearchPage({ params }: PageProps) {
     throw error
   }
 
-  const checked = await Promise.all(
-    search.names.map(async (name) => ({
+  const checked = search.names
+    .filter((name) => name.latest_check !== null)
+    .map((name) => ({
       name,
-      report: await latestReport(name.latest_check?.public_id ?? null),
+      check: name.latest_check!,
     }))
-  )
-  const withReports = checked.filter(
-    (entry): entry is typeof entry & { report: CheckReport } =>
-      entry.report !== null
-  )
-  const results = withReports.flatMap((entry) => {
-    const mapped = toNameResult(entry.name, entry.report)
-    return mapped ? [mapped] : []
-  })
-  const topPick = results[0]
-    ? {
-        name: results[0].name,
-        logo: results[0].logo,
-      }
-    : undefined
-  const average = results.length
+    .sort((a, b) => b.check.overall_score - a.check.overall_score)
+  const unchecked = search.names.filter((name) => name.latest_check === null)
+  const average = checked.length
     ? Math.round(
-        results.reduce((sum, result) => sum + result.score, 0) / results.length
+        checked.reduce((sum, entry) => sum + entry.check.overall_score, 0) /
+          checked.length
       )
     : null
 
@@ -105,18 +94,25 @@ export default async function PublicSearchPage({ params }: PageProps) {
           asChild
         >
           <p className="px-2 py-1 sm:px-3">
-            Availability results checked {formatDateTime(search.created_at)}
+            Public report, checked {formatDateTime(search.created_at)}
           </p>
         </Badge>
         <div className="space-y-3">
           <h1 className="font-heading text-4xl font-semibold md:text-5xl">
-            Is <span className="text-primary">&ldquo;{term}&rdquo;</span>{" "}
-            actually free?
+            {search.names.length} name ideas for{" "}
+            <span className="text-primary">&ldquo;{term}&rdquo;</span>, scored
           </h1>
           <p className="mx-auto max-w-prose text-muted-foreground md:text-lg">
-            {search.names.length} names checked
-            {average !== null ? ` · average score ${average}/100` : ""} across
-            domains, social handles, and AI associations.
+            Someone ran this brief through Unclaimed by AI. Every candidate
+            below was scored from 0 to 100 across three checks: how many
+            domain extensions are still free, how many social handles are
+            still open, and whether AI models already know the name. Higher
+            scores are safer bets.
+            {checked.length > 0 && average !== null
+              ? ` The top pick scored ${
+                  checked[0].check.overall_score
+                }, and the average across all checked names is ${average}.`
+              : ""}
           </p>
         </div>
         <Button size="lg" asChild>
@@ -124,123 +120,147 @@ export default async function PublicSearchPage({ params }: PageProps) {
         </Button>
       </section>
 
-      <section className="px-4 py-10">
-        <div className="mx-auto max-w-7xl space-y-4">
-          <div className="flex w-full flex-col gap-6 md:flex-row">
-            <div className="min-w-0 flex-1">
-              <ScoreSummary results={results} topPick={topPick} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <GradingDistribution results={results} />
-            </div>
+      <section className="border-b px-4 py-6">
+        <div className="mx-auto grid max-w-7xl gap-px border bg-border sm:grid-cols-3">
+          <div className="bg-background p-4">
+            <p className="text-sm font-medium">Domains</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              How many of the checked domain extensions are still free to
+              register.
+            </p>
           </div>
-          {withReports.map(({ name, report }) => (
-            <article key={name.id} className="space-y-4 border p-4 sm:p-6">
-              <div className="flex flex-wrap items-center gap-4">
-                <ScoreGauge
-                  score={report.overall_score}
-                  tier={toTier(report.overall_risk_level)}
-                />
-                <div className="space-y-1">
-                  <h2 className="font-heading text-2xl">{name.name}</h2>
-                  <TierBadge tier={toTier(report.overall_risk_level)} />
-                  <p className="max-w-prose text-sm text-muted-foreground">
-                    {report.judgment}
-                  </p>
-                </div>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-3">
-                {report.pillars.map((pillar) => (
-                  <div key={pillar.pillar_type} className="border p-3">
-                    <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-                      {pillar.pillar_type.replace("_", " ")}
-                    </p>
-                    <p className="font-heading text-2xl">
-                      {pillar.score}
-                      <span className="text-sm text-muted-foreground">
-                        /100
-                      </span>
-                    </p>
-                  </div>
-                ))}
-              </div>
-              <details className="border">
-                <summary className="cursor-pointer px-4 py-3 text-sm font-medium">
-                  Full check details
-                </summary>
-                <div className="space-y-4 border-t px-4 py-4">
-                  <div>
-                    <h3 className="font-heading text-lg">Domains</h3>
-                    <ul className="divide-y divide-border">
-                      {report.domains.map((domain) => (
-                        <li
-                          key={domain.domain}
-                          className="flex items-center justify-between py-1.5 font-mono text-sm"
-                        >
-                          <span>{domain.domain}</span>
-                          <span>{domain.status.replace("_", " ")}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="font-heading text-lg">Handles</h3>
-                    <ul className="divide-y divide-border">
-                      {report.socials.map((social) => (
-                        <li
-                          key={social.platform}
-                          className="flex items-center justify-between py-1.5 text-sm"
-                        >
-                          <span>
-                            {social.platform}{" "}
-                            <span className="text-muted-foreground">
-                              @{social.handle}
-                            </span>
-                          </span>
-                          <span>{social.status.replace("_", " ")}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="font-heading text-lg">AI associations</h3>
-                    <ul className="space-y-2">
-                      {report.ai.map((row, index) => (
-                        <li
-                          key={`${row.model ?? "unknown"}-${index}`}
-                          className="border p-3 text-sm"
-                        >
-                          <p className="font-mono text-xs text-muted-foreground">
-                            {row.model ?? "unknown model"}
-                          </p>
-                          <p>
-                            {row.error ??
-                              row.association ??
-                              "No strong association"}
-                          </p>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </details>
-            </article>
-          ))}
-          {search.names
-            .filter(
-              (name) => !withReports.some((entry) => entry.name.id === name.id)
-            )
-            .map((name) => (
-              <article key={name.id} className="border p-4 sm:p-6">
-                <h2 className="font-heading text-2xl">{name.name}</h2>
+          <div className="bg-background p-4">
+            <p className="text-sm font-medium">Handles</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              How many checked social platforms still have the handle open.
+            </p>
+          </div>
+          <div className="bg-background p-4">
+            <p className="text-sm font-medium">AI association</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Whether AI models already connect this name to something that
+              exists.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-10">
+        <div className="mx-auto max-w-7xl space-y-6">
+          {checked.length > 0 ? (
+            <>
+              <div className="space-y-1">
+                <h2 className="font-heading text-2xl font-semibold md:text-3xl">
+                  The names, ranked
+                </h2>
                 <p className="text-sm text-muted-foreground">
-                  No completed checks for this name yet.
+                  Safest to build on first. Each row shows the score, the
+                  verdict behind it, and what the three checks found.
                 </p>
-              </article>
-            ))}
+              </div>
+              <ol className="divide-y divide-border border">
+                {checked.map((entry, index) => {
+                  const pillars = Object.fromEntries(
+                    (entry.check.pillars ?? []).map((pillar) => [
+                      pillar.pillar_type,
+                      pillar,
+                    ])
+                  )
+                  const domains = pillars.domain
+                  const handles = pillars.social
+                  const ai = pillars.ai_association
+                  return (
+                    <li
+                      key={entry.name.id}
+                      className="flex items-center gap-4 p-4 sm:p-5"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="w-6 shrink-0 text-end font-mono text-sm text-muted-foreground tabular-nums"
+                      >
+                        {index + 1}
+                      </span>
+                      <div className="min-w-0 flex-1 space-y-1.5">
+                        <span className="flex flex-wrap items-center gap-2">
+                          <h3 className="font-heading text-xl">
+                            {entry.name.name}
+                          </h3>
+                          <TierBadge
+                            tier={toTier(entry.check.overall_risk_level)}
+                          />
+                        </span>
+                        <p className="max-w-prose text-sm text-muted-foreground">
+                          {entry.check.judgment}
+                        </p>
+                        <span className="flex flex-wrap gap-1.5">
+                          {domains ? (
+                            <Badge
+                              variant="outline"
+                              className="text-xs font-normal"
+                            >
+                              Domains {domains.items_passed}/
+                              {domains.items_checked} free
+                            </Badge>
+                          ) : null}
+                          {handles ? (
+                            <Badge
+                              variant="outline"
+                              className="text-xs font-normal"
+                            >
+                              Handles {handles.items_passed}/
+                              {handles.items_checked} open
+                            </Badge>
+                          ) : null}
+                          {ai ? (
+                            <Badge
+                              className={`text-xs font-normal ${
+                                AI_VERDICT_TONE[ai.verdict] ?? ""
+                              }`}
+                            >
+                              {AI_VERDICT_LABEL[ai.verdict] ?? "AI checked"}
+                            </Badge>
+                          ) : null}
+                        </span>
+                      </div>
+                      <div className="shrink-0 text-end">
+                        <p className="font-heading text-3xl leading-none font-semibold tabular-nums">
+                          {entry.check.overall_score}
+                        </p>
+                        <p className="text-xs text-muted-foreground">/100</p>
+                      </div>
+                    </li>
+                  )
+                })}
+              </ol>
+            </>
+          ) : (
+            <div className="border border-dashed p-10 text-center">
+              <p className="font-heading text-2xl">
+                No completed checks for this brief yet
+              </p>
+              <p className="mx-auto mt-2 max-w-prose text-sm text-muted-foreground">
+                Names were generated for it, but none have been scored so far.
+                Run your own check below to see live results in under a minute.
+              </p>
+            </div>
+          )}
+
+          {unchecked.length > 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Also generated but not checked yet:{" "}
+              {unchecked.map((name, index) => (
+                <span key={name.id}>
+                  {index > 0 ? ", " : ""}
+                  {name.name}
+                </span>
+              ))}
+              .
+            </p>
+          ) : null}
+
           <div
             id="check-yours"
-            className="space-y-3 pt-4 sm:mx-auto sm:max-w-prose sm:text-center"
+            className="space-y-3 border-t pt-8 sm:mx-auto sm:max-w-prose sm:text-center"
           >
             <p className="font-heading text-2xl">Check a name of your own</p>
             <p className="text-sm text-muted-foreground">

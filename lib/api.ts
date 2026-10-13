@@ -107,6 +107,14 @@ export type NameItem = {
     attempt_no: number
     overall_score: number
     overall_risk_level: "excellent" | "good" | "okay" | "poor"
+    judgment?: string
+    pillars?: {
+      pillar_type: string
+      score: number
+      verdict: string
+      items_checked: number
+      items_passed: number
+    }[]
   } | null
 }
 
