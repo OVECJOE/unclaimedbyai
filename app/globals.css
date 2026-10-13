@@ -337,23 +337,31 @@
 .watch-aura {
   position: absolute;
   inset: -55%;
+  animation: uba-watch-aura-drift 11s ease-in-out infinite;
+}
+
+/* The rotation lives on the pseudo-element because two animations on the
+   same element would fight over transform and only the last would win. */
+.watch-aura::before {
+  content: "";
+  position: absolute;
+  inset: 0;
   background: conic-gradient(
     from 0deg,
     transparent 0deg,
-    var(--primary) 72deg,
-    transparent 150deg,
-    color-mix(in oklab, var(--primary) 45%, transparent) 240deg,
-    transparent 330deg
+    var(--primary) 60deg,
+    transparent 140deg,
+    color-mix(in oklab, var(--primary) 60%, transparent) 220deg,
+    transparent 300deg
   );
-  opacity: 0.14;
-  filter: blur(64px);
-  animation:
-    uba-watch-aura-spin 18s linear infinite,
-    uba-watch-aura-drift 11s ease-in-out infinite;
+  opacity: 0.32;
+  filter: blur(48px);
+  animation: uba-watch-aura-spin 16s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .watch-aura {
+  .watch-aura,
+  .watch-aura::before {
     animation: none;
   }
 }
