@@ -118,8 +118,17 @@ export type NameItem = {
   } | null
 }
 
+export type BriefAttributes = {
+  summary?: string
+  audience?: string
+  tone?: string
+  category?: string
+}
+
 export type SearchDetail = SearchItem & {
   names: NameItem[]
+  brief_summary?: string | null
+  brief_attributes?: BriefAttributes | null
 }
 
 export type AttemptItem = {
@@ -254,6 +263,8 @@ export type SearchHeader = {
     progress: number
     error: string | null
   }
+  brief_summary?: string | null
+  brief_attributes?: BriefAttributes | null
   created_at: string
 }
 
@@ -298,6 +309,7 @@ export type PendingName = {
 export type SearchResultsPayload = {
   items: {
     name: string
+    about: string | null
     score: number
     tier: string
     domains: { tld: string; available: boolean }[]

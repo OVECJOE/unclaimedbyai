@@ -152,6 +152,11 @@ function NameRow({
             />
           ) : null}
         </span>
+        {result.rationale ? (
+          <span className="mt-0.5 block truncate pl-8 text-xs text-muted-foreground italic">
+            {result.rationale}
+          </span>
+        ) : null}
       </TableCell>
       <TableCell>
         <span className="flex items-center gap-2">

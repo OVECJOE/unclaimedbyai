@@ -1,6 +1,7 @@
 export interface NameResult {
   name: string
   logo: string
+  rationale?: string | null
   score: number
   tier: "Excellent" | "Good" | "Okay" | "Poor"
   domains: { tld: "com" | "ai" | "io" | "co"; available: boolean }[]

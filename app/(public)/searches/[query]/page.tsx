@@ -192,6 +192,11 @@ export default async function PublicSearchPage({ params }: PageProps) {
                         <p className="max-w-prose text-sm text-muted-foreground">
                           {entry.check.judgment}
                         </p>
+                        {entry.name.about ? (
+                          <p className="max-w-prose text-sm italic text-muted-foreground">
+                            {entry.name.about}
+                          </p>
+                        ) : null}
                         <span className="flex flex-wrap gap-1.5">
                           {domains ? (
                             <Badge

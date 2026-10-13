@@ -33,6 +33,7 @@ export function toNameResult(
   return {
     name: name.name,
     logo: diceLogo(name.name),
+    rationale: name.about,
     score: report.overall_score,
     tier: toTier(report.overall_risk_level),
     domains: report.domains.map((domain) => ({
@@ -53,6 +54,7 @@ export function toNameResultFromPayload(
   return {
     name: item.name,
     logo: diceLogo(item.name),
+    rationale: item.about,
     score: item.score,
     tier: toTier(item.tier),
     domains: item.domains.map((domain) => ({

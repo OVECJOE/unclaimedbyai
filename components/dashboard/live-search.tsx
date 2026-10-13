@@ -37,9 +37,10 @@ const POLL_MS = 2500
 
 const GENERATION_STAGES: { at: number; label: string }[] = [
   { at: 0, label: "Reading your brief" },
-  { at: 20, label: "Brainstorming names" },
-  { at: 50, label: "Screening against live .com lookups" },
-  { at: 85, label: "Wrapping up" },
+  { at: 10, label: "Sharpening your brief" },
+  { at: 25, label: "Naming studios at work" },
+  { at: 55, label: "Screening live .com lookups" },
+  { at: 90, label: "Wrapping up" },
 ]
 
 function generationStage(progress: number): string {
@@ -240,6 +241,27 @@ export default function LiveSearch({
             {formatDateTime(header.created_at)}
           </span>
         </div>
+        {header.brief_summary || header.brief_attributes ? (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+            {header.brief_summary ? (
+              <p className="max-w-prose text-sm italic text-muted-foreground">
+                &ldquo;{header.brief_summary}&rdquo;
+              </p>
+            ) : null}
+            {(
+              ["audience", "tone", "category"] as const
+            ).map((key) =>
+              header.brief_attributes?.[key] ? (
+                <span
+                  key={key}
+                  className="border px-1.5 py-0.5 text-xs text-muted-foreground"
+                >
+                  {header.brief_attributes[key]}
+                </span>
+              ) : null
+            )}
+          </div>
+        ) : null}
         {generating ? (
           <p className="text-sm text-muted-foreground" role="status">
             {generationStage(header.generation.progress)}… results appear below
