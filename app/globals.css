@@ -365,3 +365,36 @@
     animation: none;
   }
 }
+
+/* Hero prompter aura: the landing page's one flourish, a soft color
+   drift behind the brief box that brightens on focus. Shares the watch
+   aura keyframes so both flourishes move in the same tempo. */
+.prompter-aura {
+  position: absolute;
+  inset: -35%;
+  animation: uba-watch-aura-drift 13s ease-in-out infinite;
+}
+
+.prompter-aura::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    var(--primary) 60deg,
+    transparent 150deg,
+    color-mix(in oklab, var(--primary) 50%, transparent) 240deg,
+    transparent 330deg
+  );
+  opacity: 0.22;
+  filter: blur(48px);
+  animation: uba-watch-aura-spin 20s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prompter-aura,
+  .prompter-aura::before {
+    animation: none;
+  }
+}
