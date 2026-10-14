@@ -366,35 +366,115 @@
   }
 }
 
-/* Hero prompter aura: the landing page's one flourish, a soft color
-   drift behind the brief box that brightens on focus. Shares the watch
-   aura keyframes so both flourishes move in the same tempo. */
+/* Hero prompter aura: a Gemini-style boiling gradient, several hue
+   blobs drifting on incommensurate loops behind the glass so the mix
+   never repeats, brightening when the field takes focus. */
 .prompter-aura {
   position: absolute;
-  inset: -35%;
-  animation: uba-watch-aura-drift 13s ease-in-out infinite;
+  inset: -30%;
+  overflow: hidden;
 }
 
-.prompter-aura::before {
-  content: "";
+.prompter-blob {
   position: absolute;
-  inset: 0;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg,
-    var(--primary) 60deg,
-    transparent 150deg,
-    color-mix(in oklab, var(--primary) 50%, transparent) 240deg,
-    transparent 330deg
+  border-radius: 9999px;
+  filter: blur(52px);
+  will-change: transform;
+}
+
+.prompter-blob-blue {
+  width: 60%;
+  height: 75%;
+  left: -8%;
+  top: -25%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    #4285f4 0%,
+    rgba(66, 133, 244, 0) 65%
   );
-  opacity: 0.22;
-  filter: blur(48px);
-  animation: uba-watch-aura-spin 20s linear infinite;
+  animation: prompter-boil-a 15s ease-in-out infinite;
+}
+
+.prompter-blob-violet {
+  width: 55%;
+  height: 70%;
+  right: -10%;
+  top: -10%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    #9b72cb 0%,
+    rgba(155, 114, 203, 0) 62%
+  );
+  animation: prompter-boil-b 18s ease-in-out infinite;
+}
+
+.prompter-blob-coral {
+  width: 50%;
+  height: 60%;
+  left: 25%;
+  bottom: -30%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    #d96570 0%,
+    rgba(217, 101, 112, 0) 60%
+  );
+  animation: prompter-boil-c 13s ease-in-out infinite;
+}
+
+.prompter-blob-amber {
+  width: 35%;
+  height: 45%;
+  right: 15%;
+  bottom: -20%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    #f4b400 0%,
+    rgba(244, 180, 0, 0) 58%
+  );
+  animation: prompter-boil-a 17s ease-in-out infinite reverse;
+}
+
+@keyframes prompter-boil-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(12%, 8%, 0) scale(1.18);
+  }
+  66% {
+    transform: translate3d(-6%, 14%, 0) scale(0.92);
+  }
+}
+
+@keyframes prompter-boil-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.05);
+  }
+  40% {
+    transform: translate3d(-14%, 10%, 0) scale(0.9);
+  }
+  70% {
+    transform: translate3d(8%, -8%, 0) scale(1.2);
+  }
+}
+
+@keyframes prompter-boil-c {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(0.95);
+  }
+  30% {
+    transform: translate3d(10%, -12%, 0) scale(1.15);
+  }
+  65% {
+    transform: translate3d(-12%, -4%, 0) scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .prompter-aura,
-  .prompter-aura::before {
+  .prompter-blob {
     animation: none;
   }
 }

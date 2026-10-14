@@ -47,8 +47,13 @@ export default function Prompter({
       <div className="group relative overflow-hidden border border-border bg-card transition-colors focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/15 dark:border-primary/30 dark:bg-secondary/40">
         <div
           aria-hidden="true"
-          className="prompter-aura z-0 opacity-70 transition-opacity duration-500 group-focus-within:opacity-100"
-        />
+          className="prompter-aura z-0 opacity-75 transition-opacity duration-500 group-focus-within:opacity-100"
+        >
+          <span className="prompter-blob prompter-blob-blue" />
+          <span className="prompter-blob prompter-blob-violet" />
+          <span className="prompter-blob prompter-blob-coral" />
+          <span className="prompter-blob prompter-blob-amber" />
+        </div>
         <div className="relative z-10 space-y-2 p-3">
           <label
             htmlFor="prompt"
