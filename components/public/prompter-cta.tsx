@@ -3,10 +3,15 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import Prompter from "@/components/app/prompter"
+import Prompter, { type PrompterMode } from "@/components/app/prompter"
 import { useTurnstile } from "@/components/public/turnstile"
 import { getAnonSessionId } from "@/lib/anon"
-import { ApiError, generateFilledSearch, getMe } from "@/lib/api"
+import {
+  ApiError,
+  directCheck,
+  generateFilledSearch,
+  getMe,
+} from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
 
 export const PENDING_BRIEF_KEY = "uba-pending-brief"
@@ -17,14 +22,21 @@ export default function PrompterCta({
   defaultValue?: string
 }) {
   const [pending, setPending] = useState(false)
+  const [lastMode, setLastMode] = useState<PrompterMode>("idea")
   const router = useRouter()
   const turnstile = useTurnstile("anonymous_generate")
 
-  async function onSubmit(value: string) {
+  async function onSubmit(value: string, mode: PrompterMode) {
     setPending(true)
+    setLastMode(mode)
     try {
       const user = await getMe(5000).catch(() => null)
       if (user) {
+        if (mode === "name") {
+          const result = await directCheck({ name: value })
+          router.push(`/dashboard/history/${result.search_id}`)
+          return
+        }
         try {
           sessionStorage.setItem(PENDING_BRIEF_KEY, value)
         } catch {
@@ -36,6 +48,17 @@ export default function PrompterCta({
       // Wait briefly for an in-flight first solve so a fast submit does
       // not race the widget and eat an avoidable 403.
       const token = await turnstile.waitForToken(2000)
+      if (mode === "name") {
+        const result = await directCheck({
+          name: value,
+          anon_session_id: getAnonSessionId(),
+          cf_turnstile_token: token ?? undefined,
+        })
+        router.push(
+          `/results/${result.search_id}?sid=${encodeURIComponent(getAnonSessionId())}`
+        )
+        return
+      }
       const search = await generateFilledSearch({
         query: value,
         anon_session_id: getAnonSessionId(),
@@ -60,13 +83,15 @@ export default function PrompterCta({
   return (
     <div className="space-y-3">
       <Prompter
-        onSubmit={(brief) => void onSubmit(brief)}
+        onSubmit={(value, mode) => void onSubmit(value, mode)}
         pending={pending}
         defaultValue={defaultValue}
       />
       {pending ? (
         <p role="status" className="text-center text-sm text-muted-foreground">
-          Starting your search… you&apos;ll see names arrive live.
+          {lastMode === "name"
+            ? "Checking that name. Domains and handles stream in as they come back."
+            : "Starting your search… you'll see names arrive live."}
         </p>
       ) : null}
       {turnstile.widget}

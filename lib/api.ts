@@ -189,6 +189,18 @@ export function logout(): Promise<{ signed_out: boolean }> {
   return apiRequest("/api/v1/auth/logout", { method: "POST" })
 }
 
+export function directCheck(input: {
+  name: string
+  anon_session_id?: string
+  cf_turnstile_token?: string
+}): Promise<{ search_id: number; name_id: number }> {
+  return apiRequest("/api/v1/checks/direct", {
+    method: "POST",
+    body: input,
+    timeoutMs: 20000,
+  })
+}
+
 export function generateNames(
   brief: string,
   count = 12,

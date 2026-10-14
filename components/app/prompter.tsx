@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowUpIcon } from "@hugeicons/core-free-icons"
 import useTypewriter from "@/hooks/typewriter"
+import { cn } from "@/lib/utils"
 
 const EXAMPLES = [
   "A pay-per-report tool that checks if a name is taken",
@@ -18,20 +19,29 @@ const EXAMPLES = [
   "A language exchange app for travelers",
 ]
 
+export type PrompterMode = "idea" | "name"
+
 export default function Prompter({
   onSubmit,
   pending = false,
   defaultValue = "",
 }: {
-  onSubmit?: (value: string) => void
+  onSubmit?: (value: string, mode: PrompterMode) => void
   pending?: boolean
   defaultValue?: string
 }) {
   const [value, setValue] = useState(defaultValue)
-  const ghostText = useTypewriter(EXAMPLES, value.length === 0)
+  const [mode, setMode] = useState<PrompterMode>("idea")
+  const ghostText = useTypewriter(EXAMPLES, mode === "idea" && value.length === 0)
 
   function submit() {
-    if (value.trim()) onSubmit?.(value.trim())
+    if (value.trim()) onSubmit?.(value.trim(), mode)
+  }
+
+  function switchMode(next: PrompterMode) {
+    if (next === mode) return
+    setMode(next)
+    setValue("")
   }
 
   return (
@@ -52,13 +62,39 @@ export default function Prompter({
           <span className="prompter-blob prompter-blob-coral" />
           <span className="prompter-blob prompter-blob-amber" />
         </div>
-        <div className="relative z-10 space-y-2 p-3">
-          <label
-            htmlFor="prompt"
-            className="block text-xs font-semibold tracking-widest text-muted-foreground uppercase"
+        <div className="relative z-10 p-3">
+          <div
+            role="group"
+            aria-label="What do you want to do"
+            className="mb-2 flex items-center gap-1.5"
           >
-            Describe what you&apos;re building
-          </label>
+            <button
+              type="button"
+              aria-pressed={mode === "idea"}
+              onClick={() => switchMode("idea")}
+              className={cn(
+                "border px-2.5 py-1 text-xs font-medium transition-colors",
+                mode === "idea"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Idea
+            </button>
+            <button
+              type="button"
+              aria-pressed={mode === "name"}
+              onClick={() => switchMode("name")}
+              className={cn(
+                "border px-2.5 py-1 text-xs font-medium transition-colors",
+                mode === "name"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Name
+            </button>
+          </div>
           <Textarea
             id="prompt"
             name="prompt"
@@ -71,16 +107,33 @@ export default function Prompter({
                 submit()
               }
             }}
-            maxLength={400}
+            maxLength={mode === "name" ? 60 : 400}
+            aria-label={
+              mode === "name"
+                ? "The exact name to check"
+                : "Describe what you're building"
+            }
             aria-describedby="prompt-limit"
-            placeholder={value.length === 0 ? ghostText : undefined}
+            placeholder={
+              mode === "name"
+                ? "e.g. Nexuare"
+                : value.length === 0
+                  ? ghostText
+                  : undefined
+            }
             className="min-h-16 resize-none border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
           />
 
-          <div className="flex items-center justify-between gap-3">
+          <div className="mt-2 flex items-center justify-between gap-3">
             <span className="flex items-center gap-2 text-xs text-muted-foreground">
               <span id="prompt-limit" className="tabular-nums">
-                {value.length >= 360 ? `${value.length}/400` : null}
+                {mode === "name"
+                  ? value.length >= 40
+                    ? `${value.length}/60`
+                    : null
+                  : value.length >= 360
+                    ? `${value.length}/400`
+                    : null}
               </span>
               <span className="hidden items-center gap-1 sm:flex">
                 <kbd className="border bg-muted px-1 font-mono text-[10px]">
@@ -97,7 +150,13 @@ export default function Prompter({
               disabled={!value.trim() || pending}
               className="gap-2"
             >
-              {pending ? "Starting…" : "Generate names"}
+              {mode === "name"
+                ? pending
+                  ? "Checking…"
+                  : "Check this name"
+                : pending
+                  ? "Starting…"
+                  : "Generate names"}
               <HugeiconsIcon icon={ArrowUpIcon} className="size-4" />
             </Button>
           </div>

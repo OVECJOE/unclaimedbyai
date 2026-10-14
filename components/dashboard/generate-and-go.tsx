@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import Prompter from "@/components/app/prompter"
+import Prompter, { type PrompterMode } from "@/components/app/prompter"
 import ShortageDialog from "@/components/dashboard/shortage-dialog"
 import { PENDING_BRIEF_KEY } from "@/components/public/prompter-cta"
-import { ApiError, generateFilledSearch } from "@/lib/api"
+import { ApiError, directCheck, generateFilledSearch } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
 
 export default function GenerateAndGo({
@@ -18,9 +18,14 @@ export default function GenerateAndGo({
   const submittedRef = useRef(false)
   const router = useRouter()
 
-  async function onSubmit(brief: string) {
+  async function onSubmit(brief: string, mode: PrompterMode) {
     setPending(true)
     try {
+      if (mode === "name") {
+        const result = await directCheck({ name: brief })
+        router.push(`/dashboard/history/${result.search_id}`)
+        return
+      }
       const search = await generateFilledSearch({ query: brief })
       router.push(`/dashboard/history/${search.id}`)
     } catch (err) {
@@ -47,7 +52,7 @@ export default function GenerateAndGo({
     const brief = (initialBrief || stored).trim()
     if (brief) {
       submittedRef.current = true
-      const id = setTimeout(() => void onSubmit(brief), 0)
+      const id = setTimeout(() => void onSubmit(brief, "idea"), 0)
       return () => clearTimeout(id)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,7 +61,7 @@ export default function GenerateAndGo({
   return (
     <div className="mx-auto max-w-prose space-y-3">
       <Prompter
-        onSubmit={(value) => void onSubmit(value)}
+        onSubmit={(value, mode) => void onSubmit(value, mode)}
         pending={pending}
         defaultValue={initialBrief}
       />
