@@ -372,63 +372,289 @@ function PendingRow({
         )}
       </TableCell>
       <TableCell>
-        {active && job ? (
-          <span className="flex min-w-32 flex-col gap-1">
-            <span className="text-xs text-muted-foreground" role="status">
-              {job.status === "queued"
-                ? "Queued…"
-                : `${liveStepLabel(job)}… ${job.progress}%`}
-            </span>
-            <span
-              className="h-1 w-full bg-muted"
-              role="progressbar"
-              aria-valuenow={job.progress}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label={`Checking ${item.name}`}
-            >
-              <span
-                className="block h-full bg-primary transition-all"
-                style={{ width: `${job.progress}%` }}
-              />
-            </span>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-auto justify-start p-0 text-xs"
-              onClick={() => onCancel(item.id)}
-            >
-              Cancel
-            </Button>
-          </span>
-        ) : job && (job.status === "failed" || job.status === "canceled") ? (
-          <span className="flex flex-col gap-1">
-            <span className="text-xs text-destructive">
-              {job.status === "failed"
-                ? (job.error ?? "The check failed.")
-                : "Canceled."}
-            </span>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={disabled}
-              onClick={() => onCheck(item.id)}
-            >
-              Retry
-            </Button>
-          </span>
-        ) : (
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={disabled}
-            onClick={() => onCheck(item.id)}
-          >
-            Run check
-          </Button>
-        )}
+        <PendingActions
+          item={item}
+          job={job}
+          active={active}
+          disabled={disabled}
+          onCheck={onCheck}
+          onCancel={onCancel}
+        />
       </TableCell>
     </TableRow>
+  )
+}
+
+function PendingActions({
+  item,
+  job,
+  active,
+  disabled,
+  onCheck,
+  onCancel,
+}: {
+  item: PendingName
+  job: PendingName["job"]
+  active: boolean
+  disabled: boolean
+  onCheck: (nameId: number) => void
+  onCancel: (nameId: number) => void
+}) {
+  if (active && job) {
+    return (
+      <span className="flex min-w-32 flex-col gap-1">
+        <span className="text-xs text-muted-foreground" role="status">
+          {job.status === "queued"
+            ? "Queued…"
+            : `${liveStepLabel(job)}… ${job.progress}%`}
+        </span>
+        <span
+          className="h-1 w-full bg-muted"
+          role="progressbar"
+          aria-valuenow={job.progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Checking ${item.name}`}
+        >
+          <span
+            className="block h-full bg-primary transition-all"
+            style={{ width: `${job.progress}%` }}
+          />
+        </span>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-auto justify-start p-0 text-xs"
+          onClick={() => onCancel(item.id)}
+        >
+          Cancel
+        </Button>
+      </span>
+    )
+  }
+  if (job && (job.status === "failed" || job.status === "canceled")) {
+    return (
+      <span className="flex flex-col gap-1">
+        <span className="text-xs text-destructive">
+          {job.status === "failed"
+            ? (job.error ?? "The check failed.")
+            : "Canceled."}
+        </span>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={disabled}
+          onClick={() => onCheck(item.id)}
+        >
+          Retry
+        </Button>
+      </span>
+    )
+  }
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      disabled={disabled}
+      onClick={() => onCheck(item.id)}
+    >
+      Run check
+    </Button>
+  )
+}
+
+function PillarRow({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="w-16 shrink-0 pt-0.5 text-xs text-muted-foreground">
+        {label}
+      </span>
+      <span className="min-w-0 flex-1">{children}</span>
+    </div>
+  )
+}
+
+function MobileNameCard({
+  result,
+  searchId,
+  detailBase,
+  showWatch,
+  watchId,
+}: {
+  result: NameResult
+  searchId: string
+  detailBase?: string | null
+  showWatch?: boolean
+  watchId?: number
+}) {
+  const base = detailBase ?? `/dashboard/history/${searchId}/results`
+  const href = `${base}/${encodeURIComponent(result.name)}`
+  const clickable = detailBase !== null
+
+  return (
+    <div className="group relative space-y-3 p-4">
+      {clickable ? (
+        <Link
+          href={href}
+          aria-label={`View ${result.name} details`}
+          className="absolute inset-0 z-0"
+        />
+      ) : null}
+      <div className="flex items-start justify-between gap-3">
+        <span
+          className={`flex min-w-0 items-center gap-3 font-medium ${clickable ? "group-hover:text-primary" : ""}`}
+        >
+          <Avatar size="sm">
+            <AvatarImage src={result.logo} alt={result.name} />
+            <AvatarFallback>
+              <HugeiconsIcon icon={BrandfetchIcon} className="size-4" />
+            </AvatarFallback>
+          </Avatar>
+          <span className="truncate">{result.name}</span>
+          {showWatch ? (
+            <WatchButton
+              name={result.name}
+              searchId={Number(searchId)}
+              watchId={watchId}
+            />
+          ) : null}
+        </span>
+        <span className="flex shrink-0 items-center gap-2">
+          <span className="font-medium tabular-nums">
+            <AnimatedScore value={result.score} />
+          </span>
+          <Badge
+            className={`${tierColor(result.tier)} animate-in duration-500 fade-in-0 zoom-in-95`}
+          >
+            {result.tier}
+          </Badge>
+        </span>
+      </div>
+      {result.rationale ? (
+        <p className="truncate text-xs text-muted-foreground italic">
+          {result.rationale}
+        </p>
+      ) : null}
+      <div className="space-y-1.5">
+        <PillarRow label="Domains">
+          <AvailabilityList
+            items={result.domains.map(({ tld, available }) => ({
+              label: `.${tld}`,
+              available,
+            }))}
+          />
+        </PillarRow>
+        <PillarRow label="Handles">
+          <SocialAvailabilityList socials={result.socials} />
+        </PillarRow>
+        <PillarRow label="AI">
+          <Badge className={aiAssociationColor(result.aiAssociation)}>
+            {result.aiAssociation}
+          </Badge>
+        </PillarRow>
+      </div>
+    </div>
+  )
+}
+
+function MobilePendingCard({
+  item,
+  searchId,
+  selected,
+  disabled,
+  onSelect,
+  onCheck,
+  onCancel,
+  showWatch,
+  watchId,
+}: {
+  item: PendingName
+  searchId: string
+  selected: boolean
+  disabled: boolean
+  onSelect: (nameId: number, selected: boolean) => void
+  onCheck: (nameId: number) => void
+  onCancel: (nameId: number) => void
+  showWatch?: boolean
+  watchId?: number
+}) {
+  const job = item.job
+  const snapshot = job?.snapshot ?? null
+  const active =
+    job !== null && (job.status === "queued" || job.status === "running")
+
+  return (
+    <div className="space-y-3 p-4">
+      <div className="flex items-center gap-3">
+        <Checkbox
+          checked={selected}
+          disabled={disabled || active}
+          onCheckedChange={(value) => onSelect(item.id, value === true)}
+          aria-label={`Select ${item.name} for checking`}
+        />
+        <span className="min-w-0 flex-1 truncate font-medium">{item.name}</span>
+        {showWatch ? (
+          <WatchButton
+            name={item.name}
+            searchId={Number(searchId)}
+            watchId={watchId}
+          />
+        ) : null}
+      </div>
+      <div className="space-y-1.5">
+        <PillarRow label="Overall">
+          <span className="text-sm text-muted-foreground">Not checked</span>
+        </PillarRow>
+        <PillarRow label="Domains">
+          {snapshot?.domains?.length ? (
+            <AvailabilityList
+              items={snapshot.domains.map(({ tld, available }) => ({
+                label: `.${tld}`,
+                available,
+              }))}
+            />
+          ) : (
+            <span className="text-sm text-muted-foreground">Pending</span>
+          )}
+        </PillarRow>
+        <PillarRow label="Handles">
+          {snapshot?.socials?.length ? (
+            <SocialAvailabilityList socials={snapshot.socials} />
+          ) : (
+            <span className="text-sm text-muted-foreground">Pending</span>
+          )}
+        </PillarRow>
+        <PillarRow label="AI">
+          {snapshot?.ai?.verdict ? (
+            <Badge
+              className={`animate-in duration-500 fade-in-0 zoom-in-95 ${
+                AI_VERDICT_TONE[snapshot.ai.verdict] ?? ""
+              }`}
+            >
+              {AI_VERDICT_LABEL[snapshot.ai.verdict] ?? "Checked"}
+            </Badge>
+          ) : snapshot?.ai?.models.length ? (
+            <ModelDots models={snapshot.ai.models} />
+          ) : (
+            <span className="text-sm text-muted-foreground">Pending</span>
+          )}
+        </PillarRow>
+      </div>
+      <PendingActions
+        item={item}
+        job={job}
+        active={active}
+        disabled={disabled}
+        onCheck={onCheck}
+        onCancel={onCancel}
+      />
+    </div>
   )
 }
 
@@ -592,8 +818,76 @@ export default function ResultsTable({
   return (
     <div className="w-full">
       {anonSessionId ? turnstile.widget : null}
-      <div className="w-full overflow-x-auto">
-        <Table className="min-w-[420px] md:min-w-[680px]">
+
+      {/* Mobile: stacked cards so nothing hides behind breakpoints. */}
+      <div className="border md:hidden">
+        <div className="divide-y divide-border">
+          {visibleChecked.map((result) => (
+            <MobileNameCard
+              key={result.name}
+              result={result}
+              searchId={searchId}
+              detailBase={detailBase}
+              showWatch={showWatch}
+              watchId={watched[result.name]}
+            />
+          ))}
+          {visiblePending.map((item) => (
+            <MobilePendingCard key={item.id} {...pendingRowProps(item)} />
+          ))}
+          {expanded
+            ? hiddenChecked.map((result) => (
+                <MobileNameCard
+                  key={result.name}
+                  result={result}
+                  searchId={searchId}
+                  detailBase={detailBase}
+                  showWatch={showWatch}
+                  watchId={watched[result.name]}
+                />
+              ))
+            : null}
+          {expanded
+            ? hiddenPending.map((item) => (
+                <MobilePendingCard key={item.id} {...pendingRowProps(item)} />
+              ))
+            : null}
+        </div>
+        {pendingCount > 0 ? (
+          <div className="flex items-center justify-between gap-3 border-t p-3">
+            {activeJobs > 0 ? (
+              <span className="text-xs text-muted-foreground" role="status">
+                Checking {pendingCount - activeJobs} of {pendingCount}…
+              </span>
+            ) : (
+              <span className="text-xs text-muted-foreground">
+                {pendingCount} unchecked {pendingCount === 1 ? "name" : "names"}
+              </span>
+            )}
+            {activeJobs > 0 ? (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => void onCancelAll()}
+              >
+                Cancel
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                disabled={firing}
+                onClick={() => void onCheckAll()}
+              >
+                {bulkLabel}
+              </Button>
+            )}
+          </div>
+        ) : null}
+      </div>
+
+      {/* Desktop: the full table. */}
+      <div className="hidden w-full overflow-x-auto md:block">
+        <Table className="min-w-[680px]">
           <TableHeader>
             <TableRow>
               <TableHead>
@@ -694,29 +988,29 @@ export default function ResultsTable({
             </TableBody>
           ) : null}
         </Table>
-        {overflowCount > 0 ? (
-          <Button
-            variant="ghost"
-            onClick={() => setExpanded((value) => !value)}
-            aria-expanded={expanded}
-            className="flex h-12 w-full items-center justify-center rounded-none border-t bg-muted/50 font-medium text-primary"
-          >
-            {expanded ? (
-              <>Show fewer</>
-            ) : (
-              <>
-                Show {overflowCount} more{" "}
-                {overflowCount === 1 ? "name" : "names"}
-              </>
-            )}
-            <HugeiconsIcon
-              icon={expanded ? ArrowUp01Icon : ArrowDown01Icon}
-              strokeWidth={2}
-              className="size-3.5"
-            />
-          </Button>
-        ) : null}
       </div>
+
+      {overflowCount > 0 ? (
+        <Button
+          variant="ghost"
+          onClick={() => setExpanded((value) => !value)}
+          aria-expanded={expanded}
+          className="flex h-12 w-full items-center justify-center rounded-none border-t bg-muted/50 font-medium text-primary"
+        >
+          {expanded ? (
+            <>Show fewer</>
+          ) : (
+            <>
+              Show {overflowCount} more {overflowCount === 1 ? "name" : "names"}
+            </>
+          )}
+          <HugeiconsIcon
+            icon={expanded ? ArrowUp01Icon : ArrowDown01Icon}
+            strokeWidth={2}
+            className="size-3.5"
+          />
+        </Button>
+      ) : null}
     </div>
   )
 }
