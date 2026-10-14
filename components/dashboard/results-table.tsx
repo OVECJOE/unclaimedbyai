@@ -34,6 +34,7 @@ import {
 import { toastApiError } from "@/lib/api-errors"
 import { aiAssociationColor, tierColor } from "@/lib/name-results"
 import { SocialAvailabilityList } from "@/components/dashboard/social-icons"
+import { useTurnstile } from "@/components/public/turnstile"
 import { WatchButton } from "@/components/dashboard/watch-button"
 
 const INITIAL_ROWS = 5
@@ -134,11 +135,7 @@ function AnimatedScore({ value }: { value: number }) {
   return <>{display}</>
 }
 
-function ModelDots({
-  models,
-}: {
-  models: { model: string; ok: boolean }[]
-}) {
+function ModelDots({ models }: { models: { model: string; ok: boolean }[] }) {
   const slots = Math.max(models.length, 3)
   return (
     <span
@@ -175,7 +172,8 @@ const AI_VERDICT_LABEL: Record<string, string> = {
 const AI_VERDICT_TONE: Record<string, string> = {
   clean:
     "bg-green-600/10 text-green-700 dark:bg-green-400/10 dark:text-green-400",
-  minor: "bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-500",
+  minor:
+    "bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-500",
   hard: "bg-destructive/10 text-destructive",
 }
 
@@ -207,7 +205,7 @@ function NameRow({
     <TableRow
       className={clickable ? "group relative cursor-pointer" : undefined}
     >
-      <TableCell className="min-w-28 max-w-[10rem] md:max-w-none">
+      <TableCell className="max-w-[10rem] min-w-28 md:max-w-none">
         {clickable ? (
           <Link
             href={href}
@@ -245,7 +243,7 @@ function NameRow({
             <AnimatedScore value={result.score} />
           </span>
           <Badge
-            className={`${tierColor(result.tier)} animate-in fade-in-0 zoom-in-95 duration-500`}
+            className={`${tierColor(result.tier)} animate-in duration-500 fade-in-0 zoom-in-95`}
           >
             {result.tier}
           </Badge>
@@ -361,7 +359,7 @@ function PendingRow({
       <TableCell className="hidden md:table-cell">
         {snapshot?.ai?.verdict ? (
           <Badge
-            className={`animate-in fade-in-0 zoom-in-95 duration-500 ${
+            className={`animate-in duration-500 fade-in-0 zoom-in-95 ${
               AI_VERDICT_TONE[snapshot.ai.verdict] ?? ""
             }`}
           >
@@ -446,6 +444,10 @@ export default function ResultsTable({
   const [expanded, setExpanded] = useState(false)
   const [selected, setSelected] = useState<number[]>([])
   const [firing, setFiring] = useState(false)
+  // Anonymous spend calls need a Turnstile token, and this page is the
+  // only surface where people can act without ever having seen the
+  // landing widget, so it carries its own (invisible unless challenged).
+  const turnstile = useTurnstile("anonymous_check")
 
   // The dashboard leaves detailBase undefined while the public page
   // passes an explicit null, so compare strictly against null here.
@@ -461,10 +463,29 @@ export default function ResultsTable({
     return anonSessionId ? { anon_session_id: anonSessionId } : {}
   }
 
+  async function spendToken(fresh: boolean): Promise<string | undefined> {
+    if (!anonSessionId) return undefined
+    if (fresh) turnstile.reset()
+    return (await turnstile.waitForToken(3000)) ?? undefined
+  }
+
   async function runOne(nameId: number) {
     setFiring(true)
     try {
-      await runCheck(nameId, anonInput())
+      try {
+        await runCheck(nameId, {
+          ...anonInput(),
+          cf_turnstile_token: await spendToken(false),
+        })
+      } catch (error) {
+        // Tokens are single use and the bypass cookie expires hourly, so
+        // a 403 gets one reset and retry before it reaches the user.
+        if (!(error instanceof ApiError) || error.status !== 403) throw error
+        await runCheck(nameId, {
+          ...anonInput(),
+          cf_turnstile_token: await spendToken(true),
+        })
+      }
       onMutation?.()
     } catch (error) {
       toastApiError(error, "The check failed. Try again in a moment.")
@@ -488,8 +509,11 @@ export default function ResultsTable({
     try {
       let skipped = 0
       for (let round = 0; round < 20; round += 1) {
+        // Tokens are single use, so every round after the first needs a
+        // freshly solved one.
         const result = await checkAllNames(Number(searchId), {
           ...anonInput(),
+          cf_turnstile_token: await spendToken(round > 0),
           ...(validSelected.length > 0 ? { name_ids: validSelected } : {}),
         })
         skipped += result.skipped
@@ -566,92 +590,79 @@ export default function ResultsTable({
   }
 
   return (
-    <div className="w-full overflow-x-auto">
-      <Table className="min-w-[420px] md:min-w-[680px]">
-        <TableHeader>
-          <TableRow>
-            <TableHead>
-              <span className="flex items-center gap-3">
+    <div className="w-full">
+      {anonSessionId ? turnstile.widget : null}
+      <div className="w-full overflow-x-auto">
+        <Table className="min-w-[420px] md:min-w-[680px]">
+          <TableHeader>
+            <TableRow>
+              <TableHead>
+                <span className="flex items-center gap-3">
+                  {pendingCount > 0 ? (
+                    <Checkbox
+                      checked={
+                        allSelected
+                          ? true
+                          : someSelected
+                            ? "indeterminate"
+                            : false
+                      }
+                      disabled={firing}
+                      onCheckedChange={() => toggleSelectAll()}
+                      aria-label={
+                        allSelected
+                          ? "Unselect all unchecked names"
+                          : "Select all unchecked names"
+                      }
+                    />
+                  ) : null}
+                  Name
+                </span>
+              </TableHead>
+              <TableHead>Overall</TableHead>
+              <TableHead>Domains</TableHead>
+              <TableHead className="hidden md:table-cell">Social</TableHead>
+              <TableHead className="hidden md:table-cell">
+                AI Association
+              </TableHead>
+              <TableHead className="text-right whitespace-nowrap">
                 {pendingCount > 0 ? (
-                  <Checkbox
-                    checked={
-                      allSelected
-                        ? true
-                        : someSelected
-                          ? "indeterminate"
-                          : false
-                    }
-                    disabled={firing}
-                    onCheckedChange={() => toggleSelectAll()}
-                    aria-label={
-                      allSelected
-                        ? "Unselect all unchecked names"
-                        : "Select all unchecked names"
-                    }
-                  />
-                ) : null}
-                Name
-              </span>
-            </TableHead>
-            <TableHead>Overall</TableHead>
-            <TableHead>Domains</TableHead>
-            <TableHead className="hidden md:table-cell">Social</TableHead>
-            <TableHead className="hidden md:table-cell">
-              AI Association
-            </TableHead>
-            <TableHead className="text-right whitespace-nowrap">
-              {pendingCount > 0 ? (
-                <span className="flex items-center gap-2">
-                  {activeJobs > 0 ? (
-                    <>
-                      <Button size="sm" disabled>
-                        Checking {pendingCount - activeJobs} of {pendingCount}…
-                      </Button>
+                  <span className="flex items-center gap-2">
+                    {activeJobs > 0 ? (
+                      <>
+                        <Button size="sm" disabled>
+                          Checking {pendingCount - activeJobs} of {pendingCount}
+                          …
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => void onCancelAll()}
+                        >
+                          Cancel
+                        </Button>
+                      </>
+                    ) : (
                       <Button
                         size="sm"
-                        variant="ghost"
-                        onClick={() => void onCancelAll()}
+                        disabled={firing}
+                        onClick={() => void onCheckAll()}
+                        aria-label={
+                          validSelected.length > 0
+                            ? `Run check on ${bulkCount} selected names`
+                            : `Run check on all ${bulkCount} unchecked names`
+                        }
                       >
-                        Cancel
+                        {bulkLabel}
                       </Button>
-                    </>
-                  ) : (
-                    <Button
-                      size="sm"
-                      disabled={firing}
-                      onClick={() => void onCheckAll()}
-                      aria-label={
-                        validSelected.length > 0
-                          ? `Run check on ${bulkCount} selected names`
-                          : `Run check on all ${bulkCount} unchecked names`
-                      }
-                    >
-                      {bulkLabel}
-                    </Button>
-                  )}
-                </span>
-              ) : null}
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {visibleChecked.map((result) => (
-            <NameRow
-              key={result.name}
-              result={result}
-              searchId={searchId}
-              detailBase={detailBase}
-              showWatch={showWatch}
-              watchId={watched[result.name]}
-            />
-          ))}
-          {visiblePending.map((item) => (
-            <PendingRow key={item.id} {...pendingRowProps(item)} />
-          ))}
-        </TableBody>
-        {expanded && overflowCount > 0 ? (
+                    )}
+                  </span>
+                ) : null}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
           <TableBody>
-            {hiddenChecked.map((result) => (
+            {visibleChecked.map((result) => (
               <NameRow
                 key={result.name}
                 result={result}
@@ -661,33 +672,51 @@ export default function ResultsTable({
                 watchId={watched[result.name]}
               />
             ))}
-            {hiddenPending.map((item) => (
+            {visiblePending.map((item) => (
               <PendingRow key={item.id} {...pendingRowProps(item)} />
             ))}
           </TableBody>
+          {expanded && overflowCount > 0 ? (
+            <TableBody>
+              {hiddenChecked.map((result) => (
+                <NameRow
+                  key={result.name}
+                  result={result}
+                  searchId={searchId}
+                  detailBase={detailBase}
+                  showWatch={showWatch}
+                  watchId={watched[result.name]}
+                />
+              ))}
+              {hiddenPending.map((item) => (
+                <PendingRow key={item.id} {...pendingRowProps(item)} />
+              ))}
+            </TableBody>
+          ) : null}
+        </Table>
+        {overflowCount > 0 ? (
+          <Button
+            variant="ghost"
+            onClick={() => setExpanded((value) => !value)}
+            aria-expanded={expanded}
+            className="flex h-12 w-full items-center justify-center rounded-none border-t bg-muted/50 font-medium text-primary"
+          >
+            {expanded ? (
+              <>Show fewer</>
+            ) : (
+              <>
+                Show {overflowCount} more{" "}
+                {overflowCount === 1 ? "name" : "names"}
+              </>
+            )}
+            <HugeiconsIcon
+              icon={expanded ? ArrowUp01Icon : ArrowDown01Icon}
+              strokeWidth={2}
+              className="size-3.5"
+            />
+          </Button>
         ) : null}
-      </Table>
-      {overflowCount > 0 ? (
-        <Button
-          variant="ghost"
-          onClick={() => setExpanded((value) => !value)}
-          aria-expanded={expanded}
-          className="flex h-12 w-full items-center justify-center rounded-none border-t bg-muted/50 font-medium text-primary"
-        >
-          {expanded ? (
-            <>Show fewer</>
-          ) : (
-            <>
-              Show {overflowCount} more {overflowCount === 1 ? "name" : "names"}
-            </>
-          )}
-          <HugeiconsIcon
-            icon={expanded ? ArrowUp01Icon : ArrowDown01Icon}
-            strokeWidth={2}
-            className="size-3.5"
-          />
-        </Button>
-      ) : null}
+      </div>
     </div>
   )
 }
