@@ -8,7 +8,7 @@ import { JsonLd } from "@/components/app/json-ld"
 import PrompterCta from "@/components/public/prompter-cta"
 import { ApiError, searchByQuery } from "@/lib/api"
 import { formatDateTime } from "@/lib/utils"
-import { SITE_URL } from "@/lib/site"
+import { OG_PATH, SITE_URL } from "@/lib/site"
 
 export const revalidate = 3600
 
@@ -46,6 +46,12 @@ export async function generateMetadata({
       title: `Name ideas for "${term}", scored`,
       description: `Domain, social handle, and AI association results for "${term}".`,
       url: `${SITE_URL}/searches/${query}`,
+      type: "website",
+      images: [OG_PATH],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: [OG_PATH],
     },
   }
 }
