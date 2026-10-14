@@ -492,39 +492,48 @@ export default async function SearchResultNamePage({
 
                   <Separator />
 
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Model</TableHead>
-                        <TableHead>Sees it as</TableHead>
-                        <TableHead className="text-end">Confidence</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {report.ai.map((row, index) => (
-                        <TableRow key={`${row.model ?? "unknown"}-${index}`}>
-                          <TableCell className="font-mono text-xs">
+                  <ul className="divide-y divide-border border-y">
+                    {report.ai.map((row, index) => (
+                      <li
+                        key={`${row.model ?? "unknown"}-${index}`}
+                        className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3"
+                      >
+                        <div className="min-w-0 space-y-0.5">
+                          <p className="font-mono text-xs text-muted-foreground">
                             {row.model ?? "unknown model"}
-                          </TableCell>
-                          <TableCell
-                            className="text-muted-foreground"
+                          </p>
+                          <p
+                            className="text-sm"
                             title={row.error ?? undefined}
                           >
                             {row.error
                               ? "Couldn't check this model"
-                              : (row.association ?? "None reported")}
-                          </TableCell>
-                          <TableCell className="text-end text-muted-foreground">
-                            {row.error
-                              ? "n/a"
-                              : typeof row.collision_confidence === "number"
-                                ? `${row.collision_confidence}/100`
-                                : "Not reported"}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                              : (row.association ?? "No strong association")}
+                          </p>
+                        </div>
+                        <p className="shrink-0 text-end">
+                          {row.error ? (
+                            <span className="text-xs text-muted-foreground">
+                              Not reported
+                            </span>
+                          ) : typeof row.collision_confidence === "number" ? (
+                            <>
+                              <span className="font-medium tabular-nums">
+                                {row.collision_confidence}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                /100 confidence
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              Confidence not reported
+                            </span>
+                          )}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
                 </CardContent>
               </Card>
             </TabsContent>
