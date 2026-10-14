@@ -71,6 +71,7 @@ type ResultsTableProps = {
   detailBase?: string | null
   watched?: Record<string, number>
   onMutation?: () => void
+  onShortage?: () => void
 }
 
 function AvailabilityList({
@@ -666,6 +667,7 @@ export default function ResultsTable({
   detailBase,
   watched = {},
   onMutation,
+  onShortage,
 }: ResultsTableProps) {
   const [expanded, setExpanded] = useState(false)
   const [selected, setSelected] = useState<number[]>([])
@@ -714,7 +716,11 @@ export default function ResultsTable({
       }
       onMutation?.()
     } catch (error) {
-      toastApiError(error, "The check failed. Try again in a moment.")
+      if (error instanceof ApiError && error.status === 402 && onShortage) {
+        onShortage()
+      } else {
+        toastApiError(error, "The check failed. Try again in a moment.")
+      }
     } finally {
       setFiring(false)
     }
@@ -754,7 +760,11 @@ export default function ResultsTable({
       setSelected([])
       onMutation?.()
     } catch (error) {
-      toastApiError(error, "The checks failed to start. Try again in a moment.")
+      if (error instanceof ApiError && error.status === 402 && onShortage) {
+        onShortage()
+      } else {
+        toastApiError(error, "The checks failed to start. Try again in a moment.")
+      }
     } finally {
       setFiring(false)
     }

@@ -71,11 +71,27 @@ export default async function HistoryPage({
                   </span>
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant={order.status === "paid" ? "default" : "secondary"}
-                  >
-                    {order.status}
-                  </Badge>
+                  <div className="space-y-1">
+                    <Badge
+                      className={
+                        order.status === "paid"
+                          ? "bg-green-600/10 text-green-700 dark:bg-green-400/10 dark:text-green-400"
+                          : "bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-500"
+                      }
+                    >
+                      {order.status}
+                    </Badge>
+                    {order.receipt_url ? (
+                      <a
+                        href={order.receipt_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block text-xs text-primary underline"
+                      >
+                        Receipt
+                      </a>
+                    ) : null}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <span className="font-heading text-lg font-bold">

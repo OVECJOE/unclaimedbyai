@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import Prompter from "@/components/app/prompter"
+import ShortageDialog from "@/components/dashboard/shortage-dialog"
 import { PENDING_BRIEF_KEY } from "@/components/public/prompter-cta"
-import { generateFilledSearch } from "@/lib/api"
+import { ApiError, generateFilledSearch } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
 
 export default function GenerateAndGo({
@@ -13,6 +14,7 @@ export default function GenerateAndGo({
   initialBrief?: string
 }) {
   const [pending, setPending] = useState(false)
+  const [shortage, setShortage] = useState(false)
   const submittedRef = useRef(false)
   const router = useRouter()
 
@@ -23,6 +25,10 @@ export default function GenerateAndGo({
       router.push(`/dashboard/history/${search.id}`)
     } catch (err) {
       setPending(false)
+      if (err instanceof ApiError && err.status === 402) {
+        setShortage(true)
+        return
+      }
       toastApiError(err, "Something went wrong. Try again.")
     }
   }
@@ -59,6 +65,13 @@ export default function GenerateAndGo({
           Starting your search… results open right away and fill in live.
         </p>
       ) : null}
+      <ShortageDialog
+        open={shortage}
+        kind="searches"
+        onOpenChange={(next) => {
+          if (!next) setShortage(false)
+        }}
+      />
     </div>
   )
 }

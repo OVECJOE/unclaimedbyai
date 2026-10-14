@@ -455,11 +455,12 @@ export function listPacks(): Promise<Pack[]> {
 }
 
 export function createCheckout(
-  packSlug: string
+  packSlug: string,
+  returnTo?: string
 ): Promise<{ checkout_url: string }> {
   return apiRequest("/api/v1/checkout", {
     method: "POST",
-    body: { pack_slug: packSlug },
+    body: { pack_slug: packSlug, return_to: returnTo },
   })
 }
 
@@ -472,6 +473,7 @@ export type OrderItem = {
   created_at: string
   reports: number
   searches: number
+  receipt_url: string | null
 }
 
 export function listOrders(): Promise<OrderItem[]> {

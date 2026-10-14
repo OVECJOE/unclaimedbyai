@@ -3,9 +3,11 @@ import { InfoIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
+import { Suspense } from "react"
 import { PriceCard } from "@/components/price-card"
 import BuyButton from "@/components/dashboard/buy-button"
 import CheckoutBanner from "@/components/dashboard/checkout-banner"
+import PaymentFlag from "@/components/dashboard/payment-flag"
 import ClearPlanCookie from "@/components/dashboard/clear-plan-cookie"
 import { PENDING_PLAN_COOKIE } from "@/components/public/plan-cookie"
 import { getMeServer, apiServer } from "@/lib/api-server"
@@ -17,7 +19,7 @@ export const dynamic = "force-dynamic"
 export default async function BillingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string; canceled?: string }>
+  searchParams: Promise<{ success?: string; canceled?: string; plan?: string }>
 }) {
   const user = await getMeServer().catch(() => null)
   if (!user) redirect("/auth")
@@ -32,14 +34,36 @@ export default async function BillingPage({
     throw error
   }
   const single = packs.find((pack) => pack.reports === 1)
+  const highlightSlug = params.plan ?? pendingPlan
+  const planPack = packs.find((pack) => pack.slug === highlightSlug)
 
   return (
     <>
       {pendingPlan ? <ClearPlanCookie /> : null}
       <section className="px-4">
         <div className="mx-auto max-w-7xl space-y-4">
+          <Suspense fallback={null}>
+            <PaymentFlag />
+          </Suspense>
           {params.success ? <CheckoutBanner kind="success" /> : null}
           {params.canceled ? <CheckoutBanner kind="canceled" /> : null}
+          {planPack ? (
+            <Alert className="bg-secondary">
+              <AlertDescription>
+                You chose the {planPack.title} before signing in. Continue to
+                secure checkout whenever you are ready, or pick a different
+                pack below.
+              </AlertDescription>
+            </Alert>
+          ) : null}
+          {user.credits === 0 && user.searches_left === 0 ? (
+            <Alert className="border border-dashed">
+              <AlertDescription>
+                You are out of both reports and searches. Every pack below
+                restores both at once, and checkout takes about a minute.
+              </AlertDescription>
+            </Alert>
+          ) : null}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="border p-5">
               <p className="text-sm text-muted-foreground">Searches left</p>
@@ -73,12 +97,23 @@ export default async function BillingPage({
                       ? Math.round((1 - perReport / singleRate) * 100)
                       : undefined
                   }
-                  highlight={pendingPlan === pack.slug}
+                  highlight={highlightSlug === pack.slug}
                   action={
-                    <BuyButton
-                      packSlug={pack.slug}
-                      label={`Buy ${pack.title}`}
-                    />
+                    <div className="space-y-1.5">
+                      {pack.slug === "five" ? (
+                        <p className="text-center text-[0.625rem] font-semibold tracking-widest text-primary uppercase">
+                          Most popular
+                        </p>
+                      ) : null}
+                      <BuyButton
+                        packSlug={pack.slug}
+                        label={
+                          highlightSlug === pack.slug
+                            ? "Continue to secure checkout"
+                            : `Buy ${pack.title}`
+                        }
+                      />
+                    </div>
                   }
                 />
               )
@@ -87,8 +122,9 @@ export default async function BillingPage({
           <Alert className="bg-secondary">
             <HugeiconsIcon icon={InfoIcon} size={48} />
             <AlertDescription>
-              Reports are one-off purchases through secure checkout — no
-              subscriptions, no stored cards.
+              Reports are one-off purchases through secure checkout, with no
+              subscriptions and no stored cards. A report costs less than the
+              domain you are about to register.
             </AlertDescription>
           </Alert>
         </div>

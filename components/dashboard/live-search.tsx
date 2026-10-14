@@ -18,6 +18,7 @@ import GradingDistribution from "@/components/dashboard/grading-distribution"
 import ScoreSummary from "@/components/dashboard/score-summary"
 import ResultsTable from "@/components/dashboard/results-table"
 import QueryUnfurl from "@/components/dashboard/query-unfurl"
+import ShortageDialog from "@/components/dashboard/shortage-dialog"
 import SearchResultsToolbar from "@/components/dashboard/search-results-toolbar"
 import {
   ApiError,
@@ -96,6 +97,7 @@ export default function LiveSearch({
     q: q ?? "",
   })
   const [paused, setPaused] = useState(false)
+  const [creditShortage, setCreditShortage] = useState(false)
   const [watched, setWatched] = useState<Record<string, number>>(
     initialWatched ?? {}
   )
@@ -353,6 +355,7 @@ export default function LiveSearch({
               anonSessionId={sid}
               detailBase={detailBase}
               watched={watched}
+              onShortage={sid ? undefined : () => setCreditShortage(true)}
               onMutation={() => {
                 refresh().catch(() => {
                   // Poll loop picks it up on the next tick.
@@ -363,6 +366,13 @@ export default function LiveSearch({
           </div>
         </>
       )}
+      <ShortageDialog
+        open={creditShortage}
+        kind="credits"
+        onOpenChange={(next) => {
+          if (!next) setCreditShortage(false)
+        }}
+      />
     </div>
   )
 }

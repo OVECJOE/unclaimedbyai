@@ -17,7 +17,10 @@ export default function BuyButton({
   async function buy() {
     setPending(true)
     try {
-      const { checkout_url } = await createCheckout(packSlug)
+      const { checkout_url } = await createCheckout(
+        packSlug,
+        `${window.location.pathname}${window.location.search}`
+      )
       window.location.href = checkout_url
     } catch (err) {
       setPending(false)

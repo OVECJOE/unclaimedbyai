@@ -29,9 +29,12 @@ import {
   GlobeIcon,
 } from "@hugeicons/core-free-icons"
 import { notFound, redirect } from "next/navigation"
+import { Suspense } from "react"
 import { ScoreGauge } from "@/components/app/score-gauge"
 import { TierBadge, type Tier } from "@/components/tier-badge"
 import { WatchButton } from "@/components/dashboard/watch-button"
+import BuyReportButton from "@/components/dashboard/buy-report-button"
+import PaymentFlag from "@/components/dashboard/payment-flag"
 import { formatDateTime } from "@/lib/utils"
 import { apiServer } from "@/lib/api-server"
 import {
@@ -240,6 +243,9 @@ export default async function SearchResultNamePage({
     <>
       <section className="px-4 pt-10 pb-5">
         <div className="mx-auto max-w-7xl space-y-8">
+          <Suspense fallback={null}>
+            <PaymentFlag />
+          </Suspense>
           <Breadcrumb>
             <BreadcrumbList className="flex-nowrap">
               <BreadcrumbItem>
@@ -319,11 +325,23 @@ export default async function SearchResultNamePage({
                   {RISK_COPY[verdict]}
                 </p>
               </div>
-              <Button size="lg" asChild>
-                <Link href="/pricing">Buy the full report</Link>
-              </Button>
+              <BuyReportButton />
             </CardContent>
           </Card>
+
+          {report.overall_score >= 80 ? (
+            <div className="space-y-1 border p-4 text-center sm:p-5">
+              <p className="font-heading text-xl font-semibold">A keeper.</p>
+              <p className="mx-auto max-w-prose text-sm text-muted-foreground">
+                Scores this high are rare. Star the name above to keep watching
+                it for free, and grab a report pack whenever you want fresh
+                checks later.{" "}
+                <Link href="/dashboard/billing" className="text-primary underline">
+                  See report packs
+                </Link>
+              </p>
+            </div>
+          ) : null}
 
           <Tabs defaultValue="overview">
             <div className="max-w-full scrollbar-none overflow-x-auto pb-1">
