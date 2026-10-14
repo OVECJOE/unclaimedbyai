@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useState } from "react"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -12,6 +12,10 @@ const EXAMPLES = [
   "An AI note-taking app for teams",
   "A project management tool for freelancers",
   "A workout tracker for climbers",
+  "A budgeting app for creatives",
+  "A marketplace where neighbors swap garden seeds",
+  "A newsletter about building hardware",
+  "A language exchange app for travelers",
 ]
 
 export default function Prompter({
@@ -24,16 +28,10 @@ export default function Prompter({
   defaultValue?: string
 }) {
   const [value, setValue] = useState(defaultValue)
-  const areaRef = useRef<HTMLTextAreaElement>(null)
   const ghostText = useTypewriter(EXAMPLES, value.length === 0)
 
   function submit() {
     if (value.trim()) onSubmit?.(value.trim())
-  }
-
-  function tryExample(example: string) {
-    setValue(example)
-    areaRef.current?.focus()
   }
 
   return (
@@ -63,7 +61,6 @@ export default function Prompter({
           </label>
           <Textarea
             id="prompt"
-            ref={areaRef}
             name="prompt"
             rows={2}
             value={value}
@@ -106,22 +103,6 @@ export default function Prompter({
           </div>
         </div>
       </div>
-
-      {value.length === 0 ? (
-        <div className="flex flex-wrap items-center justify-center gap-1.5">
-          <span className="text-xs text-muted-foreground">Try one of these</span>
-          {EXAMPLES.map((example) => (
-            <button
-              key={example}
-              type="button"
-              onClick={() => tryExample(example)}
-              className="max-w-full truncate border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary hover:bg-primary/10 hover:text-primary"
-            >
-              {example}
-            </button>
-          ))}
-        </div>
-      ) : null}
     </form>
   )
 }
