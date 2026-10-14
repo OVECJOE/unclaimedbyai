@@ -21,6 +21,32 @@ const EXAMPLES = [
 
 export type PrompterMode = "idea" | "name"
 
+function ModePill({
+  label,
+  active,
+  onClick,
+}: {
+  label: string
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={cn(
+        "border px-2.5 py-1 text-xs font-medium backdrop-blur-sm transition-colors",
+        active
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-border bg-background/80 text-foreground hover:border-primary/50 hover:text-primary"
+      )}
+    >
+      {label}
+    </button>
+  )
+}
+
 export default function Prompter({
   onSubmit,
   pending = false,
@@ -68,32 +94,16 @@ export default function Prompter({
             aria-label="What do you want to do"
             className="mb-2 flex items-center gap-1.5"
           >
-            <button
-              type="button"
-              aria-pressed={mode === "idea"}
+            <ModePill
+              label="Idea"
+              active={mode === "idea"}
               onClick={() => switchMode("idea")}
-              className={cn(
-                "border px-2.5 py-1 text-xs font-medium transition-colors",
-                mode === "idea"
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Idea
-            </button>
-            <button
-              type="button"
-              aria-pressed={mode === "name"}
+            />
+            <ModePill
+              label="Name"
+              active={mode === "name"}
               onClick={() => switchMode("name")}
-              className={cn(
-                "border px-2.5 py-1 text-xs font-medium transition-colors",
-                mode === "name"
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Name
-            </button>
+            />
           </div>
           <Textarea
             id="prompt"
