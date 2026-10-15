@@ -503,6 +503,35 @@ export function getPreferences(): Promise<Preferences> {
   return apiRequest<Preferences>("/api/v1/preferences")
 }
 
+export type ApiKeyItem = {
+  id: number
+  prefix: string
+  name: string
+  is_active: boolean
+  last_used_at: string | null
+  created_at: string
+}
+
+export function listApiKeys(): Promise<ApiKeyItem[]> {
+  return apiRequest<ApiKeyItem[]>("/api/v1/api-keys")
+}
+
+export function createApiKey(name: string): Promise<{
+  id: number
+  key: string
+  prefix: string
+  name: string
+}> {
+  return apiRequest("/api/v1/api-keys", {
+    method: "POST",
+    body: { name },
+  })
+}
+
+export function revokeApiKey(keyId: number): Promise<void> {
+  return apiRequest(`/api/v1/api-keys/${keyId}`, { method: "DELETE" })
+}
+
 export type WatchEventItem = {
   id: number
   kind: "domain_taken" | "domain_released" | "handle_taken" | "handle_released"

@@ -4,6 +4,7 @@ import {
   ProfileForm,
   DeleteAccount,
 } from "@/components/dashboard/account"
+import ApiKeysSection from "@/components/dashboard/account/api-keys-section"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
@@ -16,7 +17,7 @@ export const dynamic = "force-dynamic"
 export default async function AccountPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab: "profile" | "notifications" }>
+  searchParams: Promise<{ tab: "profile" | "notifications" | "api" }>
 }) {
   const { tab } = await searchParams
   const user = await getMeServer().catch(() => null)
@@ -52,6 +53,9 @@ export default async function AccountPage({
                   Notifications
                 </Link>
               </TabsTrigger>
+              <TabsTrigger value="api" asChild>
+                <Link href="/dashboard/account?tab=api">API</Link>
+              </TabsTrigger>
             </TabsList>
             <div className="mt-10">
               <TabsContent value="profile" className="space-y-8">
@@ -65,6 +69,9 @@ export default async function AccountPage({
               </TabsContent>
               <TabsContent value="notifications">
                 <PreferencesForm initial={prefs} />
+              </TabsContent>
+              <TabsContent value="api">
+                <ApiKeysSection />
               </TabsContent>
             </div>
           </Tabs>
