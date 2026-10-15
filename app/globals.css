@@ -478,3 +478,26 @@
     animation: none;
   }
 }
+
+/* Toasts in the house style: square, bordered, shadow-free, matching
+   dialogs and cards instead of sonner's rounded floating default.
+   Attribute selectors beat sonner's injected stylesheet, and the
+   color variables keep toasts tied to the theme tokens. */
+div[data-sonner-toast] {
+  border: 1px solid var(--border) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  font-family: var(--font-sans) !important;
+}
+
+div[data-sonner-toast] [data-title] {
+  font-weight: 600;
+}
+
+div[data-sonner-toast] [data-button] {
+  border-radius: 0 !important;
+}
+
+div[data-sonner-toast] [data-button][data-cancel] {
+  border: 1px solid var(--border);
+}
