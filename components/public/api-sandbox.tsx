@@ -407,7 +407,7 @@ export default function ApiSandbox() {
                   onChange={(event) => setBody(event.target.value)}
                   spellCheck={false}
                   wrap="soft"
-                  className="absolute inset-0 resize-none border-0 bg-transparent p-3 font-mono text-xs leading-relaxed text-transparent caret-foreground shadow-none focus-visible:ring-1 focus-visible:ring-primary"
+                  className="absolute inset-0 resize-none border-0 bg-transparent p-3 font-mono text-xs leading-relaxed text-transparent caret-foreground shadow-none [field-sizing:fixed] focus-visible:ring-1 focus-visible:ring-primary md:text-xs"
                 />
               </div>
               {bodyInvalid ? (
