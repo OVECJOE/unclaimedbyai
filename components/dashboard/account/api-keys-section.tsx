@@ -6,6 +6,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -171,64 +179,77 @@ export default function ApiKeysSection() {
           another tool.
         </p>
       ) : (
-        <ul className="divide-y divide-border border">
-          {keys.map((key) => (
-            <li
-              key={key.id}
-              className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-3"
-            >
-              <div className="min-w-0 space-y-0.5">
-                <p className="truncate text-sm font-medium">
-                  {key.name || "Unnamed key"}
-                </p>
-                <p className="font-mono text-xs text-muted-foreground">
-                  {key.prefix}…
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                <span>
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Name</TableHead>
+              <TableHead>Last used</TableHead>
+              <TableHead className="hidden sm:table-cell">Created</TableHead>
+              <TableHead className="text-right">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {keys.map((key) => (
+              <TableRow key={key.id}>
+                <TableCell>
+                  <div className="space-y-0.5">
+                    <p className="font-medium">{key.name || "Unnamed key"}</p>
+                    <p className="font-mono text-xs text-muted-foreground">
+                      {key.prefix}…
+                    </p>
+                  </div>
+                </TableCell>
+                <TableCell className="text-muted-foreground">
                   {key.last_used_at
-                    ? `Last used ${formatDateTime(key.last_used_at)}`
+                    ? formatDateTime(key.last_used_at)
                     : "Never used"}
-                </span>
-                <span>Created {formatDateTime(key.created_at)}</span>
-              </div>
-              <AlertDialog
-                open={revokeOpen === key.id}
-                onOpenChange={(next) => setRevokeOpen(next ? key.id : null)}
-              >
-                <AlertDialogTrigger asChild>
-                  <Button size="sm" variant="outline" className="text-destructive">
-                    Revoke
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Revoke {key.name || "this key"}?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Anything using this key stops working immediately. This
-                      cannot be undone, and a replacement has to be created
-                      and copied again.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Keep it</AlertDialogCancel>
-                    <AlertDialogAction asChild>
+                </TableCell>
+                <TableCell className="hidden text-muted-foreground sm:table-cell">
+                  {formatDateTime(key.created_at)}
+                </TableCell>
+                <TableCell className="text-right">
+                  <AlertDialog
+                    open={revokeOpen === key.id}
+                    onOpenChange={(next) => setRevokeOpen(next ? key.id : null)}
+                  >
+                    <AlertDialogTrigger asChild>
                       <Button
-                        variant="destructive"
-                        onClick={() => void revoke(key)}
+                        size="sm"
+                        variant="outline"
+                        className="text-destructive"
                       >
-                        Revoke key
+                        Revoke
                       </Button>
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </li>
-          ))}
-        </ul>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Revoke {key.name || "this key"}?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Anything using this key stops working immediately.
+                          This cannot be undone, and a replacement has to be
+                          created and copied again.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Keep it</AlertDialogCancel>
+                        <AlertDialogAction asChild>
+                          <Button
+                            variant="destructive"
+                            onClick={() => void revoke(key)}
+                          >
+                            Revoke key
+                          </Button>
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
 
       {loaded && pageCount > 1 ? (

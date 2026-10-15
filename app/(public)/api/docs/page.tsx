@@ -223,7 +223,7 @@ export default function ApiDocsPage() {
       </section>
 
       <section id="sandbox" className="scroll-mt-20 border-b px-4 py-10">
-        <div className="mx-auto max-w-4xl space-y-4">
+        <div className="mx-auto max-w-7xl space-y-4">
           <div className="space-y-1 sm:text-center">
             <h2 className="font-heading text-2xl font-semibold md:text-3xl">
               Play with it first
@@ -238,7 +238,7 @@ export default function ApiDocsPage() {
       </section>
 
       <section className="border-b px-4 py-10">
-        <div className="mx-auto max-w-4xl space-y-6">
+        <div className="mx-auto max-w-7xl space-y-6">
           <div className="space-y-1 sm:text-center">
             <h2 className="font-heading text-2xl font-semibold md:text-3xl">
               Authentication
@@ -266,7 +266,7 @@ export default function ApiDocsPage() {
       </section>
 
       <section className="border-b px-4 py-10">
-        <div className="mx-auto max-w-4xl space-y-6">
+        <div className="mx-auto max-w-7xl space-y-6">
           <div className="space-y-1 sm:text-center">
             <h2 className="font-heading text-2xl font-semibold md:text-3xl">
               Quickstarts
@@ -345,7 +345,7 @@ curl -X POST ${BASE}/watches/1/sweep \\
       </section>
 
       <section className="border-b px-4 py-10">
-        <div className="mx-auto max-w-4xl space-y-6">
+        <div className="mx-auto max-w-7xl space-y-6">
           <div className="space-y-1 sm:text-center">
             <h2 className="font-heading text-2xl font-semibold md:text-3xl">
               Endpoints
@@ -380,7 +380,7 @@ curl -X POST ${BASE}/watches/1/sweep \\
       </section>
 
       <section className="px-4 py-10">
-        <div className="mx-auto max-w-4xl space-y-6">
+        <div className="mx-auto max-w-7xl space-y-6">
           <div className="space-y-1 sm:text-center">
             <h2 className="font-heading text-2xl font-semibold md:text-3xl">
               Limits and errors
