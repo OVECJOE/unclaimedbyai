@@ -3,8 +3,16 @@
 import { useState } from "react"
 import { toast } from "sonner"
 import { useTheme } from "next-themes"
-import { Highlight, themes } from "prism-react-renderer"
+import { Highlight, themes, Prism } from "prism-react-renderer"
 import { Button } from "@/components/ui/button"
+
+// prism-react-renderer ships only a handful of grammars and bash is not
+// one of them, so snippets rendered unhighlighted. Attach the official
+// bash grammar to the shared Prism instance; the dynamic import keeps it
+// from hoisting above this assignment, which it would evaluate first.
+const globalScope = globalThis as { Prism?: typeof Prism }
+if (!globalScope.Prism) globalScope.Prism = Prism
+void import("prismjs/components/prism-bash")
 
 export default function CopyCode({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)
