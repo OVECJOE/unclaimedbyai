@@ -3,7 +3,6 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { JsonLd } from "@/components/app/json-ld"
-import ApiSandbox from "@/components/public/api-sandbox"
 import CopyCode from "@/components/public/copy-code"
 import { SITE_URL, pageMetadata } from "@/lib/site"
 
@@ -17,167 +16,6 @@ export const metadata: Metadata = pageMetadata({
 })
 
 const BASE = "https://unclaimedbyai.com/api/v1"
-
-const ENDPOINTS: {
-  method: string
-  path: string
-  auth: "key" | "session" | "none"
-  description: string
-}[] = [
-  {
-    method: "GET",
-    path: "/me",
-    auth: "key",
-    description: "Your profile with remaining searches and report credits.",
-  },
-  {
-    method: "GET",
-    path: "/preferences",
-    auth: "key",
-    description: "Notification preferences, including watch alerts.",
-  },
-  {
-    method: "PATCH",
-    path: "/preferences",
-    auth: "key",
-    description: "Update any notification preference by sending its new value.",
-  },
-  {
-    method: "POST",
-    path: "/generate",
-    auth: "key",
-    description:
-      "Turn a brief into name candidates with rationales, without creating a search.",
-  },
-  {
-    method: "POST",
-    path: "/searches",
-    auth: "key",
-    description:
-      "Create an empty search for a brief. Accounts spend one search.",
-  },
-  {
-    method: "POST",
-    path: "/searches/generate",
-    auth: "key",
-    description:
-      "Generate names for a brief, check them, and stream the results as they land. Accounts spend one search.",
-  },
-  {
-    method: "POST",
-    path: "/checks/direct",
-    auth: "key",
-    description:
-      "Check one exact name without generation. Accounts spend one search, and the first check on a name is free.",
-  },
-  {
-    method: "POST",
-    path: "/searches/{id}/names",
-    auth: "key",
-    description: "Add a name to an existing search.",
-  },
-  {
-    method: "POST",
-    path: "/names/{id}/checks",
-    auth: "key",
-    description:
-      "Run a check on one name. Free on the first attempt, then one report credit.",
-  },
-  {
-    method: "POST",
-    path: "/searches/{id}/check-all",
-    auth: "key",
-    description: "Queue checks for every unchecked name in a search.",
-  },
-  {
-    method: "GET",
-    path: "/searches/{id}/header",
-    auth: "key",
-    description:
-      "Generation progress plus the sharpened brief the studios worked from.",
-  },
-  {
-    method: "GET",
-    path: "/searches/{id}/results",
-    auth: "key",
-    description:
-      "Scored results, and while a check runs, the live partial data per name.",
-  },
-  {
-    method: "GET",
-    path: "/names/checked",
-    auth: "key",
-    description:
-      "Your checked names with scores and tiers, searchable and paginated.",
-  },
-  {
-    method: "GET",
-    path: "/reports/{public_id}",
-    auth: "none",
-    description: "A full report snapshot by its public id.",
-  },
-  {
-    method: "GET, POST",
-    path: "/watches",
-    auth: "key",
-    description: "List or create watchlist entries. Watching is free.",
-  },
-  {
-    method: "PATCH, DELETE",
-    path: "/watches/{id}",
-    auth: "key",
-    description: "Edit what a watch tracks, or stop watching.",
-  },
-  {
-    method: "POST",
-    path: "/watches/{id}/sweep",
-    auth: "key",
-    description: "Recheck a watched name immediately instead of waiting.",
-  },
-  {
-    method: "GET",
-    path: "/packs",
-    auth: "none",
-    description: "Credit packs and prices.",
-  },
-  {
-    method: "POST",
-    path: "/checkout",
-    auth: "key",
-    description: "Start a Stripe Checkout session for a pack.",
-  },
-  {
-    method: "GET",
-    path: "/orders",
-    auth: "key",
-    description: "Your purchase history with receipt links.",
-  },
-  {
-    method: "GET, POST",
-    path: "/api-keys",
-    auth: "session",
-    description:
-      "Manage API keys. Session only, so a leaked key cannot mint another.",
-  },
-  {
-    method: "DELETE",
-    path: "/api-keys/{id}",
-    auth: "session",
-    description: "Revoke a key. Session only.",
-  },
-  {
-    method: "GET",
-    path: "/health",
-    auth: "none",
-    description: "Liveness check.",
-  },
-]
-
-const AUTH_LABEL: Record<string, string> = {
-  key: "API key",
-  session: "Session",
-  none: "Public",
-}
 
 export default function ApiDocsPage() {
   return (
@@ -223,17 +61,27 @@ export default function ApiDocsPage() {
       </section>
 
       <section id="sandbox" className="scroll-mt-20 border-b px-4 py-10">
-        <div className="mx-auto max-w-7xl space-y-4">
+        <div className="mx-auto max-w-4xl space-y-4">
           <div className="space-y-1 sm:text-center">
             <h2 className="font-heading text-2xl font-semibold md:text-3xl">
-              Play with it first
+              The interactive reference
             </h2>
             <p className="mx-auto max-w-prose text-sm text-muted-foreground">
-              No curl needed to see what a response looks like. Run the real
-              endpoints against your real account, right here.
+              Every endpoint is documented with its request body, parameters,
+              and both success and error responses, and each one carries a
+              send-request panel. Paste your key once and fire real calls from
+              the page, with the response rendered right there.
             </p>
           </div>
-          <ApiSandbox />
+          <div className="flex flex-col items-center gap-3 border p-6 sm:flex-row sm:justify-between">
+            <p className="max-w-prose text-sm text-muted-foreground">
+              Twenty-two endpoints, schemas taken from the running backend,
+              and a playground that talks to production.
+            </p>
+            <Button size="lg" asChild>
+              <a href="/api/docs/reference">Open the reference</a>
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -341,41 +189,6 @@ curl -X POST ${BASE}/watches/1/sweep \\
   -H "Authorization: Bearer uba_live_YOUR_KEY"`}
             />
           </div>
-        </div>
-      </section>
-
-      <section className="border-b px-4 py-10">
-        <div className="mx-auto max-w-7xl space-y-6">
-          <div className="space-y-1 sm:text-center">
-            <h2 className="font-heading text-2xl font-semibold md:text-3xl">
-              Endpoints
-            </h2>
-            <p className="mx-auto max-w-prose text-sm text-muted-foreground">
-              Everything relevant to an API key. All paths sit under{" "}
-              <code className="font-mono text-xs">{BASE}</code>.
-            </p>
-          </div>
-          <ul className="divide-y divide-border border">
-            {ENDPOINTS.map((endpoint) => (
-              <li
-                key={`${endpoint.method} ${endpoint.path}`}
-                className="flex flex-col gap-1 p-3 sm:flex-row sm:items-baseline sm:gap-4"
-              >
-                <span className="flex shrink-0 items-center gap-2">
-                  <span className="border px-1.5 py-0.5 font-mono text-[0.625rem] font-semibold tracking-wider uppercase">
-                    {endpoint.method}
-                  </span>
-                  <code className="font-mono text-xs">{endpoint.path}</code>
-                </span>
-                <span className="min-w-0 flex-1 text-sm text-muted-foreground">
-                  {endpoint.description}
-                </span>
-                <span className="shrink-0 text-xs text-muted-foreground">
-                  {AUTH_LABEL[endpoint.auth]}
-                </span>
-              </li>
-            ))}
-          </ul>
         </div>
       </section>
 
