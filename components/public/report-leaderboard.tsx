@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { TierBadge, type Tier } from "@/components/tier-badge"
+import CopyPermalink from "@/components/public/copy-permalink"
 import { cn } from "@/lib/utils"
 
 export type LeaderboardCheck = {
@@ -138,11 +139,12 @@ export default function ReportLeaderboard({
                       ) : null}
                     </span>
                   </div>
-                  <div className="shrink-0 text-end">
+                  <div className="shrink-0 space-y-2 text-end">
                     <p className="font-heading text-3xl leading-none font-semibold tabular-nums">
                       {entry.check.overall_score}
                     </p>
                     <p className="text-xs text-muted-foreground">/100</p>
+                    <CopyPermalink name={entry.name} />
                   </div>
                 </li>
               )

@@ -4,17 +4,19 @@ import { Suspense } from "react"
 import LiveSearch from "@/components/dashboard/live-search"
 import { TableSkeleton } from "@/components/dashboard/skeletons"
 import DirectCheckKickoff from "@/components/public/direct-check-kickoff"
+import CopyPermalink from "@/components/public/copy-permalink"
 import PrompterCta from "@/components/public/prompter-cta"
 import ReportLeaderboard from "@/components/public/report-leaderboard"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { ApiError, searchByQuery } from "@/lib/api"
+import { ApiError, getReport, searchByQuery, type CheckReport } from "@/lib/api"
 import {
   getCachedSearchHeader,
   getCachedSearchResultsPage,
   getCachedSearchSummary,
 } from "@/lib/dashboard-data"
+import { getMeServer } from "@/lib/api-server"
 import { formatDateTime } from "@/lib/utils"
 import { OG_PATH, SITE_URL } from "@/lib/site"
 
@@ -139,6 +141,17 @@ export default async function CheckNamePage({ params, searchParams }: PageProps)
     const star = checked.find(
       (candidate) => candidate.name.toLowerCase() === decoded.toLowerCase()
     )!
+    let report: CheckReport | null = null
+    try {
+      report = await getReport(star.check.public_id)
+    } catch {
+      report = null
+    }
+    const freeDomains =
+      report?.domains.filter((domain) => domain.status === "available") ?? []
+    const claimedHandles =
+      report?.socials.filter((social) => social.status !== "available") ?? []
+    const user = await getMeServer().catch(() => null)
 
     return (
       <>
@@ -164,10 +177,69 @@ export default async function CheckNamePage({ params, searchParams }: PageProps)
               any name of your own at the bottom of this page.
             </p>
           </div>
-          <Button size="lg" asChild>
-            <Link href="#check-yours">Check a name of your own</Link>
-          </Button>
+          <span className="flex flex-wrap items-center justify-center gap-2">
+            <Button size="lg" asChild>
+              <Link href="#check-yours">Check a name of your own</Link>
+            </Button>
+            <CopyPermalink name={decoded} size="default" variant="outline" />
+          </span>
         </section>
+
+        {report ? (
+          <section className="border-b px-4 py-6">
+            <div className="mx-auto grid max-w-7xl gap-px border bg-border md:grid-cols-2">
+              <div className="space-y-2 bg-background p-4">
+                <p className="text-sm font-medium">Free to register right now</p>
+                {freeDomains.length ? (
+                  <p className="flex flex-wrap gap-1.5">
+                    {freeDomains.slice(0, 8).map((domain) => (
+                      <span
+                        key={domain.tld}
+                        className="border border-green-600/30 bg-green-600/10 px-2 py-0.5 font-mono text-xs text-green-700 dark:border-green-400/30 dark:bg-green-400/10 dark:text-green-400"
+                      >
+                        {domain.domain}
+                      </span>
+                    ))}
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    None of the checked extensions are free right now.
+                  </p>
+                )}
+                {freeDomains.length > 8 ? (
+                  <p className="text-xs text-muted-foreground">
+                    {freeDomains.length - 8} more extensions are free as well.
+                  </p>
+                ) : null}
+              </div>
+              <div className="space-y-2 bg-background p-4">
+                <p className="text-sm font-medium">Handles already claimed</p>
+                {claimedHandles.length ? (
+                  <ul className="space-y-1">
+                    {claimedHandles.slice(0, 6).map((social) => (
+                      <li
+                        key={social.platform}
+                        className="font-mono text-xs text-muted-foreground line-through decoration-border"
+                      >
+                        @{social.handle} on {social.platform}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Every checked handle is still open.
+                  </p>
+                )}
+                {claimedHandles.length > 6 ? (
+                  <p className="text-xs text-muted-foreground">
+                    {claimedHandles.length - 6} more claimed across the checked
+                    platforms.
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         <section className="px-4 py-10">
           <div className="mx-auto max-w-7xl space-y-6">
@@ -176,6 +248,18 @@ export default async function CheckNamePage({ params, searchParams }: PageProps)
               uncheckedNames={uncheckedNames}
               highlight={decoded}
             />
+            <div className="flex flex-wrap items-center justify-between gap-3 border p-4">
+              <p className="max-w-prose text-sm text-muted-foreground">
+                {user
+                  ? `Star ${star.name} on your watchlist and we recheck its domains and handles every few hours, emailing you the moment something changes. Watching is free.`
+                  : `Sign in to star ${star.name}: we recheck its domains and handles every few hours and email you the moment something changes. Watching is free.`}
+              </p>
+              <Button asChild>
+                <Link href={user ? "/dashboard/watch" : "/auth"}>
+                  {user ? "Open your watchlist" : "Sign in to watch it"}
+                </Link>
+              </Button>
+            </div>
             <div
               id="check-yours"
               className="space-y-3 border-t pt-8 sm:mx-auto sm:max-w-prose sm:text-center"
