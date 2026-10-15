@@ -126,6 +126,15 @@ export default async function PublicSearchPage({ params }: PageProps) {
         <Button size="lg" asChild>
           <Link href="#check-yours">Check your own name</Link>
         </Button>
+        {checked.length > 0 ? (
+          <span className="flex justify-center">
+            <CopyPermalink
+              name={checked[0].name.name}
+              size="default"
+              variant="outline"
+            />
+          </span>
+        ) : null}
       </section>
 
       <section className="border-b px-4 py-6">
@@ -155,6 +164,83 @@ export default async function PublicSearchPage({ params }: PageProps) {
 
       <section className="px-4 py-10">
         <div className="mx-auto max-w-7xl space-y-6">
+          {topPick && topReport ? (
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <h2 className="font-heading text-2xl font-semibold md:text-3xl">
+                  A closer look at the top pick, {topPick.name.name}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  The details behind its {topPick.check.overall_score} out of
+                  100, from the same check.
+                </p>
+              </div>
+              <div className="grid gap-px border bg-border md:grid-cols-2">
+                <div className="space-y-2 bg-background p-4">
+                  <p className="text-sm font-medium">Free to register right now</p>
+                  {freeDomains.length ? (
+                    <p className="flex flex-wrap gap-1.5">
+                      {freeDomains.slice(0, 8).map((domain) => (
+                        <span
+                          key={domain.tld}
+                          className="border border-green-600/30 bg-green-600/10 px-2 py-0.5 font-mono text-xs text-green-700 dark:border-green-400/30 dark:bg-green-400/10 dark:text-green-400"
+                        >
+                          {domain.domain}
+                        </span>
+                      ))}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      None of the checked extensions are free right now.
+                    </p>
+                  )}
+                  {freeDomains.length > 8 ? (
+                    <p className="text-xs text-muted-foreground">
+                      {freeDomains.length - 8} more extensions are free as well.
+                    </p>
+                  ) : null}
+                </div>
+                <div className="space-y-2 bg-background p-4">
+                  <p className="text-sm font-medium">Handles already claimed</p>
+                  {claimedHandles.length ? (
+                    <ul className="space-y-1">
+                      {claimedHandles.slice(0, 6).map((social) => (
+                        <li
+                          key={social.platform}
+                          className="font-mono text-xs text-muted-foreground line-through decoration-border"
+                        >
+                          @{social.handle} on {social.platform}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Every checked handle is still open.
+                    </p>
+                  )}
+                  {claimedHandles.length > 6 ? (
+                    <p className="text-xs text-muted-foreground">
+                      {claimedHandles.length - 6} more claimed across the
+                      checked platforms.
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-3 border p-4">
+                <p className="max-w-prose text-sm text-muted-foreground">
+                  {user
+                    ? `Star ${topPick.name.name} on your watchlist and we recheck its domains and handles every few hours, emailing you the moment something changes. Watching is free.`
+                    : `Sign in to star ${topPick.name.name}: we recheck its domains and handles every few hours and email you the moment something changes. Watching is free.`}
+                </p>
+                <Button asChild>
+                  <Link href={user ? "/dashboard/watch" : "/auth"}>
+                    {user ? "Open your watchlist" : "Sign in to watch it"}
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          ) : null}
+
           {checked.length > 0 ? (
             <ReportLeaderboard
               entries={checked.map((entry) => ({
