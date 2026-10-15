@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { JsonLd } from "@/components/app/json-ld"
+import ApiSandbox from "@/components/public/api-sandbox"
 import CopyCode from "@/components/public/copy-code"
 import { SITE_URL, pageMetadata } from "@/lib/site"
 
@@ -61,27 +62,19 @@ export default function ApiDocsPage() {
       </section>
 
       <section id="sandbox" className="scroll-mt-20 border-b px-4 py-10">
-        <div className="mx-auto max-w-4xl space-y-4">
+        <div className="mx-auto max-w-7xl space-y-4">
           <div className="space-y-1 sm:text-center">
             <h2 className="font-heading text-2xl font-semibold md:text-3xl">
-              The interactive reference
+              Try it from this page
             </h2>
             <p className="mx-auto max-w-prose text-sm text-muted-foreground">
-              Every endpoint is documented with its request body, parameters,
-              and both success and error responses, and each one carries a
-              send-request panel. Paste your key once and fire real calls from
-              the page, with the response rendered right there.
+              Every documented endpoint sits below with its path, parameters,
+              and request body ready to edit. Paste your key, change what you
+              want, and send the request to production from your browser, with
+              the response rendered right there.
             </p>
           </div>
-          <div className="flex flex-col items-center gap-3 border p-6 sm:flex-row sm:justify-between">
-            <p className="max-w-prose text-sm text-muted-foreground">
-              Twenty-two endpoints, schemas taken from the running backend,
-              and a playground that talks to production.
-            </p>
-            <Button size="lg" asChild>
-              <a href="/api/docs/reference">Open the reference</a>
-            </Button>
-          </div>
+          <ApiSandbox />
         </div>
       </section>
 
