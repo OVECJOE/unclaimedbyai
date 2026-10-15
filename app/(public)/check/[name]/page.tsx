@@ -33,7 +33,9 @@ export async function generateMetadata({
   return {
     title: `Check the name "${decoded}"`,
     description: `Live check of "${decoded}": domain availability, open social handles, and what AI models already associate with it.`,
-    alternates: { canonical: `/check/${name}` },
+    // The /searches sibling owns the ranking for this content; the
+    // permalink exists for humans and links, so point crawlers home.
+    alternates: { canonical: `/searches/${name}` },
     openGraph: {
       title: `Check the name "${decoded}"`,
       description: `Domains, handles, and AI associations for "${decoded}".`,
