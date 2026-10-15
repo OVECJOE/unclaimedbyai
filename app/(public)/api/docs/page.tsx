@@ -51,7 +51,7 @@ export default function ApiDocsPage() {
             watchlist. One key, your account, your credits.
           </p>
         </div>
-        <div className="flex flex-wrap justify-center gap-2">
+        <div className="flex flex-col md:flex-row md:justify-center gap-2">
           <Button size="lg" asChild>
             <Link href="#sandbox">Try it in the sandbox</Link>
           </Button>
