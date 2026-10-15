@@ -233,7 +233,7 @@ function NameRow({
           ) : null}
         </span>
         {result.rationale ? (
-          <span className="mt-0.5 block truncate pl-8 text-xs text-muted-foreground italic">
+          <span className="mt-0.5 block truncate pl-8 text-xs text-muted-foreground italic max-w-sm">
             {result.rationale}
           </span>
         ) : null}

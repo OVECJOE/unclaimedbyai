@@ -2,11 +2,18 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import ReportLeaderboard from "@/components/public/report-leaderboard"
+import CopyPermalink from "@/components/public/copy-permalink"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { JsonLd } from "@/components/app/json-ld"
 import PrompterCta from "@/components/public/prompter-cta"
-import { ApiError, searchByQuery } from "@/lib/api"
+import {
+  ApiError,
+  getReport,
+  searchByQuery,
+  type CheckReport,
+} from "@/lib/api"
+import { getMeServer } from "@/lib/api-server"
 import { formatDateTime } from "@/lib/utils"
 import { OG_PATH, SITE_URL } from "@/lib/site"
 
@@ -63,6 +70,20 @@ export default async function PublicSearchPage({ params }: PageProps) {
           checked.length
       )
     : null
+  const topPick = checked[0] ?? null
+  let topReport: CheckReport | null = null
+  if (topPick) {
+    try {
+      topReport = await getReport(topPick.check.public_id)
+    } catch {
+      topReport = null
+    }
+  }
+  const freeDomains =
+    topReport?.domains.filter((domain) => domain.status === "available") ?? []
+  const claimedHandles =
+    topReport?.socials.filter((social) => social.status !== "available") ?? []
+  const user = await getMeServer().catch(() => null)
 
   return (
     <>

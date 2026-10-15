@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge"
 import { TierBadge, type Tier } from "@/components/tier-badge"
 import CopyPermalink from "@/components/public/copy-permalink"
 import { cn } from "@/lib/utils"
@@ -35,14 +34,6 @@ const AI_VERDICT_LABEL: Record<string, string> = {
   good: "AI light overlap",
   okay: "AI overlap",
   poor: "AI collision",
-}
-
-const AI_VERDICT_TONE: Record<string, string> = {
-  excellent:
-    "border-green-600/30 text-green-700 dark:border-green-400/30 dark:text-green-400",
-  good: "border-primary/40 text-primary",
-  okay: "border-amber-500/40 text-amber-700 dark:text-amber-500",
-  poor: "border-destructive/40 text-destructive",
 }
 
 export default function ReportLeaderboard({
@@ -109,33 +100,39 @@ export default function ReportLeaderboard({
                         {entry.about}
                       </p>
                     ) : null}
-                    <span className="flex flex-wrap gap-1.5">
+                    <span className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 text-xs text-muted-foreground">
                       {domains ? (
-                        <Badge
-                          variant="outline"
-                          className="text-xs font-normal"
-                        >
-                          Domains {domains.items_passed}/{domains.items_checked}{" "}
-                          free
-                        </Badge>
+                        <span>
+                          <span className="font-medium text-foreground tabular-nums">
+                            {domains.items_passed}/{domains.items_checked}
+                          </span>{" "}
+                          domains free
+                        </span>
                       ) : null}
                       {handles ? (
-                        <Badge
-                          variant="outline"
-                          className="text-xs font-normal"
-                        >
-                          Handles {handles.items_passed}/{handles.items_checked}{" "}
-                          open
-                        </Badge>
+                        <span>
+                          <span className="font-medium text-foreground tabular-nums">
+                            {handles.items_passed}/{handles.items_checked}
+                          </span>{" "}
+                          handles open
+                        </span>
                       ) : null}
                       {ai ? (
-                        <Badge
-                          className={`text-xs font-normal ${
-                            AI_VERDICT_TONE[ai.verdict] ?? ""
-                          }`}
-                        >
+                        <span className="inline-flex items-center gap-1.5">
+                          <span
+                            className={cn(
+                              "size-1.5 rounded-full",
+                              ai.verdict === "excellent"
+                                ? "bg-green-600"
+                                : ai.verdict === "good"
+                                  ? "bg-primary"
+                                  : ai.verdict === "okay"
+                                    ? "bg-amber-500"
+                                    : "bg-red-600"
+                            )}
+                          />
                           {AI_VERDICT_LABEL[ai.verdict] ?? "AI checked"}
-                        </Badge>
+                        </span>
                       ) : null}
                     </span>
                   </div>
