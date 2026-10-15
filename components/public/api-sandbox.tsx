@@ -1,11 +1,20 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { useTheme } from "next-themes"
+import { Highlight, themes, Prism } from "prism-react-renderer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
+
+// Register JSON and bash grammars on the shared Prism instance; the
+// dynamic imports cannot hoist above this assignment.
+const globalScope = globalThis as { Prism?: typeof Prism }
+if (!globalScope.Prism) globalScope.Prism = Prism
+void import("prismjs/components/prism-json")
+void import("prismjs/components/prism-bash")
 
 type SandboxEndpoint = {
   id: string
@@ -155,6 +164,7 @@ function pathParamsOf(path: string): string[] {
  * production from this tab. The key never leaves the browser.
  */
 export default function ApiSandbox() {
+  const { theme } = useTheme()
   const [key, setKey] = useState("")
   const [selected, setSelected] = useState<SandboxEndpoint>(ENDPOINTS[1])
   const [pathValues, setPathValues] = useState<Record<string, string>>({})
@@ -168,6 +178,16 @@ export default function ApiSandbox() {
   } | null>(null)
 
   const params = useMemo(() => pathParamsOf(selected.path), [selected])
+  const bodyInvalid = useMemo(() => {
+    if (!body.trim()) return false
+    try {
+      JSON.parse(body)
+      return false
+    } catch {
+      return true
+    }
+  }, [body])
+  const codeTheme = theme === "dark" ? themes.nightOwl : themes.github
 
   function pick(endpoint: SandboxEndpoint) {
     setSelected(endpoint)
@@ -345,14 +365,50 @@ export default function ApiSandbox() {
               <Label htmlFor="sandbox-body" className="font-mono text-xs">
                 Request body
               </Label>
-              <Textarea
-                id="sandbox-body"
-                value={body}
-                onChange={(event) => setBody(event.target.value)}
-                rows={5}
-                className="font-mono text-xs"
-                spellCheck={false}
-              />
+              <div className="relative min-h-[7rem] border bg-muted/40">
+                <pre
+                  aria-hidden="true"
+                  className="overflow-x-auto p-3 font-mono text-xs leading-relaxed"
+                >
+                  <Highlight
+                    theme={codeTheme}
+                    code={body || " "}
+                    language="json"
+                  >
+                    {({ style, tokens, getLineProps, getTokenProps }) => (
+                      <code
+                        style={{ ...style, background: "transparent" }}
+                        className="block whitespace-pre-wrap"
+                      >
+                        {tokens.map((line, lineIndex) => (
+                          <div key={lineIndex} {...getLineProps({ line })}>
+                            {line.map((token, tokenIndex) => (
+                              <span
+                                key={tokenIndex}
+                                {...getTokenProps({ token })}
+                              />
+                            ))}
+                          </div>
+                        ))}
+                      </code>
+                    )}
+                  </Highlight>
+                </pre>
+                <Textarea
+                  id="sandbox-body"
+                  value={body}
+                  onChange={(event) => setBody(event.target.value)}
+                  spellCheck={false}
+                  wrap="soft"
+                  className="absolute inset-0 resize-none border-0 bg-transparent p-3 font-mono text-xs leading-relaxed text-transparent caret-foreground shadow-none focus-visible:ring-1 focus-visible:ring-primary"
+                />
+              </div>
+              {bodyInvalid ? (
+                <p className="text-xs text-destructive">
+                  This is not valid JSON yet. The request will fail as
+                  written.
+                </p>
+              ) : null}
             </div>
           ) : null}
 
@@ -384,9 +440,31 @@ export default function ApiSandbox() {
                   {resolvedPath()} in {result.ms}ms
                 </span>
               </p>
-              <pre className="max-h-80 overflow-auto border bg-muted/40 p-3 font-mono text-xs leading-relaxed">
-                {JSON.stringify(result.body, null, 2)}
-              </pre>
+              <div className="max-h-80 overflow-auto border bg-muted/40 p-3">
+                <Highlight
+                  theme={codeTheme}
+                  code={JSON.stringify(result.body, null, 2)}
+                  language="json"
+                >
+                  {({ style, tokens, getLineProps, getTokenProps }) => (
+                    <pre
+                      className="font-mono text-xs leading-relaxed"
+                      style={{ ...style, background: "transparent" }}
+                    >
+                      {tokens.map((line, lineIndex) => (
+                        <div key={lineIndex} {...getLineProps({ line })}>
+                          {line.map((token, tokenIndex) => (
+                            <span
+                              key={tokenIndex}
+                              {...getTokenProps({ token })}
+                            />
+                          ))}
+                        </div>
+                      ))}
+                    </pre>
+                  )}
+                </Highlight>
+              </div>
             </div>
           ) : null}
         </div>
