@@ -82,6 +82,10 @@ export default async function PricingPage() {
       title: "Get more searches",
       body: `Each report you buy also adds ${SEARCHES_PER_REPORT} searches, so bigger packs go further.`,
     },
+    {
+      title: "Watch while you decide",
+      body: "Star any name and we recheck its domains and handles every few hours for free, emailing you the moment something gets claimed.",
+    },
   ]
 
   return (
@@ -155,7 +159,7 @@ export default async function PricingPage() {
           <h2 className="font-heading text-2xl font-semibold md:text-3xl">
             How reports work
           </h2>
-          <ol className="grid grid-cols-1 gap-4 text-left md:grid-cols-3">
+          <ol className="grid grid-cols-1 gap-4 text-left md:grid-cols-2 lg:grid-cols-4">
             {steps.map((step, index) => (
               <li key={step.title} className="space-y-2 border p-5">
                 <span className="font-mono text-sm text-muted-foreground">

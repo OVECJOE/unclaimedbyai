@@ -2,7 +2,12 @@ import { Badge } from "@/components/ui/badge"
 import PrompterCta from "@/components/public/prompter-cta"
 import PublicSearchesStrip from "@/components/public/public-searches-strip"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { AtIcon, BrainIcon, InternetIcon } from "@hugeicons/core-free-icons"
+import {
+  AtIcon,
+  BrainIcon,
+  InternetIcon,
+  StarIcon,
+} from "@hugeicons/core-free-icons"
 import {
   Avatar,
   AvatarFallback,
@@ -74,7 +79,7 @@ export default async function Page() {
 
       {/* Things to know */}
       <section className="border-b px-4 py-10">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <article className="flex items-start gap-2">
             <Badge
               className="bg-primary/20 p-2 text-primary dark:bg-primary/30 dark:text-primary-foreground"
@@ -123,6 +128,23 @@ export default async function Page() {
               </p>
             </div>
           </article>
+          <article className="flex items-start gap-2">
+            <Badge
+              className="bg-primary/20 p-2 text-primary dark:bg-primary/30 dark:text-primary-foreground"
+              asChild
+            >
+              <HugeiconsIcon icon={StarIcon} className="size-10" />
+            </Badge>
+            <div className="space-y-1">
+              <h3 className="font-heading text-xl font-semibold md:text-2xl">
+                Watch
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Star a name and we recheck it every few hours, free, emailing
+                you the moment something gets claimed.
+              </p>
+            </div>
+          </article>
         </div>
       </section>
 
@@ -134,7 +156,7 @@ export default async function Page() {
               How it works
             </h2>
             <p className="text-muted-foreground md:text-lg">
-              Three simple steps to find a name you can actually own.
+              Four simple steps to find a name you can actually own.
             </p>
           </div>
           <div className="flex flex-col gap-8 sm:flex-row sm:justify-center sm:gap-3">
@@ -171,6 +193,18 @@ export default async function Page() {
                 <h4 className="font-heading text-xl font-medium">Claim it</h4>
                 <p className="text-sm text-muted-foreground">
                   Choose a name with confidence and build without the risk.
+                </p>
+              </div>
+            </article>
+            <article className="flex-1 space-y-2 border border-primary/20 bg-sidebar/80 px-3 py-5 text-start sm:border-0">
+              <h5 className="font-heading text-xs font-bold text-primary uppercase">
+                Step 4
+              </h5>
+              <div className="space-y-1">
+                <h4 className="font-heading text-xl font-medium">Watch it</h4>
+                <p className="text-sm text-muted-foreground">
+                  Star your favorites and we keep rechecking their domains and
+                  handles while you decide.
                 </p>
               </div>
             </article>

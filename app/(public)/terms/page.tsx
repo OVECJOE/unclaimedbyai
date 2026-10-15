@@ -84,14 +84,15 @@ const sections: LegalSection[] = [
   {
     id: "credits-payments",
     title: "Credits and payments",
-    plain: `You start with ${FREE_SEARCHES} free searches. Extra searches and re-checks cost credits, bought as one-off packs. No subscriptions, no auto-charges.`,
+    plain: `You start with ${FREE_SEARCHES} free searches and the first check on every name is free. Packs grant both searches for new ideas and report credits for re-checks. No subscriptions, no auto-charges.`,
     body: (
       <>
         <p>
           New accounts receive {FREE_SEARCHES} free searches, and the first
-          check on every name is free. When those run out, further searches and
-          re-checks consume credits, which you buy as one-off report packs.
-          Current packs and prices are listed on the{" "}
+          check on every name is free. Packs grant both allowances: searches
+          generate new name ideas, and one report credit covers a re-check of
+          a name you already checked. Current packs and prices are listed on
+          the{" "}
           <Link href="/pricing">pricing page</Link>.
         </p>
         <ul>

@@ -208,10 +208,11 @@ export default function ProductPage() {
               </div>
             }
           >
-            GitHub and npm have public APIs that give a straight yes or no, so
-            those results are exact. X and Instagram don&apos;t offer that, so
-            we check the live profile page instead and label it a best guess.
-            We&apos;d rather tell you the limit than fake a green checkmark.
+            GitHub has a public API that gives a straight yes or no, so
+            those results are exact. X, Instagram, TikTok and YouTube don&apos;t
+            offer that, so we check the live profile page instead and label it
+            a best guess. We&apos;d rather tell you the limit than fake a green
+            checkmark.
           </FeatureRow>
         </div>
       </section>

@@ -36,7 +36,7 @@ export const FAQS = [
     id: "what-does-unclaimedbyai-check-when-i-enter-a-name",
     question: "What does UnclaimedbyAI check when I enter a name?",
     answer:
-      "It runs three checks together. It looks up whether the matching domain is registered on .com, .ai, .io and .co, it checks whether the same handle is free on GitHub, npm, X and Instagram, and it asks ChatGPT, Claude and Perplexity whether they already associate the name with an existing company or product. Each result comes with the evidence behind it, so you can judge the risk yourself.",
+      "It runs three checks together. It looks up whether the matching domain is registered on .com, .ai, .io and .co, it checks whether the same handle is free on GitHub, X, Instagram, TikTok and YouTube, and it asks ChatGPT, Claude and Perplexity whether they already associate the name with an existing company or product. Each result comes with the evidence behind it, so you can judge the risk yourself.",
   },
   {
     id: "how-do-you-check-whether-domain-name-is-available",
@@ -48,7 +48,7 @@ export const FAQS = [
     id: "are-the-social-handle-results-accurate",
     question: "Are the social handle results accurate?",
     answer:
-      "GitHub and npm publish public APIs that give a definite yes or no, so those results are exact. X and Instagram offer nothing comparable, so we load the public profile page and label the result a best guess. A best guess is usually right, but confirm it on the platform itself before you commit to a handle in your branding.",
+      "GitHub publishes a public API that gives a definite yes or no, so those results are exact. X, Instagram, TikTok and YouTube offer nothing comparable, so we load the public profile page and label the result a best guess. A best guess is usually right, but confirm it on the platform itself before you commit to a handle in your branding.",
   },
   {
     id: "what-is-ai-association-check-and-why-does-it-matter-for-new-name",
@@ -123,9 +123,9 @@ export const PROOF_POINTS = [
   },
   {
     label: "Handles",
-    value: "2",
-    caption: "platforms verified with an exact API",
-    chips: ["GitHub", "npm"],
+    value: "5",
+    caption: "platforms checked live, GitHub verified exactly",
+    chips: ["GitHub", "X", "Instagram", "TikTok", "YouTube"],
     live: false,
   },
   {
