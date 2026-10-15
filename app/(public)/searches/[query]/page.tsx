@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { TierBadge, type Tier } from "@/components/tier-badge"
+import ReportLeaderboard from "@/components/public/report-leaderboard"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { JsonLd } from "@/components/app/json-ld"
@@ -13,25 +13,6 @@ import { OG_PATH, SITE_URL } from "@/lib/site"
 export const revalidate = 3600
 
 type PageProps = { params: Promise<{ query: string }> }
-
-function toTier(level: "excellent" | "good" | "okay" | "poor"): Tier {
-  return (level.charAt(0).toUpperCase() + level.slice(1)) as Tier
-}
-
-const AI_VERDICT_LABEL: Record<string, string> = {
-  excellent: "AI clean",
-  good: "AI light overlap",
-  okay: "AI overlap",
-  poor: "AI collision",
-}
-
-const AI_VERDICT_TONE: Record<string, string> = {
-  excellent:
-    "border-green-600/30 text-green-700 dark:border-green-400/30 dark:text-green-400",
-  good: "border-primary/40 text-primary",
-  okay: "border-amber-500/40 text-amber-700 dark:text-amber-500",
-  poor: "border-destructive/40 text-destructive",
-}
 
 export async function generateMetadata({
   params,
@@ -154,96 +135,15 @@ export default async function PublicSearchPage({ params }: PageProps) {
       <section className="px-4 py-10">
         <div className="mx-auto max-w-7xl space-y-6">
           {checked.length > 0 ? (
-            <>
-              <div className="space-y-1">
-                <h2 className="font-heading text-2xl font-semibold md:text-3xl">
-                  The names, ranked
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Safest to build on first. Each row shows the score, the
-                  verdict behind it, and what the three checks found.
-                </p>
-              </div>
-              <ol className="divide-y divide-border border">
-                {checked.map((entry, index) => {
-                  const pillars = Object.fromEntries(
-                    (entry.check.pillars ?? []).map((pillar) => [
-                      pillar.pillar_type,
-                      pillar,
-                    ])
-                  )
-                  const domains = pillars.domain
-                  const handles = pillars.social
-                  const ai = pillars.ai_association
-                  return (
-                    <li
-                      key={entry.name.id}
-                      className="flex items-center gap-4 p-4 sm:p-5"
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="w-6 shrink-0 text-end font-mono text-sm text-muted-foreground tabular-nums"
-                      >
-                        {index + 1}
-                      </span>
-                      <div className="min-w-0 flex-1 space-y-1.5">
-                        <span className="flex flex-wrap items-center gap-2">
-                          <h3 className="font-heading text-xl">
-                            {entry.name.name}
-                          </h3>
-                          <TierBadge
-                            tier={toTier(entry.check.overall_risk_level)}
-                          />
-                        </span>
-                        <p className="max-w-prose text-sm text-muted-foreground">
-                          {entry.check.judgment}
-                        </p>
-                        {entry.name.about ? (
-                          <p className="max-w-prose text-sm italic text-muted-foreground">
-                            {entry.name.about}
-                          </p>
-                        ) : null}
-                        <span className="flex flex-wrap gap-1.5">
-                          {domains ? (
-                            <Badge
-                              variant="outline"
-                              className="text-xs font-normal"
-                            >
-                              Domains {domains.items_passed}/
-                              {domains.items_checked} free
-                            </Badge>
-                          ) : null}
-                          {handles ? (
-                            <Badge
-                              variant="outline"
-                              className="text-xs font-normal"
-                            >
-                              Handles {handles.items_passed}/
-                              {handles.items_checked} open
-                            </Badge>
-                          ) : null}
-                          {ai ? (
-                            <Badge
-                              className={`text-xs font-normal ${
-                                AI_VERDICT_TONE[ai.verdict] ?? ""
-                              }`}
-                            >
-                              {AI_VERDICT_LABEL[ai.verdict] ?? "AI checked"}
-                            </Badge>
-                          ) : null}
-                        </span>
-                      </div>
-                      <div className="shrink-0 text-end">
-                        <p className="font-heading text-3xl leading-none font-semibold tabular-nums">
-                          {entry.check.overall_score}
-                        </p>
-                        <p className="text-xs text-muted-foreground">/100</p>
-                      </div>
-                    </li>
-                  )
-                })}
-              </ol>
-            </>
+            <ReportLeaderboard
+              entries={checked.map((entry) => ({
+                id: entry.name.id,
+                name: entry.name.name,
+                about: entry.name.about,
+                check: entry.check,
+              }))}
+              uncheckedNames={unchecked.map((name) => name.name)}
+            />
           ) : (
             <div className="border border-dashed p-10 text-center">
               <p className="font-heading text-2xl">
@@ -255,19 +155,6 @@ export default async function PublicSearchPage({ params }: PageProps) {
               </p>
             </div>
           )}
-
-          {unchecked.length > 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Also generated but not checked yet:{" "}
-              {unchecked.map((name, index) => (
-                <span key={name.id}>
-                  {index > 0 ? ", " : ""}
-                  {name.name}
-                </span>
-              ))}
-              .
-            </p>
-          ) : null}
 
           <div
             id="check-yours"

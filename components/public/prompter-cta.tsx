@@ -55,7 +55,7 @@ export default function PrompterCta({
           cf_turnstile_token: token ?? undefined,
         })
         router.push(
-          `/results/${result.search_id}?sid=${encodeURIComponent(getAnonSessionId())}`
+          `/check/${encodeURIComponent(value)}?s=${result.search_id}&sid=${encodeURIComponent(getAnonSessionId())}`
         )
         return
       }

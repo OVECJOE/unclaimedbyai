@@ -233,10 +233,19 @@ export default function LiveSearch({
         </BreadcrumbList>
       </Breadcrumb>
       <div className="space-y-1">
-        <QueryUnfurl query={header.query} />
+        {header.name_count === 1 && !header.brief_summary ? (
+          <h1 className="font-heading text-4xl font-semibold md:text-5xl">
+            Report for{" "}
+            <span className="text-primary">&ldquo;{header.query}&rdquo;</span>
+          </h1>
+        ) : (
+          <QueryUnfurl query={header.query} />
+        )}
         <div className="flex flex-wrap items-center gap-1">
           <span className="text-xs text-muted-foreground">
-            {header.name_count} names generated
+            {header.name_count === 1 && !header.brief_summary
+              ? "One name, checked live"
+              : `${header.name_count} names generated`}
           </span>
           <HugeiconsIcon icon={DotIcon} />
           <span className="text-xs text-muted-foreground">
