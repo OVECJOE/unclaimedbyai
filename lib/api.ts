@@ -512,8 +512,17 @@ export type ApiKeyItem = {
   created_at: string
 }
 
-export function listApiKeys(): Promise<ApiKeyItem[]> {
-  return apiRequest<ApiKeyItem[]>("/api/v1/api-keys")
+export type ApiKeyPage = {
+  items: ApiKeyItem[]
+  total: number
+  page: number
+  page_size: number
+}
+
+export function listApiKeys(page = 1, pageSize = 20): Promise<ApiKeyPage> {
+  return apiRequest<ApiKeyPage>(
+    `/api/v1/api-keys?page=${page}&page_size=${pageSize}`
+  )
 }
 
 export function createApiKey(name: string): Promise<{

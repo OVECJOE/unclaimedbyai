@@ -19,6 +19,7 @@ const navLinks = [
   { href: "/product", label: "Product" },
   { href: "/pricing", label: "Pricing" },
   { href: "/blog", label: "Blog" },
+  { href: "/api/docs", label: "Docs" },
 ]
 
 export default function AppHeader() {

@@ -68,17 +68,24 @@ function RevealPanel({
   )
 }
 
+const PAGE_SIZE = 20
+
 export default function ApiKeysSection() {
   const [keys, setKeys] = useState<ApiKeyItem[]>([])
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
   const [loaded, setLoaded] = useState(false)
   const [name, setName] = useState("")
   const [creating, setCreating] = useState(false)
   const [rawKey, setRawKey] = useState<string | null>(null)
   const [revokeOpen, setRevokeOpen] = useState<number | null>(null)
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (page: number) => {
     try {
-      setKeys(await listApiKeys())
+      const data = await listApiKeys(page, PAGE_SIZE)
+      setKeys(data.items)
+      setTotal(data.total)
+      setPage(data.page)
     } catch (error) {
       toastApiError(error, "Could not load your API keys.")
     } finally {
@@ -87,9 +94,9 @@ export default function ApiKeysSection() {
   }, [])
 
   useEffect(() => {
-    const timer = setTimeout(() => void load(), 0)
+    const timer = setTimeout(() => void load(page), 0)
     return () => clearTimeout(timer)
-  }, [load])
+  }, [load, page])
 
   async function create() {
     setCreating(true)
@@ -97,7 +104,7 @@ export default function ApiKeysSection() {
       const created = await createApiKey(name.trim())
       setRawKey(created.key)
       setName("")
-      await load()
+      await load(page)
     } catch (error) {
       toastApiError(error, "Could not create the key.")
     } finally {
@@ -110,11 +117,16 @@ export default function ApiKeysSection() {
       await revokeApiKey(key.id)
       setRevokeOpen(null)
       toast.success("Key revoked. Requests using it fail from now on.")
-      await load()
+      // Revoke can empty the last page, so step back when it does.
+      const remaining = total - 1
+      const target = remaining > 0 ? Math.min(page, Math.ceil(remaining / PAGE_SIZE)) : 1
+      await load(target)
     } catch (error) {
       toastApiError(error, "Could not revoke the key.")
     }
   }
+
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   return (
     <div className="space-y-6">
@@ -130,7 +142,7 @@ export default function ApiKeysSection() {
       {rawKey ? <RevealPanel rawKey={rawKey} onDismiss={() => setRawKey(null)} /> : null}
 
       <form
-        className="flex flex-wrap items-end gap-3"
+        className="flex flex-wrap items-end gap-3 max-w-xl"
         onSubmit={(event) => {
           event.preventDefault()
           if (!creating) void create()
@@ -175,10 +187,9 @@ export default function ApiKeysSection() {
               </div>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
                 <span>
-                  Last used{" "}
                   {key.last_used_at
-                    ? formatDateTime(key.last_used_at)
-                    : "never"}
+                    ? `Last used ${formatDateTime(key.last_used_at)}`
+                    : "Never used"}
                 </span>
                 <span>Created {formatDateTime(key.created_at)}</span>
               </div>
@@ -219,6 +230,33 @@ export default function ApiKeysSection() {
           ))}
         </ul>
       )}
+
+      {loaded && pageCount > 1 ? (
+        <nav
+          aria-label="API key pages"
+          className="flex items-center justify-between"
+        >
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={page <= 1}
+            onClick={() => setPage((current) => Math.max(1, current - 1))}
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-muted-foreground tabular-nums">
+            Page {page} of {pageCount} ({total} keys)
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={page >= pageCount}
+            onClick={() => setPage((current) => current + 1)}
+          >
+            Next
+          </Button>
+        </nav>
+      ) : null}
     </div>
   )
 }

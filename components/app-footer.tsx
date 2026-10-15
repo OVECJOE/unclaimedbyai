@@ -65,6 +65,14 @@ export default function AppFooter() {
                 </li>
                 <li>
                   <Link
+                    href="/api/docs"
+                    className="transition-colors hover:text-primary"
+                  >
+                    API docs
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href="/about"
                     className="transition-colors hover:text-primary"
                   >
