@@ -54,6 +54,13 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: [OG_PATH],
   },
+  verification: {
+    // Impact.com affiliate program (Namecheap). Proves domain ownership
+    // so Namecheap can attribute referral sales to this site.
+    other: {
+      "impact-site-verification": "36423526-c486-488d-bebe-70c91a47aab5",
+    },
+  },
 }
 
 export default function RootLayout({
