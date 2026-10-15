@@ -1,20 +1,16 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useTheme } from "next-themes"
-import { Highlight, themes, Prism } from "prism-react-renderer"
+import { Highlight, themes } from "prism-react-renderer"
+import "@/lib/prism-setup"
+import "prismjs/components/prism-json"
+import "prismjs/components/prism-bash"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
-
-// Register JSON and bash grammars on the shared Prism instance; the
-// dynamic imports cannot hoist above this assignment.
-const globalScope = globalThis as { Prism?: typeof Prism }
-if (!globalScope.Prism) globalScope.Prism = Prism
-void import("prismjs/components/prism-json")
-void import("prismjs/components/prism-bash")
 
 type SandboxEndpoint = {
   id: string
@@ -165,6 +161,7 @@ function pathParamsOf(path: string): string[] {
  */
 export default function ApiSandbox() {
   const { theme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const [key, setKey] = useState("")
   const [selected, setSelected] = useState<SandboxEndpoint>(ENDPOINTS[1])
   const [pathValues, setPathValues] = useState<Record<string, string>>({})
@@ -177,7 +174,14 @@ export default function ApiSandbox() {
     body: unknown
   } | null>(null)
 
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0)
+    return () => clearTimeout(timer)
+  }, [])
+
   const params = useMemo(() => pathParamsOf(selected.path), [selected])
+  const codeTheme =
+    mounted && theme === "dark" ? themes.nightOwl : themes.github
   const bodyInvalid = useMemo(() => {
     if (!body.trim()) return false
     try {
@@ -187,7 +191,6 @@ export default function ApiSandbox() {
       return true
     }
   }, [body])
-  const codeTheme = theme === "dark" ? themes.nightOwl : themes.github
 
   function pick(endpoint: SandboxEndpoint) {
     setSelected(endpoint)

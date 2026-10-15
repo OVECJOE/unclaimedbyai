@@ -1,22 +1,26 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { useTheme } from "next-themes"
-import { Highlight, themes, Prism } from "prism-react-renderer"
+import { Highlight, themes } from "prism-react-renderer"
+import "@/lib/prism-setup"
+import "prismjs/components/prism-bash"
 import { Button } from "@/components/ui/button"
-
-// prism-react-renderer ships only a handful of grammars and bash is not
-// one of them, so snippets rendered unhighlighted. Attach the official
-// bash grammar to the shared Prism instance; the dynamic import keeps it
-// from hoisting above this assignment, which it would evaluate first.
-const globalScope = globalThis as { Prism?: typeof Prism }
-if (!globalScope.Prism) globalScope.Prism = Prism
-void import("prismjs/components/prism-bash")
 
 export default function CopyCode({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)
   const { theme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Server and hydration render with the light theme; the dark swap
+  // happens after mount so the DOM the client hydrates matches exactly.
+  const codeTheme = mounted && theme === "dark" ? themes.nightOwl : themes.github
 
   async function copy() {
     try {
@@ -40,7 +44,7 @@ export default function CopyCode({ code }: { code: string }) {
         {copied ? "Copied" : "Copy"}
       </Button>
       <Highlight
-        theme={theme === "dark" ? themes.nightOwl : themes.github}
+        theme={codeTheme}
         code={code}
         language="bash"
       >
