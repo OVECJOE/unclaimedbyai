@@ -132,12 +132,16 @@ export default function ApiDocsPage() {
   -H "Content-Type: application/json" \\
   -d '{"name": "Nexuare"}'
 
-# → {"search_id": 123, "name_id": 456}`}
+202 Accepted
+{"search_id": 123, "name_id": 456}`}
             />
+            <p className="text-sm text-muted-foreground">
+              The results response carries scored names in items, and names
+              still running in pending, whose job snapshot fills in with
+              domains, handles, and per-model progress as it arrives.
+            </p>
             <CopyCode
-              code={`# Poll until "items" fills in; "pending" carries live
-# partial data (domains, handles, model dots) meanwhile.
-curl ${BASE}/searches/123/results \\
+              code={`curl ${BASE}/searches/123/results \\
   -H "Authorization: Bearer uba_live_YOUR_KEY"`}
             />
           </div>
@@ -157,7 +161,8 @@ curl ${BASE}/searches/123/results \\
   -H "Content-Type: application/json" \\
   -d '{"query": "an AI note-taking app for lawyers"}'
 
-# → 202 {"id": 124, "generation": {"status": "generating"}}
+202 Accepted
+{"id": 124, "generation": {"status": "generating"}}
 
 curl ${BASE}/searches/124/header \\
   -H "Authorization: Bearer uba_live_YOUR_KEY"`}

@@ -2,10 +2,13 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
+import { useTheme } from "next-themes"
+import { Highlight, themes } from "prism-react-renderer"
 import { Button } from "@/components/ui/button"
 
 export default function CopyCode({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)
+  const { theme } = useTheme()
 
   async function copy() {
     try {
@@ -23,14 +26,31 @@ export default function CopyCode({ code }: { code: string }) {
       <Button
         size="sm"
         variant="ghost"
-        className="absolute top-2 right-2 h-7 px-2 text-xs opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+        className="absolute top-2 right-2 z-10 h-7 px-2 text-xs opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
         onClick={() => void copy()}
       >
         {copied ? "Copied" : "Copy"}
       </Button>
-      <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed">
-        <code>{code}</code>
-      </pre>
+      <Highlight
+        theme={theme === "dark" ? themes.nightOwl : themes.github}
+        code={code}
+        language="bash"
+      >
+        {({ style, tokens, getLineProps, getTokenProps }) => (
+          <pre
+            className="overflow-x-auto p-4 font-mono text-xs leading-relaxed"
+            style={{ ...style, background: "transparent" }}
+          >
+            {tokens.map((line, lineIndex) => (
+              <div key={lineIndex} {...getLineProps({ line })}>
+                {line.map((token, tokenIndex) => (
+                  <span key={tokenIndex} {...getTokenProps({ token })} />
+                ))}
+              </div>
+            ))}
+          </pre>
+        )}
+      </Highlight>
     </div>
   )
 }
