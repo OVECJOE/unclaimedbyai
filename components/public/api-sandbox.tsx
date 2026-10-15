@@ -377,7 +377,11 @@ export default function ApiSandbox() {
                   >
                     {({ style, tokens, getLineProps, getTokenProps }) => (
                       <code
-                        style={{ ...style, background: "transparent" }}
+                        style={{
+                          ...style,
+                          background: "transparent",
+                          fontFamily: "inherit",
+                        }}
                         className="block whitespace-pre-wrap"
                       >
                         {tokens.map((line, lineIndex) => (
