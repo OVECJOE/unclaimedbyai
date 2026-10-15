@@ -36,7 +36,7 @@ export const FAQS = [
     id: "what-does-unclaimedbyai-check-when-i-enter-a-name",
     question: "What does UnclaimedbyAI check when I enter a name?",
     answer:
-      "It runs three checks together. It looks up whether the matching domain is registered on .com, .ai, .io and .co, it checks whether the same handle is free on GitHub, npm, X and Instagram, and it asks ChatGPT, Claude and Gemini whether they already associate the name with an existing company or product. Each result comes with the evidence behind it, so you can judge the risk yourself.",
+      "It runs three checks together. It looks up whether the matching domain is registered on .com, .ai, .io and .co, it checks whether the same handle is free on GitHub, npm, X and Instagram, and it asks ChatGPT, Claude and Perplexity whether they already associate the name with an existing company or product. Each result comes with the evidence behind it, so you can judge the risk yourself.",
   },
   {
     id: "how-do-you-check-whether-domain-name-is-available",
@@ -55,7 +55,7 @@ export const FAQS = [
     question:
       "What is an AI association check, and why does it matter for a new name?",
     answer:
-      "More people now ask ChatGPT, Claude and Gemini to explain or recommend products, and an assistant that already links your name to another business can credit that business with your reviews, pricing and reputation. We ask several models what they know about the name, separately and without any hint about your idea, then show you what they associate with it. A domain search or trademark search will never surface this kind of overlap.",
+      "More people now ask ChatGPT, Claude and Perplexity to explain or recommend products, and an assistant that already links your name to another business can credit that business with your reviews, pricing and reputation. We ask several models what they know about the name, separately and without any hint about your idea, then show you what they associate with it. A domain search or trademark search will never surface this kind of overlap.",
   },
   {
     id: "how-reliable-is-the-ai-association-check",
@@ -85,7 +85,13 @@ export const FAQS = [
     id: "can-i-check-name-i-already-have-in-mind",
     question: "Can I check a name I already have in mind?",
     answer:
-      "Yes. Type any name into the same box that generates suggestions and it goes through exactly the same checks as a generated one. This is useful when you are comparing a shortlist from a co-founder, deciding between a rebrand and your current name, or testing a name someone suggested before you spend money on it.",
+      "Yes. Switch the prompter from Idea to Name, type the exact name, and it goes through the same three checks without the generation step, landing on a shareable report page. This is useful when you are comparing a shortlist from a co-founder, deciding between a rebrand and your current name, or testing a name someone suggested before you spend money on it.",
+  },
+  {
+    id: "can-i-keep-watching-a-name-after-i-check-it",
+    question: "Can I keep watching a name after I check it?",
+    answer:
+      "Yes. Star any name in your results and it joins your watchlist, where we recheck its domains and handles every few hours and email you the moment something gets claimed. Watching a name is free, the streak on each card shows how long it has stayed untouched, and it saves you from manually re-running checks while you are still deciding.",
   },
   {
     id: "what-kinds-of-names-can-i-check",
@@ -126,7 +132,7 @@ export const PROOF_POINTS = [
     label: "AI models",
     value: "3",
     caption: "models asked, independently, no hints",
-    chips: ["GPT", "Claude", "Gemini"],
+    chips: ["GPT", "Claude", "Perplexity"],
     live: false,
   },
 ]

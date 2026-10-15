@@ -32,7 +32,7 @@ import FeatureRow from "@/components/feature-row"
 export const metadata: Metadata = pageMetadata({
   title: "What happens when you hit check?",
   description:
-    "No black box. Live RDAP domain checks, exact social handle checks, and independent AI association checks across GPT, Claude, and Gemini — with the receipts for each one.",
+    "No black box. Live RDAP domain checks, exact social handle checks, and independent AI association checks across GPT, Claude, and Perplexity, with the receipts for each one.",
   path: "/product",
 })
 
@@ -45,7 +45,7 @@ const productJsonLd = {
       name: `${SITE_NAME} name checker`,
       url: `${SITE_URL}/product`,
       description:
-        "No black box, no made-up score. Three real checks for a name: live RDAP domain lookups, exact social handle checks, and independent AI association checks across GPT, Claude, and Gemini.",
+        "No black box, no made-up score. Three real checks for a name: live RDAP domain lookups, exact social handle checks, and independent AI association checks across GPT, Claude, and Perplexity.",
       applicationCategory: "BusinessApplication",
       applicationSubCategory: "Name checker",
       operatingSystem: "Web",
@@ -53,7 +53,7 @@ const productJsonLd = {
       featureList: [
         "Live RDAP domain checks across .com, .ai, .io, and .co",
         "Exact social handle checks through public APIs",
-        "Independent AI association checks across GPT, Claude, and Gemini",
+        "Independent AI association checks across GPT, Claude, and Perplexity",
       ],
       offers: offersJsonLd,
       provider: { "@id": `${SITE_URL}/#organization` },
@@ -250,7 +250,7 @@ export default function ProductPage() {
           </div>
 
           <ul className="flex flex-wrap justify-center gap-3">
-            {["GPT", "Claude Sonnet", "Gemini"].map((model) => (
+            {["GPT", "Claude Sonnet", "Perplexity Sonar"].map((model) => (
               <li key={model}>
                 <Badge variant="outline" className="border px-5 py-2">
                   {model}

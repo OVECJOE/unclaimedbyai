@@ -132,7 +132,7 @@ export const homeJsonLd = {
   "@id": `${SITE_URL}/#webapp`,
   name: SITE_NAME,
   url: SITE_URL,
-  description: `Name checker for founders and creators. Generate name ideas and check domains, social handles, and AI associations across GPT, Claude, and Gemini before you build around one. ${FREE_SEARCHES} free searches, and the first check on every name is free.`,
+  description: `Name checker for founders and creators. Generate name ideas and check domains, social handles, and AI associations across GPT, Claude, and Perplexity before you build around one. ${FREE_SEARCHES} free searches, and the first check on every name is free.`,
   applicationCategory: "BusinessApplication",
   applicationSubCategory: "Name checker",
   operatingSystem: "Web",

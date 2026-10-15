@@ -22,7 +22,7 @@ const AUDIENCE_EXAMPLE = ["Founders", "Creators", "Makers", "Marketers"]
 export const metadata: Metadata = pageMetadata({
   title: "Discover names for your idea",
   description:
-    "Generate names for your idea, then check domains, social handles, and AI associations across GPT, Claude, and Gemini before you build around one.",
+    "Generate names for your idea, then check domains, social handles, and AI associations across GPT, Claude, and Perplexity before you build around one.",
   path: "/",
 })
 
@@ -146,7 +146,8 @@ export default async function Page() {
                 <h4 className="font-heading text-xl font-medium">Generate</h4>
                 <p className="text-sm text-muted-foreground">
                   Tell us what you&apos;re building and we&apos;ll generate
-                  names that fit.
+                  names that fit, or switch to Name mode to check one you
+                  already have in mind.
                 </p>
               </div>
             </article>

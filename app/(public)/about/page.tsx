@@ -49,7 +49,7 @@ const PRINCIPLES = [
   {
     index: "03",
     title: "The check nobody else runs",
-    body: "Every name gets asked to GPT, Claude, and Gemini independently. If a chatbot already has an answer for it, you deserve to know before you print the logo.",
+    body: "Every name gets asked to GPT, Claude, and Perplexity independently. If a chatbot already has an answer for it, you deserve to know before you print the logo.",
   },
   {
     index: "04",
