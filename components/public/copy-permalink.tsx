@@ -39,7 +39,7 @@ export default function CopyPermalink({
       variant={variant}
       disabled={copied}
       onClick={() => void copy()}
-      className="text-xs"
+      className="text-xs flex-1"
     >
       {copied ? "Copied" : "Copy link"}
     </Button>
