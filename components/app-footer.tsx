@@ -118,7 +118,7 @@ export default function AppFooter() {
             reserved.
           </span>
           <div className="inline-flex items-center gap-2">
-            <Link href="https://x.com/@unclaimedbyai" target="_blank">
+            <Link href="https://x.com/@UnclaimedByAI" target="_blank">
               <HugeiconsIcon icon={NewTwitterIcon} size="1.5rem" />
             </Link>
             <Link href="https://instagram.com/@unclaimedbyai" target="_blank">
