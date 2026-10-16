@@ -121,7 +121,7 @@ export default function AppFooter() {
             <Link href="https://x.com/UnclaimedByAI" target="_blank">
               <HugeiconsIcon icon={NewTwitterIcon} size="1.5rem" />
             </Link>
-            <Link href="https://instagram.com/@unclaimedbyai" target="_blank">
+            <Link href="https://instagram.com/unclaimedbyai" target="_blank">
               <HugeiconsIcon icon={InstagramIcon} size="1.5rem" />
             </Link>
             <Link href="https://linkedin.com/in/victorohachor" target="_blank">
