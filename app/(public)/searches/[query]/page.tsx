@@ -8,12 +8,7 @@ import { Button } from "@/components/ui/button"
 import { JsonLd } from "@/components/app/json-ld"
 import PrompterCta from "@/components/public/prompter-cta"
 import FreeDomainChips from "@/components/public/free-domain-chips"
-import {
-  ApiError,
-  getReport,
-  searchByQuery,
-  type CheckReport,
-} from "@/lib/api"
+import { ApiError, getReport, searchByQuery, type CheckReport } from "@/lib/api"
 import { getMeServer } from "@/lib/api-server"
 import { formatDateTime } from "@/lib/utils"
 import { OG_PATH, SITE_URL } from "@/lib/site"
@@ -113,10 +108,10 @@ export default async function PublicSearchPage({ params }: PageProps) {
           </h1>
           <p className="mx-auto max-w-prose text-muted-foreground md:text-lg">
             Someone ran this brief through Unclaimed by AI. Every candidate
-            below was scored from 0 to 100 across three checks: how many
-            domain extensions are still free, how many social handles are
-            still open, and whether AI models already know the name. Higher
-            scores are safer bets.
+            below was scored from 0 to 100 across three checks: how many domain
+            extensions are still free, how many social handles are still open,
+            and whether AI models already know the name. Higher scores are safer
+            bets.
             {checked.length > 0 && average !== null
               ? ` The top pick scored ${
                   checked[0].check.overall_score
@@ -124,18 +119,18 @@ export default async function PublicSearchPage({ params }: PageProps) {
               : ""}
           </p>
         </div>
-        <Button size="lg" asChild>
-          <Link href="#check-yours">Check your own name</Link>
-        </Button>
-        {checked.length > 0 ? (
-          <span className="flex md:justify-center">
+        <div className="flex items-center gap-2">
+          <Button size="lg" asChild>
+            <Link href="#check-yours">Check your own name</Link>
+          </Button>
+          {checked.length > 0 ? (
             <CopyPermalink
               name={checked[0].name.name}
               size="default"
               variant="outline"
             />
-          </span>
-        ) : null}
+          ) : null}
+        </div>
       </section>
 
       <section className="border-b px-4 py-6">
@@ -178,7 +173,9 @@ export default async function PublicSearchPage({ params }: PageProps) {
               </div>
               <div className="grid gap-px border bg-border md:grid-cols-2">
                 <div className="space-y-2 bg-background p-4">
-                  <p className="text-sm font-medium">Free to register right now</p>
+                  <p className="text-sm font-medium">
+                    Free to register right now
+                  </p>
                   <FreeDomainChips domains={freeDomains} />
                 </div>
                 <div className="space-y-2 bg-background p-4">
