@@ -119,7 +119,7 @@ export default async function PublicSearchPage({ params }: PageProps) {
               : ""}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mx-auto max-w-5xl">
           <Button size="lg" asChild className="flex-1">
             <Link href="#check-yours">Check your own name</Link>
           </Button>
