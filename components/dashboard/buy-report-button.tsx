@@ -22,10 +22,11 @@ export default function BuyReportButton() {
         return
       }
       const packs = await listPacks()
-      const pack =
-        packs.find((entry) => entry.slug === "single") ??
-        packs.find((entry) => entry.reports === 1) ??
-        packs[0]
+      // The smallest pack is the right default for someone who just
+      // wants enough credits to unblock this one action.
+      const pack = [...packs].sort(
+        (a, b) => a.price_minor - b.price_minor
+      )[0]
       if (!pack) throw new ApiError(0, "Packs are unavailable right now")
       const { checkout_url } = await createCheckout(
         pack.slug,

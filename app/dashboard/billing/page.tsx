@@ -6,16 +6,51 @@ import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import { PriceCard } from "@/components/price-card"
 import BuyButton from "@/components/dashboard/buy-button"
+import UpgradeButton from "@/components/dashboard/upgrade-button"
 import CheckoutBanner from "@/components/dashboard/checkout-banner"
 import PostCheckoutStrip from "@/components/dashboard/post-checkout-strip"
 import PaymentFlag from "@/components/dashboard/payment-flag"
 import ClearPlanCookie from "@/components/dashboard/clear-plan-cookie"
 import { PENDING_PLAN_COOKIE } from "@/components/public/plan-cookie"
 import { getMeServer, apiServer } from "@/lib/api-server"
-import { ApiError, type Pack } from "@/lib/api"
-import { CURRENCY_SYMBOL, planBenefits } from "@/lib/site"
+import { ApiError, type Pack, type PlanInfo } from "@/lib/api"
+import { CURRENCY_SYMBOL, creditPackBenefits, proBenefits } from "@/lib/site"
 
 export const dynamic = "force-dynamic"
+
+function UsageBar({
+  label,
+  used,
+  max,
+}: {
+  label: string
+  used: number
+  max: number
+}) {
+  const percent = max > 0 ? Math.min(100, (used / max) * 100) : 100
+  return (
+    <div className="space-y-1">
+      <div className="flex items-baseline justify-between">
+        <p className="text-sm text-muted-foreground">{label}</p>
+        <p className="text-sm">
+          {used} <span className="text-muted-foreground">of {max}</span>
+        </p>
+      </div>
+      <div
+        className="h-1.5 w-full overflow-hidden bg-muted"
+        role="progressbar"
+        aria-valuenow={used}
+        aria-valuemax={max}
+        aria-label={`${label}: ${used} of ${max} used`}
+      >
+        <span
+          className="block h-full bg-primary transition-all"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+    </div>
+  )
+}
 
 export default async function BillingPage({
   searchParams,
@@ -28,85 +63,154 @@ export default async function BillingPage({
   const params = await searchParams
   const pendingPlan = (await cookies()).get(PENDING_PLAN_COOKIE)?.value ?? null
   let packs: Pack[] = []
+  let plan: PlanInfo | null = null
   try {
-    packs = await apiServer<Pack[]>("/api/v1/packs")
+    ;[packs, plan] = await Promise.all([
+      apiServer<Pack[]>("/api/v1/packs"),
+      apiServer<PlanInfo>("/api/v1/billing/plan"),
+    ])
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) redirect("/auth")
     throw error
   }
-  const single = packs.find((pack) => pack.reports === 1)
   const highlightSlug = params.plan ?? pendingPlan
-  const planPack = packs.find((pack) => pack.slug === highlightSlug)
+  const isPro = plan?.tier === "pro"
+  const singleRate = packs.length
+    ? Math.max(...packs.map((p) => p.price_minor / 100 / p.credits))
+    : 0.5
 
   return (
     <>
       {pendingPlan ? <ClearPlanCookie /> : null}
       <section className="px-4">
-        <div className="mx-auto max-w-7xl space-y-4">
+        <div className="mx-auto max-w-7xl space-y-6">
           <Suspense fallback={null}>
             <PaymentFlag keepPaid />
           </Suspense>
           {params.paid ? <CheckoutBanner kind="success" /> : null}
           {params.canceled ? <CheckoutBanner kind="canceled" /> : null}
           {params.paid ? <PostCheckoutStrip /> : null}
-          {planPack ? (
-            <Alert className="bg-secondary">
-              <AlertDescription>
-                You chose the {planPack.title} before signing in. Continue to
-                secure checkout whenever you are ready, or pick a different
-                pack below.
-              </AlertDescription>
-            </Alert>
+
+          {plan ? (
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="border p-5">
+                <p className="text-sm text-muted-foreground">Plan</p>
+                <p className="font-heading text-3xl font-semibold">
+                  {plan.title}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {isPro
+                    ? "Renews monthly. Cancel any time."
+                    : "Free forever. Upgrade when you outgrow it."}
+                </p>
+              </div>
+              <div className="border p-5 md:col-span-2">
+                <p className="mb-3 text-sm text-muted-foreground">
+                  This month
+                </p>
+                <div className="space-y-3">
+                  <UsageBar
+                    label="Searches"
+                    used={plan.used_searches}
+                    max={plan.max_searches}
+                  />
+                  <UsageBar
+                    label="Sandboxes"
+                    used={plan.used_sandboxes}
+                    max={plan.max_sandboxes}
+                  />
+                  <UsageBar
+                    label="Idea runs today"
+                    used={plan.used_generation_runs}
+                    max={plan.max_generation_runs}
+                  />
+                </div>
+              </div>
+            </div>
           ) : null}
-          {user.credits === 0 && user.searches_left === 0 ? (
-            <Alert className="border border-dashed">
-              <AlertDescription>
-                You are out of both reports and searches. Every pack below
-                restores both at once, and checkout takes about a minute.
-              </AlertDescription>
-            </Alert>
-          ) : null}
+
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="border p-5">
-              <p className="text-sm text-muted-foreground">Searches left</p>
-              <p className="font-heading text-4xl font-semibold">
-                {user.searches_left}
-              </p>
-            </div>
-            <div className="border p-5">
-              <p className="text-sm text-muted-foreground">Report credits</p>
+              <p className="text-sm text-muted-foreground">Credits</p>
               <p className="font-heading text-4xl font-semibold">
                 {user.credits}
               </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Spend on research, extra searches, and re-checks.
+              </p>
+            </div>
+            <div className="border p-5">
+              <p className="text-sm text-muted-foreground">
+                Searches left this month
+              </p>
+              <p className="font-heading text-4xl font-semibold">
+                {plan ? Math.max(0, plan.max_searches - plan.used_searches) : 0}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Refills on the first of the month.
+              </p>
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {packs.map((pack) => {
-              const perReport = pack.price_minor / 100 / pack.reports
-              const singleRate = single ? single.price_minor / 100 : perReport
-              return (
-                <PriceCard
-                  key={pack.slug}
-                  title={pack.title}
-                  label={`${CURRENCY_SYMBOL}${perReport.toFixed(2)} per report.`}
-                  price={{
-                    currency: CURRENCY_SYMBOL,
-                    amount: pack.price_minor / 100,
-                  }}
-                  benefits={planBenefits(pack.reports)}
-                  discountage={
-                    single && perReport < singleRate
-                      ? Math.round((1 - perReport / singleRate) * 100)
-                      : undefined
-                  }
-                  highlight={highlightSlug === pack.slug}
-                  action={
-                    <div className="space-y-1.5">
-                      {pack.slug === "five" ? (
-                        <p className="text-center text-[0.625rem] font-semibold tracking-widest text-primary uppercase">
-                          Most popular
-                        </p>
-                      ) : null}
+
+          {!isPro && plan ? (
+            <div className="border p-5">
+              <div className="grid gap-4 md:grid-cols-2 md:items-center">
+                <div className="space-y-2">
+                  <p className="text-[0.625rem] font-semibold tracking-widest text-primary uppercase">
+                    Most capable
+                  </p>
+                  <p className="font-heading text-2xl font-semibold">Pro</p>
+                  <p className="text-sm text-muted-foreground">
+                    For the person who has stopped browsing and started
+                    building.
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <ul className="space-y-1 text-sm">
+                    {proBenefits(plan).map((benefit) => (
+                      <li key={benefit} className="text-muted-foreground">
+                        {benefit}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-heading text-3xl font-semibold">
+                      $14.99
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      per month
+                    </span>
+                  </div>
+                  <UpgradeButton />
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          <div>
+            <p className="mb-3 font-heading text-xl font-semibold">
+              Top up with credits
+            </p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+              {packs.map((pack) => {
+                const perCredit = pack.price_minor / 100 / pack.credits
+                return (
+                  <PriceCard
+                    key={pack.slug}
+                    title={pack.title}
+                    label={`${CURRENCY_SYMBOL}${perCredit.toFixed(2)} per credit.`}
+                    price={{
+                      currency: CURRENCY_SYMBOL,
+                      amount: pack.price_minor / 100,
+                    }}
+                    benefits={creditPackBenefits(pack.credits)}
+                    discountage={
+                      perCredit < singleRate
+                        ? Math.round((1 - perCredit / singleRate) * 100)
+                        : undefined
+                    }
+                    highlight={highlightSlug === pack.slug}
+                    action={
                       <BuyButton
                         packSlug={pack.slug}
                         label={
@@ -115,18 +219,19 @@ export default async function BillingPage({
                             : `Buy ${pack.title}`
                         }
                       />
-                    </div>
-                  }
-                />
-              )
-            })}
+                    }
+                  />
+                )
+              })}
+            </div>
           </div>
+
           <Alert className="bg-secondary">
             <HugeiconsIcon icon={InfoIcon} size={48} />
             <AlertDescription>
-              Reports are one-off purchases through secure checkout, with no
-              subscriptions and no stored cards. A report costs less than the
-              domain you are about to register.
+              Credits never expire and sit on top of your plan. A search
+              beyond your monthly allowance draws from credits, so running
+              out of plan never blocks you while credits last.
             </AlertDescription>
           </Alert>
         </div>

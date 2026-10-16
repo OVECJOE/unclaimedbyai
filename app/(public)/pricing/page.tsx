@@ -7,18 +7,24 @@ import { JsonLd } from "@/components/app/json-ld"
 import BuyButton from "@/components/dashboard/buy-button"
 import { getMeServer } from "@/lib/api-server"
 import {
-  PLANS,
-  FREE_SEARCHES,
-  SEARCHES_PER_REPORT,
   CURRENCY_SYMBOL,
   PRICING_DESCRIPTION,
+  PRO_PRICE,
   pageMetadata,
   pricingJsonLd,
-  planBenefits,
+  creditPackBenefits,
+  proBenefits,
 } from "@/lib/site"
 import type { Pack } from "@/lib/api"
 
 export const revalidate = 3600
+
+const PRO_LIMITS = {
+  max_sandboxes: 10,
+  max_searches: 50,
+  max_checks_per_name: 5,
+  max_generation_runs: 20,
+}
 
 async function loadPacks(): Promise<Pack[]> {
   try {
@@ -28,22 +34,22 @@ async function loadPacks(): Promise<Pack[]> {
     })
     if (!res.ok) return []
     const packs = (await res.json()) as Pack[]
-    return packs.filter((pack) => pack.reports > 0)
+    return packs.filter((pack) => pack.credits > 0)
   } catch {
     return []
   }
 }
 
 function toPriceCard(pack: Pack, singleRate: number): PriceCardProps {
-  const perReport = pack.price_minor / 100 / pack.reports
+  const perCredit = pack.price_minor / 100 / pack.credits
   return {
     title: pack.title,
-    label: `${CURRENCY_SYMBOL}${perReport.toFixed(2)} per report.`,
+    label: `${CURRENCY_SYMBOL}${perCredit.toFixed(2)} per credit.`,
     price: { currency: CURRENCY_SYMBOL, amount: pack.price_minor / 100 },
-    benefits: planBenefits(pack.reports),
+    benefits: creditPackBenefits(pack.credits),
     discountage:
-      perReport < singleRate
-        ? Math.round((1 - perReport / singleRate) * 100)
+      perCredit < singleRate
+        ? Math.round((1 - perCredit / singleRate) * 100)
         : undefined,
   }
 }
@@ -57,34 +63,47 @@ export const metadata: Metadata = pageMetadata({
 export default async function PricingPage() {
   const packs = await loadPacks()
   const user = await getMeServer().catch(() => null)
-  const single = packs.find((pack) => pack.reports === 1)
-  const singleRate = single
-    ? single.price_minor / 100
-    : (PLANS[0]?.amount ?? 1.99)
-  const fallback: PriceCardProps[] = PLANS.map((plan) => ({
-    title: plan.title,
-    label: plan.label,
-    price: { currency: CURRENCY_SYMBOL, amount: plan.amount },
-    benefits: plan.benefits,
-    discountage: plan.discountage,
-  }))
+  const singleRate = packs.length
+    ? Math.max(...packs.map((p) => p.price_minor / 100 / p.credits))
+    : 0.5
+
+  const tiers = [
+    {
+      title: "Free",
+      label: "For seeing whether this is for you.",
+      price: { currency: CURRENCY_SYMBOL, amount: 0 },
+      benefits: [
+        "1 sandbox to hold your ideas",
+        "3 searches a month",
+        "3 idea runs a day",
+        "First check on every name stays free",
+        "No card, ever",
+      ],
+    },
+    {
+      title: "Pro",
+      label: "For the person who has stopped browsing and started building.",
+      price: { currency: CURRENCY_SYMBOL, amount: PRO_PRICE },
+      benefits: proBenefits(PRO_LIMITS),
+    },
+  ]
 
   const steps = [
     {
-      title: "Search for free",
-      body: `Every account starts with ${FREE_SEARCHES} searches. The first check on each name is always free.`,
+      title: "Start free",
+      body: "One sandbox, three searches a month, and the first check on every name is free. Nothing to cancel because there is nothing to join.",
     },
     {
-      title: "Re-check with a report",
-      body: "Changed a name or want fresh availability? Spend one report to run the check again.",
+      title: "Research before you build",
+      body: "Spend 3 credits on a deep market report for an idea: competitors, demand, audience, and how it makes money.",
     },
     {
-      title: "Get more searches",
-      body: `Each report you buy also adds ${SEARCHES_PER_REPORT} searches, so bigger packs go further.`,
+      title: "Search, then re-check",
+      body: "A search costs 2 credits past your allowance, and re-checking a name costs 1. Availability is the thing that changes, so re-checking is the thing worth paying for.",
     },
     {
-      title: "Watch while you decide",
-      body: "Star any name and we recheck its domains and handles every few hours for free, emailing you the moment something gets claimed.",
+      title: "Watch what you love",
+      body: "On Pro, star a name and we recheck its domains and handles every few hours, emailing you the moment something gets claimed.",
     },
   ]
 
@@ -97,67 +116,81 @@ export default async function PricingPage() {
           asChild
         >
           <p className="px-2 py-1 sm:px-3">
-            {FREE_SEARCHES} free searches. Pay per report. No subscriptions.
+            Free to start. Pro when you build. Credits for the rest.
           </p>
         </Badge>
         <div className="space-y-3">
           <h1 className="font-heading text-4xl font-semibold md:text-5xl">
-            Pay for what you check. Not what you don&apos;t.
+            Ideas are free. Depth is not.
           </h1>
           <p className="mx-auto max-w-prose md:text-lg">
-            Your first check on every name is free. Reports are for re-checks
-            and extra searches, and you only buy them when you need them.
+            Generate ideas and check names without paying anything. When an
+            idea earns your attention, research it properly and keep its
+            availability fresh, either on Pro or with credits you buy once.
           </p>
         </div>
 
-        <div className="mx-auto mt-10 grid max-w-7xl grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {packs.length === 0 ? (
-            <p className="sm:col-span-2 md:col-span-3 text-sm text-muted-foreground">
-              We couldn&apos;t load live pack prices right now — these are our
-              standard rates.{" "}
-              <Link href="/contact" className="text-primary">
-                Contact us
-              </Link>{" "}
-              if you need help before they&apos;re back.
-            </p>
-          ) : null}
-          {packs.length > 0
-            ? packs.map((pack) => (
-                <PriceCard
-                  key={pack.slug}
-                  {...toPriceCard(pack, singleRate)}
-                  action={
-                    user ? (
-                      <BuyButton
-                        packSlug={pack.slug}
-                        label={`Buy ${pack.title}`}
-                      />
-                    ) : (
-                      <Button size="lg" asChild className="w-full">
-                        <Link href={`/auth?plan=${pack.slug}`}>
-                          Get Started
-                        </Link>
-                      </Button>
-                    )
-                  }
-                />
-              ))
-            : fallback.map((price, index) => (
-                <PriceCard
-                  key={index}
-                  {...price}
-                  action={
-                    <Button size="lg" asChild className="w-full">
-                      <Link href="/auth">Get Started</Link>
-                    </Button>
-                  }
-                />
-              ))}
+        <div className="mx-auto mt-10 grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2">
+          {tiers.map((tier) => (
+            <PriceCard
+              key={tier.title}
+              {...tier}
+              highlight={tier.title === "Pro"}
+              action={
+                user ? (
+                  <Button size="lg" asChild className="w-full">
+                    <Link href="/dashboard/billing">
+                      {tier.title === "Pro" ? "Upgrade" : "Open the playground"}
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button size="lg" asChild className="w-full">
+                    <Link href="/auth">Get started</Link>
+                  </Button>
+                )
+              }
+            />
+          ))}
+        </div>
+
+        <div>
+          <h2 className="mb-3 font-heading text-xl font-semibold">
+            Top up with credits
+          </h2>
+          <p className="mx-auto mb-5 max-w-prose text-sm text-muted-foreground">
+            Credits sit on top of any plan and never expire. Going past your
+            monthly allowance draws from them, so running out of plan never
+            blocks you while credits last.
+          </p>
+          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {packs.length > 0
+              ? packs.map((pack) => (
+                  <PriceCard
+                    key={pack.slug}
+                    {...toPriceCard(pack, singleRate)}
+                    action={
+                      user ? (
+                        <BuyButton
+                          packSlug={pack.slug}
+                          label={`Buy ${pack.title}`}
+                        />
+                      ) : (
+                        <Button size="lg" asChild className="w-full">
+                          <Link href={`/auth?plan=${pack.slug}`}>
+                            Get started
+                          </Link>
+                        </Button>
+                      )
+                    }
+                  />
+                ))
+              : null}
+          </div>
         </div>
 
         <div className="mx-auto mt-16 max-w-7xl space-y-8">
           <h2 className="font-heading text-2xl font-semibold md:text-3xl">
-            How reports work
+            How the money works
           </h2>
           <ol className="grid grid-cols-1 gap-4 text-left md:grid-cols-2 lg:grid-cols-4">
             {steps.map((step, index) => (

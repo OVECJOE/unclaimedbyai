@@ -7,7 +7,7 @@ export const SITE_DESCRIPTION =
 export const OG_PATH = "/og-image.png"
 
 export const FREE_SEARCHES = 3
-export const SEARCHES_PER_REPORT = 3
+export const PRO_PRICE = 14.99
 export const CURRENCY = "USD"
 export const CURRENCY_SYMBOL = "$"
 
@@ -15,46 +15,55 @@ export function formatPrice(amount: number): string {
   return `${CURRENCY_SYMBOL}${amount.toFixed(2)}`
 }
 
-export function planBenefits(reports: number): string[] {
-  const searches = reports * SEARCHES_PER_REPORT
+/** What a credit pack buys, in the vocabulary the pivot introduced. */
+export function creditPackBenefits(credits: number): string[] {
   return [
-    `${reports} ${reports === 1 ? "report" : "reports"} for re-checking names`,
-    `+${searches} extra searches`,
-    "First check on every name stays free",
-    "No subscription",
+    `${credits} credits, yours until spent`,
+    "Research a market for 3 credits",
+    "Run a search for 2 credits",
+    "Re-check a name for 1 credit",
+  ]
+}
+
+export function proBenefits(limits: {
+  max_sandboxes: number
+  max_searches: number
+  max_checks_per_name: number
+  max_generation_runs: number
+}): string[] {
+  return [
+    `${limits.max_sandboxes} sandboxes to build ideas in`,
+    `${limits.max_searches} searches a month`,
+    `${limits.max_checks_per_name} checks per name, so availability stays fresh`,
+    `${limits.max_generation_runs} idea runs a day`,
+    "Watchlist, so a name you love gets re-checked for you",
   ]
 }
 
 const BASE_PLANS = [
-  { slug: "single", title: "Single report", amount: 1.99, reports: 1 },
-  { slug: "five", title: "5 reports", amount: 6.99, reports: 5 },
-  { slug: "twenty", title: "20 reports", amount: 21.99, reports: 20 },
+  { slug: "credits-20", title: "20 credits", amount: 7.99, credits: 20 },
+  { slug: "credits-60", title: "60 credits", amount: 19.99, credits: 60 },
+  { slug: "credits-150", title: "150 credits", amount: 39.99, credits: 150 },
 ]
 
-const SINGLE_PLAN_AMOUNT = BASE_PLANS[0].amount
+const BASE_RATE = BASE_PLANS[0].amount / BASE_PLANS[0].credits
 
 export const PLANS = BASE_PLANS.map((plan) => ({
   ...plan,
-  label:
-    plan.reports === 1
-      ? "One name, one re-check."
-      : `${formatPrice(plan.amount / plan.reports)} per report.`,
-  benefits: planBenefits(plan.reports),
-  discountage:
-    plan.reports === 1
-      ? undefined
-      : Math.round(
-          (1 - plan.amount / (SINGLE_PLAN_AMOUNT * plan.reports)) * 100
-        ),
+  label: `${formatPrice(plan.amount / plan.credits)} per credit.`,
+  benefits: creditPackBenefits(plan.credits),
+  discountage: Math.round(
+    (1 - plan.amount / plan.credits / BASE_RATE) * 100
+  ),
 }))
 
 const planSummary = PLANS.map(
-  (plan) => `${plan.reports} for ${formatPrice(plan.amount)}`
+  (plan) => `${plan.credits} for ${formatPrice(plan.amount)}`
 )
 
-export const PRICING_DESCRIPTION = `Start with ${FREE_SEARCHES} free searches and a free first check on every name. Buy reports to re-check names and run more searches: ${planSummary
+export const PRICING_DESCRIPTION = `Start free with ${FREE_SEARCHES} searches a month and a free first check on every name. Buy credits to research markets, run extra searches, and re-check names: ${planSummary
   .slice(0, -1)
-  .join(", ")}, or ${planSummary[planSummary.length - 1]}. No subscriptions.`
+  .join(", ")}, or ${planSummary[planSummary.length - 1]}.`
 
 export type PageMetadataArgs = {
   title: string
@@ -115,11 +124,7 @@ export const siteJsonLd = {
 export const offersJsonLd = PLANS.map((plan) => ({
   "@type": "Offer",
   name: plan.title,
-  description: `${plan.reports} ${
-    plan.reports === 1 ? "report" : "reports"
-  } for re-checking names, plus ${
-    plan.reports * SEARCHES_PER_REPORT
-  } extra searches.`,
+  description: `${plan.credits} credits, yours until spent. Research a market for 3, run a search for 2, re-check a name for 1.`,
   price: plan.amount,
   priceCurrency: CURRENCY,
   url: `${SITE_URL}/pricing`,

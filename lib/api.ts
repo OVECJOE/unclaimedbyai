@@ -456,10 +456,27 @@ export function searchByQuery(query: string): Promise<SearchDetail> {
 export type Pack = {
   slug: string
   title: string
-  reports: number
-  extra_searches: number
+  credits: number
   price_minor: number
   currency: string
+}
+
+export type PlanInfo = {
+  tier: string
+  title: string
+  max_sandboxes: number
+  max_searches: number
+  max_checks_per_name: number
+  max_generation_runs: number
+  watchlist_enabled: boolean
+  used_sandboxes: number
+  used_searches: number
+  used_generation_runs: number
+  credits: number
+}
+
+export function getPlan(): Promise<PlanInfo> {
+  return apiRequest<PlanInfo>("/api/v1/billing/plan")
 }
 
 export function listPacks(): Promise<Pack[]> {
@@ -476,6 +493,16 @@ export function createCheckout(
   })
 }
 
+export function createProCheckout(returnTo?: string): Promise<{
+  checkout_url: string
+  subscription_id: string
+}> {
+  return apiRequest("/api/v1/billing/checkout/pro", {
+    method: "POST",
+    body: { return_to: returnTo },
+  })
+}
+
 export type OrderItem = {
   id: number
   status: string
@@ -483,8 +510,7 @@ export type OrderItem = {
   currency: string
   paid_at: string | null
   created_at: string
-  reports: number
-  searches: number
+  credits: number
   receipt_url: string | null
 }
 
