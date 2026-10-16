@@ -128,7 +128,7 @@ export default async function PublicSearchPage({ params }: PageProps) {
           <Link href="#check-yours">Check your own name</Link>
         </Button>
         {checked.length > 0 ? (
-          <span className="flex justify-center">
+          <span className="flex md:justify-center">
             <CopyPermalink
               name={checked[0].name.name}
               size="default"
