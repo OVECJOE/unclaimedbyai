@@ -246,6 +246,9 @@ export function createSearch(input: {
   category?: string
   anon_session_id?: string
   cf_turnstile_token?: string
+  // Set when the search was started from an idea, so the search hangs off
+  // the idea that produced it.
+  idea_id?: string
 }): Promise<SearchItem & { searches_left?: number }> {
   return apiRequest("/api/v1/searches", {
     method: "POST",
@@ -501,6 +504,163 @@ export function createProCheckout(returnTo?: string): Promise<{
     method: "POST",
     body: { return_to: returnTo },
   })
+}
+
+export type SignalProfile = {
+  skills: string | null
+  time_available: string | null
+  budget: string | null
+  audience: string | null
+  business_model: string | null
+  industries: string | null
+  target_customer: string | null
+  tech_comfort: string | null
+}
+
+export type SandboxRunStatus = "idle" | "generating" | "failed"
+
+export type Sandbox = {
+  public_id: string
+  name: string
+  auto_created: boolean
+  run_status: SandboxRunStatus
+  run_error: string | null
+  signals: Partial<SignalProfile>
+  idea_count: number
+  search_count: number
+  created_at: string
+  ideas?: Idea[]
+}
+
+export type IdeaCanvas = {
+  audience: string | null
+  wedge: string | null
+  model: string | null
+}
+
+export type Idea = {
+  public_id: string
+  title: string
+  concept: string
+  canvas: IdeaCanvas | null
+  category: string
+  status: string
+  position: number
+  pinned: boolean
+  created_at: string
+}
+
+export type ResearchSection = {
+  summary?: string
+  competitors?: { name: string; pricing?: string; note?: string }[]
+  signals?: string[]
+  channels?: { channel: string; note?: string }[]
+  paths?: { model: string; price?: string; note?: string }[]
+}
+
+export type Research = {
+  status: "generating" | "ready" | "failed"
+  error: string | null
+  competitors: ResearchSection | null
+  demand: ResearchSection | null
+  audience_channels: ResearchSection | null
+  monetization: ResearchSection | null
+  summary: string | null
+}
+
+export function getSignalProfile(): Promise<SignalProfile> {
+  return apiRequest<SignalProfile>("/api/v1/me/signals")
+}
+
+export function saveSignalProfile(
+  profile: Partial<SignalProfile>
+): Promise<SignalProfile> {
+  return apiRequest<SignalProfile>("/api/v1/me/signals", {
+    method: "PUT",
+    body: profile,
+  })
+}
+
+export function listSandboxes(): Promise<Sandbox[]> {
+  return apiRequest<Sandbox[]>("/api/v1/sandboxes")
+}
+
+export function createSandbox(input: {
+  name: string
+  signals?: Partial<SignalProfile>
+  anon_session_id?: string
+  cf_turnstile_token?: string
+}): Promise<Sandbox> {
+  return apiRequest<Sandbox>("/api/v1/sandboxes", {
+    method: "POST",
+    body: input,
+  })
+}
+
+export function getSandbox(
+  publicId: string,
+  sid?: string
+): Promise<Sandbox> {
+  const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
+  return apiRequest<Sandbox>(`/api/v1/sandboxes/${publicId}${query}`)
+}
+
+export function updateSandbox(
+  publicId: string,
+  input: { name?: string; signals?: Partial<SignalProfile> },
+  sid?: string
+): Promise<Sandbox> {
+  const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
+  return apiRequest<Sandbox>(`/api/v1/sandboxes/${publicId}${query}`, {
+    method: "PATCH",
+    body: input,
+  })
+}
+
+export function deleteSandbox(publicId: string, sid?: string): Promise<void> {
+  const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
+  return apiRequest(`/api/v1/sandboxes/${publicId}${query}`, {
+    method: "DELETE",
+  })
+}
+
+export function addManualIdea(
+  publicId: string,
+  input: { title: string; concept: string },
+  sid?: string
+): Promise<Idea> {
+  const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
+  return apiRequest<Idea>(`/api/v1/sandboxes/${publicId}/ideas${query}`, {
+    method: "POST",
+    body: input,
+  })
+}
+
+export function generateIdeas(
+  publicId: string,
+  input: {
+    count: number
+    seed?: string
+    anon_session_id?: string
+    cf_turnstile_token?: string
+  },
+  sid?: string
+): Promise<{ run_status: SandboxRunStatus }> {
+  const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
+  return apiRequest(`/api/v1/sandboxes/${publicId}/generate${query}`, {
+    method: "POST",
+    body: input,
+  })
+}
+
+export function getResearch(ideaId: string): Promise<Research | null> {
+  return apiRequest<Research | null>(`/api/v1/ideas/${ideaId}/research`)
+}
+
+export function startResearch(
+  ideaId: string
+): Promise<{ status: string; version: number }> {
+  return apiRequest(`/api/v1/ideas/${ideaId}/research`, { method: "POST" })
 }
 
 export type OrderItem = {

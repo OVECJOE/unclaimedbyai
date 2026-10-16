@@ -1,4 +1,5 @@
 import AppFooter from "@/components/app-footer"
+import ClaimSearches from "@/components/dashboard/claim-searches"
 import DashboardHeader from "@/components/dashboard/dashboard-header"
 import { getMeServer } from "@/lib/api-server"
 import { ApiError } from "@/lib/api"
@@ -17,7 +18,10 @@ export default async function DashboardLayout({
   return (
     <div>
       <DashboardHeader user={user} />
-      <main className="min-h-screen">{children}</main>
+      <main className="min-h-screen">
+        <ClaimSearches />
+        {children}
+      </main>
       <AppFooter />
     </div>
   )
