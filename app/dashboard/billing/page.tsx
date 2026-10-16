@@ -7,6 +7,7 @@ import { Suspense } from "react"
 import { PriceCard } from "@/components/price-card"
 import BuyButton from "@/components/dashboard/buy-button"
 import CheckoutBanner from "@/components/dashboard/checkout-banner"
+import PostCheckoutStrip from "@/components/dashboard/post-checkout-strip"
 import PaymentFlag from "@/components/dashboard/payment-flag"
 import ClearPlanCookie from "@/components/dashboard/clear-plan-cookie"
 import { PENDING_PLAN_COOKIE } from "@/components/public/plan-cookie"
@@ -19,7 +20,7 @@ export const dynamic = "force-dynamic"
 export default async function BillingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string; canceled?: string; plan?: string }>
+  searchParams: Promise<{ paid?: string; canceled?: string; plan?: string }>
 }) {
   const user = await getMeServer().catch(() => null)
   if (!user) redirect("/auth")
@@ -43,10 +44,11 @@ export default async function BillingPage({
       <section className="px-4">
         <div className="mx-auto max-w-7xl space-y-4">
           <Suspense fallback={null}>
-            <PaymentFlag />
+            <PaymentFlag keepPaid />
           </Suspense>
-          {params.success ? <CheckoutBanner kind="success" /> : null}
+          {params.paid ? <CheckoutBanner kind="success" /> : null}
           {params.canceled ? <CheckoutBanner kind="canceled" /> : null}
+          {params.paid ? <PostCheckoutStrip /> : null}
           {planPack ? (
             <Alert className="bg-secondary">
               <AlertDescription>

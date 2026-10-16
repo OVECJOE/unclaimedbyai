@@ -36,6 +36,7 @@ import { WatchButton } from "@/components/dashboard/watch-button"
 import BuyReportButton from "@/components/dashboard/buy-report-button"
 import PaymentFlag from "@/components/dashboard/payment-flag"
 import { formatDateTime } from "@/lib/utils"
+import { affiliateLink } from "@/lib/affiliate"
 import { apiServer } from "@/lib/api-server"
 import {
   ApiError,
@@ -197,9 +198,17 @@ export default async function SearchResultNamePage({
     throw error
   }
 
-  const availableDomains = report.domains.filter(
+  const freeDomains = report.domains.filter(
     (d) => d.status === "available"
-  ).length
+  )
+  const availableDomains = freeDomains.length
+  // The first free extension is the one worth a register link: a score
+  // this high plus a verified-open domain is the warmest moment in the
+  // product, and it evaporates the moment someone else notices it.
+  const firstFreeDomain = freeDomains[0]?.domain ?? null
+  const registerHref = firstFreeDomain
+    ? affiliateLink("namecheap", "keeper-card", firstFreeDomain)
+    : null
   const availableSocials = report.socials.filter(
     (s) => s.status === "available"
   ).length
@@ -330,7 +339,7 @@ export default async function SearchResultNamePage({
           </Card>
 
           {report.overall_score >= 80 ? (
-            <div className="space-y-1 border p-4 text-center sm:p-5">
+            <div className="space-y-2 border p-4 text-center sm:p-5">
               <p className="font-heading text-xl font-semibold">A keeper.</p>
               <p className="mx-auto max-w-prose text-sm text-muted-foreground">
                 Scores this high are rare. Star the name above to keep watching
@@ -340,6 +349,21 @@ export default async function SearchResultNamePage({
                   See report packs
                 </Link>
               </p>
+              {registerHref ? (
+                <p className="text-sm">
+                  <a
+                    href={registerHref}
+                    target="_blank"
+                    rel="sponsored noopener noreferrer"
+                    className="text-primary underline"
+                  >
+                    Register {firstFreeDomain}
+                  </a>{" "}
+                  <span className="text-muted-foreground">
+                    while it is still free.
+                  </span>
+                </p>
+              ) : null}
             </div>
           ) : null}
 

@@ -38,7 +38,7 @@ export default function CheckoutBanner({
   return (
     <Alert className="bg-secondary">
       <AlertDescription>
-        Payment received — your credits are on the account.
+        Payment received. Your credits are on the account.
       </AlertDescription>
     </Alert>
   )
