@@ -49,13 +49,20 @@ function namecheapLanding(domain: string): string {
   return `https://www.namecheap.com/domains/registration/results.aspx?domain=${domain}`
 }
 
+/** The GoDaddy equivalent. GoDaddy's affiliate endpoint honours this as a
+ *  landing page and keeps its query string, which is what lets a chip
+ *  pre-scope the search to the one extension this check verified free. */
+function godaddyLanding(domain: string): string {
+  return `https://www.godaddy.com/domainsearch/find?domainToCheck=${domain}`
+}
+
 /**
  * The affiliate link for a registrar, or null when that program has no link
  * configured. Callers must handle null by rendering no link, which keeps an
  * unapproved program invisible instead of shipping a dead href.
  *
  * `domain` is only honoured where the network supports deep linking, which
- * today means Namecheap. Passing it elsewhere is harmless.
+ * today means Namecheap and GoDaddy. Passing it elsewhere is harmless.
  */
 export function affiliateLink(
   registrar: Registrar,
@@ -72,10 +79,22 @@ export function affiliateLink(
     return url.toString()
   }
 
-  if (registrar === "godaddy" || registrar === "dynadot") {
-    const base = registrar === "godaddy" ? godaddyBase : dynadotBase
-    if (!base) return null
-    const url = new URL(base)
+  if (registrar === "godaddy") {
+    if (!godaddyBase) return null
+    const url = new URL(godaddyBase)
+    if (domain) {
+      // GoDaddy's affiliate endpoint treats url= as the landing page and
+      // preserves its query string, so the visitor lands on a search for
+      // the exact domain this check just verified free.
+      url.searchParams.set("url", godaddyLanding(domain))
+    }
+    url.searchParams.set("sid", placement)
+    return url.toString()
+  }
+
+  if (registrar === "dynadot") {
+    if (!dynadotBase) return null
+    const url = new URL(dynadotBase)
     url.searchParams.set("sid", placement)
     return url.toString()
   }
