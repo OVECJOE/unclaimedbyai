@@ -10,7 +10,7 @@ export const metadata: Metadata = pageMetadata({
   path: "/privacy",
 })
 
-const UPDATED = "October 10, 2026"
+const UPDATED = "October 12, 2026"
 
 const sections: LegalSection[] = [
   {
@@ -207,6 +207,36 @@ const sections: LegalSection[] = [
           any purpose outside operating the Service. We may disclose data if
           required by law or to protect our rights, and we&apos;ll push back on
           overbroad requests where we can.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "affiliate-links",
+    title: "Affiliate links",
+    plain:
+      "Some registrar links earn us a commission if you buy through them. It costs you the same either way, and it never changes what we report.",
+    body: (
+      <>
+        <p>
+          When a check shows a domain is free, some of the links to registrars
+          on that page are affiliate links. If you follow one and register the
+          name, the registrar may pay us a commission. Your price is identical
+          whether you use our link or type the domain into the registrar
+          yourself, because the commission comes out of the registrar&apos;s
+          marketing budget, not your pocket.
+        </p>
+        <p>
+          Two things we won&apos;t do. We won&apos;t let a commission change a
+          result: the extensions we show as free are the ones the check
+          actually found free, whether or not a registrar on that list pays us.
+          And we won&apos;t pretend the link isn&apos;t a link. Wherever one
+          appears, it says so.
+        </p>
+        <p>
+          Registrars we may link this way include Namecheap, GoDaddy, and
+          Dynadot. The same goes for any register link we send in a watch-alert
+          email.
         </p>
       </>
     ),

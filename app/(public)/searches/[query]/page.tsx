@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { JsonLd } from "@/components/app/json-ld"
 import PrompterCta from "@/components/public/prompter-cta"
+import FreeDomainChips from "@/components/public/free-domain-chips"
 import {
   ApiError,
   getReport,
@@ -178,27 +179,7 @@ export default async function PublicSearchPage({ params }: PageProps) {
               <div className="grid gap-px border bg-border md:grid-cols-2">
                 <div className="space-y-2 bg-background p-4">
                   <p className="text-sm font-medium">Free to register right now</p>
-                  {freeDomains.length ? (
-                    <p className="flex flex-wrap gap-1.5">
-                      {freeDomains.slice(0, 8).map((domain) => (
-                        <span
-                          key={domain.tld}
-                          className="border border-green-600/30 bg-green-600/10 px-2 py-0.5 font-mono text-xs text-green-700 dark:border-green-400/30 dark:bg-green-400/10 dark:text-green-400"
-                        >
-                          {domain.domain}
-                        </span>
-                      ))}
-                    </p>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      None of the checked extensions are free right now.
-                    </p>
-                  )}
-                  {freeDomains.length > 8 ? (
-                    <p className="text-xs text-muted-foreground">
-                      {freeDomains.length - 8} more extensions are free as well.
-                    </p>
-                  ) : null}
+                  <FreeDomainChips domains={freeDomains} />
                 </div>
                 <div className="space-y-2 bg-background p-4">
                   <p className="text-sm font-medium">Handles already claimed</p>
