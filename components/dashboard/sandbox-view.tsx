@@ -24,7 +24,13 @@ const POLL_MS = 2500
  * ones that catch you. Polling rather than a socket, because a run is
  * short and the page is not a chat.
  */
-export default function SandboxView({ sandbox: initial }: { sandbox: Sandbox }) {
+export default function SandboxView({
+  sandbox: initial,
+  sid,
+}: {
+  sandbox: Sandbox
+  sid?: string
+}) {
   const router = useRouter()
   const [sandbox, setSandbox] = useState<Sandbox>(initial)
   const [count, setCount] = useState(6)
@@ -36,17 +42,18 @@ export default function SandboxView({ sandbox: initial }: { sandbox: Sandbox }) 
   const [concept, setConcept] = useState("")
   const [adding, setAdding] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const signedIn = !sid
 
   const refresh = useCallback(async () => {
     try {
-      const fresh = await getSandbox(initial.public_id)
+      const fresh = await getSandbox(initial.public_id, sid)
       setSandbox(fresh)
       setGenerating(fresh.run_status === "generating")
       return fresh
     } catch {
       return null
     }
-  }, [initial.public_id])
+  }, [initial.public_id, sid])
 
   // Poll while a run is going, and stop the moment it is not, so a page
   // left open does not poll forever.
@@ -75,10 +82,15 @@ export default function SandboxView({ sandbox: initial }: { sandbox: Sandbox }) 
   async function run() {
     setGenerating(true)
     try {
-      await generateIdeas(initial.public_id, {
-        count,
-        seed: seed.trim() || undefined,
-      })
+      await generateIdeas(
+        initial.public_id,
+        {
+          count,
+          seed: seed.trim() || undefined,
+          anon_session_id: sid,
+        },
+        sid
+      )
       await refresh()
     } catch (error) {
       setGenerating(false)
@@ -93,10 +105,14 @@ export default function SandboxView({ sandbox: initial }: { sandbox: Sandbox }) 
     }
     setAdding(true)
     try {
-      await addManualIdea(initial.public_id, {
-        title: title.trim(),
-        concept: concept.trim(),
-      })
+      await addManualIdea(
+        initial.public_id,
+        {
+          title: title.trim(),
+          concept: concept.trim(),
+        },
+        sid
+      )
       setTitle("")
       setConcept("")
       await refresh()
@@ -116,12 +132,20 @@ export default function SandboxView({ sandbox: initial }: { sandbox: Sandbox }) 
           <h1 className="font-heading text-4xl font-semibold">
             {sandbox.name}
           </h1>
-          <Button variant="ghost" size="sm" onClick={() => router.push("/dashboard")}>
-            All sandboxes
-          </Button>
+          {signedIn ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push("/dashboard")}
+            >
+              All sandboxes
+            </Button>
+          ) : null}
         </div>
 
-        <SignalEditor signals={sandbox.signals} onSaved={refresh} />
+        {signedIn ? (
+          <SignalEditor signals={sandbox.signals} onSaved={refresh} />
+        ) : null}
 
         <div className="border p-5">
           <p className="font-heading text-xl font-semibold">Generate ideas</p>

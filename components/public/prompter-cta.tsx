@@ -8,13 +8,12 @@ import { useTurnstile } from "@/components/public/turnstile"
 import { getAnonSessionId } from "@/lib/anon"
 import {
   ApiError,
+  createSandbox,
   directCheck,
-  generateFilledSearch,
+  generateIdeas,
   getMe,
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
-
-export const PENDING_BRIEF_KEY = "uba-pending-brief"
 
 export default function PrompterCta({
   defaultValue = "",
@@ -37,12 +36,15 @@ export default function PrompterCta({
           router.push(`/dashboard/history/${result.search_id}`)
           return
         }
-        try {
-          sessionStorage.setItem(PENDING_BRIEF_KEY, value)
-        } catch {
-          // Storage unavailable; the query param still carries the brief.
-        }
-        router.push(`/dashboard?brief=${encodeURIComponent(value)}`)
+        // An idea goes into a sandbox of its own, named after the brief,
+        // so the person lands on generated ideas rather than a search
+        // they did not ask for.
+        const sandbox = await createSandbox({ name: value.slice(0, 80) })
+        await generateIdeas(sandbox.public_id, {
+          count: 6,
+          seed: value.slice(0, 300),
+        })
+        router.push(`/dashboard/sandbox/${sandbox.public_id}`)
         return
       }
       if (mode === "name") {
@@ -62,20 +64,32 @@ export default function PrompterCta({
         )
         return
       }
-      const search = await turnstile.verify((token) =>
-        generateFilledSearch({
-          query: value,
+      // One taste run of idea generation, then a sign-in gate, because
+      // running four studios for someone who never intends to sign in is
+      // the one thing this funnel cannot afford.
+      const sandbox = await turnstile.verify((token) =>
+        createSandbox({
+          name: value.slice(0, 80),
           anon_session_id: getAnonSessionId(),
           cf_turnstile_token: token,
         })
       )
-      if (!search) {
+      if (!sandbox) {
         toast.error("The human check did not finish. Try again.")
         return
       }
-      router.push(
-        `/results/${search.id}?sid=${encodeURIComponent(getAnonSessionId())}`
+      await turnstile.verify((token) =>
+        generateIdeas(sandbox.public_id, {
+          count: 6,
+          seed: value.slice(0, 300),
+          anon_session_id: getAnonSessionId(),
+          cf_turnstile_token: token,
+        })
       )
+      router.push(
+        `/sandbox/${sandbox.public_id}?sid=${encodeURIComponent(getAnonSessionId())}`
+      )
+      return
     } catch (error) {
       setPending(false)
       if (error instanceof ApiError && error.status === 403) {
