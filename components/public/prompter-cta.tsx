@@ -84,7 +84,7 @@ export default function PrompterCta({
         // widget gives the next submit something to solve.
         turnstile.reset()
         toast.error(
-          "The human check did not pass. Tick the box that appears and submit again."
+          "The human check did not run. A browser extension or privacy setting may be blocking Cloudflare; try a private window."
         )
         return
       }

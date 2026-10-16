@@ -9,6 +9,7 @@ const TURNSTILE_SCRIPT_URL =
 type TurnstileApi = {
   render(container: HTMLElement, options: Record<string, unknown>): string
   reset(widgetId?: string): void
+  remove(widgetId: string): void
 }
 
 declare global {
@@ -177,6 +178,21 @@ export function useTurnstile(action: string) {
       const stuck = waitersRef.current
       waitersRef.current = []
       for (const waiter of stuck) waiter("")
+      // Deregister the widget from the shared Turnstile instance. Without
+      // this the iframe outlives the component as a zombie, and the next
+      // widget to render on the same page (the check page mounts several)
+      // finds the render queue occupied and silently produces nothing.
+      const widgetId = widgetIdRef.current
+      widgetIdRef.current = null
+      tokenRef.current = null
+      const turnstile = window.turnstile
+      if (turnstile && widgetId) {
+        try {
+          turnstile.remove(widgetId)
+        } catch {
+          // The iframe is already gone; nothing left to deregister.
+        }
+      }
     }
   }, [siteKey, action, reset, settleWaiters])
 

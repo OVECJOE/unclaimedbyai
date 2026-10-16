@@ -72,8 +72,14 @@ export default function DirectCheckKickoff({ name }: { name: string }) {
       {failed ? (
         <>
           <p className="text-sm text-muted-foreground">
-            The check did not finish. If the human check box below is
-            still showing, tick it and try again. Nothing was charged.
+            The check could not start. This usually means the human check
+            could not run, which happens when a browser extension or privacy
+            setting blocks Cloudflare. Nothing was charged.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Try allowlisting <span className="font-mono">challenges.cloudflare.com</span>{" "}
+            for this site, or opening this page in a private window, then
+            reload.
           </p>
           <Button
             onClick={() => {
