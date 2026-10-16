@@ -28,12 +28,13 @@ export default function MagicLinkForm({ plan }: { plan?: string }) {
     <form
       className="mt-16 space-y-4 sm:mx-auto sm:max-w-lg"
       action={async (formData) => {
-        // Wait briefly for an in-flight first solve so a fast submit does
-        // not race the widget and eat an avoidable 403.
-        const token = await turnstile.waitForToken(2000)
+        // Wait for an in-flight solve so a fast submit does not fire
+        // before the widget has delivered a token. The token is left in
+        // place rather than reset: a token is only single-use once the
+        // backend has consumed it, and resetting here would discard a
+        // valid solve and force a fresh challenge on every submit.
+        const token = await turnstile.waitForToken(2500)
         formData.set("cf_turnstile_token", token ?? "")
-        // Tokens are single-use; pre-solve a fresh one for a retry.
-        turnstile.reset()
         return action(formData)
       }}
     >

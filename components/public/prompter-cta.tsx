@@ -45,34 +45,46 @@ export default function PrompterCta({
         router.push(`/dashboard?brief=${encodeURIComponent(value)}`)
         return
       }
-      // Wait briefly for an in-flight first solve so a fast submit does
-      // not race the widget and eat an avoidable 403.
-      const token = await turnstile.waitForToken(2000)
       if (mode === "name") {
-        const result = await directCheck({
-          name: value,
-          anon_session_id: getAnonSessionId(),
-          cf_turnstile_token: token ?? undefined,
-        })
+        const result = await turnstile.verify((token) =>
+          directCheck({
+            name: value,
+            anon_session_id: getAnonSessionId(),
+            cf_turnstile_token: token,
+          })
+        )
+        if (!result) {
+          toast.error("The human check did not finish. Try again.")
+          return
+        }
         router.push(
           `/check/${encodeURIComponent(value)}?s=${result.search_id}&sid=${encodeURIComponent(getAnonSessionId())}`
         )
         return
       }
-      const search = await generateFilledSearch({
-        query: value,
-        anon_session_id: getAnonSessionId(),
-        cf_turnstile_token: token ?? undefined,
-      })
+      const search = await turnstile.verify((token) =>
+        generateFilledSearch({
+          query: value,
+          anon_session_id: getAnonSessionId(),
+          cf_turnstile_token: token,
+        })
+      )
+      if (!search) {
+        toast.error("The human check did not finish. Try again.")
+        return
+      }
       router.push(
         `/results/${search.id}?sid=${encodeURIComponent(getAnonSessionId())}`
       )
     } catch (error) {
       setPending(false)
-      turnstile.reset()
       if (error instanceof ApiError && error.status === 403) {
+        // verify already waited for a human solve and resent, so a 403
+        // here means the fresh token itself was refused. Re-arming the
+        // widget gives the next submit something to solve.
+        turnstile.reset()
         toast.error(
-          "The human check didn't pass. Give it another go in a moment."
+          "The human check did not pass. Tick the box that appears and submit again."
         )
         return
       }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { toast } from "sonner"
 import { useSearchParams } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
@@ -691,28 +692,20 @@ export default function ResultsTable({
     return anonSessionId ? { anon_session_id: anonSessionId } : {}
   }
 
-  async function spendToken(fresh: boolean): Promise<string | undefined> {
-    if (!anonSessionId) return undefined
-    if (fresh) turnstile.reset()
-    return (await turnstile.waitForToken(3000)) ?? undefined
-  }
-
   async function runOne(nameId: number) {
     setFiring(true)
     try {
-      try {
-        await runCheck(nameId, {
-          ...anonInput(),
-          cf_turnstile_token: await spendToken(false),
-        })
-      } catch (error) {
-        // Tokens are single use and the bypass cookie expires hourly, so
-        // a 403 gets one reset and retry before it reaches the user.
-        if (!(error instanceof ApiError) || error.status !== 403) throw error
-        await runCheck(nameId, {
-          ...anonInput(),
-          cf_turnstile_token: await spendToken(true),
-        })
+      // verify re-arms the widget itself, and only once a 403 has proven
+      // the previous token was consumed. Resetting an unconsumed token
+      // discards a valid solve and forces a fresh challenge, which is how
+      // an interactive-only widget ends up demanding a click it had
+      // already been given.
+      const result = await turnstile.verify(async (token) =>
+        runCheck(nameId, { ...anonInput(), cf_turnstile_token: token })
+      )
+      if (!result) {
+        toast.error("The human check did not finish. Try again.")
+        return
       }
       onMutation?.()
     } catch (error) {
@@ -741,13 +734,22 @@ export default function ResultsTable({
     try {
       let skipped = 0
       for (let round = 0; round < 20; round += 1) {
-        // Tokens are single use, so every round after the first needs a
-        // freshly solved one.
-        const result = await checkAllNames(Number(searchId), {
-          ...anonInput(),
-          cf_turnstile_token: await spendToken(round > 0),
-          ...(validSelected.length > 0 ? { name_ids: validSelected } : {}),
-        })
+        // Every round consumes its token server-side, so each gets its
+        // own verify. The wait is bounded: an unattended loop must not
+        // hang forever on a challenge nobody is solving.
+        const result = await turnstile.verify(
+          (token) =>
+            checkAllNames(Number(searchId), {
+              ...anonInput(),
+              cf_turnstile_token: token,
+              ...(validSelected.length > 0 ? { name_ids: validSelected } : {}),
+            }),
+          { waitMs: 15000 }
+        )
+        if (!result) {
+          toast.error("The human check did not finish. Try again.")
+          return
+        }
         skipped += result.skipped
         if (result.queued === 0) break
       }

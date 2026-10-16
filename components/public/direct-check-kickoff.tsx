@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useTurnstile } from "@/components/public/turnstile"
 import { getAnonSessionId } from "@/lib/anon"
-import { ApiError, directCheck, getMe } from "@/lib/api"
+import { directCheck, getMe } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
 
 /**
@@ -32,36 +32,26 @@ export default function DirectCheckKickoff({ name }: { name: string }) {
           if (!cancelled) router.push(`/dashboard/history/${result.search_id}`)
           return
         }
-        const token = await turnstile.waitForToken(2500)
-        try {
-          const result = await directCheck({
+        // `verify` sends with the pre-solved token when one exists and,
+        // on a 403, waits for the human to actually clear the widget it
+        // just surfaced before resending. No token means no request.
+        const result = await turnstile.verify((token) =>
+          directCheck({
             name,
             anon_session_id: getAnonSessionId(),
-            cf_turnstile_token: token ?? undefined,
+            cf_turnstile_token: token,
           })
-          if (!cancelled) {
-            router.replace(
-              `/check/${encodeURIComponent(name)}?s=${result.search_id}&sid=${encodeURIComponent(getAnonSessionId())}`
-            )
-          }
-        } catch (error) {
-          // Tokens are single use and the bypass cookie expires, so a
-          // 403 gets one reset and retry before it reaches the user.
-          if (!(error instanceof ApiError) || error.status !== 403) {
-            throw error
-          }
-          turnstile.reset()
-          const fresh = await turnstile.waitForToken(3000)
-          const result = await directCheck({
-            name,
-            anon_session_id: getAnonSessionId(),
-            cf_turnstile_token: fresh ?? undefined,
-          })
-          if (!cancelled) {
-            router.replace(
-              `/check/${encodeURIComponent(name)}?s=${result.search_id}&sid=${encodeURIComponent(getAnonSessionId())}`
-            )
-          }
+        )
+        if (!result) {
+          // The visitor left before solving the check, or the widget
+          // could not load at all.
+          setFailed(true)
+          return
+        }
+        if (!cancelled) {
+          router.replace(
+            `/check/${encodeURIComponent(name)}?s=${result.search_id}&sid=${encodeURIComponent(getAnonSessionId())}`
+          )
         }
       } catch (error) {
         if (cancelled) return
@@ -82,8 +72,8 @@ export default function DirectCheckKickoff({ name }: { name: string }) {
       {failed ? (
         <>
           <p className="text-sm text-muted-foreground">
-            The check could not start. This usually means the human check
-            failed or the service blinked. Nothing was charged.
+            The check did not finish. If the human check box below is
+            still showing, tick it and try again. Nothing was charged.
           </p>
           <Button
             onClick={() => {

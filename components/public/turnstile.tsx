@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef } from "react"
+import { ApiError } from "@/lib/api"
 
 const TURNSTILE_SCRIPT_URL =
   "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
@@ -50,6 +51,9 @@ export function useTurnstile(action: string) {
   const widgetIdRef = useRef<string | null>(null)
   const tokenRef = useRef<string | null>(null)
   const waitersRef = useRef<Array<(token: string) => void>>([])
+  // While a verify() is mid-flight a background reset (the five-minute
+  // expiry callback) must not clear a token the resend is about to use.
+  const verifyingRef = useRef(false)
 
   const settleWaiters = useCallback((token: string) => {
     const waiters = waitersRef.current
@@ -57,9 +61,8 @@ export function useTurnstile(action: string) {
     for (const waiter of waiters) waiter(token)
   }, [])
 
-  const getToken = useCallback(() => tokenRef.current, [])
-
   const reset = useCallback(() => {
+    if (verifyingRef.current) return
     tokenRef.current = null
     const turnstile = window.turnstile
     if (turnstile && widgetIdRef.current) {
@@ -68,12 +71,13 @@ export function useTurnstile(action: string) {
   }, [])
 
   /**
-   * Resolves with the current token, or waits up to `timeoutMs` for an
-   * in-flight solve to deliver one. Returns null on timeout so the caller
-   * can fall through to the backend's own response.
+   * Resolves with the current token, or waits for an in-flight solve to
+   * deliver one. Omit `timeoutMs` to wait indefinitely, which is the
+   * right shape when the interactive widget has just been surfaced and
+   * the caller refuses to send a request without a real token.
    */
   const waitForToken = useCallback(
-    (timeoutMs = 2000): Promise<string | null> => {
+    (timeoutMs?: number): Promise<string | null> => {
       if (tokenRef.current) return Promise.resolve(tokenRef.current)
       if (!siteKey || !widgetIdRef.current) return Promise.resolve(null)
       return new Promise((resolve) => {
@@ -82,16 +86,57 @@ export function useTurnstile(action: string) {
           if (box.timer) clearTimeout(box.timer)
           resolve(token)
         }
-        box.timer = setTimeout(() => {
-          waitersRef.current = waitersRef.current.filter(
-            (waiter) => waiter !== settle
-          )
-          resolve(tokenRef.current)
-        }, timeoutMs)
+        if (timeoutMs !== undefined) {
+          box.timer = setTimeout(() => {
+            waitersRef.current = waitersRef.current.filter(
+              (waiter) => waiter !== settle
+            )
+            resolve(tokenRef.current)
+          }, timeoutMs)
+        }
         waitersRef.current.push(settle)
       })
     },
     [siteKey]
+  )
+
+  /**
+   * Send `attempt` once with whatever token exists. If the backend turns
+   * it away with a 403, that rejection is what surfaces the interactive
+   * widget, so we reset, wait for a real human solve, and resend. When no
+   * widget is on the page (a signed-in caller) there is nothing to solve,
+   * so the wait returns immediately and the 403 surfaces to the caller.
+   * Pass `waitMs` to bound the human wait for unattended loops, where 0
+   * means do not wait at all.
+   */
+  const verify = useCallback(
+    async <T,>(
+      attempt: (token?: string) => Promise<T>,
+      options: { waitMs?: number } = {}
+    ): Promise<T | null> => {
+      if (!siteKey) return attempt()
+      verifyingRef.current = true
+      try {
+        return await attempt((await waitForToken(2500)) ?? undefined)
+      } catch (error) {
+        if (!(error instanceof ApiError) || error.status !== 403) {
+          throw error
+        }
+        tokenRef.current = null
+        const turnstile = window.turnstile
+        if (turnstile && widgetIdRef.current) {
+          turnstile.reset(widgetIdRef.current)
+        }
+        // A bounded wait (0 meaning do not wait at all) keeps an
+        // unattended loop from hanging on a challenge nobody solves.
+        const fresh = await waitForToken(options.waitMs)
+        if (!fresh) return null
+        return attempt(fresh)
+      } finally {
+        verifyingRef.current = false
+      }
+    },
+    [siteKey, waitForToken]
   )
 
   useEffect(() => {
@@ -127,7 +172,11 @@ export function useTurnstile(action: string) {
       })
     return () => {
       cancelled = true
+      // Settle anyone still waiting so an unbounded wait cannot outlive
+      // the component; they fall through as a failed solve.
+      const stuck = waitersRef.current
       waitersRef.current = []
+      for (const waiter of stuck) waiter("")
     }
   }, [siteKey, action, reset, settleWaiters])
 
@@ -135,5 +184,5 @@ export function useTurnstile(action: string) {
     <div ref={containerRef} className="flex justify-center" />
   ) : null
 
-  return { widget, getToken, waitForToken, reset, enabled: Boolean(siteKey) }
+  return { widget, waitForToken, verify, reset, enabled: Boolean(siteKey) }
 }
