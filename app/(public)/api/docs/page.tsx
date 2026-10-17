@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { JsonLd } from "@/components/app/json-ld"
 import ApiSandbox from "@/components/public/api-sandbox"
 import CopyCode from "@/components/public/copy-code"
+import EndpointReference from "@/components/public/endpoint-reference"
+import { endpointsOf, getApiSpec } from "@/lib/openapi"
 import { SITE_URL, pageMetadata } from "@/lib/site"
 
 export const revalidate = 3600
@@ -18,7 +20,45 @@ export const metadata: Metadata = pageMetadata({
 
 const BASE = "https://unclaimedbyai.com/api/v1"
 
-export default function ApiDocsPage() {
+/**
+ * Tags an integrator with a key actually calls, in the order they are
+ * usually needed. The browser-only surfaces, and the internal health and
+ * stats endpoints, are left out on purpose: documenting them invites
+ * someone to call something that was never meant for a script.
+ */
+const TAG_ORDER = [
+  "checks",
+  "searches",
+  "names",
+  "sandboxes",
+  "research",
+  "watches",
+  "billing",
+  "me",
+  "api-keys",
+]
+
+const TAG_LABELS: Record<string, string> = {
+  checks: "Check one name",
+  searches: "Generate and poll searches",
+  names: "Add names and run checks",
+  sandboxes: "Sandboxes and idea generation",
+  research: "Market research",
+  watches: "Watchlist",
+  billing: "Plans, credits, and orders",
+  me: "Your account",
+  "api-keys": "API keys",
+}
+
+export default async function ApiDocsPage() {
+  const spec = await getApiSpec()
+  const endpoints = spec ? endpointsOf(spec) : []
+  const groups = TAG_ORDER.map((tag) => ({
+    tag,
+    label: TAG_LABELS[tag] ?? tag,
+    endpoints: endpoints.filter((endpoint) => endpoint.tag === tag),
+  })).filter((group) => group.endpoints.length > 0)
+
   return (
     <>
       <JsonLd
@@ -53,10 +93,10 @@ export default function ApiDocsPage() {
         </div>
         <div className="flex flex-col md:flex-row md:justify-center gap-2">
           <Button size="lg" asChild>
-            <Link href="#sandbox">Try it in the sandbox</Link>
+            <Link href="#reference">Read the reference</Link>
           </Button>
           <Button size="lg" variant="outline" asChild>
-            <Link href="/dashboard/account?tab=api">Create an API key</Link>
+            <Link href="#sandbox">Try it in the sandbox</Link>
           </Button>
         </div>
       </section>
@@ -68,17 +108,16 @@ export default function ApiDocsPage() {
               Try it from this page
             </h2>
             <p className="mx-auto max-w-prose text-sm text-muted-foreground">
-              Every documented endpoint sits below with its path, parameters,
-              and request body ready to edit. Paste your key, change what you
-              want, and send the request to production from your browser, with
-              the response rendered right there.
+              Paste your key, change what you want, and send the request to
+              production from your browser, with the response rendered right
+              there.
             </p>
           </div>
           <ApiSandbox />
         </div>
       </section>
 
-      <section className="border-b px-4 py-10">
+      <section id="authentication" className="scroll-mt-20 border-b px-4 py-10">
         <div className="mx-auto max-w-7xl space-y-6">
           <div className="space-y-1 sm:text-center">
             <h2 className="font-heading text-2xl font-semibold md:text-3xl">
@@ -96,17 +135,70 @@ export default function ApiDocsPage() {
           />
           <p className="text-sm text-muted-foreground">
             Create keys in the{" "}
-            <Link href="/dashboard/account?tab=api" className="text-primary underline">
+            <Link
+              href="/dashboard/account?tab=api"
+              className="text-primary underline"
+            >
               API tab of your account page
             </Link>
-            . Authenticated requests skip the browser human-verification
-            step entirely. Two things stay session-only on purpose: managing
-            keys and deleting your account, so a leaked key can do neither.
+            . Two things stay session-only on purpose: managing keys and
+            deleting your account, so a leaked key can do neither. Sign-in
+            itself is a browser flow, with a magic link or Google, and is
+            documented in the app rather than here.
           </p>
         </div>
       </section>
 
-      <section className="border-b px-4 py-10">
+      <section id="reference" className="scroll-mt-20 border-b px-4 py-10">
+        <div className="mx-auto max-w-7xl space-y-8">
+          <div className="space-y-1 sm:text-center">
+            <h2 className="font-heading text-2xl font-semibold md:text-3xl">
+              Reference
+            </h2>
+            <p className="mx-auto max-w-prose text-sm text-muted-foreground">
+              Every endpoint a key can call, with its parameters, request
+              body, and response fields. Generated from the API&apos;s own
+              schema, so it cannot drift from what the server accepts.
+            </p>
+          </div>
+
+          {groups.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              The reference could not be loaded right now. The quickstarts
+              above and the sandbox still work.
+            </p>
+          ) : (
+            <>
+              <nav className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                {groups.map((group) => (
+                  <a
+                    key={group.tag}
+                    href={`#tag-${group.tag}`}
+                    className="text-primary underline"
+                  >
+                    {group.label}
+                  </a>
+                ))}
+              </nav>
+              {groups.map((group) => (
+                <div key={group.tag} id={`tag-${group.tag}`} className="scroll-mt-20 space-y-4">
+                  <h3 className="font-heading text-2xl font-semibold">
+                    {group.label}
+                  </h3>
+                  {group.endpoints.map((endpoint) => (
+                    <EndpointReference
+                      key={`${endpoint.method}-${endpoint.path}`}
+                      endpoint={endpoint}
+                    />
+                  ))}
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+      </section>
+
+      <section className="px-4 py-10">
         <div className="mx-auto max-w-7xl space-y-6">
           <div className="space-y-1 sm:text-center">
             <h2 className="font-heading text-2xl font-semibold md:text-3xl">
@@ -121,11 +213,6 @@ export default function ApiDocsPage() {
             <h3 className="font-heading text-xl font-semibold">
               1. Check one exact name
             </h3>
-            <p className="text-sm text-muted-foreground">
-              The first check on any name is free. This creates a search
-              holding that single name and queues its check, returning ids you
-              can poll.
-            </p>
             <CopyCode
               code={`curl -X POST ${BASE}/checks/direct \\
   -H "Authorization: Bearer uba_live_YOUR_KEY" \\
@@ -136,9 +223,9 @@ export default function ApiDocsPage() {
 {"search_id": 123, "name_id": 456}`}
             />
             <p className="text-sm text-muted-foreground">
-              The results response carries scored names in items, and names
-              still running in pending, whose job snapshot fills in with
-              domains, handles, and per-model progress as it arrives.
+              The first check on any name is free. Poll the results for
+              scored names, and for names still running, whose job fills in
+              with domains, handles, and per-model progress as it arrives.
             </p>
             <CopyCode
               code={`curl ${BASE}/searches/123/results \\
@@ -150,11 +237,6 @@ export default function ApiDocsPage() {
             <h3 className="font-heading text-xl font-semibold">
               2. Generate names from a brief
             </h3>
-            <p className="text-sm text-muted-foreground">
-              Sharpened briefs, four naming studios, a judge pass, and live
-              .com screening. Accounts spend one search. Poll the header until
-              generation reports ready.
-            </p>
             <CopyCode
               code={`curl -X POST ${BASE}/searches/generate \\
   -H "Authorization: Bearer uba_live_YOUR_KEY" \\
@@ -167,16 +249,17 @@ export default function ApiDocsPage() {
 curl ${BASE}/searches/124/header \\
   -H "Authorization: Bearer uba_live_YOUR_KEY"`}
             />
+            <p className="text-sm text-muted-foreground">
+              Sharpened briefs, four naming studios, a judge pass, and live
+              .com screening. Accounts spend one search. Poll the header
+              until generation reports ready.
+            </p>
           </div>
 
           <div className="space-y-3">
             <h3 className="font-heading text-xl font-semibold">
               3. Guard a name while you decide
             </h3>
-            <p className="text-sm text-muted-foreground">
-              Watches recheck domains and handles every few hours and are
-              free. Sweep on demand when you are impatient.
-            </p>
             <CopyCode
               code={`curl -X POST ${BASE}/watches \\
   -H "Authorization: Bearer uba_live_YOUR_KEY" \\
@@ -186,11 +269,15 @@ curl ${BASE}/searches/124/header \\
 curl -X POST ${BASE}/watches/1/sweep \\
   -H "Authorization: Bearer uba_live_YOUR_KEY"`}
             />
+            <p className="text-sm text-muted-foreground">
+              Watches recheck domains and handles every few hours and are
+              free. Sweep on demand when you are impatient.
+            </p>
           </div>
         </div>
       </section>
 
-      <section className="px-4 py-10">
+      <section className="border-t px-4 py-10">
         <div className="mx-auto max-w-7xl space-y-6">
           <div className="space-y-1 sm:text-center">
             <h2 className="font-heading text-2xl font-semibold md:text-3xl">
