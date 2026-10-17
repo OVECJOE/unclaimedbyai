@@ -9,7 +9,10 @@ import Logo from "@/components/app/logo"
 
 export default function AppFooter() {
   return (
-    <footer className="bg-secondary/70 p-4 pt-10 dark:bg-secondary/40">
+    // mt-10 keeps page content clear of the gray block; the flex
+    // column layouts above do not collapse margins, so the gap holds
+    // on every page that uses this footer.
+    <footer className="mt-10 bg-secondary/70 p-4 pt-10 dark:bg-secondary/40">
       <div className="container mx-auto max-w-7xl space-y-8">
         <div className="flex flex-col justify-between gap-8 sm:flex-row">
           <div className="space-y-3">
