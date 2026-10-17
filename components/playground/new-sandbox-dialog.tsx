@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { SparklesIcon } from "@hugeicons/core-free-icons"
+import { CubeIcon } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -125,7 +125,7 @@ export default function NewSandboxDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={pending}>
-              <HugeiconsIcon icon={SparklesIcon} className="size-4" />
+              <HugeiconsIcon icon={CubeIcon} className="size-4" />
               {pending ? "Creating..." : "Create sandbox"}
             </Button>
           </DialogFooter>

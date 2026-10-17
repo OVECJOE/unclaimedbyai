@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { cn } from "@/lib/utils"
 import { isActivePath, topNavItems } from "@/components/dashboard/nav"
-import { SparklesIcon } from "@hugeicons/core-free-icons"
+import { Layout01Icon } from "@hugeicons/core-free-icons"
 
 /**
  * The phone shell: a fixed bottom bar, four destinations, thumb reach.
@@ -16,7 +16,7 @@ export default function MobileNav() {
   const pathname = usePathname()
   const items = [
     ...topNavItems.slice(0, 1),
-    { href: "/dashboard/playground", label: "Playground", icon: SparklesIcon },
+    { href: "/dashboard/playground", label: "Playground", icon: Layout01Icon },
     ...topNavItems.slice(1),
   ]
 

@@ -21,7 +21,7 @@ import {
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { SparklesIcon } from "@hugeicons/core-free-icons"
+import { MagicWand01Icon } from "@hugeicons/core-free-icons"
 import { cn } from "@/lib/utils"
 import { createSearch, type Idea } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
@@ -50,7 +50,7 @@ function GenerateDropZone({ armed }: { armed: boolean }) {
             : "text-muted-foreground"
       )}
     >
-      <HugeiconsIcon icon={SparklesIcon} className="size-4" />
+      <HugeiconsIcon icon={MagicWand01Icon} className="size-4" />
       {isOver
         ? "Drop to generate names for this idea"
         : "Drag an idea here to generate names for it"}

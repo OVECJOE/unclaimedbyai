@@ -9,7 +9,7 @@ import {
   Cancel01Icon,
   Pin02Icon,
   Search01Icon,
-  SparklesIcon,
+  MagicWand01Icon,
 } from "@hugeicons/core-free-icons"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -247,7 +247,7 @@ export default function IdeaDetailPanel({
 
       <div className="flex flex-wrap gap-2 border-t p-4">
         <Button size="sm" disabled={busy} onClick={() => void toSearch()}>
-          <HugeiconsIcon icon={SparklesIcon} className="size-4" />
+          <HugeiconsIcon icon={MagicWand01Icon} className="size-4" />
           Generate names · 2
         </Button>
         <Button
