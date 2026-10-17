@@ -21,10 +21,13 @@ export default async function DashboardLayout({
       <DashboardSidebar user={user} />
       {/* The phone shell is a fixed bottom bar, so the content carries
           the bar's height as bottom padding rather than scrolling under
-          it. Desktop clears the rail on the left instead. */}
-      <main className="min-h-screen pb-16 md:pb-0 md:pl-60">
+          it. Desktop clears the rail on the left instead.
+          Main is a flex column and the content wrapper grows, so on a
+          short page the leftover height lands above the footer, not
+          below it, and the footer stays pinned to the bottom. */}
+      <main className="flex min-h-screen flex-col pb-16 md:pb-0 md:pl-60">
         <ClaimSearches />
-        {children}
+        <div className="flex-1">{children}</div>
         <AppFooter />
       </main>
       <MobileNav />
