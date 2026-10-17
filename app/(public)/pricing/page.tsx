@@ -9,6 +9,7 @@ import { getMeServer } from "@/lib/api-server"
 import {
   CURRENCY_SYMBOL,
   PRICING_DESCRIPTION,
+  PRO_LIMITS,
   PRO_PRICE,
   pageMetadata,
   pricingJsonLd,
@@ -18,13 +19,6 @@ import {
 import type { Pack } from "@/lib/api"
 
 export const revalidate = 3600
-
-const PRO_LIMITS = {
-  max_sandboxes: 10,
-  max_searches: 50,
-  max_checks_per_name: 5,
-  max_generation_runs: 20,
-}
 
 async function loadPacks(): Promise<Pack[]> {
   try {
@@ -124,9 +118,9 @@ export default async function PricingPage() {
             Ideas are free. Depth is not.
           </h1>
           <p className="mx-auto max-w-prose md:text-lg">
-            Generate ideas and check names without paying anything. When an
-            idea earns your attention, research it properly and keep its
-            availability fresh, either on Pro or with credits you buy once.
+            Generate ideas and check names without paying anything. When an idea
+            earns your attention, research it properly and keep its availability
+            fresh, either on Pro or with credits you buy once.
           </p>
         </div>
 

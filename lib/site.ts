@@ -11,6 +11,21 @@ export const PRO_PRICE = 14.99
 export const CURRENCY = "USD"
 export const CURRENCY_SYMBOL = "$"
 
+/**
+ * What the Pro tier actually allows. The one place this lives: the
+ * public pricing page and the dashboard's upgrade card both render
+ * from here, so the upsell can never describe a plan that checkout
+ * does not deliver. These must match the Pro row the backend seeds,
+ * which is what /api/v1/plan enforces after the webhook records a
+ * subscription.
+ */
+export const PRO_LIMITS = {
+  max_sandboxes: 10,
+  max_searches: 50,
+  max_checks_per_name: 5,
+  max_generation_runs: 20,
+} as const
+
 export function formatPrice(amount: number): string {
   return `${CURRENCY_SYMBOL}${amount.toFixed(2)}`
 }
@@ -52,9 +67,7 @@ export const PLANS = BASE_PLANS.map((plan) => ({
   ...plan,
   label: `${formatPrice(plan.amount / plan.credits)} per credit.`,
   benefits: creditPackBenefits(plan.credits),
-  discountage: Math.round(
-    (1 - plan.amount / plan.credits / BASE_RATE) * 100
-  ),
+  discountage: Math.round((1 - plan.amount / plan.credits / BASE_RATE) * 100),
 }))
 
 const planSummary = PLANS.map(

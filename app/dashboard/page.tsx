@@ -84,8 +84,8 @@ export default async function DashboardHomePage() {
             </p>
           </div>
           {!isPro ? (
-            <div className="flex items-center gap-3">
-              <p className="text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <p className="max-w-56 text-sm text-muted-foreground">
                 Pro removes the sandbox cap and adds the watchlist.
               </p>
               <UpgradeButton />
@@ -139,7 +139,7 @@ export default async function DashboardHomePage() {
           <h2 className="font-heading text-2xl font-semibold">
             What&apos;s new
           </h2>
-          <ul className="grid gap-3 md:grid-cols-3">
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {PRODUCT_NOTES.map((note) => (
               <li key={note.title} className="border p-5">
                 <p className="text-[0.625rem] font-semibold tracking-widest text-primary uppercase">

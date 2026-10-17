@@ -38,10 +38,15 @@ function StatCard({
  * The five numbers the home page leads with. Each card is a link to
  * where the number is acted on, because a stat that cannot be acted on
  * is decoration.
+ *
+ * Columns step 2, 3, 5 across the breakpoints: the dashboard's 240px
+ * rail eats the left of every viewport above md, so three cards wait
+ * until lg has the room and five wait until xl, which keeps every note
+ * readable instead of wrapping one word per line.
  */
 export default function StatsRow({ stats }: { stats: MeStats }) {
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5">
       <StatCard
         label="Searches"
         value={`${stats.searches_used}/${stats.searches_limit}`}

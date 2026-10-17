@@ -14,7 +14,12 @@ import ClearPlanCookie from "@/components/dashboard/clear-plan-cookie"
 import { PENDING_PLAN_COOKIE } from "@/components/public/plan-cookie"
 import { getMeServer, apiServer } from "@/lib/api-server"
 import { ApiError, type Pack, type PlanInfo } from "@/lib/api"
-import { CURRENCY_SYMBOL, creditPackBenefits, proBenefits } from "@/lib/site"
+import {
+  CURRENCY_SYMBOL,
+  PRO_LIMITS,
+  creditPackBenefits,
+  proBenefits,
+} from "@/lib/site"
 
 export const dynamic = "force-dynamic"
 
@@ -165,7 +170,11 @@ export default async function BillingPage({
                 </div>
                 <div className="space-y-3">
                   <ul className="space-y-1 text-sm">
-                    {proBenefits(plan).map((benefit) => (
+                    {/* The Pro tier's real numbers, not the current
+                        plan's: this card is the upsell, and showing the
+                        free limits under a Pro heading sells the wrong
+                        thing. */}
+                    {proBenefits(PRO_LIMITS).map((benefit) => (
                       <li key={benefit} className="text-muted-foreground">
                         {benefit}
                       </li>
@@ -179,7 +188,7 @@ export default async function BillingPage({
                       per month
                     </span>
                   </div>
-                  <UpgradeButton />
+                  <UpgradeButton className="w-full" />
                 </div>
               </div>
             </div>
