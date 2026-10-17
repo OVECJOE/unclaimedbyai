@@ -61,7 +61,7 @@ export default function NewSandboxButton() {
       if (industries.trim()) signals.industries = industries.trim()
       if (customer.trim()) signals.target_customer = customer.trim()
       const sandbox = await createSandbox({ name: name.trim(), signals })
-      router.push(`/dashboard/sandbox/${sandbox.public_id}`)
+      router.push(`/dashboard/playground?sandbox=${sandbox.public_id}`)
     } catch (error) {
       setPending(false)
       toastApiError(error, "Could not create the sandbox.")

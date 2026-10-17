@@ -529,7 +529,10 @@ export type Sandbox = {
   idea_count: number
   search_count: number
   created_at: string
-  ideas?: Idea[]
+}
+
+export type SandboxDetail = Sandbox & {
+  ideas: Idea[]
 }
 
 export type IdeaCanvas = {
@@ -547,6 +550,9 @@ export type Idea = {
   status: string
   position: number
   pinned: boolean
+  // Omitted on the wire when the idea has no search yet, which the
+  // API's exclude-none contract produces, hence the optional marker.
+  search_id?: number | null
   created_at: string
 }
 
@@ -581,8 +587,53 @@ export function saveSignalProfile(
   })
 }
 
-export function listSandboxes(): Promise<Sandbox[]> {
-  return apiRequest<Sandbox[]>("/api/v1/sandboxes")
+export type SandboxList = {
+  items: Sandbox[]
+  total: number
+  page: number
+  page_size: number
+}
+
+export type SandboxListParams = {
+  page?: number
+  page_size?: number
+  q?: string
+  filter?: "all" | "ideas" | "searches" | "empty"
+  sort?: "newest" | "oldest" | "name"
+}
+
+export function listSandboxes(
+  params: SandboxListParams = {}
+): Promise<SandboxList> {
+  const query = new URLSearchParams()
+  if (params.page) query.set("page", String(params.page))
+  if (params.page_size) query.set("page_size", String(params.page_size))
+  if (params.q) query.set("q", params.q)
+  if (params.filter && params.filter !== "all")
+    query.set("filter", params.filter)
+  if (params.sort) query.set("sort", params.sort)
+  const suffix = query.toString() ? `?${query.toString()}` : ""
+  return apiRequest<SandboxList>(`/api/v1/sandboxes${suffix}`)
+}
+
+export type ActivityDay = {
+  date: string
+  searches: number
+  checks: number
+}
+
+export type MeStats = {
+  searches_used: number
+  searches_limit: number
+  sandboxes: number
+  ideas: number
+  checks: number
+  credits: number
+  activity: ActivityDay[]
+}
+
+export function getMeStats(): Promise<MeStats> {
+  return apiRequest<MeStats>("/api/v1/me/stats")
 }
 
 export function createSandbox(input: {
@@ -600,9 +651,9 @@ export function createSandbox(input: {
 export function getSandbox(
   publicId: string,
   sid?: string
-): Promise<Sandbox> {
+): Promise<SandboxDetail> {
   const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
-  return apiRequest<Sandbox>(`/api/v1/sandboxes/${publicId}${query}`)
+  return apiRequest<SandboxDetail>(`/api/v1/sandboxes/${publicId}${query}`)
 }
 
 export function updateSandbox(
@@ -649,6 +700,23 @@ export function generateIdeas(
   const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
   return apiRequest(`/api/v1/sandboxes/${publicId}/generate${query}`, {
     method: "POST",
+    body: input,
+  })
+}
+
+export function updateIdea(
+  publicId: string,
+  input: {
+    title?: string
+    concept?: string
+    position?: number
+    pinned?: boolean
+  },
+  sid?: string
+): Promise<Idea> {
+  const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
+  return apiRequest<Idea>(`/api/v1/ideas/${publicId}${query}`, {
+    method: "PATCH",
     body: input,
   })
 }
@@ -784,9 +852,7 @@ export function listWatchNames(params?: {
   const search = new URLSearchParams()
   if (params?.q) search.set("q", params.q)
   const query = search.toString()
-  return apiRequest(
-    `/api/v1/watches/names${query ? `?${query}` : ""}`
-  )
+  return apiRequest(`/api/v1/watches/names${query ? `?${query}` : ""}`)
 }
 
 export type CheckedNameItem = {

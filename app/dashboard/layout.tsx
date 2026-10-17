@@ -1,6 +1,7 @@
 import AppFooter from "@/components/app-footer"
 import ClaimSearches from "@/components/dashboard/claim-searches"
-import DashboardHeader from "@/components/dashboard/dashboard-header"
+import DashboardSidebar from "@/components/dashboard/sidebar"
+import MobileNav from "@/components/dashboard/mobile-nav"
 import { getMeServer } from "@/lib/api-server"
 import { ApiError } from "@/lib/api"
 import { redirect } from "next/navigation"
@@ -16,13 +17,17 @@ export default async function DashboardLayout({
   })
   if (!user) redirect("/auth")
   return (
-    <div>
-      <DashboardHeader user={user} />
-      <main className="min-h-screen">
+    <div className="min-h-screen">
+      <DashboardSidebar user={user} />
+      {/* The phone shell is a fixed bottom bar, so the content carries
+          the bar's height as bottom padding rather than scrolling under
+          it. Desktop clears the rail on the left instead. */}
+      <main className="min-h-screen pb-16 md:pb-0 md:pl-60">
         <ClaimSearches />
         {children}
+        <AppFooter />
       </main>
-      <AppFooter />
+      <MobileNav />
     </div>
   )
 }

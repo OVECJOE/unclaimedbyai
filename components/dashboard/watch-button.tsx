@@ -153,7 +153,12 @@ export function WatchForm({
         toast.success(`Watch updated for ${name}.`)
         onSaved?.(watchId, tlds, platforms)
       } else {
-        const watch = await addWatch({ search_id: searchId, name, tlds, platforms })
+        const watch = await addWatch({
+          search_id: searchId,
+          name,
+          tlds,
+          platforms,
+        })
         toast.success(
           `Now watching ${name}. We will email you if any of its domains or handles get claimed.`
         )
@@ -179,7 +184,9 @@ export function WatchForm({
         options={TLD_OPTIONS}
         selected={tlds}
         max={MAX_TLDS}
-        onToggle={(value) => setTlds((list) => toggleValue(list, value, MAX_TLDS))}
+        onToggle={(value) =>
+          setTlds((list) => toggleValue(list, value, MAX_TLDS))
+        }
       />
       <ChipGroup
         label="Handles"
@@ -200,7 +207,11 @@ export function WatchForm({
         <Button size="sm" variant="outline" disabled={pending} onClick={onDone}>
           Cancel
         </Button>
-        <Button size="sm" disabled={pending || tlds.length === 0} onClick={() => void submit()}>
+        <Button
+          size="sm"
+          disabled={pending || tlds.length === 0}
+          onClick={() => void submit()}
+        >
           {pending
             ? "Saving…"
             : watchId !== undefined
@@ -256,7 +267,9 @@ function RemoveWatchDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={pending}>Keep watching</AlertDialogCancel>
+          <AlertDialogCancel disabled={pending}>
+            Keep watching
+          </AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
               variant="destructive"

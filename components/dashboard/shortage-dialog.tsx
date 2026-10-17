@@ -96,8 +96,8 @@ export default function ShortageDialog({
         </DialogHeader>
         {failed ? (
           <p className="text-sm text-muted-foreground">
-            We could not load pack prices right now. Visit the billing page
-            when you are ready to top up.
+            We could not load pack prices right now. Visit the billing page when
+            you are ready to top up.
           </p>
         ) : null}
         <DialogFooter>

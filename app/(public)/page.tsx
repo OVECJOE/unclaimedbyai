@@ -72,7 +72,7 @@ export default async function Page() {
             and AI associations before you build around one.
           </p>
         </div>
-        <PrompterCta />
+        <PrompterCta signedIn={Boolean(user)} />
       </section>
 
       <PublicSearchesStrip />

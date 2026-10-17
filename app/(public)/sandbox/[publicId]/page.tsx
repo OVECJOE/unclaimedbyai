@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import { apiServer, getMeServer } from "@/lib/api-server"
-import { ApiError, type Sandbox } from "@/lib/api"
+import { ApiError, type SandboxDetail } from "@/lib/api"
 import SandboxView from "@/components/dashboard/sandbox-view"
 import SandboxGate from "@/components/dashboard/sandbox-gate"
 
@@ -25,9 +25,11 @@ export default async function SandboxPage({
   const { sid } = await searchParams
   const user = await getMeServer().catch(() => null)
   const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
-  let sandbox: Sandbox
+  let sandbox: SandboxDetail
   try {
-    sandbox = await apiServer<Sandbox>(`/api/v1/sandboxes/${publicId}${query}`)
+    sandbox = await apiServer<SandboxDetail>(
+      `/api/v1/sandboxes/${publicId}${query}`
+    )
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound()
     throw error

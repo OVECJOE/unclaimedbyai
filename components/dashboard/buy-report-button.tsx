@@ -6,8 +6,9 @@ import { ApiError, createCheckout, getMe, listPacks } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
 
 /**
- * Direct path from a report to a real checkout for the single-report
- * pack, keeping the visitor on this page through the purchase. Signed
+ * Direct path from a check to a real checkout for the smallest credit
+ * pack, keeping the visitor on this page through the purchase. Credits
+ * are what a re-check costs, so the buy happens where the spend is. Signed
  * out, it goes through auth, where the plan handoff picks them up.
  */
 export default function BuyReportButton() {
@@ -24,9 +25,7 @@ export default function BuyReportButton() {
       const packs = await listPacks()
       // The smallest pack is the right default for someone who just
       // wants enough credits to unblock this one action.
-      const pack = [...packs].sort(
-        (a, b) => a.price_minor - b.price_minor
-      )[0]
+      const pack = [...packs].sort((a, b) => a.price_minor - b.price_minor)[0]
       if (!pack) throw new ApiError(0, "Packs are unavailable right now")
       const { checkout_url } = await createCheckout(
         pack.slug,
@@ -41,7 +40,7 @@ export default function BuyReportButton() {
 
   return (
     <Button size="lg" disabled={pending} onClick={() => void buy()}>
-      {pending ? "Redirecting…" : "Buy the full report"}
+      {pending ? "Redirecting…" : "Buy credits"}
     </Button>
   )
 }

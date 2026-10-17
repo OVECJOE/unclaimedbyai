@@ -211,7 +211,7 @@ export default async function PublicSearchPage({ params }: PageProps) {
                     : `Sign in to star ${topPick.name.name}: we recheck its domains and handles every few hours and email you the moment something changes. Watching is free.`}
                 </p>
                 <Button asChild>
-                  <Link href={user ? "/dashboard/watch" : "/auth"}>
+                  <Link href={user ? "/dashboard/playground/watchlist" : "/auth"}>
                     {user ? "Open your watchlist" : "Sign in to watch it"}
                   </Link>
                 </Button>

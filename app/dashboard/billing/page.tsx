@@ -105,9 +105,7 @@ export default async function BillingPage({
                 </p>
               </div>
               <div className="border p-5 md:col-span-2">
-                <p className="mb-3 text-sm text-muted-foreground">
-                  This month
-                </p>
+                <p className="mb-3 text-sm text-muted-foreground">This month</p>
                 <div className="space-y-3">
                   <UsageBar
                     label="Searches"
@@ -229,9 +227,9 @@ export default async function BillingPage({
           <Alert className="bg-secondary">
             <HugeiconsIcon icon={InfoIcon} size={48} />
             <AlertDescription>
-              Credits never expire and sit on top of your plan. A search
-              beyond your monthly allowance draws from credits, so running
-              out of plan never blocks you while credits last.
+              Credits never expire and sit on top of your plan. A search beyond
+              your monthly allowance draws from credits, so running out of plan
+              never blocks you while credits last.
             </AlertDescription>
           </Alert>
         </div>

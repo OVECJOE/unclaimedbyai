@@ -198,9 +198,7 @@ export default async function SearchResultNamePage({
     throw error
   }
 
-  const freeDomains = report.domains.filter(
-    (d) => d.status === "available"
-  )
+  const freeDomains = report.domains.filter((d) => d.status === "available")
   const availableDomains = freeDomains.length
   // The first free extension is the one worth a register link: a score
   // this high plus a verified-open domain is the warmest moment in the
@@ -235,11 +233,7 @@ export default async function SearchResultNamePage({
         ? "Minor collision risk"
         : "High collision risk"
   const associationChipClass =
-    associating === 0
-      ? CHIP_GREEN
-      : associating === 1
-        ? CHIP_AMBER
-        : CHIP_RED
+    associating === 0 ? CHIP_GREEN : associating === 1 ? CHIP_AMBER : CHIP_RED
 
   const availabilityCopy =
     availableDomains === totalDomains
@@ -345,7 +339,10 @@ export default async function SearchResultNamePage({
                 Scores this high are rare. Star the name above to keep watching
                 it for free, and grab a report pack whenever you want fresh
                 checks later.{" "}
-                <Link href="/dashboard/billing" className="text-primary underline">
+                <Link
+                  href="/dashboard/billing"
+                  className="text-primary underline"
+                >
                   See report packs
                 </Link>
               </p>
@@ -403,7 +400,11 @@ export default async function SearchResultNamePage({
                       label="AI association"
                       available={associating}
                       total={report.ai.length}
-                      caption={associating === 1 ? "model knows this name" : "models already know this name"}
+                      caption={
+                        associating === 1
+                          ? "model knows this name"
+                          : "models already know this name"
+                      }
                       chip={associationLabel}
                       chipClass={associationChipClass}
                     />
@@ -544,10 +545,7 @@ export default async function SearchResultNamePage({
                           <p className="font-mono text-xs text-muted-foreground">
                             {row.model ?? "unknown model"}
                           </p>
-                          <p
-                            className="text-sm"
-                            title={row.error ?? undefined}
-                          >
+                          <p className="text-sm" title={row.error ?? undefined}>
                             {row.error
                               ? "Couldn't check this model"
                               : (row.association ?? "No strong association")}

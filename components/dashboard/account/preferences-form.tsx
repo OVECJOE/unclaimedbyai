@@ -10,7 +10,7 @@ import type { Preferences } from "@/lib/api"
 const ROWS = [
   {
     key: "report_ready",
-    title: "Report ready",
+    title: "Checks finished",
     body: "When a check you started finishes running.",
   },
   {

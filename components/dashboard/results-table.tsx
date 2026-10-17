@@ -234,7 +234,7 @@ function NameRow({
           ) : null}
         </span>
         {result.rationale ? (
-          <span className="mt-0.5 block truncate pl-8 text-xs text-muted-foreground italic max-w-sm">
+          <span className="mt-0.5 block max-w-sm truncate pl-8 text-xs text-muted-foreground italic">
             {result.rationale}
           </span>
         ) : null}
@@ -765,7 +765,10 @@ export default function ResultsTable({
       if (error instanceof ApiError && error.status === 402 && onShortage) {
         onShortage()
       } else {
-        toastApiError(error, "The checks failed to start. Try again in a moment.")
+        toastApiError(
+          error,
+          "The checks failed to start. Try again in a moment."
+        )
       }
     } finally {
       setFiring(false)

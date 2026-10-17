@@ -13,8 +13,8 @@ export default function SandboxGate() {
       <div className="flex flex-col items-center gap-3 border border-dashed p-6 text-center">
         <p className="font-heading text-xl">Keep this sandbox.</p>
         <p className="max-w-prose text-sm text-muted-foreground">
-          Sign in and this sandbox moves into your account automatically, so
-          the ideas you are looking at stay yours.
+          Sign in and this sandbox moves into your account automatically, so the
+          ideas you are looking at stay yours.
         </p>
         <Button asChild>
           <Link href="/auth">Sign in to keep them</Link>

@@ -11,7 +11,7 @@ import {
   addManualIdea,
   generateIdeas,
   getSandbox,
-  type Sandbox,
+  type SandboxDetail,
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
 import IdeaCard from "@/components/dashboard/idea-card"
@@ -28,11 +28,11 @@ export default function SandboxView({
   sandbox: initial,
   sid,
 }: {
-  sandbox: Sandbox
+  sandbox: SandboxDetail
   sid?: string
 }) {
   const router = useRouter()
-  const [sandbox, setSandbox] = useState<Sandbox>(initial)
+  const [sandbox, setSandbox] = useState<SandboxDetail>(initial)
   const [count, setCount] = useState(6)
   const [seed, setSeed] = useState("")
   const [generating, setGenerating] = useState(
@@ -143,9 +143,7 @@ export default function SandboxView({
           ) : null}
         </div>
 
-        {signedIn ? (
-          <SignalEditor sandbox={sandbox} onSaved={refresh} />
-        ) : null}
+        {signedIn ? <SignalEditor sandbox={sandbox} onSaved={refresh} /> : null}
 
         <div className="border p-5">
           <p className="font-heading text-xl font-semibold">Generate ideas</p>

@@ -46,7 +46,12 @@ export default function ProfileForm({
       </div>
       <div className="space-y-1">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" value={email} disabled aria-describedby="email-note" />
+        <Input
+          id="email"
+          value={email}
+          disabled
+          aria-describedby="email-note"
+        />
         <p id="email-note" className="text-xs text-muted-foreground">
           Email is tied to your sign-in and can&apos;t be changed here.
         </p>
