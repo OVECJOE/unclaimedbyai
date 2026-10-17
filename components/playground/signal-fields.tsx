@@ -13,7 +13,11 @@ import {
 import type { SignalProfile } from "@/lib/api"
 import { SIGNAL_OPTIONS, SIGNAL_TEXT } from "@/lib/signals"
 
-const BLANK = "__blank__"
+// Radix shows a Select's placeholder only for the empty string or
+// undefined, so an unset signal is controlled as "" rather than a
+// sentinel value: a sentinel matches no item and the trigger renders
+// with no label at all.
+const UNSET = ""
 
 /**
  * The three intake questions, with the remaining five behind the
@@ -35,7 +39,7 @@ export default function SignalFields({
   }
 
   function setChoice(key: keyof SignalProfile, value: string) {
-    onChange({ ...signals, [key]: value === BLANK ? undefined : value })
+    onChange({ ...signals, [key]: value || undefined })
   }
 
   const [skills, time, model] = [
@@ -60,10 +64,10 @@ export default function SignalFields({
         <div className="space-y-1.5">
           <Label>{time.label}</Label>
           <Select
-            value={signals.time_available ?? BLANK}
+            value={signals.time_available ?? UNSET}
             onValueChange={(value) => setChoice("time_available", value)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Pick one" />
             </SelectTrigger>
             <SelectContent>
@@ -78,10 +82,10 @@ export default function SignalFields({
         <div className="space-y-1.5">
           <Label>{model.label}</Label>
           <Select
-            value={signals.business_model ?? BLANK}
+            value={signals.business_model ?? UNSET}
             onValueChange={(value) => setChoice("business_model", value)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Pick one" />
             </SelectTrigger>
             <SelectContent>
@@ -100,10 +104,10 @@ export default function SignalFields({
           <div className="space-y-1.5">
             <Label>{SIGNAL_OPTIONS.tech_comfort.label}</Label>
             <Select
-              value={signals.tech_comfort ?? BLANK}
+              value={signals.tech_comfort ?? UNSET}
               onValueChange={(value) => setChoice("tech_comfort", value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Pick one" />
               </SelectTrigger>
               <SelectContent>
@@ -118,10 +122,10 @@ export default function SignalFields({
           <div className="space-y-1.5">
             <Label>{SIGNAL_OPTIONS.budget.label}</Label>
             <Select
-              value={signals.budget ?? BLANK}
+              value={signals.budget ?? UNSET}
               onValueChange={(value) => setChoice("budget", value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Pick one" />
               </SelectTrigger>
               <SelectContent>
