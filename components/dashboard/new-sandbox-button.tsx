@@ -16,36 +16,12 @@ import {
 } from "@/components/ui/select"
 import { createSandbox, type SignalProfile } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
-
-const TIME_OPTIONS = [
-  { value: "weekends", label: "Weekends only" },
-  { value: "evenings", label: "Evenings and weekends" },
-  { value: "part-time", label: "Most days, part-time" },
-  { value: "full-time", label: "Full time" },
-]
-
-const MODEL_OPTIONS = [
-  { value: "saas", label: "Software subscription" },
-  { value: "services", label: "Services or consulting" },
-  { value: "commerce", label: "Products or commerce" },
-  { value: "content", label: "Content or audience" },
-  { value: "marketplace", label: "Marketplace or community" },
-  { value: "open", label: "Open to anything" },
-]
-
-const TECH_OPTIONS = [
-  { value: "none", label: "No code at all" },
-  { value: "nocode", label: "No-code tools" },
-  { value: "some", label: "Some code or AI assistance" },
-  { value: "strong", label: "I build software" },
-]
-
-const BUDGET_OPTIONS = [
-  { value: "none", label: "Nothing upfront" },
-  { value: "small", label: "Under 100 dollars" },
-  { value: "moderate", label: "Under 1000 dollars" },
-  { value: "flexible", label: "Whatever it takes" },
-]
+import {
+  BUDGET_OPTIONS,
+  MODEL_OPTIONS,
+  TECH_OPTIONS,
+  TIME_OPTIONS,
+} from "@/lib/signals"
 
 /**
  * The three-question intake, with the remaining five behind an expander

@@ -144,7 +144,7 @@ export default function SandboxView({
         </div>
 
         {signedIn ? (
-          <SignalEditor signals={sandbox.signals} onSaved={refresh} />
+          <SignalEditor sandbox={sandbox} onSaved={refresh} />
         ) : null}
 
         <div className="border p-5">
