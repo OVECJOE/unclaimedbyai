@@ -68,8 +68,9 @@ export default function ApiErrors() {
           first.
         </p>
         <p>
-          <strong className="text-foreground">Billing.</strong> Every search and
-          check moves your account&apos;s balances, readable through GET /me.
+          <strong className="text-foreground">Billing.</strong>{" "}
+          Every search and check moves your account&apos;s balances, readable
+          through GET /me.
           Purchases happen through the product, not the API.
         </p>
       </div>
