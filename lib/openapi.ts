@@ -60,6 +60,38 @@ export type ApiSpec = {
 const METHODS = ["get", "post", "put", "patch", "delete"] as const
 type Method = (typeof METHODS)[number]
 
+/**
+ * Tags an integrator with a key actually calls, in the order they are
+ * usually needed. The browser-only surfaces, and the internal health and
+ * stats endpoints, are left out on purpose: documenting them invites
+ * someone to call something that was never meant for a script. Both the
+ * HTML page and the markdown twin filter by this, so the two cannot
+ * disagree about what is public.
+ */
+export const PUBLIC_TAGS = [
+  "checks",
+  "searches",
+  "names",
+  "sandboxes",
+  "research",
+  "watches",
+  "billing",
+  "me",
+  "api-keys",
+] as const
+
+/**
+ * Operations left out of the public reference even when their tag is
+ * public. Deleting an account is session-only on purpose, and a key
+ * cannot do it, so documenting it in a reference an agent follows would
+ * only invite a call that cannot work.
+ */
+const HIDDEN_OPERATIONS = new Set(["delete:/me"])
+
+function operationKey(method: Method, path: string): string {
+  return `${method}:${path}`
+}
+
 export type SpecEndpoint = {
   method: Method
   path: string
@@ -79,7 +111,6 @@ function displayPath(path: string): string {
   return path.replace(/^\/api\/v1/, "") || "/"
 }
 
-/**
 /**
  * Resolve a schema for display, following `$ref` pointers.
  *
@@ -135,11 +166,14 @@ export function endpointsOf(spec: ApiSpec): SpecEndpoint[] {
     for (const method of METHODS) {
       const op = operations[method]
       if (!op) continue
+      const tag = op.tags?.[0] ?? "other"
+      if (!PUBLIC_TAGS.includes(tag as (typeof PUBLIC_TAGS)[number])) continue
+      if (HIDDEN_OPERATIONS.has(operationKey(method, displayPath(path)))) continue
       if (path.includes("/webhooks/")) continue
       out.push({
         method,
         path: displayPath(path),
-        tag: op.tags?.[0] ?? "other",
+        tag,
         summary: op.summary ?? path,
         description: op.description,
         parameters: op.parameters ?? [],

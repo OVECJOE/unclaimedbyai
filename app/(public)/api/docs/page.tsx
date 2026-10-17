@@ -3,12 +3,17 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { JsonLd } from "@/components/app/json-ld"
+import ApiErrors from "@/components/public/api-errors"
+import ApiQuickstarts from "@/components/public/api-quickstarts"
+import ApiReferenceBrowser, {
+  type ReferenceGroup,
+} from "@/components/public/api-reference-browser"
 import ApiSandbox from "@/components/public/api-sandbox"
 import CopyCode from "@/components/public/copy-code"
-import EndpointReference from "@/components/public/endpoint-reference"
-import { endpointsOf, getApiSpec } from "@/lib/openapi"
+import { PUBLIC_TAGS, endpointsOf, getApiSpec } from "@/lib/openapi"
 import { SITE_URL, pageMetadata } from "@/lib/site"
 
+export const dynamic = "force-static"
 export const revalidate = 3600
 
 export const metadata: Metadata = pageMetadata({
@@ -20,24 +25,7 @@ export const metadata: Metadata = pageMetadata({
 
 const BASE = "https://unclaimedbyai.com/api/v1"
 
-/**
- * Tags an integrator with a key actually calls, in the order they are
- * usually needed. The browser-only surfaces, and the internal health and
- * stats endpoints, are left out on purpose: documenting them invites
- * someone to call something that was never meant for a script.
- */
-const TAG_ORDER = [
-  "checks",
-  "searches",
-  "names",
-  "sandboxes",
-  "research",
-  "watches",
-  "billing",
-  "me",
-  "api-keys",
-]
-
+/** Human labels for the tags the lib exposes as public. */
 const TAG_LABELS: Record<string, string> = {
   checks: "Check one name",
   searches: "Generate and poll searches",
@@ -50,10 +38,28 @@ const TAG_LABELS: Record<string, string> = {
   "api-keys": "API keys",
 }
 
+const STEPS = [
+  {
+    step: "01",
+    title: "Get a key",
+    body: "Create an API key in your account. It spends your searches and credits, and can be revoked instantly.",
+  },
+  {
+    step: "02",
+    title: "Send the request",
+    body: "Every call carries the key as a bearer token. Point it at the endpoint that does what you need.",
+  },
+  {
+    step: "03",
+    title: "Poll for results",
+    body: "Long jobs stream in. Poll the header or results endpoint until the job reports ready.",
+  },
+]
+
 export default async function ApiDocsPage() {
   const spec = await getApiSpec()
   const endpoints = spec ? endpointsOf(spec) : []
-  const groups = TAG_ORDER.map((tag) => ({
+  const groups: ReferenceGroup[] = PUBLIC_TAGS.map((tag) => ({
     tag,
     label: TAG_LABELS[tag] ?? tag,
     endpoints: endpoints.filter((endpoint) => endpoint.tag === tag),
@@ -73,7 +79,7 @@ export default async function ApiDocsPage() {
         }}
       />
 
-      <section className="space-y-5 border-b px-4 py-10 sm:text-center">
+      <section className="space-y-5 border-b px-4 py-12 sm:text-center">
         <Badge
           className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
           asChild
@@ -93,7 +99,7 @@ export default async function ApiDocsPage() {
         </div>
         <div className="flex flex-col md:flex-row md:justify-center gap-2">
           <Button size="lg" asChild>
-            <Link href="#reference">Read the reference</Link>
+            <Link href="#quickstarts">Start with a quickstart</Link>
           </Button>
           <Button size="lg" variant="outline" asChild>
             <Link href="#sandbox">Try it in the sandbox</Link>
@@ -101,19 +107,35 @@ export default async function ApiDocsPage() {
         </div>
       </section>
 
-      <section id="sandbox" className="scroll-mt-20 border-b px-4 py-10">
-        <div className="mx-auto max-w-7xl space-y-4">
+      <section className="border-b px-4 py-10">
+        <div className="mx-auto max-w-7xl">
+          <ol className="grid gap-4 md:grid-cols-3">
+            {STEPS.map((item) => (
+              <li key={item.step} className="space-y-2 border p-4">
+                <span className="font-mono text-xs font-semibold tracking-widest text-primary">
+                  {item.step}
+                </span>
+                <h2 className="font-heading text-xl font-semibold">
+                  {item.title}
+                </h2>
+                <p className="text-sm text-muted-foreground">{item.body}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section id="quickstarts" className="scroll-mt-20 border-b px-4 py-10">
+        <div className="mx-auto max-w-7xl space-y-6">
           <div className="space-y-1 sm:text-center">
             <h2 className="font-heading text-2xl font-semibold md:text-3xl">
-              Try it from this page
+              Quickstarts
             </h2>
             <p className="mx-auto max-w-prose text-sm text-muted-foreground">
-              Paste your key, change what you want, and send the request to
-              production from your browser, with the response rendered right
-              there.
+              Three copy-paste paths that cover most of what people build.
             </p>
           </div>
-          <ApiSandbox />
+          <ApiQuickstarts />
         </div>
       </section>
 
@@ -149,16 +171,32 @@ export default async function ApiDocsPage() {
         </div>
       </section>
 
+      <section id="sandbox" className="scroll-mt-20 border-b px-4 py-10">
+        <div className="mx-auto max-w-7xl space-y-4">
+          <div className="space-y-1 sm:text-center">
+            <h2 className="font-heading text-2xl font-semibold md:text-3xl">
+              Try it from this page
+            </h2>
+            <p className="mx-auto max-w-prose text-sm text-muted-foreground">
+              Paste your key, change what you want, and send the request to
+              production from your browser, with the response rendered right
+              there.
+            </p>
+          </div>
+          <ApiSandbox />
+        </div>
+      </section>
+
       <section id="reference" className="scroll-mt-20 border-b px-4 py-10">
-        <div className="mx-auto max-w-7xl space-y-8">
+        <div className="mx-auto max-w-7xl space-y-6">
           <div className="space-y-1 sm:text-center">
             <h2 className="font-heading text-2xl font-semibold md:text-3xl">
               Reference
             </h2>
             <p className="mx-auto max-w-prose text-sm text-muted-foreground">
-              Every endpoint a key can call, with its parameters, request
-              body, and response fields. Generated from the API&apos;s own
-              schema, so it cannot drift from what the server accepts.
+              Every endpoint a key can call, with its parameters, request body,
+              and response fields. Generated from the API&apos;s own schema, so
+              it cannot drift from what the server accepts.
             </p>
           </div>
 
@@ -168,32 +206,7 @@ export default async function ApiDocsPage() {
               above and the sandbox still work.
             </p>
           ) : (
-            <>
-              <nav className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-                {groups.map((group) => (
-                  <a
-                    key={group.tag}
-                    href={`#tag-${group.tag}`}
-                    className="text-primary underline"
-                  >
-                    {group.label}
-                  </a>
-                ))}
-              </nav>
-              {groups.map((group) => (
-                <div key={group.tag} id={`tag-${group.tag}`} className="scroll-mt-20 space-y-4">
-                  <h3 className="font-heading text-2xl font-semibold">
-                    {group.label}
-                  </h3>
-                  {group.endpoints.map((endpoint) => (
-                    <EndpointReference
-                      key={`${endpoint.method}-${endpoint.path}`}
-                      endpoint={endpoint}
-                    />
-                  ))}
-                </div>
-              ))}
-            </>
+            <ApiReferenceBrowser groups={groups} />
           )}
         </div>
       </section>
@@ -202,112 +215,10 @@ export default async function ApiDocsPage() {
         <div className="mx-auto max-w-7xl space-y-6">
           <div className="space-y-1 sm:text-center">
             <h2 className="font-heading text-2xl font-semibold md:text-3xl">
-              Quickstarts
-            </h2>
-            <p className="mx-auto max-w-prose text-sm text-muted-foreground">
-              Three copy-paste paths that cover most of what people build.
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            <h3 className="font-heading text-xl font-semibold">
-              1. Check one exact name
-            </h3>
-            <CopyCode
-              code={`curl -X POST ${BASE}/checks/direct \\
-  -H "Authorization: Bearer uba_live_YOUR_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{"name": "Nexuare"}'
-
-202 Accepted
-{"search_id": 123, "name_id": 456}`}
-            />
-            <p className="text-sm text-muted-foreground">
-              The first check on any name is free. Poll the results for
-              scored names, and for names still running, whose job fills in
-              with domains, handles, and per-model progress as it arrives.
-            </p>
-            <CopyCode
-              code={`curl ${BASE}/searches/123/results \\
-  -H "Authorization: Bearer uba_live_YOUR_KEY"`}
-            />
-          </div>
-
-          <div className="space-y-3">
-            <h3 className="font-heading text-xl font-semibold">
-              2. Generate names from a brief
-            </h3>
-            <CopyCode
-              code={`curl -X POST ${BASE}/searches/generate \\
-  -H "Authorization: Bearer uba_live_YOUR_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{"query": "an AI note-taking app for lawyers"}'
-
-202 Accepted
-{"id": 124, "generation": {"status": "generating"}}
-
-curl ${BASE}/searches/124/header \\
-  -H "Authorization: Bearer uba_live_YOUR_KEY"`}
-            />
-            <p className="text-sm text-muted-foreground">
-              Sharpened briefs, four naming studios, a judge pass, and live
-              .com screening. Accounts spend one search. Poll the header
-              until generation reports ready.
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            <h3 className="font-heading text-xl font-semibold">
-              3. Guard a name while you decide
-            </h3>
-            <CopyCode
-              code={`curl -X POST ${BASE}/watches \\
-  -H "Authorization: Bearer uba_live_YOUR_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{"search_id": 123, "name": "Nexuare"}'
-
-curl -X POST ${BASE}/watches/1/sweep \\
-  -H "Authorization: Bearer uba_live_YOUR_KEY"`}
-            />
-            <p className="text-sm text-muted-foreground">
-              Watches recheck domains and handles every few hours and are
-              free. Sweep on demand when you are impatient.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t px-4 py-10">
-        <div className="mx-auto max-w-7xl space-y-6">
-          <div className="space-y-1 sm:text-center">
-            <h2 className="font-heading text-2xl font-semibold md:text-3xl">
               Limits and errors
             </h2>
           </div>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>
-              <strong className="text-foreground">Rate limits.</strong> Six
-              hundred requests a minute per address by default, ten a minute on
-              sign-in endpoints, and twenty an hour on spend paths such as
-              checks and generation. Limits answer with 429 and a Retry-After
-              header, and they count per address, so heavy automation from one
-              machine hits them first.
-            </li>
-            <li>
-              <strong className="text-foreground">Billing.</strong> Every
-              search and check moves your account&apos;s balances, readable
-              through GET /me. Purchases happen through the product, not the
-              API.
-            </li>
-            <li>
-              <strong className="text-foreground">Errors.</strong> Responses
-              carry a JSON detail field. 401 means missing or invalid
-              credentials, 402 means you are out of searches or credits, 403
-              is the human check on anonymous traffic only, 409 means a check
-              for that name is already running, 422 is validation, and 502
-              means the AI providers were unavailable at that moment.
-            </li>
-          </ul>
+          <ApiErrors />
           <div className="flex flex-wrap items-center justify-between gap-3 border p-4">
             <p className="max-w-prose text-sm text-muted-foreground">
               Want the product instead of the pipeline? The app wraps every
