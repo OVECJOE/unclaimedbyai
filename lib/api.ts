@@ -479,7 +479,7 @@ export type PlanInfo = {
 }
 
 export function getPlan(): Promise<PlanInfo> {
-  return apiRequest<PlanInfo>("/api/v1/billing/plan")
+  return apiRequest<PlanInfo>("/api/v1/plan")
 }
 
 export function listPacks(): Promise<Pack[]> {
@@ -500,7 +500,7 @@ export function createProCheckout(returnTo?: string): Promise<{
   checkout_url: string
   subscription_id: string
 }> {
-  return apiRequest("/api/v1/billing/checkout/pro", {
+  return apiRequest("/api/v1/checkout/pro", {
     method: "POST",
     body: { return_to: returnTo },
   })

@@ -4,10 +4,18 @@ Next.js frontend for UnclaimedByAI: landing, product, pricing, blog, auth, user 
 
 ## Run locally
 
+The frontend expects the API on `http://127.0.0.1:8007`, which is what
+`docker compose up` in `../unclaimedbyai-api` serves. Start that first.
+
 ```bash
-npm install
-npm run dev
+cd ../unclaimedbyai-api && docker compose up --build
+cd - && npm install && npm run dev
 ```
+
+`NEXT_PUBLIC_API_URL` in `.env.local` points at that port. The turnstile
+site key is left empty locally, and the compose API has no turnstile
+secret, so the bot-check gate stays open and anonymous flows work without
+a Cloudflare account.
 
 ## Layout
 

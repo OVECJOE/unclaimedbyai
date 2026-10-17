@@ -67,7 +67,7 @@ export default async function BillingPage({
   try {
     ;[packs, plan] = await Promise.all([
       apiServer<Pack[]>("/api/v1/packs"),
-      apiServer<PlanInfo>("/api/v1/billing/plan"),
+      apiServer<PlanInfo>("/api/v1/plan"),
     ])
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) redirect("/auth")
