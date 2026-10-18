@@ -25,7 +25,7 @@ export default function WatchlistTabs({
   }
 
   return (
-    <Tabs value={tab} onValueChange={setTab}>
+    <Tabs data-tour="watchlist-tabs" value={tab} onValueChange={setTab}>
       <TabsList>
         <TabsTrigger value="watching">Watching</TabsTrigger>
         <TabsTrigger value="browse">Pick a name</TabsTrigger>

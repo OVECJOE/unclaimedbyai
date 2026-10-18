@@ -6,6 +6,7 @@ import { useState } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ChevronDownIcon,
+  Compass01Icon,
   Logout02Icon,
   UserIcon,
 } from "@hugeicons/core-free-icons"
@@ -13,6 +14,7 @@ import Logo from "@/components/app/logo"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { accountAvatarUrl } from "@/lib/avatar"
+import { useTourStore } from "@/lib/store/tour"
 import { cn } from "@/lib/utils"
 import type { ApiUser } from "@/lib/api"
 import { signOut } from "@/app/dashboard/actions"
@@ -79,34 +81,26 @@ export default function DashboardSidebar({ user }: { user?: ApiUser | null }) {
           Home
         </Link>
 
-        <div className={linkClass(playgroundActive)}>
-          <Link
-            href={canvasHref}
-            aria-current={pathname === canvasHref ? "page" : undefined}
-            className="flex flex-1 items-center gap-3"
-          >
-            <HugeiconsIcon
-              icon={playgroundNavItems[0].icon}
-              className="size-4"
-            />
-            Playground
-          </Link>
-          <button
-            type="button"
-            onClick={() => setOpen((value) => !value)}
-            aria-expanded={open}
-            aria-label={open ? "Collapse playground" : "Expand playground"}
-            className="p-1 text-muted-foreground hover:text-foreground"
-          >
-            <HugeiconsIcon
-              icon={ChevronDownIcon}
-              className={cn(
-                "size-4 transition-transform",
-                open ? "rotate-0" : "-rotate-90"
-              )}
-            />
-          </button>
-        </div>
+        {/* The whole row toggles the group: the label is not a
+            destination of its own, Canvas is the first child link, and
+            hiding the toggle behind the chevron made the fold look
+            dead. */}
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+          className={linkClass(playgroundActive)}
+        >
+          <HugeiconsIcon icon={playgroundNavItems[0].icon} className="size-4" />
+          <span className="flex-1 text-left">Playground</span>
+          <HugeiconsIcon
+            icon={ChevronDownIcon}
+            className={cn(
+              "size-4 transition-transform",
+              open ? "rotate-0" : "-rotate-90"
+            )}
+          />
+        </button>
         {open ? (
           <div className="border-l-2 border-transparent">
             <Link
@@ -157,11 +151,11 @@ export default function DashboardSidebar({ user }: { user?: ApiUser | null }) {
       </nav>
 
       <div className="border-t px-4 py-4">
-        <div className="flex items-center gap-3">
+        <div className="mb-2 flex items-center gap-3">
           <UserAvatar user={user} />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm">
-              {user?.full_name || "Account"}
+              {user?.full_name || user?.email.split("@")[0]}
             </span>
             <span className="block truncate text-xs text-muted-foreground lowercase">
               {user?.email ?? "not signed in"}
@@ -169,15 +163,26 @@ export default function DashboardSidebar({ user }: { user?: ApiUser | null }) {
           </span>
         </div>
         {user ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mt-2 w-full justify-start gap-2 px-2 text-muted-foreground hover:text-destructive"
-            onClick={() => void signOut()}
-          >
-            <HugeiconsIcon icon={Logout02Icon} className="size-4" />
-            Sign out
-          </Button>
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-2 w-full justify-start gap-2 px-2"
+              onClick={() => useTourStore.getState().start()}
+            >
+              <HugeiconsIcon icon={Compass01Icon} className="size-4" />
+              Take the tour
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="mt-1 w-full justify-start gap-2 px-2"
+              onClick={() => void signOut()}
+            >
+              <HugeiconsIcon icon={Logout02Icon} className="size-4" />
+              Sign out
+            </Button>
+          </>
         ) : (
           <Button variant="outline" size="sm" className="mt-2 w-full" asChild>
             <Link href="/auth">

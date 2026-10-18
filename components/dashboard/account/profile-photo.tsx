@@ -29,7 +29,7 @@ export function ProfilePhoto({
         </AvatarFallback>
       </Avatar>
       <div>
-        <p className="font-medium">{displayName}</p>
+        <p className="font-medium">{displayName || email?.split("@")[0]}</p>
         {email ? (
           <p className="text-sm text-muted-foreground lowercase">{email}</p>
         ) : null}

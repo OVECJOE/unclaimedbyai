@@ -46,7 +46,10 @@ function StatCard({
  */
 export default function StatsRow({ stats }: { stats: MeStats }) {
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5">
+    <div
+      data-tour="stats"
+      className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5"
+    >
       <StatCard
         label="Searches"
         value={`${stats.searches_used}/${stats.searches_limit}`}

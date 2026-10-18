@@ -105,6 +105,7 @@ export default function Prompter({
 
   return (
     <form
+      data-tour="prompter"
       className="mx-auto max-w-prose space-y-3"
       onSubmit={(event) => {
         event.preventDefault()

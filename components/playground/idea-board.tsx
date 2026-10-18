@@ -41,6 +41,7 @@ function GenerateDropZone({ armed }: { armed: boolean }) {
   return (
     <div
       ref={setNodeRef}
+      data-tour="dropzone"
       className={cn(
         "flex items-center justify-center gap-2 border border-dashed px-4 py-3 text-sm transition-colors",
         isOver
@@ -154,7 +155,10 @@ export default function IdeaBoard({
         items={ideas.map((idea) => idea.public_id)}
         strategy={rectSortingStrategy}
       >
-        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <ul
+          data-tour="idea-board"
+          className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
+        >
           {ideas.map((idea) => (
             <IdeaBoardCard
               key={idea.public_id}

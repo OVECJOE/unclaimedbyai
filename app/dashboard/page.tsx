@@ -103,7 +103,7 @@ export default async function DashboardHomePage() {
             which pushed the whole page sideways on narrow screens. */}
         <div className="grid items-start gap-6 lg:grid-cols-2 [&>*]:min-w-0">
           <DashboardPrompter hasSignals={hasSignals} />
-          <div className="border p-5">
+          <div data-tour="activity" className="border p-5">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <p className="font-heading text-xl font-semibold">Last 30 days</p>
               <p className="text-xs text-muted-foreground">
@@ -125,7 +125,7 @@ export default async function DashboardHomePage() {
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div data-tour="recent-sandboxes" className="space-y-4">
           <div className="flex items-baseline justify-between gap-3">
             <h2 className="font-heading text-2xl font-semibold">
               Recent sandboxes

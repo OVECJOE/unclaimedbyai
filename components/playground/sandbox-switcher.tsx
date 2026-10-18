@@ -25,7 +25,7 @@ export default function SandboxSwitcher({
   const [creating, setCreating] = useState(false)
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div data-tour="switcher" className="flex flex-wrap items-center gap-2">
       <div className="flex flex-1 flex-wrap items-center gap-2 overflow-x-auto">
         {sandboxes.map((sandbox) => (
           <button

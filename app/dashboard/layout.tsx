@@ -2,6 +2,7 @@ import AppFooter from "@/components/app-footer"
 import ClaimSearches from "@/components/dashboard/claim-searches"
 import DashboardSidebar from "@/components/dashboard/sidebar"
 import MobileNav from "@/components/dashboard/mobile-nav"
+import DashboardTour from "@/components/dashboard/tour"
 import { getMeServer } from "@/lib/api-server"
 import { ApiError } from "@/lib/api"
 import { redirect } from "next/navigation"
@@ -27,6 +28,8 @@ export default async function DashboardLayout({
           below it, and the footer stays pinned to the bottom. */}
       <main className="flex min-h-screen flex-col pb-16 md:pb-0 md:pl-60">
         <ClaimSearches />
+        {/* Renders nothing; drives the spotlight tour while active. */}
+        <DashboardTour />
         <div className="flex-1">{children}</div>
         <AppFooter />
       </main>

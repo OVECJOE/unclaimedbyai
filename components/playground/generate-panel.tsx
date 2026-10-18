@@ -57,7 +57,7 @@ export default function GeneratePanel({
   }
 
   return (
-    <div className="border p-5">
+    <div data-tour="generate" className="border p-5">
       <p className="font-heading text-xl font-semibold">Generate ideas</p>
       <p className="mt-1 text-sm text-muted-foreground">
         {hasIdeas
