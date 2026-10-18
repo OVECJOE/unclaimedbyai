@@ -95,28 +95,31 @@ export default async function DashboardHomePage() {
 
         {stats ? <StatsRow stats={stats} /> : null}
 
-        <div className="border p-5">
+        {/* The prompter leads and the chart follows, side by side on
+            desktop. The prompter wears no card: its own bordered box
+            and aura are the surface, so a second border around it
+            would only double the frame. */}
+        <div className="grid items-start gap-6 lg:grid-cols-2">
           <DashboardPrompter hasSignals={hasSignals} />
-        </div>
-
-        <div className="border p-5">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <p className="font-heading text-xl font-semibold">Last 30 days</p>
-            <p className="text-xs text-muted-foreground">
-              <span className="inline-block size-2 bg-primary align-middle" />{" "}
-              Searches{"  "}
-              <span className="inline-block size-2 bg-[var(--chart-2)] align-middle" />{" "}
-              Checks
-            </p>
-          </div>
-          <div className="mt-4">
-            {stats ? (
-              <ActivityChart days={stats.activity} />
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Activity could not be loaded.
+          <div className="border p-5">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <p className="font-heading text-xl font-semibold">Last 30 days</p>
+              <p className="text-xs text-muted-foreground">
+                <span className="inline-block size-2 bg-primary align-middle" />{" "}
+                Searches{"  "}
+                <span className="inline-block size-2 bg-[var(--chart-2)] align-middle" />{" "}
+                Checks
               </p>
-            )}
+            </div>
+            <div className="mt-4">
+              {stats ? (
+                <ActivityChart days={stats.activity} />
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Activity could not be loaded.
+                </p>
+              )}
+            </div>
           </div>
         </div>
 

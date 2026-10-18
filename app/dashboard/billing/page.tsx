@@ -1,5 +1,5 @@
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { InfoIcon } from "@hugeicons/core-free-icons"
+import { CheckmarkBadge01Icon, InfoIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
@@ -156,38 +156,55 @@ export default async function BillingPage({
           </div>
 
           {!isPro && plan ? (
-            <div className="border p-5">
-              <div className="grid gap-4 md:grid-cols-2 md:items-center">
-                <div className="space-y-2">
+            /* The one place billing gets the boiling aura: the upsell
+               borrows the hero prompter's sanctioned flourish, at low
+               opacity behind glass so the offer stays readable. The
+               blobs stop under prefers-reduced-motion like everywhere
+               else. */
+            <div className="relative overflow-hidden border border-primary">
+              <div aria-hidden className="prompter-aura opacity-50">
+                <span className="prompter-blob prompter-blob-violet" />
+                <span className="prompter-blob prompter-blob-amber" />
+              </div>
+              <div className="relative grid gap-6 bg-card/80 p-6 backdrop-blur-sm md:grid-cols-2 md:items-center">
+                <div className="space-y-2 self-start">
                   <p className="text-[0.625rem] font-semibold tracking-widest text-primary uppercase">
                     Most capable
                   </p>
-                  <p className="font-heading text-2xl font-semibold">Pro</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="font-heading text-3xl font-semibold">Pro</p>
+                  <p className="flex items-baseline gap-2">
+                    <span className="font-heading text-5xl font-semibold">
+                      $14.99
+                    </span>
+                    <span className="font-mono text-sm text-muted-foreground">
+                      per month
+                    </span>
+                  </p>
+                  <p className="max-w-prose text-sm text-muted-foreground">
                     For the person who has stopped browsing and started
                     building.
                   </p>
                 </div>
-                <div className="space-y-3">
-                  <ul className="space-y-1 text-sm">
+                <div className="space-y-4">
+                  <ul className="space-y-1.5 text-sm">
                     {/* The Pro tier's real numbers, not the current
                         plan's: this card is the upsell, and showing the
                         free limits under a Pro heading sells the wrong
                         thing. */}
                     {proBenefits(PRO_LIMITS).map((benefit) => (
-                      <li key={benefit} className="text-muted-foreground">
+                      <li
+                        key={benefit}
+                        className="flex items-center gap-2 text-muted-foreground"
+                      >
+                        <HugeiconsIcon
+                          icon={CheckmarkBadge01Icon}
+                          size={20}
+                          className="text-green-600"
+                        />
                         {benefit}
                       </li>
                     ))}
                   </ul>
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-heading text-3xl font-semibold">
-                      $14.99
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      per month
-                    </span>
-                  </div>
                   <UpgradeButton className="w-full" />
                 </div>
               </div>
