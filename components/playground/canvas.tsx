@@ -8,6 +8,15 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import type { SandboxDetail, SandboxList } from "@/lib/api"
 import { useDashboardStore } from "@/lib/store/dashboard"
@@ -47,53 +56,57 @@ function ManualIdeaForm({ publicId }: { publicId: string }) {
     setOpen(false)
   }
 
-  if (!open) {
-    return (
-      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
-        <HugeiconsIcon icon={Add01Icon} className="size-4" />
-        Add by hand
-      </Button>
-    )
-  }
   return (
-    <form onSubmit={add} className="space-y-3 border p-5">
-      <p className="font-heading text-lg font-semibold">Add by hand</p>
-      <p className="text-sm text-muted-foreground">
-        An idea you already have works exactly like a generated one.
-      </p>
-      <div className="space-y-1.5">
-        <Label htmlFor="mi-title">Title</Label>
-        <Input
-          id="mi-title"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          placeholder="Sourdough subscriptions"
-        />
-      </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="mi-concept">Concept</Label>
-        <Textarea
-          id="mi-concept"
-          value={concept}
-          onChange={(event) => setConcept(event.target.value)}
-          placeholder="Weekly starter kits for people who want fresh bread without the fuss."
-          className="min-h-20"
-        />
-      </div>
-      <div className="flex gap-2">
-        <Button type="submit" size="sm" disabled={pending}>
-          {pending ? "Adding..." : "Add idea"}
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <HugeiconsIcon icon={Add01Icon} className="size-4" />
+          Add by hand
         </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant="ghost"
-          onClick={() => setOpen(false)}
-        >
-          Cancel
-        </Button>
-      </div>
-    </form>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add by hand</DialogTitle>
+          <DialogDescription>
+            An idea you already have works exactly like a generated one.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={add} className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="mi-title">Title</Label>
+            <Input
+              id="mi-title"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Sourdough subscriptions"
+              autoFocus
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="mi-concept">Concept</Label>
+            <Textarea
+              id="mi-concept"
+              value={concept}
+              onChange={(event) => setConcept(event.target.value)}
+              placeholder="Weekly starter kits for people who want fresh bread without the fuss."
+              className="min-h-20"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={pending}>
+              {pending ? "Adding..." : "Add idea"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 

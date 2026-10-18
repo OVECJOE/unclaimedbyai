@@ -199,7 +199,7 @@ export default async function BillingPage({
                         <HugeiconsIcon
                           icon={CheckmarkBadge01Icon}
                           size={20}
-                          className="text-green-600"
+                          className="text-primary"
                         />
                         {benefit}
                       </li>

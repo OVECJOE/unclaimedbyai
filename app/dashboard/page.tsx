@@ -1,6 +1,5 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import UpgradeButton from "@/components/dashboard/upgrade-button"
 import DashboardPrompter from "@/components/dashboard/dashboard-prompter"
 import StatsRow from "@/components/dashboard/stats-row"
@@ -98,8 +97,11 @@ export default async function DashboardHomePage() {
         {/* The prompter leads and the chart follows, side by side on
             desktop. The prompter wears no card: its own bordered box
             and aura are the surface, so a second border around it
-            would only double the frame. */}
-        <div className="grid items-start gap-6 lg:grid-cols-2">
+            would only double the frame. min-w-0 lets the columns
+            shrink below their content's first-paint width, which the
+            chart's initial 320px render would otherwise refuse, and
+            which pushed the whole page sideways on narrow screens. */}
+        <div className="grid items-start gap-6 lg:grid-cols-2 [&>*]:min-w-0">
           <DashboardPrompter hasSignals={hasSignals} />
           <div className="border p-5">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -158,22 +160,6 @@ export default async function DashboardHomePage() {
             ))}
           </ul>
         </div>
-
-        {!isPro ? (
-          <div className="flex flex-wrap items-center justify-between gap-3 border p-5">
-            <p className="text-sm text-muted-foreground">
-              Already have an idea in mind? Skip generation and go straight to
-              names.{" "}
-              <Link href="/#check-yours" className="text-primary underline">
-                Check it on the home page
-              </Link>
-              .
-            </p>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/dashboard/billing">See plan and credits</Link>
-            </Button>
-          </div>
-        ) : null}
       </div>
     </section>
   )

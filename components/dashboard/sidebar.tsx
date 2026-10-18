@@ -11,6 +11,8 @@ import {
 } from "@hugeicons/core-free-icons"
 import Logo from "@/components/app/logo"
 import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { accountAvatarUrl } from "@/lib/avatar"
 import { cn } from "@/lib/utils"
 import type { ApiUser } from "@/lib/api"
 import { signOut } from "@/app/dashboard/actions"
@@ -21,35 +23,21 @@ import {
   topNavItems,
 } from "@/components/dashboard/nav"
 
-/**
- * The account avatar from DiceBear, seeded with the email so the same
- * account always draws the same face and renaming never changes it.
- */
-function avatarUrl(user?: ApiUser | null): string | null {
-  const seed = user?.email
-  if (!seed) return null
-  return `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}`
-}
-
 function UserAvatar({ user }: { user?: ApiUser | null }) {
-  const src = avatarUrl(user)
-  if (!src) {
-    return (
-      <span className="flex size-8 shrink-0 items-center justify-center bg-primary/10 text-xs font-semibold text-primary">
-        {user?.full_name?.[0] ?? "?"}
-      </span>
-    )
-  }
+  const src = user ? accountAvatarUrl(user) : null
+  const initial = (user?.full_name || user?.email || "?")
+    .trim()
+    .charAt(0)
+    .toUpperCase()
   return (
-    /* eslint-disable-next-line @next/next/no-img-element -- A tiny
-       third-party avatar; the image optimizer would proxy every render
-       of a 32px svg for nothing. */
-    <img
-      src={src}
-      alt=""
-      aria-hidden
-      className="size-8 shrink-0 border bg-primary/10"
-    />
+    // Square overrides: the house style is flat and bordered, never
+    // rounded. Avatar handles the image-failed fallback itself.
+    <Avatar className="size-8 shrink-0 rounded-none border after:rounded-none">
+      {src ? <AvatarImage src={src} alt="" /> : null}
+      <AvatarFallback className="rounded-none bg-primary/10 text-xs font-semibold text-primary">
+        {initial}
+      </AvatarFallback>
+    </Avatar>
   )
 }
 

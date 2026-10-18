@@ -58,8 +58,19 @@ export default async function AccountPage({
               Manage your account settings and preferences.
             </p>
           </div>
-          <Tabs defaultValue={active}>
-            <TabsList variant="line" className="w-full border-b">
+          <Tabs defaultValue={active} className="w-full min-w-0">
+            {/* The tab row scrolls sideways on narrow screens instead of
+                clipping. justify-start matters: the list defaults to
+                justify-center, which overflows a centered row off both
+                edges and makes the left cut-off unreachable by scroll.
+                The triggers are flex-1, so they still spread evenly
+                whenever there is room. pb-2 gives the active underline
+                vertical room inside the scroll box; -mb-2 pays the
+                space back. */}
+            <TabsList
+              variant="line"
+              className="-mb-2 w-full shrink-0 [scrollbar-width:none] justify-start overflow-x-auto border-b pb-2 [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            >
               {TABS.map((entry) => (
                 <TabsTrigger key={entry.value} value={entry.value} asChild>
                   <Link href={`/dashboard/account?tab=${entry.value}`}>
@@ -71,8 +82,9 @@ export default async function AccountPage({
             <div className="mt-10">
               <TabsContent value="profile" className="space-y-8">
                 <ProfilePhoto
-                  seed={user.email}
-                  name={user.full_name || user.email}
+                  avatarUrl={user.avatar_url}
+                  name={user.full_name}
+                  email={user.email}
                 />
                 <ProfileForm fullName={user.full_name} email={user.email} />
                 <Separator orientation="horizontal" />
