@@ -17,29 +17,29 @@ export default function GenerationSection() {
             Before the checks
           </p>
           <h2 className="font-heading text-2xl font-semibold sm:text-3xl md:text-4xl">
-            Four studios argue.{" "}
-            <span className="text-primary">A judge keeps the strongest.</span>
+            Describe it once.{" "}
+            <span className="text-primary">Get names worth arguing about.</span>
           </h2>
           <p className="max-w-prose text-muted-foreground md:text-lg">
-            Describe what you are building and a sandbox fills with name ideas.
-            Four studios generate from different angles at once, and a judge
-            drops the duplicates and the weak ones. You pick four to eight ideas
-            per run, steer with a seed if you have one, and open any card to
-            take it further.
+            Tell us what you&apos;re building, and four naming studios take a
+            shot at it from different angles. A judge throws out the weak ones
+            and the duplicates, so what lands on your board is a shortlist, not
+            a pile. Pick how many ideas you want, and open any card to take it
+            further.
           </p>
           <ul className="space-y-2">
             {[
               [
                 "Sandbox",
-                "each project gets its own room, with its own steer, so a weekend idea and a serious one never share answers",
+                "each project gets its own room, so a weekend idea and a serious one never share answers",
               ],
               [
                 "Market research",
-                "three credits buys competitors, demand, channels and monetization for one idea",
+                "spend 3 credits to learn who else plays in the space, whether people are searching, and how the idea would make money",
               ],
               [
                 "One drag to names",
-                "pull any idea onto the drop zone and a search starts for it",
+                "pull any idea onto the strip below the board and we start finding names for it",
               ],
             ].map(([term, detail]) => (
               <li key={term} className="text-sm">

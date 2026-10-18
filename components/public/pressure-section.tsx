@@ -12,7 +12,7 @@ const PRESSURE = [
     value: 401.6,
     decimals: 1,
     suffix: "M",
-    caption: "names already parked across every TLD, growing every quarter",
+    caption: "web addresses already taken, and the count grows every quarter",
     source: "Verisign Domain Name Industry Brief",
     Chart: DomainPressureChart,
   },
@@ -21,7 +21,8 @@ const PRESSURE = [
     value: 6282,
     decimals: 0,
     suffix: "",
-    caption: "cybersquatting cases at WIPO, an all-time record",
+    caption:
+      "fights over names at the UN's arbitration court, an all-time record",
     source: "WIPO Arbitration and Mediation Center",
     Chart: DisputePressureChart,
   },
@@ -30,7 +31,8 @@ const PRESSURE = [
     value: 900,
     decimals: 0,
     suffix: "M",
-    caption: "people asking models what things mean, including your name",
+    caption:
+      "people asking chatbots questions every week, including about your product category",
     source: "OpenAI figures, reported widely",
     Chart: ChatGptPressureChart,
   },
@@ -50,13 +52,15 @@ export default function PressureSection() {
             Why this exists
           </p>
           <h2 className="font-heading text-2xl font-semibold sm:text-3xl md:text-4xl">
-            Naming something in 2026 means clearing{" "}
-            <span className="text-primary">three land grabs</span> at once
+            You picked a good name.{" "}
+            <span className="text-primary">So did three other people.</span>
           </h2>
           <p className="mx-auto max-w-prose text-muted-foreground md:text-lg">
-            A domain someone squatted. A trademark someone holds. And a name an
-            AI model already answers for. Each one alone is a footnote. Together
-            they are why a good name is harder to keep than ever.
+            The domain is taken. Someone else trademarked something close. And
+            when people ask ChatGPT about your kind of product, it already has
+            an answer, and that answer is about someone else. Any one of those
+            is annoying. All three at once is why naming something today feels
+            impossible.
           </p>
         </div>
 
