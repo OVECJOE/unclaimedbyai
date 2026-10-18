@@ -195,7 +195,11 @@ export default function BrowseTab({
         </div>
       ) : null}
 
-      <div className={loading ? "opacity-60 transition-opacity" : "transition-opacity"}>
+      <div
+        className={
+          loading ? "opacity-60 transition-opacity" : "transition-opacity"
+        }
+      >
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -271,9 +275,7 @@ export default function BrowseTab({
           <Button
             variant="outline"
             size="sm"
-            disabled={
-              page >= Math.ceil(data.total / PAGE_SIZE) || loading
-            }
+            disabled={page >= Math.ceil(data.total / PAGE_SIZE) || loading}
             onClick={() => setPage((current) => current + 1)}
           >
             Next

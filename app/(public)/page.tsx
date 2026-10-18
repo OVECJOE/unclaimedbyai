@@ -72,7 +72,7 @@ export default async function Page() {
             and AI associations before you build around one.
           </p>
         </div>
-        <PrompterCta />
+        <PrompterCta signedIn={Boolean(user)} />
       </section>
 
       <PublicSearchesStrip />
@@ -140,8 +140,8 @@ export default async function Page() {
                 Watch
               </h3>
               <p className="text-sm text-muted-foreground">
-                Star a name and we recheck it every few hours, free, emailing
-                you the moment something gets claimed.
+                Star a name and Pro rechecks it every few hours, emailing you
+                the moment something gets claimed.
               </p>
             </div>
           </article>

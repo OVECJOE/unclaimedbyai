@@ -43,8 +43,8 @@ export default function PostCheckoutStrip() {
         .
       </p>
       <p className="text-xs text-muted-foreground">
-        We may earn a commission if you register through that link. The price
-        is the same either way.
+        We may earn a commission if you register through that link. The price is
+        the same either way.
       </p>
     </div>
   )

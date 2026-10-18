@@ -169,7 +169,9 @@ export default function NameSearch({
                     ? "No matching names to watch."
                     : "Nothing matches."}
               </CommandEmpty>
-              <CommandGroup heading={mode === "unwatched" ? "Pick a name" : "Watching"}>
+              <CommandGroup
+                heading={mode === "unwatched" ? "Pick a name" : "Watching"}
+              >
                 {items.map((item) =>
                   "score" in item ? (
                     <CommandItem
@@ -189,9 +191,7 @@ export default function NameSearch({
                           variant="secondary"
                           className="hidden shrink-0 text-[10px] sm:inline-flex"
                         >
-                          {item.tier
-                            ? TIER_LABEL[item.tier]
-                            : "Unchecked"}
+                          {item.tier ? TIER_LABEL[item.tier] : "Unchecked"}
                         </Badge>
                         <span className="hidden shrink-0 text-xs text-muted-foreground md:inline">
                           {formatDateTime(item.search_date)}
@@ -258,8 +258,8 @@ function ConfirmWatchDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Watch {item.name}?</AlertDialogTitle>
           <AlertDialogDescription>
-            Scored {item.score ?? "none"}. We will email you the moment any
-            of its domains or handles get claimed.
+            Scored {item.score ?? "none"}. We will email you the moment any of
+            its domains or handles get claimed.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <WatchForm

@@ -246,6 +246,9 @@ export function createSearch(input: {
   category?: string
   anon_session_id?: string
   cf_turnstile_token?: string
+  // Set when the search was started from an idea, so the search hangs off
+  // the idea that produced it.
+  idea_id?: string
 }): Promise<SearchItem & { searches_left?: number }> {
   return apiRequest("/api/v1/searches", {
     method: "POST",
@@ -456,10 +459,27 @@ export function searchByQuery(query: string): Promise<SearchDetail> {
 export type Pack = {
   slug: string
   title: string
-  reports: number
-  extra_searches: number
+  credits: number
   price_minor: number
   currency: string
+}
+
+export type PlanInfo = {
+  tier: string
+  title: string
+  max_sandboxes: number
+  max_searches: number
+  max_checks_per_name: number
+  max_generation_runs: number
+  watchlist_enabled: boolean
+  used_sandboxes: number
+  used_searches: number
+  used_generation_runs: number
+  credits: number
+}
+
+export function getPlan(): Promise<PlanInfo> {
+  return apiRequest<PlanInfo>("/api/v1/plan")
 }
 
 export function listPacks(): Promise<Pack[]> {
@@ -476,6 +496,241 @@ export function createCheckout(
   })
 }
 
+export function createProCheckout(returnTo?: string): Promise<{
+  checkout_url: string
+  subscription_id: string
+}> {
+  return apiRequest("/api/v1/checkout/pro", {
+    method: "POST",
+    body: { return_to: returnTo },
+  })
+}
+
+export type SignalProfile = {
+  skills: string | null
+  time_available: string | null
+  budget: string | null
+  audience: string | null
+  business_model: string | null
+  industries: string | null
+  target_customer: string | null
+  tech_comfort: string | null
+}
+
+export type SandboxRunStatus = "idle" | "generating" | "failed"
+
+export type Sandbox = {
+  public_id: string
+  name: string
+  auto_created: boolean
+  run_status: SandboxRunStatus
+  run_error: string | null
+  signals: Partial<SignalProfile>
+  idea_count: number
+  search_count: number
+  created_at: string
+}
+
+export type SandboxDetail = Sandbox & {
+  ideas: Idea[]
+}
+
+export type IdeaCanvas = {
+  audience: string | null
+  wedge: string | null
+  model: string | null
+}
+
+export type Idea = {
+  public_id: string
+  title: string
+  concept: string
+  canvas: IdeaCanvas | null
+  category: string
+  status: string
+  position: number
+  pinned: boolean
+  // Omitted on the wire when the idea has no search yet, which the
+  // API's exclude-none contract produces, hence the optional marker.
+  search_id?: number | null
+  created_at: string
+}
+
+export type ResearchSection = {
+  summary?: string
+  competitors?: { name: string; pricing?: string; note?: string }[]
+  signals?: string[]
+  channels?: { channel: string; note?: string }[]
+  paths?: { model: string; price?: string; note?: string }[]
+}
+
+export type Research = {
+  status: "generating" | "ready" | "failed"
+  error: string | null
+  competitors: ResearchSection | null
+  demand: ResearchSection | null
+  audience_channels: ResearchSection | null
+  monetization: ResearchSection | null
+  summary: string | null
+}
+
+export function getSignalProfile(): Promise<SignalProfile> {
+  return apiRequest<SignalProfile>("/api/v1/me/signals")
+}
+
+export function saveSignalProfile(
+  profile: Partial<SignalProfile>
+): Promise<SignalProfile> {
+  return apiRequest<SignalProfile>("/api/v1/me/signals", {
+    method: "PUT",
+    body: profile,
+  })
+}
+
+export type SandboxList = {
+  items: Sandbox[]
+  total: number
+  page: number
+  page_size: number
+}
+
+export type SandboxListParams = {
+  page?: number
+  page_size?: number
+  q?: string
+  filter?: "all" | "ideas" | "searches" | "empty"
+  sort?: "newest" | "oldest" | "name"
+}
+
+export function listSandboxes(
+  params: SandboxListParams = {}
+): Promise<SandboxList> {
+  const query = new URLSearchParams()
+  if (params.page) query.set("page", String(params.page))
+  if (params.page_size) query.set("page_size", String(params.page_size))
+  if (params.q) query.set("q", params.q)
+  if (params.filter && params.filter !== "all")
+    query.set("filter", params.filter)
+  if (params.sort) query.set("sort", params.sort)
+  const suffix = query.toString() ? `?${query.toString()}` : ""
+  return apiRequest<SandboxList>(`/api/v1/sandboxes${suffix}`)
+}
+
+export type ActivityDay = {
+  date: string
+  searches: number
+  checks: number
+}
+
+export type MeStats = {
+  searches_used: number
+  searches_limit: number
+  sandboxes: number
+  ideas: number
+  checks: number
+  credits: number
+  activity: ActivityDay[]
+}
+
+export function getMeStats(): Promise<MeStats> {
+  return apiRequest<MeStats>("/api/v1/me/stats")
+}
+
+export function createSandbox(input: {
+  name: string
+  signals?: Partial<SignalProfile>
+  anon_session_id?: string
+  cf_turnstile_token?: string
+}): Promise<Sandbox> {
+  return apiRequest<Sandbox>("/api/v1/sandboxes", {
+    method: "POST",
+    body: input,
+  })
+}
+
+export function getSandbox(
+  publicId: string,
+  sid?: string
+): Promise<SandboxDetail> {
+  const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
+  return apiRequest<SandboxDetail>(`/api/v1/sandboxes/${publicId}${query}`)
+}
+
+export function updateSandbox(
+  publicId: string,
+  input: { name?: string; signals?: Partial<SignalProfile> },
+  sid?: string
+): Promise<Sandbox> {
+  const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
+  return apiRequest<Sandbox>(`/api/v1/sandboxes/${publicId}${query}`, {
+    method: "PATCH",
+    body: input,
+  })
+}
+
+export function deleteSandbox(publicId: string, sid?: string): Promise<void> {
+  const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
+  return apiRequest(`/api/v1/sandboxes/${publicId}${query}`, {
+    method: "DELETE",
+  })
+}
+
+export function addManualIdea(
+  publicId: string,
+  input: { title: string; concept: string },
+  sid?: string
+): Promise<Idea> {
+  const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
+  return apiRequest<Idea>(`/api/v1/sandboxes/${publicId}/ideas${query}`, {
+    method: "POST",
+    body: input,
+  })
+}
+
+export function generateIdeas(
+  publicId: string,
+  input: {
+    count: number
+    seed?: string
+    anon_session_id?: string
+    cf_turnstile_token?: string
+  },
+  sid?: string
+): Promise<{ run_status: SandboxRunStatus }> {
+  const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
+  return apiRequest(`/api/v1/sandboxes/${publicId}/generate${query}`, {
+    method: "POST",
+    body: input,
+  })
+}
+
+export function updateIdea(
+  publicId: string,
+  input: {
+    title?: string
+    concept?: string
+    position?: number
+    pinned?: boolean
+  },
+  sid?: string
+): Promise<Idea> {
+  const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
+  return apiRequest<Idea>(`/api/v1/ideas/${publicId}${query}`, {
+    method: "PATCH",
+    body: input,
+  })
+}
+
+export function getResearch(ideaId: string): Promise<Research | null> {
+  return apiRequest<Research | null>(`/api/v1/ideas/${ideaId}/research`)
+}
+
+export function startResearch(
+  ideaId: string
+): Promise<{ status: string; version: number }> {
+  return apiRequest(`/api/v1/ideas/${ideaId}/research`, { method: "POST" })
+}
+
 export type OrderItem = {
   id: number
   status: string
@@ -483,8 +738,7 @@ export type OrderItem = {
   currency: string
   paid_at: string | null
   created_at: string
-  reports: number
-  searches: number
+  credits: number
   receipt_url: string | null
 }
 
@@ -598,9 +852,7 @@ export function listWatchNames(params?: {
   const search = new URLSearchParams()
   if (params?.q) search.set("q", params.q)
   const query = search.toString()
-  return apiRequest(
-    `/api/v1/watches/names${query ? `?${query}` : ""}`
-  )
+  return apiRequest(`/api/v1/watches/names${query ? `?${query}` : ""}`)
 }
 
 export type CheckedNameItem = {

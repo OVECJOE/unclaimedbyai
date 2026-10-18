@@ -255,13 +255,11 @@ export default function LiveSearch({
         {header.brief_summary || header.brief_attributes ? (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
             {header.brief_summary ? (
-              <p className="max-w-prose text-sm italic text-muted-foreground">
+              <p className="max-w-prose text-sm text-muted-foreground italic">
                 &ldquo;{header.brief_summary}&rdquo;
               </p>
             ) : null}
-            {(
-              ["audience", "tone", "category"] as const
-            ).map((key) =>
+            {(["audience", "tone", "category"] as const).map((key) =>
               header.brief_attributes?.[key] ? (
                 <span
                   key={key}
@@ -335,8 +333,8 @@ export default function LiveSearch({
                 className="flex flex-wrap items-center justify-between gap-3 border border-destructive/40 bg-destructive/5 p-3 text-sm"
               >
                 <span>
-                  Live updates paused — we lost the connection. What you see
-                  is the last loaded snapshot.
+                  Live updates paused — we lost the connection. What you see is
+                  the last loaded snapshot.
                 </span>
                 <Button
                   size="sm"

@@ -56,8 +56,8 @@ export default function ShortageDialog({
     }
   }, [open, pack, failed])
 
-  const perReport =
-    pack && pack.reports > 0 ? pack.price_minor / 100 / pack.reports : null
+  const perCredit =
+    pack && pack.credits > 0 ? pack.price_minor / 100 / pack.credits : null
 
   async function buy() {
     if (!pack) return
@@ -80,24 +80,24 @@ export default function ShortageDialog({
         <DialogHeader>
           <DialogTitle>
             {kind === "credits"
-              ? "You are out of report credits"
+              ? "You are out of credits"
               : "You are out of searches"}
           </DialogTitle>
           <DialogDescription>
             {kind === "credits"
               ? "Re-checks cost one credit each, which is how availability stays fresh as names get claimed while you decide."
               : "Searches are what turn a brief into fresh name candidates, and every account starts with a few."}
-            {pack && perReport !== null
-              ? ` The ${pack.title} brings every report to ${CURRENCY_SYMBOL}${perReport.toFixed(
+            {pack && perCredit !== null
+              ? ` The ${pack.title} brings every credit to ${CURRENCY_SYMBOL}${perCredit.toFixed(
                   2
-                )}, adds ${pack.extra_searches} searches, and checkout drops you right back here.`
+                )}, and checkout drops you right back here.`
               : ""}
           </DialogDescription>
         </DialogHeader>
         {failed ? (
           <p className="text-sm text-muted-foreground">
-            We could not load pack prices right now. Visit the billing page
-            when you are ready to top up.
+            We could not load pack prices right now. Visit the billing page when
+            you are ready to top up.
           </p>
         ) : null}
         <DialogFooter>

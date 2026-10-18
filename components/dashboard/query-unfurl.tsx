@@ -2,10 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
-import {
-  ArrowDown01Icon,
-  ArrowUp01Icon,
-} from "@hugeicons/core-free-icons"
+import { ArrowDown01Icon, ArrowUp01Icon } from "@hugeicons/core-free-icons"
 import { cn } from "@/lib/utils"
 
 const CLAMPED_CLASS = "line-clamp-3"

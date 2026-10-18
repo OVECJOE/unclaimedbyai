@@ -208,10 +208,10 @@ export default function ProductPage() {
               </div>
             }
           >
-            GitHub has a public API that gives a straight yes or no, so
-            those results are exact. X, Instagram, TikTok and YouTube don&apos;t
-            offer that, so we check the live profile page instead and label it
-            a best guess. We&apos;d rather tell you the limit than fake a green
+            GitHub has a public API that gives a straight yes or no, so those
+            results are exact. X, Instagram, TikTok and YouTube don&apos;t offer
+            that, so we check the live profile page instead and label it a best
+            guess. We&apos;d rather tell you the limit than fake a green
             checkmark.
           </FeatureRow>
         </div>
@@ -376,10 +376,10 @@ export default function ProductPage() {
               </TableRow>
 
               <TableRow className="hover:bg-transparent">
-                <TableCell className="font-medium">Price per report</TableCell>
+                <TableCell className="font-medium">Price to start</TableCell>
 
                 <TableCell className="bg-primary/10 text-center font-semibold">
-                  $1.99
+                  free
                 </TableCell>
 
                 <TableCell className="text-center text-muted-foreground">
@@ -388,6 +388,24 @@ export default function ProductPage() {
 
                 <TableCell className="text-center text-muted-foreground">
                   $400+
+                </TableCell>
+              </TableRow>
+
+              <TableRow className="hover:bg-transparent">
+                <TableCell className="font-medium">
+                  After the free check
+                </TableCell>
+
+                <TableCell className="bg-primary/10 text-center font-semibold">
+                  1 credit
+                </TableCell>
+
+                <TableCell className="text-center text-muted-foreground">
+                  nothing left
+                </TableCell>
+
+                <TableCell className="text-center text-muted-foreground">
+                  per search
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -407,11 +425,13 @@ export default function ProductPage() {
           >
             {FAQS.map((faq) => (
               <AccordionItem key={faq.id} value={faq.id}>
-                <AccordionTrigger className="text-xl">
+                <AccordionTrigger className="text-left text-lg sm:text-xl">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-lg">
-                  {faq.answer}
+                <AccordionContent className="text-base">
+                  {/* The schema keeps the plain answer; the accordion
+                      shows the rich body when an entry earned one. */}
+                  {faq.body ?? faq.answer}
                 </AccordionContent>
               </AccordionItem>
             ))}

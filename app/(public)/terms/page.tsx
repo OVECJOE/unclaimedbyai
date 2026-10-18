@@ -45,7 +45,7 @@ const sections: LegalSection[] = [
         <p>
           The Service generates name ideas and checks them across domain
           registries, social platforms, and AI models, scoring what it finds.
-          Reports, scores, verdicts, and &ldquo;available&rdquo; labels are
+          Checks, scores, verdicts, and &ldquo;available&rdquo; labels are
           informational signals to help your decision-making.
         </p>
         <p>
@@ -84,25 +84,33 @@ const sections: LegalSection[] = [
   {
     id: "credits-payments",
     title: "Credits and payments",
-    plain: `You start with ${FREE_SEARCHES} free searches and the first check on every name is free. Packs grant both searches for new ideas and report credits for re-checks. No subscriptions, no auto-charges.`,
+    plain: `You start with ${FREE_SEARCHES} free searches, one sandbox, and the first check on every name is free. Credits buy market research, extra searches, and re-checks, and never expire. Pro is a monthly subscription that renews until you cancel.`,
     body: (
       <>
         <p>
-          New accounts receive {FREE_SEARCHES} free searches, and the first
-          check on every name is free. Packs grant both allowances: searches
-          generate new name ideas, and one report credit covers a re-check of
-          a name you already checked. Current packs and prices are listed on
-          the{" "}
-          <Link href="/pricing">pricing page</Link>.
+          New accounts receive {FREE_SEARCHES} free searches, one sandbox, and
+          the first check on every name is free. After that there are two ways
+          to pay, and they are independent of each other.
         </p>
+        <ul>
+          <li>
+            <strong>Credits</strong> are pay-as-you-go and never expire. Market
+            research costs 3 credits, a search past your monthly allowance costs
+            2, and re-checking a name costs 1. Current pack prices are listed on
+            the <Link href="/pricing">pricing page</Link>.
+          </li>
+          <li>
+            <strong>Pro</strong> is a monthly subscription at the price shown on
+            the pricing page. It renews automatically each month until you
+            cancel, and you can cancel yourself from the billing page at any
+            time. Your plan allowances (sandboxes, searches, checks per name,
+            idea runs) reset with each billing period.
+          </li>
+        </ul>
         <ul>
           <li>
             Payments are processed by Stripe at checkout. We never see or store
             card numbers.
-          </li>
-          <li>
-            There are no subscriptions and nothing auto-renews. You only pay
-            when you choose to buy a pack.
           </li>
           <li>
             Credits are tied to your account, don&apos;t expire, and aren&apos;t
@@ -110,9 +118,10 @@ const sections: LegalSection[] = [
           </li>
           <li>
             Because credits are consumed instantly (checks run on purchase),
-            packs are generally non-refundable — but if something went wrong on
-            our side, contact us and we&apos;ll make it right, including with
-            replacement credits or a refund.
+            credit packs are generally non-refundable, and a used portion of a
+            Pro period is not prorated on cancellation. But if something went
+            wrong on our side, contact us and we&apos;ll make it right,
+            including with replacement credits or a refund.
           </li>
         </ul>
       </>
@@ -151,7 +160,7 @@ const sections: LegalSection[] = [
     id: "intellectual-property",
     title: "Intellectual property",
     plain:
-      "Our app is ours; your names and reports are yours. We just need a license to show them back to you.",
+      "Our app is ours; your names and checks are yours. We just need a license to show them back to you.",
     body: (
       <>
         <p>
@@ -161,10 +170,10 @@ const sections: LegalSection[] = [
           are in effect.
         </p>
         <p>
-          The names you submit and the reports we generate for you are yours.
-          You grant us a license to store, process, and display them to you as
-          part of operating the Service — and nothing more. We claim no
-          ownership over your brand ideas.
+          The names you submit and the checks we generate for you are yours. You
+          grant us a license to store, process, and display them to you as part
+          of operating the Service — and nothing more. We claim no ownership
+          over your brand ideas.
         </p>
       </>
     ),
@@ -176,7 +185,7 @@ const sections: LegalSection[] = [
       "Checks run through registries, platforms, AI providers, and Stripe. Their availability and terms apply too.",
     body: (
       <p>
-        To produce reports we rely on third parties: domain registries and RDAP
+        To produce checks we rely on third parties: domain registries and RDAP
         servers, social platforms&apos; public APIs, AI model providers, Google
         sign-in, and Stripe for payments. Their availability, accuracy, and
         terms are outside our control — if a registry is down or a platform
@@ -215,7 +224,7 @@ const sections: LegalSection[] = [
       <p>
         To the maximum extent permitted by law, we are not liable for indirect,
         incidental, consequential, or punitive damages — including lost profits
-        or brand investments made in reliance on a report. Our total liability
+        or brand investments made in reliance on a check. Our total liability
         for any claim is capped at the amount you paid us in the 12 months
         before the claim arose (or $10 if you paid nothing). Some jurisdictions
         don&apos;t allow these limits, so they may not apply to you.

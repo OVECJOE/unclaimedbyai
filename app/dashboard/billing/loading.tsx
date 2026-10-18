@@ -15,7 +15,10 @@ export default function BillingLoading() {
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="h-80 animate-pulse border bg-muted/40" />
+            <div
+              key={index}
+              className="h-80 animate-pulse border bg-muted/40"
+            />
           ))}
         </div>
       </div>

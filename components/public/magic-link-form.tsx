@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState } from "react"
+import { startTransition, useActionState } from "react"
 import { useFormStatus } from "react-dom"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -9,19 +9,25 @@ import { Label } from "@/components/ui/label"
 import { sendMagicLink } from "@/app/(public)/auth/actions"
 import { useTurnstile } from "@/components/public/turnstile"
 
-function SubmitButton() {
+function SubmitButton({ actionPending }: { actionPending: boolean }) {
+  // The form's own pending covers the Turnstile wait; the dispatch's
+  // pending covers the server action it hands off to. Both, or a fast
+  // submitter gets the button back while the link is still sending.
   const { pending } = useFormStatus()
+  const busy = pending || actionPending
   return (
-    <Button size="lg" className="w-full" type="submit" disabled={pending}>
+    <Button size="lg" className="w-full" type="submit" disabled={busy}>
       <span className="font-semibold">
-        {pending ? "Sending…" : "Continue with email"}
+        {busy ? "Sending…" : "Continue with email"}
       </span>
     </Button>
   )
 }
 
 export default function MagicLinkForm({ plan }: { plan?: string }) {
-  const [state, action] = useActionState(sendMagicLink, { error: null })
+  const [state, action, actionPending] = useActionState(sendMagicLink, {
+    error: null,
+  })
   const turnstile = useTurnstile("magic_link")
 
   return (
@@ -35,7 +41,12 @@ export default function MagicLinkForm({ plan }: { plan?: string }) {
         // valid solve and force a fresh challenge on every submit.
         const token = await turnstile.waitForToken(2500)
         formData.set("cf_turnstile_token", token ?? "")
-        return action(formData)
+        // The await above resumes outside the form action's transition,
+        // and React 19 refuses a bare useActionState dispatch there, so
+        // the handoff starts a transition of its own.
+        startTransition(() => {
+          action(formData)
+        })
       }}
     >
       <div className="space-y-2">
@@ -60,7 +71,7 @@ export default function MagicLinkForm({ plan }: { plan?: string }) {
           {state.error}
         </p>
       ) : null}
-      <SubmitButton />
+      <SubmitButton actionPending={actionPending} />
       {turnstile.widget}
       <p className="mt-4 text-sm text-muted-foreground">
         By continuing, you agree to our{" "}

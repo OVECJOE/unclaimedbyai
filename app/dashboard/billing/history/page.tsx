@@ -58,10 +58,7 @@ export default async function HistoryPage({
                 <TableCell>
                   <div className="space-y-1">
                     <p className="text-md font-semibold">
-                      {order.reports} report{order.reports === 1 ? "" : "s"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      +{order.searches} searches
+                      {order.credits} credit{order.credits === 1 ? "" : "s"}
                     </p>
                   </div>
                 </TableCell>

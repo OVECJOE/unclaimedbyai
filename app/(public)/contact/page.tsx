@@ -75,21 +75,23 @@ const QUICK_ANSWERS = [
   {
     icon: Message01Icon,
     question: "How does the checker actually work?",
-    answer: "No black box: the whole pipeline is documented, receipts included.",
+    answer:
+      "No black box: the whole pipeline is documented, receipts included.",
     href: "/product",
     cta: "See the product",
   },
   {
     icon: Clock01Icon,
-    question: "Where's my report?",
+    question: "Where are my checks?",
     answer: "Signed-in users find every check under history, newest first.",
     href: "/dashboard/history",
     cta: "Open history",
   },
   {
     icon: CreditCardIcon,
-    question: "How do credits and reports work?",
-    answer: "One-time packs, no subscriptions. Pricing says the whole thing out loud.",
+    question: "How do credits work?",
+    answer:
+      "Research costs 3, a search past your allowance 2, a re-check 1. Pro covers the rest.",
     href: "/pricing",
     cta: "See pricing",
   },
@@ -197,9 +199,9 @@ export default function ContactPage() {
               Or write to us here
             </h2>
             <p className="max-w-prose text-base leading-7 sm:text-lg">
-              Same inbox as the email above. This just saves you opening a
-              mail app. We&apos;ll reply to the address you leave, and
-              we&apos;ll never add you to a mailing list for it.
+              Same inbox as the email above. This just saves you opening a mail
+              app. We&apos;ll reply to the address you leave, and we&apos;ll
+              never add you to a mailing list for it.
             </p>
             <ul className="space-y-2 pt-2">
               {[
@@ -208,7 +210,10 @@ export default function ContactPage() {
                 "Billing questions: the email you checked out with is enough to find your order.",
               ].map((tip) => (
                 <li key={tip} className="flex items-start gap-2 text-sm">
-                  <span aria-hidden className="mt-1.5 size-1.5 shrink-0 bg-primary" />
+                  <span
+                    aria-hidden
+                    className="mt-1.5 size-1.5 shrink-0 bg-primary"
+                  />
                   <span className="text-muted-foreground">{tip}</span>
                 </li>
               ))}
@@ -270,7 +275,7 @@ export default function ContactPage() {
             We post check teardowns and naming wreckage in public.
           </p>
         </div>
-        <div className="flex md:justify-center gap-4">
+        <div className="flex gap-4 md:justify-center">
           {SOCIALS.map((social) => (
             <a
               key={social.label}
