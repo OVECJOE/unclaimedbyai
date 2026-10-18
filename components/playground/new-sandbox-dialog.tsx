@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import type { SignalProfile } from "@/lib/api"
+import { toastApiError } from "@/lib/api-errors"
 import { useDashboardStore } from "@/lib/store/dashboard"
 import SignalFields from "@/components/playground/signal-fields"
 
@@ -51,9 +52,6 @@ export default function NewSandboxDialog({
     setPending(true)
     try {
       const sandbox = await createAndOpen({ name: name.trim(), signals })
-      if (!sandbox) {
-        throw new Error("The sandbox could not be created.")
-      }
       if (generateToo) {
         try {
           await startGeneration(sandbox.public_id, { count: 6 })
@@ -65,9 +63,7 @@ export default function NewSandboxDialog({
       onOpenChange(false)
       router.push(`/dashboard/playground?sandbox=${sandbox.public_id}`)
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "The sandbox failed."
-      )
+      toastApiError(error, "The sandbox could not be created.")
     } finally {
       setPending(false)
     }

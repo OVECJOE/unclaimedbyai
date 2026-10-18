@@ -9,6 +9,8 @@ import { sendLoginEmail } from "./email"
 import { createSession, destroySession, requireEditor } from "./session"
 import {
   addBoost,
+  boostRateCount,
+  commentRateCount,
   consumeLoginToken,
   createComment,
   createPost,
@@ -20,6 +22,7 @@ import {
   updatePost,
 } from "./store"
 import { validateMdx } from "./validate"
+import { isSafeCoverUrl } from "./cover-image"
 import type {
   BoostState,
   CommentSubmitState,
@@ -113,6 +116,13 @@ function checkFields(input: PostInput): ContentIssue[] {
   if (RESERVED_SLUGS.has(input.slug)) {
     issues.push({ message: "That URL slug is reserved. Pick another." })
   }
+  const cover = input.coverImageUrl?.trim() ?? ""
+  if (cover && !isSafeCoverUrl(cover)) {
+    issues.push({
+      message:
+        "The cover image URL must be a full https:// link or a path starting with '/'.",
+    })
+  }
   if (input.status === "published") {
     if (!input.excerpt.trim()) {
       issues.push({ message: "Add an excerpt before publishing." })
@@ -166,6 +176,26 @@ export async function savePost(input: PostInput): Promise<SaveResult> {
 
 const COMMENT_NAME_MAX = 60
 const COMMENT_BODY_MAX = 2000
+const COMMENT_LIMIT_WINDOW_MS = 10 * 60_000
+const COMMENT_LIMIT_MAX = 5
+const BOOST_LIMIT_WINDOW_MS = 60_000
+const BOOST_LIMIT_MAX = 20
+const BOOST_COOKIE = "bid"
+const TWO_YEARS_SECONDS = 60 * 60 * 24 * 365 * 2
+
+async function fingerprintFrom(jar: Awaited<ReturnType<typeof cookies>>) {
+  const existing = jar.get(BOOST_COOKIE)?.value ?? ""
+  if (existing) return existing
+  const fresh = randomBytes(16).toString("hex")
+  jar.set(BOOST_COOKIE, fresh, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: TWO_YEARS_SECONDS,
+    path: "/",
+  })
+  return fresh
+}
 
 export async function submitComment(
   _previous: CommentSubmitState,
@@ -215,11 +245,26 @@ export async function submitComment(
     }
   }
 
+  const jar = await cookies()
+  const fingerprint = await fingerprintFrom(jar)
+  const recentComments = await commentRateCount(
+    fingerprint,
+    COMMENT_LIMIT_WINDOW_MS
+  )
+  if (recentComments >= COMMENT_LIMIT_MAX) {
+    return {
+      ok: false,
+      message:
+        "That's a lot of transmissions in a short window. Give it a few minutes and try again.",
+    }
+  }
+
   const created = await createComment({
     postId,
     parentId: parentId !== null && Number.isInteger(parentId) ? parentId : null,
     authorName,
     body,
+    fingerprint,
   })
   if (!created) {
     return {
@@ -268,9 +313,6 @@ export async function deleteCommentAction(formData: FormData) {
   revalidatePath("/admin/blog/comments")
 }
 
-const BOOST_COOKIE = "bid"
-const TWO_YEARS_SECONDS = 60 * 60 * 24 * 365 * 2
-
 export async function boostSignal(
   _previous: BoostState,
   formData: FormData
@@ -298,16 +340,15 @@ export async function boostSignal(
   }
 
   const jar = await cookies()
-  let fingerprint = jar.get(BOOST_COOKIE)?.value ?? ""
-  if (!fingerprint) {
-    fingerprint = randomBytes(16).toString("hex")
-    jar.set(BOOST_COOKIE, fingerprint, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: TWO_YEARS_SECONDS,
-      path: "/",
-    })
+  const fingerprint = await fingerprintFrom(jar)
+  const recentBoosts = await boostRateCount(fingerprint, BOOST_LIMIT_WINDOW_MS)
+  if (recentBoosts >= BOOST_LIMIT_MAX) {
+    return {
+      ok: false,
+      boosted: false,
+      message:
+        "Easy there — that's a lot of boosts in a minute. Try again shortly.",
+    }
   }
 
   const result = await addBoost({ postId, commentId, fingerprint })
@@ -319,12 +360,18 @@ export async function boostSignal(
     }
   }
 
-  revalidatePath(`/blog/${result.postSlug}`)
+  if (result.inserted) revalidatePath(`/blog/${result.postSlug}`)
   return result.inserted
     ? {
         ok: true,
         boosted: true,
+        inserted: true,
         message: "Boost sent. The signal is stronger now.",
       }
-    : { ok: true, boosted: true, message: "You already boosted this one." }
+    : {
+        ok: true,
+        boosted: true,
+        inserted: false,
+        message: "You already boosted this one.",
+      }
 }

@@ -36,6 +36,34 @@ export const metadata: Metadata = pageMetadata({
   path: "/product",
 })
 
+function TableCheck() {
+  return (
+    <span className="inline-flex flex-col items-center gap-0.5">
+      <HugeiconsIcon
+        icon={CheckmarkBadge03Icon}
+        size={18}
+        aria-hidden
+        className="text-green-600 dark:text-green-500"
+      />
+      <span className="sr-only">Included</span>
+    </span>
+  )
+}
+
+function TableCross() {
+  return (
+    <span className="inline-flex flex-col items-center gap-0.5">
+      <HugeiconsIcon
+        icon={CancelIcon}
+        size={18}
+        aria-hidden
+        className="text-destructive"
+      />
+      <span className="sr-only">Not included</span>
+    </span>
+  )
+}
+
 const productJsonLd = {
   "@context": "https://schema.org",
   "@graph": [
@@ -148,9 +176,11 @@ export default function ProductPage() {
                   >
                     <span>{row.domain}</span>
                     <span
-                      className={
-                        row.available ? "text-green-700" : "text-red-700"
-                      }
+                      className={cn(
+                        row.available
+                          ? "text-green-700 dark:text-green-500"
+                          : "text-red-700 dark:text-red-500"
+                      )}
                     >
                       {row.available ? "Open" : "Taken"}
                     </span>
@@ -187,8 +217,8 @@ export default function ProductPage() {
                     <div className="flex shrink-0 items-center gap-1">
                       <span
                         className={cn("text-xs", {
-                          "text-green-700": row.open,
-                          "text-amber-500": !row.open,
+                          "text-green-700 dark:text-green-500": row.open,
+                          "text-amber-700 dark:text-amber-400": !row.open,
                         })}
                       >
                         {row.open ? "open" : "taken"}
@@ -196,8 +226,8 @@ export default function ProductPage() {
                       <span className="text-muted-foreground">&middot;</span>
                       <span
                         className={cn("text-xs", {
-                          "text-green-700": row.exact,
-                          "text-amber-500": !row.exact,
+                          "text-green-700 dark:text-green-500": row.exact,
+                          "text-amber-700 dark:text-amber-400": !row.exact,
                         })}
                       >
                         {row.exact ? "exact" : "best guess"}
@@ -237,13 +267,13 @@ export default function ProductPage() {
 
           <div className="grid gap-px overflow-hidden border bg-border text-start sm:grid-cols-2">
             <div className="space-y-1 bg-background p-4">
-              <p className="font-mono text-xs tracking-[0.12em] text-green-700 uppercase">
+              <p className="font-mono text-xs tracking-[0.12em] text-green-700 uppercase dark:text-green-500">
                 Shrug
               </p>
               <p>A children&apos;s book character from 1995</p>
             </div>
             <div className="space-y-1 bg-background p-4">
-              <p className="font-mono text-xs tracking-[0.12em] text-red-700 uppercase">
+              <p className="font-mono text-xs tracking-[0.12em] text-red-700 uppercase dark:text-red-500">
                 Rethink the name
               </p>
               <p>A live SaaS company in your exact category</p>
@@ -270,8 +300,8 @@ export default function ProductPage() {
           </h2>
           <Table>
             <TableCaption className="mt-4 text-muted-foreground">
-              We empower you to build your dream without the complexity of
-              picking a name.
+              The same three checks, side by side with the free generators and a
+              lawyer&apos;s trademark search.
             </TableCaption>
 
             <TableHeader>
@@ -297,11 +327,7 @@ export default function ProductPage() {
                 <TableCell className="font-medium">Domain check</TableCell>
 
                 <TableCell className="bg-primary/10 text-center">
-                  <HugeiconsIcon
-                    icon={CheckmarkBadge03Icon}
-                    size={18}
-                    className="mx-auto text-green-600 dark:text-green-500"
-                  />
+                  <TableCheck />
                 </TableCell>
 
                 <TableCell className="text-center text-muted-foreground">
@@ -309,11 +335,7 @@ export default function ProductPage() {
                 </TableCell>
 
                 <TableCell className="text-center">
-                  <HugeiconsIcon
-                    icon={CancelIcon}
-                    size={18}
-                    className="mx-auto text-destructive"
-                  />
+                  <TableCross />
                 </TableCell>
               </TableRow>
 
@@ -321,27 +343,15 @@ export default function ProductPage() {
                 <TableCell className="font-medium">Social handles</TableCell>
 
                 <TableCell className="bg-primary/10 text-center">
-                  <HugeiconsIcon
-                    icon={CheckmarkBadge03Icon}
-                    size={18}
-                    className="mx-auto text-green-600 dark:text-green-500"
-                  />
+                  <TableCheck />
                 </TableCell>
 
                 <TableCell className="text-center">
-                  <HugeiconsIcon
-                    icon={CancelIcon}
-                    size={18}
-                    className="mx-auto text-destructive"
-                  />
+                  <TableCross />
                 </TableCell>
 
                 <TableCell className="text-center">
-                  <HugeiconsIcon
-                    icon={CancelIcon}
-                    size={18}
-                    className="mx-auto text-destructive"
-                  />
+                  <TableCross />
                 </TableCell>
               </TableRow>
 
@@ -351,27 +361,15 @@ export default function ProductPage() {
                 </TableCell>
 
                 <TableCell className="bg-primary/10 text-center">
-                  <HugeiconsIcon
-                    icon={CheckmarkBadge03Icon}
-                    size={18}
-                    className="mx-auto text-green-600 dark:text-green-500"
-                  />
+                  <TableCheck />
                 </TableCell>
 
                 <TableCell className="text-center">
-                  <HugeiconsIcon
-                    icon={CancelIcon}
-                    size={18}
-                    className="mx-auto text-destructive"
-                  />
+                  <TableCross />
                 </TableCell>
 
                 <TableCell className="text-center">
-                  <HugeiconsIcon
-                    icon={CancelIcon}
-                    size={18}
-                    className="mx-auto text-destructive"
-                  />
+                  <TableCross />
                 </TableCell>
               </TableRow>
 
@@ -410,6 +408,9 @@ export default function ProductPage() {
               </TableRow>
             </TableBody>
           </Table>
+          <p className="text-start text-xs text-muted-foreground sm:hidden">
+            Swipe the table to compare all three columns.
+          </p>
         </div>
       </section>
 

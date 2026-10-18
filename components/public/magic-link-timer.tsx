@@ -51,7 +51,7 @@ export function MagicLinkTimer({
   }
 
   return (
-    <span className="space-y-1">
+    <div className="space-y-1">
       <form action={resend}>
         <Input type="hidden" name="email" value={email} />
         {plan ? <Input type="hidden" name="plan" value={plan} /> : null}
@@ -70,6 +70,6 @@ export function MagicLinkTimer({
           {state.error}
         </p>
       ) : null}
-    </span>
+    </div>
   )
 }

@@ -32,7 +32,10 @@ export async function sendContactMessage(
   const started = Number(formData.get("started") ?? 0)
 
   if (name.length < 1 || name.length > 120) {
-    return { ok: false, message: "Tell us what to call you (1-120 characters)." }
+    return {
+      ok: false,
+      message: "Tell us what to call you (1-120 characters).",
+    }
   }
   if (!EMAIL_PATTERN.test(email) || email.length > 254) {
     return { ok: false, message: "That email doesn't look right." }
@@ -43,7 +46,8 @@ export async function sendContactMessage(
   if (message.length < 10 || message.length > 5000) {
     return {
       ok: false,
-      message: "Messages need 10-5000 characters. The details help us help you.",
+      message:
+        "Messages need 10-5000 characters. The details help us help you.",
     }
   }
   // Submitted suspiciously fast, almost certainly a script. Accept quietly.
@@ -64,10 +68,13 @@ export async function sendContactMessage(
         message: "Got it. In development this prints to the server log.",
       }
     }
-    console.error("Contact form unavailable: RESEND_API_KEY/BLOG_EMAIL_FROM unset")
+    console.error(
+      "Contact form unavailable: RESEND_API_KEY/BLOG_EMAIL_FROM unset"
+    )
     return {
       ok: false,
-      message: "The form is unavailable right now. Email hello@unclaimedbyai.com.",
+      message:
+        "The form is unavailable right now. Email hello@unclaimedbyai.com.",
     }
   }
 

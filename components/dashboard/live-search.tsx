@@ -102,11 +102,15 @@ export default function LiveSearch({
     initialWatched ?? {}
   )
   const failuresRef = useRef(0)
+  const refreshSeqRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [expired, setExpired] = useState(false)
 
   // Stars should reflect the account's current watches even when the
-  // results component remounts on a filter change.
+  // results component remounts on a filter change. Anonymous visitors
+  // have no session to read, so the call is skipped entirely.
   useEffect(() => {
+    if (sid) return
     let cancelled = false
     listWatches()
       .then((data) => {
@@ -121,7 +125,7 @@ export default function LiveSearch({
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [sid])
 
   const generating = header.generation.status === "generating"
   const active = generating || pending.length > 0
@@ -160,17 +164,19 @@ export default function LiveSearch({
     f: { availableOnly: boolean; sort: string; q: string },
     signal?: AbortSignal
   ): Promise<boolean> {
+    const seq = ++refreshSeqRef.current
     const [nextHeader, nextSummary, nextResults] = await Promise.all([
-      getSearchHeader(searchId, sid),
-      getSearchSummary(searchId, sid),
+      getSearchHeader(searchId, sid, signal),
+      getSearchSummary(searchId, sid, signal),
       getSearchResults(searchId, {
         availableOnly: f.availableOnly,
         sort: f.sort,
         q: f.q || undefined,
         anonSessionId: sid,
+        signal,
       }),
     ])
-    if (signal?.aborted) return false
+    if (signal?.aborted || refreshSeqRef.current !== seq) return false
     failuresRef.current = 0
     setHeader(nextHeader)
     setSummary(nextSummary)
@@ -189,6 +195,12 @@ export default function LiveSearch({
     timerRef.current = setInterval(() => {
       refresh(controller.signal).catch((error) => {
         if (error instanceof ApiError && error.status === 429) return
+        if (error instanceof ApiError && error.status === 401) {
+          if (timerRef.current) clearInterval(timerRef.current)
+          setExpired(true)
+          setPaused(true)
+          return
+        }
         failuresRef.current += 1
         if (failuresRef.current >= 3) {
           if (timerRef.current) clearInterval(timerRef.current)
@@ -333,19 +345,26 @@ export default function LiveSearch({
                 className="flex flex-wrap items-center justify-between gap-3 border border-destructive/40 bg-destructive/5 p-3 text-sm"
               >
                 <span>
-                  Live updates paused — we lost the connection. What you see is
-                  the last loaded snapshot.
+                  {expired
+                    ? "Your session ended. Sign in again to keep this search live — nothing below has changed."
+                    : "Live updates paused — we lost the connection. What you see is the last loaded snapshot."}
                 </span>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    failuresRef.current = 0
-                    setPaused(false)
-                  }}
-                >
-                  Resume updates
-                </Button>
+                {expired ? (
+                  <Button size="sm" asChild>
+                    <Link href="/auth">Sign in</Link>
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      failuresRef.current = 0
+                      setPaused(false)
+                    }}
+                  >
+                    Resume updates
+                  </Button>
+                )}
               </div>
             ) : null}
             <SearchResultsToolbar

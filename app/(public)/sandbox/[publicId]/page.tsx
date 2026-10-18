@@ -1,19 +1,19 @@
+import Link from "next/link"
 import { notFound } from "next/navigation"
-import { apiServer, getMeServer } from "@/lib/api-server"
+import type { Metadata } from "next"
+import { apiServer, getMeServer, isLoggedOut } from "@/lib/api-server"
 import { ApiError, type SandboxDetail } from "@/lib/api"
 import SandboxView from "@/components/dashboard/sandbox-view"
 import SandboxGate from "@/components/dashboard/sandbox-gate"
+import { Button } from "@/components/ui/button"
 
 export const dynamic = "force-dynamic"
 
-/**
- * One sandbox, reachable two ways: a signed-in owner, or the anonymous
- * session that ran the taste run, addressed by sid the way the check page
- * already addresses its live phase. The gate below is the sign-in ask,
- * which sits in front of the ideas rather than replacing them, so the
- * visitor sees what their taste run produced before being asked for an
- * account.
- */
+export const metadata: Metadata = {
+  title: "Your sandbox",
+  robots: { index: false, follow: false },
+}
+
 export default async function SandboxPage({
   params,
   searchParams,
@@ -32,6 +32,31 @@ export default async function SandboxPage({
     )
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound()
+    if (isLoggedOut(error)) {
+      return (
+        <section className="px-4 py-16">
+          <div className="mx-auto max-w-prose space-y-4 border border-dashed p-10 text-center">
+            <h1 className="font-heading text-3xl font-semibold">
+              This sandbox needs its session token
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              The link is missing the access token that keeps your ideas
+              private, or it was opened in a different browser. Open the
+              original link where you started the sandbox — or sign in and pick
+              up where you left off.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              <Button asChild>
+                <Link href="/auth">Sign in</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/">Start your own sandbox</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      )
+    }
     throw error
   }
   return (

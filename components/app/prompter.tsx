@@ -23,10 +23,22 @@ const EXAMPLES = [
 
 export type PrompterMode = "idea" | "studio" | "name"
 
-const MODES: { value: PrompterMode; label: string }[] = [
-  { value: "idea", label: "Idea" },
-  { value: "studio", label: "Studio" },
-  { value: "name", label: "Name" },
+const MODES: { value: PrompterMode; label: string; hint: string }[] = [
+  {
+    value: "idea",
+    label: "Idea",
+    hint: "Turn a rough idea into a set of name candidates.",
+  },
+  {
+    value: "studio",
+    label: "Studio",
+    hint: "Same, but shaped by what you tell us about your business.",
+  },
+  {
+    value: "name",
+    label: "Name",
+    hint: "Check one exact name across AI, domains and handles.",
+  },
 ]
 
 function ModePill({
@@ -44,7 +56,7 @@ function ModePill({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "border px-2.5 py-1 text-xs font-medium backdrop-blur-sm transition-colors",
+        "min-h-11 border px-3 text-sm font-medium backdrop-blur-sm transition-colors",
         active
           ? "border-primary bg-primary text-primary-foreground"
           : "border-border bg-background/80 text-foreground hover:border-primary/50 hover:text-primary"
@@ -126,7 +138,7 @@ export default function Prompter({
           <div
             role="group"
             aria-label="What do you want to do"
-            className="mb-2 flex items-center gap-1.5"
+            className="mb-2 flex flex-wrap items-center gap-1.5"
           >
             {MODES.map((option) => (
               <ModePill
@@ -137,6 +149,9 @@ export default function Prompter({
               />
             ))}
           </div>
+          <p className="mb-2 text-xs text-muted-foreground">
+            {MODES.find((option) => option.value === mode)?.hint}
+          </p>
           <Textarea
             id="prompt"
             name="prompt"

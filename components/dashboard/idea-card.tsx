@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
@@ -31,14 +31,57 @@ function CanvasLine({ label, value }: { label: string; value: string | null }) {
  */
 export default function IdeaCard({
   idea,
+  sid,
   onChange,
 }: {
   idea: Idea
+  sid?: string
   onChange: () => void
 }) {
   const router = useRouter()
   const [research, setResearch] = useState<Research | null>(null)
   const [busy, setBusy] = useState(false)
+  const [polling, setPolling] = useState(false)
+  const onChangeRef = useRef(onChange)
+  useEffect(() => {
+    onChangeRef.current = onChange
+  })
+
+  useEffect(() => {
+    if (!polling) return
+    let cancelled = false
+    let attempts = 0
+    const id = setInterval(() => {
+      attempts += 1
+      if (attempts > 40) {
+        setPolling(false)
+        return
+      }
+      void getResearch(idea.public_id)
+        .then((fresh) => {
+          if (cancelled || !fresh) return
+          if (fresh.status === "ready") {
+            setPolling(false)
+            setResearch(fresh)
+            onChangeRef.current()
+          } else if (fresh.status === "failed") {
+            setPolling(false)
+            toast.error(fresh.error ?? "Research failed. Try again.")
+          }
+        })
+        .catch(() => {})
+    }, 3000)
+    return () => {
+      cancelled = true
+      clearInterval(id)
+    }
+  }, [polling, idea.public_id])
+
+  function searchDestination(searchId: number): string {
+    return sid
+      ? `/results/${searchId}?sid=${encodeURIComponent(sid)}`
+      : `/dashboard/history/${searchId}`
+  }
 
   async function openResearch() {
     setBusy(true)
@@ -52,6 +95,11 @@ export default function IdeaCard({
       if (!current) {
         await startResearch(idea.public_id)
         toast("Researching. This takes a moment.")
+        setPolling(true)
+        return
+      }
+      if (current.status === "generating") {
+        setPolling(true)
         return
       }
       setResearch(current)
@@ -65,11 +113,16 @@ export default function IdeaCard({
   async function toSearch() {
     setBusy(true)
     try {
+      if (idea.search_id) {
+        router.push(searchDestination(idea.search_id))
+        return
+      }
       const search = await createSearch({
         query: `${idea.title}. ${idea.concept}`,
+        ...(sid ? { anon_session_id: sid } : {}),
         idea_id: idea.public_id,
       })
-      router.push(`/results/${search.id}`)
+      router.push(searchDestination(search.id))
     } catch (error) {
       setBusy(false)
       toastApiError(error, "Could not start the search.")
@@ -144,8 +197,16 @@ export default function IdeaCard({
       ) : null}
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <Button size="sm" disabled={busy} onClick={() => void openResearch()}>
-          {idea.status === "researched" ? "Read research" : "Research · 3"}
+        <Button
+          size="sm"
+          disabled={busy || polling}
+          onClick={() => void openResearch()}
+        >
+          {polling
+            ? "Researching…"
+            : idea.status === "researched"
+              ? "Read research"
+              : "Research · 3"}
         </Button>
         <Button
           size="sm"

@@ -84,7 +84,7 @@ export default function AppHeader() {
                       href={link.href}
                       aria-current={active ? "page" : undefined}
                       className={cn(
-                        "text-base transition-colors hover:text-primary",
+                        "min-h-11 py-2 text-base transition-colors hover:text-primary",
                         active
                           ? "font-medium text-primary"
                           : "text-muted-foreground"

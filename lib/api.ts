@@ -1,7 +1,14 @@
 export const API_BASE = ""
 
-export const API_ORIGIN =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8007"
+const CONFIGURED_API_ORIGIN = process.env.NEXT_PUBLIC_API_URL
+
+if (!CONFIGURED_API_ORIGIN && process.env.NODE_ENV === "production") {
+  throw new Error(
+    "NEXT_PUBLIC_API_URL is not set. Without it every request points at localhost and the app builds broken."
+  )
+}
+
+export const API_ORIGIN = CONFIGURED_API_ORIGIN ?? "http://127.0.0.1:8007"
 
 // In the browser a relative path is correct: it goes through the same-origin
 // rewrite proxy so the session cookie lands on the frontend domain. On the
@@ -24,6 +31,7 @@ type RequestOptions = {
   timeoutMs?: number
   headers?: Record<string, string>
   base?: string
+  signal?: AbortSignal
 }
 
 export async function apiRequest<T>(
@@ -34,10 +42,13 @@ export async function apiRequest<T>(
     timeoutMs = 30000,
     headers = {},
     base = DEFAULT_BASE,
+    signal,
   }: RequestOptions = {}
 ): Promise<T> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
+  const onAbort = () => controller.abort()
+  signal?.addEventListener("abort", onAbort, { once: true })
   try {
     const res = await fetch(`${base}${path}`, {
       method,
@@ -61,10 +72,24 @@ export async function apiRequest<T>(
     return (await res.json()) as T
   } catch (error) {
     if (error instanceof ApiError) throw error
+    if (signal?.aborted) throw new ApiError(0, "Request canceled.")
     throw new ApiError(0, "Could not reach the API. Try again in a moment.")
   } finally {
     clearTimeout(timer)
+    signal?.removeEventListener("abort", onAbort)
   }
+}
+
+export function isAuthError(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 401
+}
+
+export function isCanceled(error: unknown): boolean {
+  return error instanceof ApiError && error.message === "Request canceled."
+}
+
+export function isShortageError(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 402
 }
 
 export type ApiUser = {
@@ -285,10 +310,13 @@ export type SearchHeader = {
 
 export function getSearchHeader(
   searchId: number,
-  anonSessionId?: string
+  anonSessionId?: string,
+  signal?: AbortSignal
 ): Promise<SearchHeader> {
   const sid = anonSessionId ? `?anon_session_id=${anonSessionId}` : ""
-  return apiRequest<SearchHeader>(`/api/v1/searches/${searchId}/header${sid}`)
+  return apiRequest<SearchHeader>(`/api/v1/searches/${searchId}/header${sid}`, {
+    signal,
+  })
 }
 
 export type SearchSummaryPayload = {
@@ -302,11 +330,13 @@ export type SearchSummaryPayload = {
 
 export function getSearchSummary(
   searchId: number,
-  anonSessionId?: string
+  anonSessionId?: string,
+  signal?: AbortSignal
 ): Promise<SearchSummaryPayload> {
   const sid = anonSessionId ? `?anon_session_id=${anonSessionId}` : ""
   return apiRequest<SearchSummaryPayload>(
-    `/api/v1/searches/${searchId}/summary${sid}`
+    `/api/v1/searches/${searchId}/summary${sid}`,
+    { signal }
   )
 }
 
@@ -349,6 +379,7 @@ export function getSearchResults(
     sort?: string
     q?: string
     anonSessionId?: string
+    signal?: AbortSignal
   }
 ): Promise<SearchResultsPayload> {
   const params = new URLSearchParams()
@@ -359,7 +390,8 @@ export function getSearchResults(
   if (options?.q) params.set("q", options.q)
   const query = params.toString()
   return apiRequest<SearchResultsPayload>(
-    `/api/v1/searches/${searchId}/results${query ? `?${query}` : ""}`
+    `/api/v1/searches/${searchId}/results${query ? `?${query}` : ""}`,
+    { signal: options?.signal }
   )
 }
 

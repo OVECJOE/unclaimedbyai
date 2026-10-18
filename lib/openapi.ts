@@ -18,7 +18,7 @@ export type SchemaObject = {
   properties?: Record<string, SchemaObject>
   $ref?: string
   anyOf?: SchemaObject[]
-  "const"?: string | number | boolean
+  const?: string | number | boolean
   examples?: unknown[]
   default?: unknown
 }
@@ -52,8 +52,18 @@ export type OperationObject = {
 }
 
 export type ApiSpec = {
-  info: { title: string; summary?: string; description?: string; version: string }
-  paths: Record<string, Partial<Record<"get" | "post" | "put" | "patch" | "delete", OperationObject>>>
+  info: {
+    title: string
+    summary?: string
+    description?: string
+    version: string
+  }
+  paths: Record<
+    string,
+    Partial<
+      Record<"get" | "post" | "put" | "patch" | "delete", OperationObject>
+    >
+  >
   components?: { schemas?: Record<string, SchemaObject> }
 }
 
@@ -168,7 +178,8 @@ export function endpointsOf(spec: ApiSpec): SpecEndpoint[] {
       if (!op) continue
       const tag = op.tags?.[0] ?? "other"
       if (!PUBLIC_TAGS.includes(tag as (typeof PUBLIC_TAGS)[number])) continue
-      if (HIDDEN_OPERATIONS.has(operationKey(method, displayPath(path)))) continue
+      if (HIDDEN_OPERATIONS.has(operationKey(method, displayPath(path))))
+        continue
       if (path.includes("/webhooks/")) continue
       out.push({
         method,
@@ -188,7 +199,8 @@ export function endpointsOf(spec: ApiSpec): SpecEndpoint[] {
             op.responses?.["201"]?.content?.["application/json"]?.schema
         ),
         responseDescription:
-          op.responses?.["200"]?.description ?? op.responses?.["201"]?.description,
+          op.responses?.["200"]?.description ??
+          op.responses?.["201"]?.description,
         // Everything that is not a success is what an integrator will hit
         // first, so it is kept rather than filtered out.
         errors: Object.entries(op.responses ?? {})

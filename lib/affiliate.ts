@@ -27,10 +27,7 @@
 /** Surface an affiliate link appears on. Tagged per placement so earning can
  *  be compared across surfaces in each network's reporting. */
 export type AffiliatePlacement =
-  | "check-chips"
-  | "keeper-card"
-  | "watch-email"
-  | "post-checkout"
+  "check-chips" | "keeper-card" | "watch-email" | "post-checkout"
 
 export type Registrar = "namecheap" | "godaddy" | "dynadot"
 

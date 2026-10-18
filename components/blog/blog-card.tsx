@@ -4,8 +4,8 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons"
 import { cn } from "@/lib/utils"
 import type { PostSummary } from "@/lib/blog/types"
-
-const dateFormat = new Intl.DateTimeFormat("en", { dateStyle: "medium" })
+import { isSafeCoverUrl } from "@/lib/blog/cover-image"
+import DateLabel from "./date-label"
 
 function Doodle({ variant }: { variant: number }) {
   if (variant === 1) {
@@ -96,7 +96,7 @@ export default function BlogCard({ post }: { post: PostSummary }) {
         href={`/blog/${post.slug}`}
         className="group relative flex min-h-72 flex-col justify-end overflow-hidden border bg-card p-5 transition-colors hover:border-primary/60 sm:min-h-80 sm:p-6"
       >
-        {post.coverImageUrl ? (
+        {post.coverImageUrl && isSafeCoverUrl(post.coverImageUrl) ? (
           <>
             <Image
               src={post.coverImageUrl}
@@ -146,9 +146,7 @@ export default function BlogCard({ post }: { post: PostSummary }) {
               {post.publishedAt ? (
                 <>
                   {" · "}
-                  <time dateTime={post.publishedAt}>
-                    {dateFormat.format(new Date(post.publishedAt))}
-                  </time>
+                  <DateLabel value={post.publishedAt} />
                 </>
               ) : null}
             </span>

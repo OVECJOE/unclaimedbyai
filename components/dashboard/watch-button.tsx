@@ -301,7 +301,7 @@ const StarTrigger = forwardRef<
       }
       title={watched ? "Watching this name" : "Watch this name"}
       className={cn(
-        "relative z-10 shrink-0 rounded-sm p-0.5 transition-colors hover:text-primary",
+        "relative z-10 -m-2 shrink-0 rounded-sm p-2.5 transition-colors hover:text-primary",
         className
       )}
       {...props}

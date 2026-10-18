@@ -6,6 +6,7 @@ export const PostEditor = dynamic(() => import("./post-editor"), {
   ssr: false,
   loading: () => (
     <div
+      role="status"
       className="h-96 animate-pulse border border-input bg-muted/40"
       aria-label="Loading editor"
     />

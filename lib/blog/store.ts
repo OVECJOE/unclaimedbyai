@@ -442,6 +442,7 @@ export async function createComment(input: {
   parentId: number | null
   authorName: string
   body: string
+  fingerprint: string
 }): Promise<{ id: number; postSlug: string } | null> {
   if (!configured()) return null
 
@@ -461,8 +462,8 @@ export async function createComment(input: {
   }
 
   const rows = (await sql`
-    insert into blog_comments (post_id, parent_id, author_name, body)
-    values (${input.postId}, ${input.parentId}, ${input.authorName}, ${input.body})
+    insert into blog_comments (post_id, parent_id, author_name, body, fingerprint)
+    values (${input.postId}, ${input.parentId}, ${input.authorName}, ${input.body}, ${input.fingerprint})
     returning id::int as id
   `) as { id: number }[]
 
@@ -660,4 +661,40 @@ export async function listMyBoostedCommentIds(
       and fingerprint = ${fingerprint}
   `) as { comment_id: number }[]
   return rows.map((row) => row.comment_id)
+}
+
+/**
+ * A window count, not a stopwatch: rate limits live in the database so
+ * they survive across serverless invocations and cannot be sidestepped
+ * by clearing a cookie the way an in-memory or cookie-stamped cooldown
+ * could. The same shape as the login-token cap in storeLoginToken.
+ */
+export async function commentRateCount(
+  fingerprint: string,
+  windowMs: number
+): Promise<number> {
+  if (!configured() || !fingerprint) return 0
+
+  const sql = getSql()
+  const rows = (await sql`
+    select count(*)::int as total from blog_comments
+    where author_fingerprint = ${fingerprint}
+      and created_at > now() - make_interval(secs => ${windowMs / 1000})
+  `) as { total: number }[]
+  return rows[0]?.total ?? 0
+}
+
+export async function boostRateCount(
+  fingerprint: string,
+  windowMs: number
+): Promise<number> {
+  if (!configured() || !fingerprint) return 0
+
+  const sql = getSql()
+  const rows = (await sql`
+    select count(*)::int as total from blog_signals
+    where fingerprint = ${fingerprint}
+      and created_at > now() - make_interval(secs => ${windowMs / 1000})
+  `) as { total: number }[]
+  return rows[0]?.total ?? 0
 }

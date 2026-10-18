@@ -20,6 +20,12 @@ export default function GlobalError({
     console.error(error)
   }, [error])
 
+  useEffect(() => {
+    if (!retrying) return
+    const timer = setTimeout(() => setRetrying(false), 4000)
+    return () => clearTimeout(timer)
+  }, [retrying])
+
   return (
     <main className="flex min-h-screen items-center px-4 py-10">
       <div className="mx-auto w-full max-w-xl space-y-6 text-center">

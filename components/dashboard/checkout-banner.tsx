@@ -1,30 +1,18 @@
 "use client"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
-const DISMISS_AFTER_MS = 8000
-
 /**
- * One-shot checkout result banner. Strips the success/canceled query
- * params shortly after mount so a refresh or back-navigation doesn't
- * replay the same message forever.
+ * Checkout result banner on the billing page. It stays until the visitor
+ * navigates away — a payment confirmation (or a cancellation) should not
+ * evaporate mid-read, and the refresh replay is honest on a page whose
+ * whole job is the billing state.
  */
 export default function CheckoutBanner({
   kind,
 }: {
   kind: "success" | "canceled"
 }) {
-  const router = useRouter()
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      router.replace("/dashboard/billing")
-    }, DISMISS_AFTER_MS)
-    return () => clearTimeout(timer)
-  }, [router])
-
   if (kind === "canceled") {
     return (
       <Alert className="border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400">

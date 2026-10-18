@@ -700,8 +700,10 @@ export default function ResultsTable({
       // discards a valid solve and forces a fresh challenge, which is how
       // an interactive-only widget ends up demanding a click it had
       // already been given.
-      const result = await turnstile.verify(async (token) =>
-        runCheck(nameId, { ...anonInput(), cf_turnstile_token: token })
+      const result = await turnstile.verify(
+        async (token) =>
+          runCheck(nameId, { ...anonInput(), cf_turnstile_token: token }),
+        { waitMs: 30000 }
       )
       if (!result) {
         toast.error("The human check did not finish. Try again.")
@@ -754,10 +756,13 @@ export default function ResultsTable({
         if (result.queued === 0) break
       }
       if (skipped > 0) {
-        toastApiError(
-          new ApiError(402, "Some re-checks need credits."),
-          "Some checks need credits."
-        )
+        if (onShortage) {
+          onShortage()
+        } else {
+          toast.error(
+            "Some re-checks were skipped because they need credits. Sign in to top up, then try again."
+          )
+        }
       }
       setSelected([])
       onMutation?.()
@@ -835,7 +840,7 @@ export default function ResultsTable({
       {anonSessionId ? turnstile.widget : null}
 
       {/* Mobile: stacked cards so nothing hides behind breakpoints. */}
-      <div className="border md:hidden">
+      <div className="border lg:hidden">
         <div className="divide-y divide-border">
           {visibleChecked.map((result) => (
             <MobileNameCard
@@ -901,7 +906,7 @@ export default function ResultsTable({
       </div>
 
       {/* Desktop: the full table. */}
-      <div className="hidden w-full overflow-x-auto md:block">
+      <div className="hidden w-full overflow-x-auto lg:block">
         <Table className="min-w-[680px]">
           <TableHeader>
             <TableRow>

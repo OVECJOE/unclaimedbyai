@@ -14,18 +14,6 @@ export function ListSkeleton({ rows = 5 }: { rows?: number }) {
   )
 }
 
-export function SummarySkeleton() {
-  return (
-    <div
-      className="flex w-full flex-col gap-6 md:flex-row"
-      aria-label="Loading"
-    >
-      <div className="h-48 min-w-0 flex-1 animate-pulse border bg-muted/40" />
-      <div className="h-48 min-w-0 flex-1 animate-pulse border bg-muted/40" />
-    </div>
-  )
-}
-
 export function TableSkeleton() {
   return (
     <div className="space-y-2 border p-4" aria-label="Loading">

@@ -12,7 +12,7 @@ import PostCheckoutStrip from "@/components/dashboard/post-checkout-strip"
 import PaymentFlag from "@/components/dashboard/payment-flag"
 import ClearPlanCookie from "@/components/dashboard/clear-plan-cookie"
 import { PENDING_PLAN_COOKIE } from "@/components/public/plan-cookie"
-import { getMeServer, apiServer } from "@/lib/api-server"
+import { getMeServer, apiServer, isLoggedOut } from "@/lib/api-server"
 import { ApiError, type Pack, type PlanInfo } from "@/lib/api"
 import {
   CURRENCY_SYMBOL,
@@ -62,7 +62,10 @@ export default async function BillingPage({
 }: {
   searchParams: Promise<{ paid?: string; canceled?: string; plan?: string }>
 }) {
-  const user = await getMeServer().catch(() => null)
+  const user = await getMeServer().catch((error: unknown) => {
+    if (isLoggedOut(error)) redirect("/auth")
+    throw error
+  })
   if (!user) redirect("/auth")
 
   const params = await searchParams

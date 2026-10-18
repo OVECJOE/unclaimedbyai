@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { nameToSlug } from "@/lib/utils"
 
 /**
  * Copies the public /check/<name> permalink for a name. The link works
@@ -21,7 +22,7 @@ export default function CopyPermalink({
   const [copied, setCopied] = useState(false)
 
   async function copy() {
-    const url = `${window.location.origin}/check/${encodeURIComponent(name)}`
+    const url = `${window.location.origin}/check/${nameToSlug(name)}`
     try {
       await navigator.clipboard.writeText(url)
       setCopied(true)
@@ -39,7 +40,7 @@ export default function CopyPermalink({
       variant={variant}
       disabled={copied}
       onClick={() => void copy()}
-      className="text-xs flex-1"
+      className="flex-1 text-xs"
     >
       {copied ? "Copied" : "Copy link"}
     </Button>

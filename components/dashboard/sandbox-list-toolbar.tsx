@@ -33,7 +33,13 @@ const SORTS = [
 export default function SandboxListToolbar({ total }: { total: number }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [value, setValue] = useState(searchParams.get("q") ?? "")
+  const urlQuery = searchParams.get("q") ?? ""
+  const [value, setValue] = useState(urlQuery)
+  const [lastQuery, setLastQuery] = useState(urlQuery)
+  if (urlQuery !== lastQuery) {
+    setLastQuery(urlQuery)
+    setValue(urlQuery)
+  }
 
   function write(next: Record<string, string | null>) {
     const params = new URLSearchParams(searchParams.toString())

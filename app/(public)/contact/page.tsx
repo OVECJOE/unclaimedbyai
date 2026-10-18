@@ -106,10 +106,10 @@ const QUICK_ANSWERS = [
 ] as const
 
 const SOCIALS = [
-  { icon: NewTwitterIcon, href: "https://x.com/@unclaimedbyai", label: "X" },
+  { icon: NewTwitterIcon, href: "https://x.com/unclaimedbyai", label: "X" },
   {
     icon: InstagramIcon,
-    href: "https://instagram.com/@unclaimedbyai",
+    href: "https://instagram.com/unclaimedbyai",
     label: "Instagram",
   },
   {

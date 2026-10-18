@@ -1,6 +1,7 @@
 import CopyCode from "@/components/public/copy-code"
+import { SITE_URL } from "@/lib/site"
 
-const BASE = "https://unclaimedbyai.com/api/v1"
+const BASE = `${SITE_URL}/api/v1`
 
 /**
  * The three copy-paste paths that cover most of what people build.
@@ -31,8 +32,8 @@ export default function ApiQuickstarts() {
         />
         <p className="text-sm text-muted-foreground">
           The first check on any name is free. Poll the results for scored
-          names, and for names still running, whose job fills in with
-          domains, handles, and per-model progress as it arrives.
+          names, and for names still running, whose job fills in with domains,
+          handles, and per-model progress as it arrives.
         </p>
         <CopyCode
           code={`curl ${BASE}/searches/123/results \\
@@ -63,8 +64,8 @@ curl ${BASE}/searches/124/header \\
         />
         <p className="text-sm text-muted-foreground">
           Sharpened briefs, four naming studios, a judge pass, and live .com
-          screening. Accounts spend one search. Poll the header until
-          generation reports ready.
+          screening. Accounts spend one search. Poll the header until generation
+          reports ready.
         </p>
       </div>
 

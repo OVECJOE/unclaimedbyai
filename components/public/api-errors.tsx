@@ -23,11 +23,13 @@ const ERRORS: { status: string; meaning: string }[] = [
   },
   {
     status: "409",
-    meaning: "A check for that name is already running. Wait for it or poll it.",
+    meaning:
+      "A check for that name is already running. Wait for it or poll it.",
   },
   {
     status: "422",
-    meaning: "Validation failed. The JSON detail field names the field and why.",
+    meaning:
+      "Validation failed. The JSON detail field names the field and why.",
   },
   {
     status: "429",
@@ -36,8 +38,7 @@ const ERRORS: { status: string; meaning: string }[] = [
   },
   {
     status: "502",
-    meaning:
-      "The AI providers were unavailable at that moment. Retry shortly.",
+    meaning: "The AI providers were unavailable at that moment. Retry shortly.",
   },
 ]
 
@@ -68,9 +69,8 @@ export default function ApiErrors() {
           first.
         </p>
         <p>
-          <strong className="text-foreground">Billing.</strong>{" "}
-          Every search and check moves your account&apos;s balances, readable
-          through GET /me.
+          <strong className="text-foreground">Billing.</strong> Every search and
+          check moves your account&apos;s balances, readable through GET /me.
           Purchases happen through the product, not the API.
         </p>
       </div>

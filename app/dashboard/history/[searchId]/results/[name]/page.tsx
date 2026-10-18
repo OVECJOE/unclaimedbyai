@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -24,7 +23,6 @@ import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   AiBrain02Icon,
-  ArrowRight01Icon,
   AtSignIcon,
   GlobeIcon,
 } from "@hugeicons/core-free-icons"
@@ -421,16 +419,9 @@ export default async function SearchResultNamePage({
                         confidence.
                       </p>
                     </div>
-                    <Button asChild className="shrink-0">
-                      <Link href="/pricing">
-                        Buy report
-                        <HugeiconsIcon
-                          icon={ArrowRight01Icon}
-                          strokeWidth={2}
-                          className="size-4"
-                        />
-                      </Link>
-                    </Button>
+                    <div className="shrink-0">
+                      <BuyReportButton label="Buy report" />
+                    </div>
                   </div>
                 </CardContent>
               </Card>

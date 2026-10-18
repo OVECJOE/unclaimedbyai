@@ -16,6 +16,7 @@ import {
   type ApiUser,
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
+import { nameToSlug } from "@/lib/utils"
 
 /**
  * The prompter's public wiring. Signed in, an idea becomes a sandbox
@@ -102,7 +103,7 @@ export default function PrompterCta({
           return
         }
         router.push(
-          `/check/${encodeURIComponent(value)}?s=${result.search_id}&sid=${encodeURIComponent(getAnonSessionId())}`
+          `/check/${nameToSlug(value)}?s=${result.search_id}&sid=${encodeURIComponent(getAnonSessionId())}`
         )
         return
       }
@@ -110,32 +111,40 @@ export default function PrompterCta({
       // running four studios for someone who never intends to sign in is
       // the one thing this funnel cannot afford. Studio mode sends the
       // inline steer along so the run is shaped by it.
-      const sandbox = await turnstile.verify((token) =>
-        createSandbox({
-          name: value.slice(0, 80),
-          signals: mode === "studio" ? signals : undefined,
-          anon_session_id: getAnonSessionId(),
-          cf_turnstile_token: token,
-        })
+      const sandbox = await turnstile.verify(
+        (token) =>
+          createSandbox({
+            name: value.slice(0, 80),
+            signals: mode === "studio" ? signals : undefined,
+            anon_session_id: getAnonSessionId(),
+            cf_turnstile_token: token,
+          }),
+        { waitMs: 30000 }
       )
       if (!sandbox) {
         toast.error("The human check did not finish. Try again.")
         return
       }
-      await turnstile.verify((token) =>
-        generateIdeas(sandbox.public_id, {
-          count: 6,
-          seed: value.slice(0, 300),
-          anon_session_id: getAnonSessionId(),
-          cf_turnstile_token: token,
-        })
+      const generated = await turnstile.verify(
+        (token) =>
+          generateIdeas(sandbox.public_id, {
+            count: 6,
+            seed: value.slice(0, 300),
+            anon_session_id: getAnonSessionId(),
+            cf_turnstile_token: token,
+          }),
+        { waitMs: 30000 }
       )
+      if (!generated) {
+        toast.error(
+          "The human check did not finish, so your ideas never generated. Your sandbox is saved — try generating again."
+        )
+        return
+      }
       router.push(
         `/sandbox/${sandbox.public_id}?sid=${encodeURIComponent(getAnonSessionId())}`
       )
-      return
     } catch (error) {
-      setPending(false)
       if (error instanceof ApiError && error.status === 403) {
         // verify already waited for a human solve and resent, so a 403
         // here means the fresh token itself was refused. Re-arming the
@@ -147,6 +156,8 @@ export default function PrompterCta({
         return
       }
       toastApiError(error, "Something went wrong. Try again.")
+    } finally {
+      setPending(false)
     }
   }
 
@@ -165,7 +176,7 @@ export default function PrompterCta({
         <p role="status" className="text-center text-sm text-muted-foreground">
           {lastMode === "name"
             ? "Checking that name. Domains and handles stream in as they come back."
-            : "Starting your search… you'll see names arrive live."}
+            : "Starting your search… if a human check appears below, solve it to continue."}
         </p>
       ) : null}
       {turnstile.widget}

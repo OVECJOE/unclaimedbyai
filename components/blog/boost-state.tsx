@@ -2,8 +2,10 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
 } from "react"
@@ -13,9 +15,12 @@ type BoostSnapshot = {
   commentBoosted: Set<number>
 }
 
-const BoostStateContext = createContext<BoostSnapshot>({
+type BoostContextValue = BoostSnapshot & { refresh: () => void }
+
+const BoostStateContext = createContext<BoostContextValue>({
   postBoosted: false,
   commentBoosted: new Set<number>(),
+  refresh: () => {},
 })
 
 export function useBoostState() {
@@ -33,6 +38,8 @@ export default function BoostStateProvider({
     postBoosted: false,
     commentBoosted: new Set<number>(),
   })
+  const [epoch, setEpoch] = useState(0)
+  const refresh = useCallback(() => setEpoch((n) => n + 1), [])
 
   useEffect(() => {
     let cancelled = false
@@ -49,10 +56,12 @@ export default function BoostStateProvider({
     return () => {
       cancelled = true
     }
-  }, [postId])
+  }, [postId, epoch])
+
+  const value = useMemo(() => ({ ...snapshot, refresh }), [snapshot, refresh])
 
   return (
-    <BoostStateContext.Provider value={snapshot}>
+    <BoostStateContext.Provider value={value}>
       {children}
     </BoostStateContext.Provider>
   )

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { sendContactMessage, type ContactState } from "@/lib/contact"
+import { cn } from "@/lib/utils"
 
 const initialState: ContactState = { ok: false, message: "" }
 
@@ -72,12 +73,7 @@ export default function ContactForm() {
         aria-hidden="true"
         className="hidden"
       />
-      <input
-        type="hidden"
-        name="started"
-        ref={startedRef}
-        defaultValue=""
-      />
+      <input type="hidden" name="started" ref={startedRef} defaultValue="" />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
@@ -145,6 +141,17 @@ export default function ContactForm() {
           </a>
         </p>
       </div>
+      {state.message ? (
+        <p
+          role={state.ok ? "status" : "alert"}
+          className={cn(
+            "text-sm",
+            state.ok ? "text-green-700 dark:text-green-500" : "text-destructive"
+          )}
+        >
+          {state.message}
+        </p>
+      ) : null}
     </form>
   )
 }

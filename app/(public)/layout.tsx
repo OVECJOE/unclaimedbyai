@@ -7,12 +7,17 @@ export default function PublicLayout({
   children: React.ReactNode
 }) {
   return (
-    // The wrapper is a flex column so main grows into the leftover
-    // height and the footer stays pinned to the bottom of the viewport
-    // even on pages too short to fill it.
     <div className="flex min-h-screen flex-col">
+      <a
+        href="#main-content"
+        className="sr-only z-100 bg-primary px-4 py-3 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+      >
+        Skip to content
+      </a>
       <AppHeader />
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1">
+        {children}
+      </main>
       <AppFooter />
     </div>
   )

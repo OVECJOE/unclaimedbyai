@@ -40,7 +40,8 @@ export const BUDGET_OPTIONS = [
   { value: "flexible", label: "Whatever it takes" },
 ]
 
-export type SignalOptionKey = "time_available" | "business_model" | "tech_comfort" | "budget"
+export type SignalOptionKey =
+  "time_available" | "business_model" | "tech_comfort" | "budget"
 
 export const SIGNAL_OPTIONS: Record<
   SignalOptionKey,
@@ -56,10 +57,7 @@ export const SIGNAL_OPTIONS: Record<
 }
 
 export type SignalTextKey =
-  | "skills"
-  | "audience"
-  | "industries"
-  | "target_customer"
+  "skills" | "audience" | "industries" | "target_customer"
 
 export const SIGNAL_TEXT: {
   key: SignalTextKey
@@ -96,9 +94,7 @@ export function signalLabel(
 
 /** The account steer as a rendered list, for showing what a sandbox will
  *  inherit without opening an editor. */
-export function signalSummary(
-  signals: Partial<SignalProfile>
-): string | null {
+export function signalSummary(signals: Partial<SignalProfile>): string | null {
   const parts = [
     signals.skills,
     signalLabel("time_available", signals.time_available),

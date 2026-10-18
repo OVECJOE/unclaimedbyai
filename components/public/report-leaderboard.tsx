@@ -24,7 +24,9 @@ export type LeaderboardEntry = {
 
 function toTier(level: string): Tier {
   const mapped = level.charAt(0).toUpperCase() + level.slice(1)
-  return (["Excellent", "Good", "Okay", "Poor"] as const).includes(mapped as Tier)
+  return (["Excellent", "Good", "Okay", "Poor"] as const).includes(
+    mapped as Tier
+  )
     ? (mapped as Tier)
     : "Okay"
 }
@@ -88,7 +90,9 @@ export default function ReportLeaderboard({
                   <div className="min-w-0 flex-1 space-y-1.5">
                     <span className="flex flex-wrap items-center gap-2">
                       <h3 className="font-heading text-xl">{entry.name}</h3>
-                      <TierBadge tier={toTier(entry.check.overall_risk_level)} />
+                      <TierBadge
+                        tier={toTier(entry.check.overall_risk_level)}
+                      />
                     </span>
                     {entry.check.judgment ? (
                       <p className="max-w-prose text-sm text-muted-foreground">
@@ -96,7 +100,7 @@ export default function ReportLeaderboard({
                       </p>
                     ) : null}
                     {entry.about ? (
-                      <p className="max-w-prose text-sm italic text-muted-foreground">
+                      <p className="max-w-prose text-sm text-muted-foreground italic">
                         {entry.about}
                       </p>
                     ) : null}

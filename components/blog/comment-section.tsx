@@ -3,12 +3,8 @@ import { getCommentBoostCounts, listApprovedComments } from "@/lib/blog/store"
 import type { BlogComment } from "@/lib/blog/types"
 import BoostButton from "./boost-button"
 import CommentForm from "./comment-form"
+import DateLabel from "./date-label"
 import ReplyToggle from "./reply-toggle"
-
-const dateFormat = new Intl.DateTimeFormat("en", {
-  dateStyle: "medium",
-  timeStyle: "short",
-})
 
 function SignalAvatar({ name }: { name: string }) {
   return (
@@ -40,9 +36,11 @@ function CommentItem({
       <div className="min-w-0 flex-1 space-y-1">
         <p className="text-sm">
           <span className="font-semibold">{comment.authorName}</span>{" "}
-          <time dateTime={comment.createdAt} className="text-muted-foreground">
-            {dateFormat.format(new Date(comment.createdAt))}
-          </time>
+          <DateLabel
+            value={comment.createdAt}
+            withTime
+            className="text-muted-foreground"
+          />
         </p>
         <p className="text-[0.95rem] leading-relaxed break-words whitespace-pre-wrap">
           {comment.body}

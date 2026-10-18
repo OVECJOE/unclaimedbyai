@@ -11,9 +11,10 @@ function concreteOf(
   schema: SchemaObject | undefined
 ): SchemaObject | undefined {
   if (!schema?.anyOf) return schema
-  return schema.anyOf.find(
-    (part) => part.type !== "null" && part.properties
-  ) ?? schema
+  return (
+    schema.anyOf.find((part) => part.type !== "null" && part.properties) ??
+    schema
+  )
 }
 
 function typeLabel(schema: SchemaObject | undefined): string {
@@ -94,7 +95,9 @@ function FieldRow({
               key={key}
               name={key}
               schema={child}
-              required={requiredSet(schema).has(key) || requiredSet(concrete).has(key)}
+              required={
+                requiredSet(schema).has(key) || requiredSet(concrete).has(key)
+              }
               indent
               depth={depth + 1}
             />
@@ -128,7 +131,10 @@ export default function EndpointReference({
       : []
 
   return (
-    <div id={`${endpoint.method}-${endpoint.path}`} className="scroll-mt-20 space-y-3 border-b py-8">
+    <div
+      id={`${endpoint.method}-${endpoint.path}`}
+      className="scroll-mt-20 space-y-3 border-b py-8"
+    >
       <div className="flex flex-wrap items-center gap-2">
         <span
           className={cn(

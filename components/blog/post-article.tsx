@@ -1,9 +1,9 @@
 import Link from "next/link"
 import Image from "next/image"
 import { MdxContent } from "@/lib/blog/mdx"
+import { isSafeCoverUrl } from "@/lib/blog/cover-image"
 import type { Post } from "@/lib/blog/types"
-
-const dateFormat = new Intl.DateTimeFormat("en", { dateStyle: "long" })
+import DateLabel from "./date-label"
 
 export default function PostArticle({ post }: { post: Post }) {
   return (
@@ -23,14 +23,12 @@ export default function PostArticle({ post }: { post: Post }) {
           {post.publishedAt ? (
             <>
               {" · "}
-              <time dateTime={post.publishedAt}>
-                {dateFormat.format(new Date(post.publishedAt))}
-              </time>
+              <DateLabel value={post.publishedAt} dateStyle="long" />
             </>
           ) : null}
         </p>
       </header>
-      {post.coverImageUrl ? (
+      {post.coverImageUrl && isSafeCoverUrl(post.coverImageUrl) ? (
         post.coverImageWidth && post.coverImageHeight ? (
           <Image
             src={post.coverImageUrl}
