@@ -120,14 +120,32 @@ export default function AppFooter() {
             &copy; {new Date().getFullYear()} Unclaimed by AI. All rights
             reserved.
           </span>
-          <div className="inline-flex items-center gap-2">
-            <Link href="https://x.com/UnclaimedByAI" target="_blank">
+          <div className="inline-flex items-center gap-1">
+            <Link
+              href="https://x.com/UnclaimedByAI"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Unclaimed by AI on X"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center transition-colors hover:text-primary"
+            >
               <HugeiconsIcon icon={NewTwitterIcon} size="1.5rem" />
             </Link>
-            <Link href="https://instagram.com/unclaimedbyai" target="_blank">
+            <Link
+              href="https://instagram.com/unclaimedbyai"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Unclaimed by AI on Instagram"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center transition-colors hover:text-primary"
+            >
               <HugeiconsIcon icon={InstagramIcon} size="1.5rem" />
             </Link>
-            <Link href="https://linkedin.com/in/victorohachor" target="_blank">
+            <Link
+              href="https://linkedin.com/in/victorohachor"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Victor Ohachor on LinkedIn"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center transition-colors hover:text-primary"
+            >
               <HugeiconsIcon icon={LinkedinIcon} size="1.5rem" />
             </Link>
           </div>

@@ -9,8 +9,10 @@ create table blog_comments (
   status text not null default 'pending' check (
     status in ('pending', 'approved', 'rejected')
   ),
+  fingerprint text,
   created_at timestamptz not null default now(),
   check (parent_id is null or parent_id <> id)
 );
 create index blog_comments_post_idx on blog_comments (post_id, created_at);
 create index blog_comments_status_idx on blog_comments (status, created_at desc);
+create index blog_comments_fingerprint_idx on blog_comments (fingerprint, created_at);

@@ -98,7 +98,11 @@ export default function ApiReferenceBrowser({
         </p>
       ) : (
         visible.map((group) => (
-          <div key={group.tag} id={`tag-${group.tag}`} className="scroll-mt-24 space-y-2">
+          <div
+            key={group.tag}
+            id={`tag-${group.tag}`}
+            className="scroll-mt-24 space-y-2"
+          >
             <h3 className="font-heading text-xl font-semibold md:text-2xl">
               {group.label}
             </h3>
@@ -133,16 +137,17 @@ function GroupChip({
   return (
     <button
       type="button"
+      aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "border px-2.5 py-1 text-xs transition-colors",
+        "min-h-9 border px-2.5 py-1 text-xs transition-colors",
         active
           ? "border-primary bg-primary/10 text-primary"
           : "text-muted-foreground hover:border-primary/40 hover:text-foreground"
       )}
     >
       {label}
-      <span className="ml-1.5 font-mono text-[0.625rem] opacity-70">{count}</span>
+      <span className="ml-1.5 font-mono text-[11px] opacity-70">{count}</span>
     </button>
   )
 }

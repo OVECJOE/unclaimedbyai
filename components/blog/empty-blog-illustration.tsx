@@ -5,6 +5,8 @@ export default function EmptyBlogIllustration() {
       viewBox="0 0 360 220"
       width="720"
       height="440"
+      role="img"
+      aria-label="New posts soon(ish)"
       style={{ fontFamily: "var(--font-mono)" }}
       className="mx-auto h-auto w-full max-w-180"
     >

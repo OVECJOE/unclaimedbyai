@@ -1,8 +1,9 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
 import { headers } from "next/headers"
-import { getMeServer, apiServer } from "@/lib/api-server"
+import { getMeServer, apiServer, isLoggedOut } from "@/lib/api-server"
 import type { OrderItem } from "@/lib/api"
+import { redirect } from "next/navigation"
 
 export default async function BillingLayout({
   children,
@@ -14,7 +15,10 @@ export default async function BillingLayout({
     pathname === "/dashboard/billing/history" ? "history" : "overview"
 
   let totalSpent = 0
-  const user = await getMeServer().catch(() => null)
+  const user = await getMeServer().catch((error: unknown) => {
+    if (isLoggedOut(error)) redirect("/auth")
+    return null
+  })
   if (user) {
     try {
       const orders = await apiServer<OrderItem[]>("/api/v1/orders")

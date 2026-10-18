@@ -23,7 +23,7 @@ export const metadata: Metadata = pageMetadata({
   path: "/api/docs",
 })
 
-const BASE = "https://unclaimedbyai.com/api/v1"
+const BASE = `${SITE_URL}/api/v1`
 
 /** Human labels for the tags the lib exposes as public. */
 const TAG_LABELS: Record<string, string> = {
@@ -97,7 +97,7 @@ export default async function ApiDocsPage() {
             watchlist. One key, your account, your credits.
           </p>
         </div>
-        <div className="flex flex-col md:flex-row md:justify-center gap-2">
+        <div className="flex flex-col gap-2 md:flex-row md:justify-center">
           <Button size="lg" asChild>
             <Link href="#quickstarts">Start with a quickstart</Link>
           </Button>
@@ -202,8 +202,8 @@ export default async function ApiDocsPage() {
 
           {groups.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              The reference could not be loaded right now. The quickstarts
-              above and the sandbox still work.
+              The reference could not be loaded right now. The quickstarts above
+              and the sandbox still work.
             </p>
           ) : (
             <ApiReferenceBrowser groups={groups} />

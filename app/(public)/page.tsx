@@ -10,7 +10,6 @@ import {
   AvatarFallback,
   AvatarGroup,
   AvatarGroupCount,
-  AvatarImage,
 } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -50,7 +49,7 @@ export default async function Page() {
       <JsonLd data={homeJsonLd} />
 
       {/* Hero */}
-      <section className="space-y-5 border-b px-4 py-10 sm:text-center">
+      <section className="mx-auto max-w-7xl space-y-5 border-b px-4 py-10 sm:text-center">
         <Badge
           className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
           asChild
@@ -60,7 +59,7 @@ export default async function Page() {
           </p>
         </Badge>
         <div className="space-y-3">
-          <h1 className="font-heading text-4xl font-semibold md:text-5xl">
+          <h1 className="mx-auto max-w-3xl font-heading text-4xl font-semibold md:text-5xl">
             Is your name actually{" "}
             <span className="text-primary">unclaimed?</span>
           </h1>
@@ -96,24 +95,24 @@ export default async function Page() {
           </div>
           <div className="flex flex-col gap-8 sm:flex-row sm:justify-center sm:gap-3">
             <article className="flex-1 space-y-2 border border-primary/20 bg-sidebar/50 px-3 py-5 text-start sm:border-0">
-              <h5 className="font-heading text-xs font-bold text-primary uppercase">
+              <p className="font-heading text-xs font-bold text-primary uppercase">
                 Step 1
-              </h5>
+              </p>
               <div className="space-y-1">
-                <h4 className="font-heading text-xl font-medium">Generate</h4>
+                <h3 className="font-heading text-xl font-medium">Generate</h3>
                 <p className="text-sm text-muted-foreground">
                   Describe what you&apos;re building. Four studios argue from
-                  different angles, a judge keeps the strongest, and a sandbox
-                  fills with name ideas.
+                  different angles, a judge keeps the strongest, and your
+                  sandbox fills with name ideas worth checking.
                 </p>
               </div>
             </article>
             <article className="flex-1 space-y-2 border border-primary/20 bg-sidebar/60 px-3 py-5 text-start sm:border-0">
-              <h5 className="font-heading text-xs font-bold text-primary uppercase">
+              <p className="font-heading text-xs font-bold text-primary uppercase">
                 Step 2
-              </h5>
+              </p>
               <div className="space-y-1">
-                <h4 className="font-heading text-xl font-medium">Check</h4>
+                <h3 className="font-heading text-xl font-medium">Check</h3>
                 <p className="text-sm text-muted-foreground">
                   Turn an idea into names, then check each one: the domain, the
                   social handles, and what ChatGPT and Claude already think the
@@ -122,11 +121,11 @@ export default async function Page() {
               </div>
             </article>
             <article className="flex-1 space-y-2 border border-primary/20 bg-sidebar/70 px-3 py-5 text-start sm:border-0">
-              <h5 className="font-heading text-xs font-bold text-primary uppercase">
+              <p className="font-heading text-xs font-bold text-primary uppercase">
                 Step 3
-              </h5>
+              </p>
               <div className="space-y-1">
-                <h4 className="font-heading text-xl font-medium">Claim it</h4>
+                <h3 className="font-heading text-xl font-medium">Claim it</h3>
                 <p className="text-sm text-muted-foreground">
                   Buy the domain at a registrar, in your own name. We tell you
                   it&apos;s open; the registration is yours.
@@ -134,11 +133,11 @@ export default async function Page() {
               </div>
             </article>
             <article className="flex-1 space-y-2 border border-primary/20 bg-sidebar/80 px-3 py-5 text-start sm:border-0">
-              <h5 className="font-heading text-xs font-bold text-primary uppercase">
+              <p className="font-heading text-xs font-bold text-primary uppercase">
                 Step 4
-              </h5>
+              </p>
               <div className="space-y-1">
-                <h4 className="font-heading text-xl font-medium">Watch it</h4>
+                <h3 className="font-heading text-xl font-medium">Watch it</h3>
                 <p className="text-sm text-muted-foreground">
                   Star the name and Pro rechecks it every few hours, emailing
                   you the morning something gets claimed.
@@ -153,25 +152,21 @@ export default async function Page() {
       <PricingBand />
 
       {/* Audience Stats CTA */}
-      <section className="space-y-10 px-4 py-10 sm:text-center">
+      <section className="mx-auto max-w-7xl space-y-10 px-4 py-10 sm:text-center">
         <div className="space-y-4">
           <p className="text-xl">
             Built for founders, creators, and makers launching in the age of AI.
           </p>
           <AvatarGroup className="flex sm:justify-center">
-            {AUDIENCE_EXAMPLE.map((audience, index) => (
+            {AUDIENCE_EXAMPLE.map((audience) => (
               <Avatar size="lg" key={audience}>
-                <AvatarImage
-                  src={`https://i.pravatar.cc/150?img=${index + 11}`}
-                  alt={audience}
-                />
                 <AvatarFallback>{audience.charAt(0)}</AvatarFallback>
               </Avatar>
             ))}
             <AvatarGroupCount>+{communityCount}</AvatarGroupCount>
           </AvatarGroup>
         </div>
-        <Button size="lg" className="py-8 text-xl">
+        <Button size="lg" className="h-auto px-8 py-5 text-lg" asChild>
           <Link href={user ? "/dashboard" : "/auth"}>Claim yours</Link>
         </Button>
       </section>

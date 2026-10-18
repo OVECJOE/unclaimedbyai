@@ -114,13 +114,17 @@ export default function PostEditor({
   uploadImage,
 }: PostEditorProps) {
   const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme
+    ? resolvedTheme === "dark"
+    : typeof document !== "undefined" &&
+      document.documentElement.classList.contains("dark")
 
   return (
     <MDXEditor
       markdown={initialMarkdown}
       onChange={onChange}
       className={cn(
-        { "dark-theme": resolvedTheme === "dark" },
+        { "dark-theme": isDark },
         "rounded-none border border-input bg-background"
       )}
       contentEditableClassName="blog-prose min-h-96"
@@ -149,6 +153,8 @@ export default function PostEditor({
         markdownShortcutPlugin(),
         diffSourcePlugin({ viewMode: "rich-text" }),
         toolbarPlugin({
+          toolbarClassName:
+            "max-lg:overflow-x-auto! max-lg:flex-nowrap! max-lg:scrollbar-none",
           toolbarContents: () => (
             <DiffSourceToggleWrapper>
               <UndoRedo />

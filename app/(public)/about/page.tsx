@@ -327,7 +327,7 @@ export default function AboutPage() {
           Questions for us?{" "}
           <Link href="/contact" className="text-primary hover:underline">
             Write in
-          </Link>{" "}
+          </Link>
           , a human reads every message.
         </p>
       </section>

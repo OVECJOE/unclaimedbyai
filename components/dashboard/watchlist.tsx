@@ -44,7 +44,10 @@ export default function Watchlist({ onChanged }: { onChanged?: () => void }) {
     total: 0,
   })
   const [loaded, setLoaded] = useState(false)
+  const [errored, setErrored] = useState(false)
+  const [attempt, setAttempt] = useState(0)
   const [sweeping, setSweeping] = useState<number[]>([])
+  const [input, setInput] = useState("")
   const [query, setQuery] = useState("")
   const [status, setStatus] = useState<"all" | "clean" | "threatened">("all")
   const [page, setPage] = useState(1)
@@ -53,28 +56,37 @@ export default function Watchlist({ onChanged }: { onChanged?: () => void }) {
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   useEffect(() => {
+    const id = setTimeout(() => setQuery(input.trim()), 180)
+    return () => clearTimeout(id)
+  }, [input])
+
+  useEffect(() => {
     const current = ++seq.current
     listWatches({
-      q: query.trim() || undefined,
+      q: query || undefined,
       status: status === "all" ? undefined : status,
       page,
       pageSize: PAGE_SIZE,
     })
       .then((data) => {
         if (seq.current !== current) return
+        setErrored(false)
         setItems(data.items)
         setTotal(data.total)
         if (data.slots) setSlots(data.slots)
         setLoaded(true)
       })
       .catch(() => {
-        if (seq.current === current) setLoaded(true)
+        if (seq.current === current) {
+          setErrored(true)
+          setLoaded(true)
+        }
       })
-  }, [query, status, page])
+  }, [query, status, page, attempt])
 
   async function refresh() {
     const fresh = await listWatches({
-      q: query.trim() || undefined,
+      q: query || undefined,
       status: status === "all" ? undefined : status,
       page,
       pageSize: PAGE_SIZE,
@@ -117,17 +129,46 @@ export default function Watchlist({ onChanged }: { onChanged?: () => void }) {
     )
   }
 
-  if (items.length === 0) {
-    const filtering = query.trim() !== "" || status !== "all"
+  if (errored) {
     return (
       <div className="space-y-4">
         <Toolbar
-          query={query}
+          query={input}
           status={status}
-          onQuery={(value) => {
-            setQuery(value)
+          onQuery={setInput}
+          onStatus={(value) => {
+            setStatus(value)
             setPage(1)
           }}
+        />
+        <div className="border border-dashed p-10 text-center" role="alert">
+          <p className="font-heading text-2xl">Your watchlist could not load</p>
+          <p className="mx-auto mt-2 max-w-prose text-sm text-muted-foreground">
+            That is on our end, not yours — nothing you are watching has
+            changed. Try again in a moment.
+          </p>
+          <Button
+            className="mt-4"
+            onClick={() => {
+              setLoaded(false)
+              setAttempt((current) => current + 1)
+            }}
+          >
+            Try again
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (items.length === 0) {
+    const filtering = query !== "" || status !== "all"
+    return (
+      <div className="space-y-4">
+        <Toolbar
+          query={input}
+          status={status}
+          onQuery={setInput}
           onStatus={(value) => {
             setStatus(value)
             setPage(1)
@@ -150,12 +191,9 @@ export default function Watchlist({ onChanged }: { onChanged?: () => void }) {
   return (
     <div className="space-y-4">
       <Toolbar
-        query={query}
+        query={input}
         status={status}
-        onQuery={(value) => {
-          setQuery(value)
-          setPage(1)
-        }}
+        onQuery={setInput}
         onStatus={(value) => {
           setStatus(value)
           setPage(1)
@@ -283,9 +321,20 @@ export default function Watchlist({ onChanged }: { onChanged?: () => void }) {
                     name={item.name}
                     watchId={item.id}
                     onRemoved={() => {
-                      setItems((current) =>
-                        current.filter((entry) => entry.id !== item.id)
+                      const remaining = items.filter(
+                        (entry) => entry.id !== item.id
                       )
+                      setItems(remaining)
+                      setTotal((current) => Math.max(0, current - 1))
+                      setSlots((current) => ({
+                        ...current,
+                        used: Math.max(0, current.used - 1),
+                      }))
+                      if (remaining.length === 0 && page > 1) {
+                        setPage(page - 1)
+                      } else {
+                        void refresh()
+                      }
                       onChanged?.()
                     }}
                   >

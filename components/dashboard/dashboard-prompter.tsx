@@ -16,6 +16,7 @@ import {
 import Prompter, { type PrompterMode } from "@/components/app/prompter"
 import { createSandbox, directCheck, generateIdeas } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
+import { nameToSlug } from "@/lib/utils"
 
 /**
  * The prompter inside the dashboard. Ideas and studios build a sandbox
@@ -31,19 +32,29 @@ export default function DashboardPrompter({
 }) {
   const router = useRouter()
   const [pending, setPending] = useState(false)
+  const [lastMode, setLastMode] = useState<PrompterMode>("idea")
   const [confirmName, setConfirmName] = useState<string | null>(null)
 
   async function runIdea(value: string) {
     const sandbox = await createSandbox({ name: value.slice(0, 80) })
-    await generateIdeas(sandbox.public_id, {
-      count: 6,
-      seed: value.slice(0, 300),
-    })
+    try {
+      await generateIdeas(sandbox.public_id, {
+        count: 6,
+        seed: value.slice(0, 300),
+      })
+    } catch (error) {
+      // The sandbox exists now, so land on the canvas where the failed
+      // run is visible and retryable, instead of leaving an empty
+      // sandbox nobody was told about.
+      router.push(`/dashboard/playground?sandbox=${sandbox.public_id}`)
+      throw error
+    }
     router.push(`/dashboard/playground?sandbox=${sandbox.public_id}`)
   }
 
   async function onSubmit(value: string, mode: PrompterMode) {
     setPending(true)
+    setLastMode(mode)
     try {
       if (mode === "name") {
         const result = await directCheck({ name: value })
@@ -66,11 +77,12 @@ export default function DashboardPrompter({
     setConfirmName(null)
     if (!value) return
     setPending(true)
+    setLastMode("name")
     try {
       const result = await directCheck({ name: value })
       // The check page is the public surface for one name, and it
       // picks the search up by its id when one already exists.
-      window.location.href = `/check/${encodeURIComponent(value)}?s=${result.search_id}`
+      window.location.href = `/check/${nameToSlug(value)}?s=${result.search_id}`
     } catch (error) {
       setPending(false)
       toastApiError(error, "Could not start that check.")
@@ -89,8 +101,9 @@ export default function DashboardPrompter({
       />
       {pending ? (
         <p role="status" className="text-center text-sm text-muted-foreground">
-          Starting a sandbox and running the studios. The canvas opens when the
-          first ideas land.
+          {lastMode === "name"
+            ? "Starting the check. It opens on its own page in a moment."
+            : "Starting a sandbox and running the studios. The canvas opens when the first ideas land."}
         </p>
       ) : null}
 

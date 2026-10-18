@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -87,17 +87,21 @@ export default function ApiKeysSection() {
   const [creating, setCreating] = useState(false)
   const [rawKey, setRawKey] = useState<string | null>(null)
   const [revokeOpen, setRevokeOpen] = useState<number | null>(null)
+  const loadSeq = useRef(0)
 
   const load = useCallback(async (page: number) => {
+    const seq = ++loadSeq.current
     try {
       const data = await listApiKeys(page, PAGE_SIZE)
+      if (loadSeq.current !== seq) return
       setKeys(data.items)
       setTotal(data.total)
       setPage(data.page)
     } catch (error) {
+      if (loadSeq.current !== seq) return
       toastApiError(error, "Could not load your API keys.")
     } finally {
-      setLoaded(true)
+      if (loadSeq.current === seq) setLoaded(true)
     }
   }, [])
 
@@ -107,9 +111,11 @@ export default function ApiKeysSection() {
   }, [load, page])
 
   async function create() {
+    const trimmed = name.trim()
+    if (!trimmed) return
     setCreating(true)
     try {
-      const created = await createApiKey(name.trim())
+      const created = await createApiKey(trimmed)
       setRawKey(created.key)
       setName("")
       await load(page)
@@ -169,7 +175,7 @@ export default function ApiKeysSection() {
             maxLength={100}
           />
         </div>
-        <Button type="submit" disabled={creating}>
+        <Button type="submit" disabled={creating || !name.trim()}>
           {creating ? "Creating…" : "Create key"}
         </Button>
       </form>

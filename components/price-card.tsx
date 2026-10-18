@@ -44,19 +44,21 @@ export function PriceCard({
         highlight && "border-2 border-primary"
       )}
     >
-      <div className="absolute top-3.5 right-3.5 flex gap-1">
-        {highlight && (
-          <Badge className="bg-primary p-2 text-xs text-primary-foreground">
-            Your pick
-          </Badge>
-        )}
-        {discountage && (
-          <Badge className="bg-primary/10 p-2 text-xs text-primary">
-            Save {discountage}%
-          </Badge>
-        )}
-      </div>
       <CardHeader className="space-y-1">
+        {highlight || discountage ? (
+          <div className="flex flex-wrap gap-1">
+            {highlight && (
+              <Badge className="bg-primary p-2 text-xs text-primary-foreground">
+                Your pick
+              </Badge>
+            )}
+            {discountage && (
+              <Badge className="bg-primary/10 p-2 text-xs text-primary">
+                Save {discountage}%
+              </Badge>
+            )}
+          </div>
+        ) : null}
         <p className="text-base">{title}</p>
         <CardTitle className="text-4xl">
           {price.currency}

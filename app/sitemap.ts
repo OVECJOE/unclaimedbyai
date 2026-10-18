@@ -1,8 +1,7 @@
 import type { MetadataRoute } from "next"
 import { listPublishedForSitemap } from "@/lib/blog/store"
 import { SITE_URL } from "@/lib/site"
-
-const lastModified = new Date()
+import { nameToSlug } from "@/lib/utils"
 
 async function publicReportUrls(): Promise<MetadataRoute.Sitemap> {
   // The public name reports are the programmatic SEO surface: one page
@@ -22,7 +21,7 @@ async function publicReportUrls(): Promise<MetadataRoute.Sitemap> {
       if (!item.top_name || seen.has(item.top_name)) continue
       seen.add(item.top_name)
       urls.push({
-        url: `${SITE_URL}/searches/${encodeURIComponent(item.top_name)}`,
+        url: `${SITE_URL}/searches/${nameToSlug(item.top_name)}`,
         lastModified: new Date(item.created_at),
         changeFrequency: "monthly",
         priority: 0.5,
@@ -35,6 +34,7 @@ async function publicReportUrls(): Promise<MetadataRoute.Sitemap> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const lastModified = new Date()
   const [posts, reports] = await Promise.all([
     listPublishedForSitemap(),
     publicReportUrls(),

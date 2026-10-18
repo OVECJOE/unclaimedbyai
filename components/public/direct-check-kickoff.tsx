@@ -7,6 +7,7 @@ import { useTurnstile } from "@/components/public/turnstile"
 import { getAnonSessionId } from "@/lib/anon"
 import { directCheck, getMe } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
+import { nameToSlug } from "@/lib/utils"
 
 /**
  * First visit to a name nobody has checked: start the free check
@@ -15,7 +16,7 @@ import { toastApiError } from "@/lib/api-errors"
  */
 export default function DirectCheckKickoff({ name }: { name: string }) {
   const router = useRouter()
-  const turnstile = useTurnstile("anonymous_check")
+  const { widget, verify, reset } = useTurnstile("anonymous_check")
   const startedRef = useRef(false)
   const [failed, setFailed] = useState(false)
 
@@ -35,7 +36,7 @@ export default function DirectCheckKickoff({ name }: { name: string }) {
         // `verify` sends with the pre-solved token when one exists and,
         // on a 403, waits for the human to actually clear the widget it
         // just surfaced before resending. No token means no request.
-        const result = await turnstile.verify((token) =>
+        const result = await verify((token) =>
           directCheck({
             name,
             anon_session_id: getAnonSessionId(),
@@ -50,7 +51,7 @@ export default function DirectCheckKickoff({ name }: { name: string }) {
         }
         if (!cancelled) {
           router.replace(
-            `/check/${encodeURIComponent(name)}?s=${result.search_id}&sid=${encodeURIComponent(getAnonSessionId())}`
+            `/check/${nameToSlug(name)}?s=${result.search_id}&sid=${encodeURIComponent(getAnonSessionId())}`
           )
         }
       } catch (error) {
@@ -64,7 +65,7 @@ export default function DirectCheckKickoff({ name }: { name: string }) {
     return () => {
       cancelled = true
     }
-  }, [name, router, turnstile])
+  }, [name, router, verify])
 
   return (
     <div className="mx-auto max-w-prose space-y-4 border p-8 text-center">
@@ -72,19 +73,19 @@ export default function DirectCheckKickoff({ name }: { name: string }) {
       {failed ? (
         <>
           <p className="text-sm text-muted-foreground">
-            The check could not start. This usually means the human check
-            could not run, which happens when a browser extension or privacy
-            setting blocks Cloudflare. Nothing was charged.
+            The check could not start. This usually means the human check could
+            not run, which happens when a browser extension or privacy setting
+            blocks Cloudflare. Nothing was charged.
           </p>
           <p className="text-sm text-muted-foreground">
-            Try allowlisting <span className="font-mono">challenges.cloudflare.com</span>{" "}
-            for this site, or opening this page in a private window, then
-            reload.
+            Try allowlisting{" "}
+            <span className="font-mono">challenges.cloudflare.com</span> for
+            this site, or opening this page in a private window, then reload.
           </p>
           <Button
             onClick={() => {
               setFailed(false)
-              turnstile.reset()
+              reset()
               startedRef.current = false
               window.location.reload()
             }}
@@ -95,9 +96,9 @@ export default function DirectCheckKickoff({ name }: { name: string }) {
       ) : (
         <>
           <p className="text-sm text-muted-foreground" role="status">
-            Running the checks now. Domains, social handles, and what AI
-            models already associate with the name. The first check on a
-            name is free and this usually takes under a minute.
+            Running the checks now. Domains, social handles, and what AI models
+            already associate with the name. The first check on a name is free
+            and this usually takes under a minute.
           </p>
           <div
             className="mx-auto h-1.5 w-full max-w-xs overflow-hidden bg-muted"
@@ -108,7 +109,7 @@ export default function DirectCheckKickoff({ name }: { name: string }) {
           </div>
         </>
       )}
-      {turnstile.widget}
+      {widget}
     </div>
   )
 }

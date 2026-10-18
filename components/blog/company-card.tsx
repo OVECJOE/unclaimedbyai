@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   Popover,
   PopoverContent,
@@ -17,6 +17,39 @@ type CompanyMeta = {
 }
 
 const metaCache = new Map<string, Promise<CompanyMeta | null>>()
+
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+  hellip: "…",
+  mdash: "—",
+  ndash: "–",
+  lsquo: "‘",
+  rsquo: "’",
+  ldquo: "“",
+  rdquo: "”",
+}
+
+function decodeEntities(value: string): string {
+  return value.replace(
+    /&(#[xX][0-9a-fA-F]+|#[0-9]+|[a-zA-Z]+);/g,
+    (match, entity: string) => {
+      if (entity.startsWith("#x") || entity.startsWith("#X")) {
+        const code = Number.parseInt(entity.slice(2), 16)
+        return Number.isNaN(code) ? match : String.fromCodePoint(code)
+      }
+      if (entity.startsWith("#")) {
+        const code = Number.parseInt(entity.slice(1), 10)
+        return Number.isNaN(code) ? match : String.fromCodePoint(code)
+      }
+      return NAMED_ENTITIES[entity.toLowerCase()] ?? match
+    }
+  )
+}
 
 function normalizeDomain(value: string): string {
   return value
@@ -64,6 +97,13 @@ export default function CompanyCard({
   const [failed, setFailed] = useState(false)
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const contentRef = useRef<HTMLDivElement | null>(null)
+  const openRef = useRef(false)
+  const pointerRef = useRef(false)
+
+  useEffect(() => {
+    openRef.current = open
+  }, [open])
 
   function ensureMeta() {
     if (meta || loading || failed) return
@@ -79,6 +119,13 @@ export default function CompanyCard({
     })
   }
 
+  function openNow() {
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+    if (openTimer.current) clearTimeout(openTimer.current)
+    ensureMeta()
+    setOpen(true)
+  }
+
   function scheduleOpen() {
     if (closeTimer.current) clearTimeout(closeTimer.current)
     ensureMeta()
@@ -92,6 +139,19 @@ export default function CompanyCard({
     closeTimer.current = setTimeout(() => setOpen(false), 150)
   }
 
+  function handleBlur(event: React.FocusEvent<HTMLAnchorElement>) {
+    const next = event.relatedTarget
+    if (next instanceof Node && contentRef.current?.contains(next)) return
+    scheduleClose()
+  }
+
+  function handleClick(event: React.MouseEvent<HTMLAnchorElement>) {
+    pointerRef.current = false
+    if (openRef.current) return
+    event.preventDefault()
+    openNow()
+  }
+
   const logo = meta?.logo ?? meta?.icon ?? null
 
   return (
@@ -103,13 +163,22 @@ export default function CompanyCard({
           rel="noopener noreferrer"
           onMouseEnter={scheduleOpen}
           onMouseLeave={scheduleClose}
-          onFocus={ensureMeta}
+          onPointerDown={() => {
+            pointerRef.current = true
+          }}
+          onFocus={() => {
+            ensureMeta()
+            if (!pointerRef.current) openNow()
+          }}
+          onBlur={handleBlur}
+          onClick={handleClick}
           className="font-medium text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary"
         >
           {name}
         </a>
       </PopoverTrigger>
       <PopoverContent
+        ref={contentRef}
         className="w-80 p-0"
         onMouseEnter={scheduleOpen}
         onMouseLeave={scheduleClose}
@@ -153,7 +222,9 @@ export default function CompanyCard({
                 !meta?.description && "text-muted-foreground"
               )}
             >
-              {meta?.description ?? `No description published by ${host}.`}
+              {meta?.description
+                ? decodeEntities(meta.description)
+                : `No description published by ${host}.`}
             </p>
           )}
         </div>

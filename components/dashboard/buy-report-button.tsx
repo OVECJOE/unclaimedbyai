@@ -11,7 +11,11 @@ import { toastApiError } from "@/lib/api-errors"
  * are what a re-check costs, so the buy happens where the spend is. Signed
  * out, it goes through auth, where the plan handoff picks them up.
  */
-export default function BuyReportButton() {
+export default function BuyReportButton({
+  label = "Buy credits",
+}: {
+  label?: string
+}) {
   const [pending, setPending] = useState(false)
 
   async function buy() {
@@ -40,7 +44,7 @@ export default function BuyReportButton() {
 
   return (
     <Button size="lg" disabled={pending} onClick={() => void buy()}>
-      {pending ? "Redirecting…" : "Buy credits"}
+      {pending ? "Redirecting…" : label}
     </Button>
   )
 }

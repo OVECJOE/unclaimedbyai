@@ -62,14 +62,15 @@ export default function DashboardSidebar({ user }: { user?: ApiUser | null }) {
   const pathname = usePathname()
   const playgroundActive = isActivePath(pathname, canvasHref)
   const [open, setOpen] = useState(playgroundActive)
+  const [signingOut, setSigningOut] = useState(false)
   const router = useRouter()
 
   const playgroundToggle = () => {
-    router.push(canvasHref)
     setOpen((value) => {
-      if (pathname == canvasHref && value) return false
+      if (pathname === canvasHref) return !value
       return true
     })
+    if (pathname !== canvasHref) router.push(canvasHref)
   }
 
   return (
@@ -78,7 +79,10 @@ export default function DashboardSidebar({ user }: { user?: ApiUser | null }) {
         <Logo className="h-7 w-auto" href="/dashboard" />
       </div>
 
-      <nav aria-label="Primary" className="flex-1 overflow-y-auto py-4 space-y-2">
+      <nav
+        aria-label="Primary"
+        className="flex-1 space-y-2 overflow-y-auto py-4"
+      >
         <Link
           href="/dashboard"
           aria-current={
@@ -185,11 +189,15 @@ export default function DashboardSidebar({ user }: { user?: ApiUser | null }) {
             <Button
               variant="destructive"
               size="sm"
+              disabled={signingOut}
               className="mt-1 w-full justify-start gap-2 px-2"
-              onClick={() => void signOut()}
+              onClick={() => {
+                setSigningOut(true)
+                void signOut().finally(() => setSigningOut(false))
+              }}
             >
               <HugeiconsIcon icon={Logout02Icon} className="size-4" />
-              Sign out
+              {signingOut ? "Signing out…" : "Sign out"}
             </Button>
           </>
         ) : (

@@ -50,41 +50,43 @@ export default async function AdminBlogPage({
 
       {items.length ? (
         <>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead>Updated</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((post) => (
-                <TableRow key={post.id}>
-                  <TableCell>
-                    <Link
-                      href={`/admin/blog/${post.id}`}
-                      className="font-medium underline-offset-4 hover:underline"
-                    >
-                      {post.title || "Untitled"}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        post.status === "published" ? "default" : "secondary"
-                      }
-                    >
-                      {post.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{post.authorName}</TableCell>
-                  <TableCell>{formatDateTime(post.updatedAt)}</TableCell>
+          <div className="w-full overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Author</TableHead>
+                  <TableHead>Updated</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {items.map((post) => (
+                  <TableRow key={post.id}>
+                    <TableCell>
+                      <Link
+                        href={`/admin/blog/${post.id}`}
+                        className="font-medium underline-offset-4 hover:underline"
+                      >
+                        {post.title || "Untitled"}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          post.status === "published" ? "default" : "secondary"
+                        }
+                      >
+                        {post.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{post.authorName}</TableCell>
+                    <TableCell>{formatDateTime(post.updatedAt)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
           <PaginationWindow
             currentPage={currentPage}
             pageCount={pageCount}

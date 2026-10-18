@@ -36,10 +36,11 @@ export default function BoostButton({
     boostSignal,
     initialState
   )
-  const { postBoosted, commentBoosted } = useBoostState()
+  const { postBoosted, commentBoosted, refresh } = useBoostState()
   const contextBoosted =
     commentId !== null ? commentBoosted.has(commentId) : postBoosted
   const sent = state.boosted || boosted || contextBoosted
+  const displayCount = count + (state.inserted ? 1 : 0)
   const toasted = useRef("")
 
   useEffect(() => {
@@ -49,11 +50,12 @@ export default function BoostButton({
       if (state.ok) toast.success(state.message)
       else toast.error(state.message)
     }
+    if (state.ok) refresh()
     // Close the confirm dialog only once the action actually resolved, so
     // failures aren't hidden behind an already-dismissed dialog.
     const id = setTimeout(() => setConfirmOpen(false), 0)
     return () => clearTimeout(id)
-  }, [state])
+  }, [state, refresh])
 
   return (
     <>
@@ -66,17 +68,15 @@ export default function BoostButton({
           onClick={() => setConfirmOpen(true)}
           aria-label={
             sent
-              ? "Signal boosted"
+              ? `Signal boosted, ${displayCount} boosts`
               : commentId !== null
-                ? "Boost this comment"
-                : "Boost this post"
+                ? `Boost this comment, ${displayCount} boosts`
+                : `Boost this post, ${displayCount} boosts`
           }
         >
           <HugeiconsIcon icon={AudioWave02Icon} className="size-5" />
           Boost
-          <span className="font-mono" aria-label={`${count} boosts`}>
-            [{count + (state.boosted && !boosted ? 1 : 0)}]
-          </span>
+          <span className="font-mono">[{displayCount}]</span>
         </Button>
       </div>
 

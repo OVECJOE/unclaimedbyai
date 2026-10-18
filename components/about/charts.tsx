@@ -85,8 +85,16 @@ export function DomainGrowthChart() {
       <AreaChart data={DOMAIN_SERIES} margin={{ top: 8, right: 8, bottom: 0 }}>
         <defs>
           <linearGradient id="fillDomains" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.35} />
-            <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0.04} />
+            <stop
+              offset="5%"
+              stopColor="var(--color-primary)"
+              stopOpacity={0.35}
+            />
+            <stop
+              offset="95%"
+              stopColor="var(--color-primary)"
+              stopOpacity={0.04}
+            />
           </linearGradient>
         </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />

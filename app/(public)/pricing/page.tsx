@@ -134,7 +134,7 @@ export default async function PricingPage() {
                 user ? (
                   <Button size="lg" asChild className="w-full">
                     <Link href="/dashboard/billing">
-                      {tier.title === "Pro" ? "Upgrade" : "Open the playground"}
+                      {tier.title === "Pro" ? "Upgrade" : "Open your dashboard"}
                     </Link>
                   </Button>
                 ) : (
@@ -157,28 +157,33 @@ export default async function PricingPage() {
             blocks you while credits last.
           </p>
           <div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {packs.length > 0
-              ? packs.map((pack) => (
-                  <PriceCard
-                    key={pack.slug}
-                    {...toPriceCard(pack, singleRate)}
-                    action={
-                      user ? (
-                        <BuyButton
-                          packSlug={pack.slug}
-                          label={`Buy ${pack.title}`}
-                        />
-                      ) : (
-                        <Button size="lg" asChild className="w-full">
-                          <Link href={`/auth?plan=${pack.slug}`}>
-                            Get started
-                          </Link>
-                        </Button>
-                      )
-                    }
-                  />
-                ))
-              : null}
+            {packs.length > 0 ? (
+              packs.map((pack) => (
+                <PriceCard
+                  key={pack.slug}
+                  {...toPriceCard(pack, singleRate)}
+                  action={
+                    user ? (
+                      <BuyButton
+                        packSlug={pack.slug}
+                        label={`Buy ${pack.title}`}
+                      />
+                    ) : (
+                      <Button size="lg" asChild className="w-full">
+                        <Link href={`/auth?plan=${pack.slug}`}>
+                          Get started
+                        </Link>
+                      </Button>
+                    )
+                  }
+                />
+              ))
+            ) : (
+              <p className="mx-auto max-w-prose text-sm text-muted-foreground">
+                Credit packs could not load right now. Refresh in a moment — the
+                free plan above works regardless.
+              </p>
+            )}
           </div>
         </div>
 

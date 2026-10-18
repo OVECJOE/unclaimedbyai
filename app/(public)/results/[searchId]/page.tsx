@@ -10,8 +10,14 @@ import {
   getCachedSearchResultsPage,
   getCachedSearchSummary,
 } from "@/lib/dashboard-data"
+import type { Metadata } from "next"
 
 export const dynamic = "force-dynamic"
+
+export const metadata: Metadata = {
+  title: "Your live search results",
+  robots: { index: false, follow: false },
+}
 
 function LinkNotice({ title, body }: { title: string; body: string }) {
   return (

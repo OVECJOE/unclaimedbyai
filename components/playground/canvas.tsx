@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
 import { toast } from "sonner"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Add01Icon } from "@hugeicons/core-free-icons"
@@ -126,6 +126,11 @@ export default function PlaygroundCanvas({
   activeId: string | null
 }) {
   const isDesktop = useMediaQuery("(min-width: 1024px)", true)
+  const hydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  )
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const list = useDashboardStore((state) => state.sandboxes)
@@ -233,8 +238,10 @@ export default function PlaygroundCanvas({
 
         <div className="space-y-4">
           {/* Desktop keeps the open idea beside the board; mobile puts
-              it in a sheet so it does not shove the board off screen. */}
-          {isDesktop && panel ? (
+              it in a sheet so it does not shove the board off screen.
+              Neither shell renders until the viewport is known, so a
+              phone never flashes the desktop column. */}
+          {hydrated && isDesktop && panel ? (
             <div className="max-h-[36rem]">{panel}</div>
           ) : null}
           <GeneratePanel
@@ -247,7 +254,7 @@ export default function PlaygroundCanvas({
       </div>
 
       <Sheet
-        open={!isDesktop && Boolean(expanded)}
+        open={hydrated && !isDesktop && Boolean(expanded)}
         onOpenChange={(open) => {
           if (!open) setExpandedId(null)
         }}

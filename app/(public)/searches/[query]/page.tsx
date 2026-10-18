@@ -10,7 +10,7 @@ import PrompterCta from "@/components/public/prompter-cta"
 import FreeDomainChips from "@/components/public/free-domain-chips"
 import { ApiError, getReport, searchByQuery, type CheckReport } from "@/lib/api"
 import { getMeServer } from "@/lib/api-server"
-import { formatDateTime } from "@/lib/utils"
+import { formatDateTime, slugToName } from "@/lib/utils"
 import { OG_PATH, SITE_URL } from "@/lib/site"
 
 export const revalidate = 3600
@@ -21,7 +21,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { query } = await params
-  const term = decodeURIComponent(query).replace(/-/g, " ")
+  const term = slugToName(query)
   return {
     title: `Name ideas for "${term}", scored and ranked`,
     description: `A real Unclaimed by AI report: name candidates for "${term}", each scored on domain availability, open social handles, and AI associations.`,
@@ -42,7 +42,7 @@ export async function generateMetadata({
 
 export default async function PublicSearchPage({ params }: PageProps) {
   const { query } = await params
-  const term = decodeURIComponent(query).replace(/-/g, " ")
+  const term = slugToName(query)
 
   let search
   try {
@@ -119,7 +119,7 @@ export default async function PublicSearchPage({ params }: PageProps) {
               : ""}
           </p>
         </div>
-        <div className="flex items-center gap-2 mx-auto max-w-3xl justify-center">
+        <div className="mx-auto flex max-w-3xl items-center justify-center gap-2">
           <Button size="lg" asChild className="flex-1">
             <Link href="#check-yours">Check your own name</Link>
           </Button>
@@ -211,7 +211,9 @@ export default async function PublicSearchPage({ params }: PageProps) {
                     : `Sign in to star ${topPick.name.name}: we recheck its domains and handles every few hours and email you the moment something changes. Watching is free.`}
                 </p>
                 <Button asChild>
-                  <Link href={user ? "/dashboard/playground/watchlist" : "/auth"}>
+                  <Link
+                    href={user ? "/dashboard/playground/watchlist" : "/auth"}
+                  >
                     {user ? "Open your watchlist" : "Sign in to watch it"}
                   </Link>
                 </Button>
@@ -243,7 +245,7 @@ export default async function PublicSearchPage({ params }: PageProps) {
 
           <div
             id="check-yours"
-            className="space-y-3 border-t pt-8 sm:mx-auto sm:max-w-prose sm:text-center"
+            className="scroll-mt-20 space-y-3 border-t pt-8 sm:mx-auto sm:max-w-prose sm:text-center"
           >
             <p className="font-heading text-2xl">Check a name of your own</p>
             <p className="text-sm text-muted-foreground">

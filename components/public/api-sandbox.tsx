@@ -218,6 +218,8 @@ export default function ApiSandbox() {
     setSending(true)
     setResult(null)
     const started = performance.now()
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 30000)
     try {
       const res = await fetch(`/api/v1${resolvedPath()}`, {
         method: selected.method,
@@ -230,6 +232,7 @@ export default function ApiSandbox() {
             : { Authorization: `Bearer ${key.trim()}` }),
         },
         body: selected.method === "POST" && body.trim() ? body : undefined,
+        signal: controller.signal,
       })
       let parsed: unknown = null
       try {
@@ -246,9 +249,13 @@ export default function ApiSandbox() {
       setResult({
         status: null,
         ms: Math.round(performance.now() - started),
-        body: { error: "The API could not be reached from this page." },
+        body: {
+          error:
+            "The API could not be reached from this page within 30 seconds.",
+        },
       })
     } finally {
+      clearTimeout(timer)
       setSending(false)
     }
   }
@@ -276,7 +283,7 @@ export default function ApiSandbox() {
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
         <div
-          role="listbox"
+          role="group"
           aria-label="Endpoints"
           className="max-h-96 divide-y divide-border overflow-y-auto border"
         >
@@ -284,8 +291,7 @@ export default function ApiSandbox() {
             <button
               key={endpoint.id}
               type="button"
-              role="option"
-              aria-selected={selected.id === endpoint.id}
+              aria-pressed={selected.id === endpoint.id}
               onClick={() => pick(endpoint)}
               className={cn(
                 "flex w-full items-center gap-2 px-3 py-2 text-left transition-colors",
@@ -304,7 +310,9 @@ export default function ApiSandbox() {
               >
                 {endpoint.method}
               </span>
-              <span className="truncate font-mono text-xs">{endpoint.path}</span>
+              <span className="truncate font-mono text-xs">
+                {endpoint.path}
+              </span>
             </button>
           ))}
         </div>
@@ -319,7 +327,10 @@ export default function ApiSandbox() {
             <div className="grid gap-2 sm:grid-cols-2">
               {params.map((param) => (
                 <div key={param} className="space-y-1">
-                  <Label htmlFor={`param-${param}`} className="font-mono text-xs">
+                  <Label
+                    htmlFor={`param-${param}`}
+                    className="font-mono text-xs"
+                  >
                     {param}
                   </Label>
                   <Input
@@ -343,7 +354,10 @@ export default function ApiSandbox() {
             <div className="grid gap-2 sm:grid-cols-2">
               {selected.queries.map((query) => (
                 <div key={query} className="space-y-1">
-                  <Label htmlFor={`query-${query}`} className="font-mono text-xs">
+                  <Label
+                    htmlFor={`query-${query}`}
+                    className="font-mono text-xs"
+                  >
                     {query}
                   </Label>
                   <Input
@@ -407,13 +421,12 @@ export default function ApiSandbox() {
                   onChange={(event) => setBody(event.target.value)}
                   spellCheck={false}
                   wrap="soft"
-                  className="absolute inset-0 resize-none border-0 bg-transparent p-3 font-mono text-xs leading-relaxed text-transparent caret-foreground shadow-none [field-sizing:fixed] focus-visible:ring-1 focus-visible:ring-primary md:text-xs"
+                  className="absolute inset-0 [field-sizing:fixed] resize-none border-0 bg-transparent p-3 font-mono text-xs leading-relaxed text-transparent caret-foreground shadow-none focus-visible:ring-1 focus-visible:ring-primary md:text-xs"
                 />
               </div>
               {bodyInvalid ? (
                 <p className="text-xs text-destructive">
-                  This is not valid JSON yet. The request will fail as
-                  written.
+                  This is not valid JSON yet. The request will fail as written.
                 </p>
               ) : null}
             </div>

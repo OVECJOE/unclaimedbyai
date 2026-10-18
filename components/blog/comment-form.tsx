@@ -26,21 +26,27 @@ export default function CommentForm({
     initialState
   )
   const formRef = useRef<HTMLFormElement>(null)
-  const wasOk = useRef(false)
-  const toasted = useRef("")
+  const attempts = useRef(0)
+  const handled = useRef(0)
 
   useEffect(() => {
-    if (state.ok && !wasOk.current) formRef.current?.reset()
-    wasOk.current = state.ok
-    if (state.message && toasted.current !== state.message) {
-      toasted.current = state.message
-      if (state.ok) toast.success(state.message)
-      else toast.error(state.message)
-    }
+    if (handled.current === attempts.current) return
+    handled.current = attempts.current
+    if (state.ok) formRef.current?.reset()
+    if (!state.message) return
+    if (state.ok) toast.success(state.message)
+    else toast.error(state.message)
   }, [state])
 
   return (
-    <form ref={formRef} action={formAction} className="space-y-3">
+    <form
+      ref={formRef}
+      action={formAction}
+      onSubmit={() => {
+        attempts.current += 1
+      }}
+      className="space-y-3"
+    >
       <input type="hidden" name="postId" value={postId} />
       {parentId !== null ? (
         <input type="hidden" name="parentId" value={parentId} />

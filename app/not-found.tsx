@@ -8,7 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Toggle } from "@/components/ui/toggle"
+import AppFooter from "@/components/app-footer"
+import AppHeader from "@/components/app-header"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Globe02Icon, SmileIcon } from "@hugeicons/core-free-icons"
 import type { Metadata } from "next"
@@ -20,8 +21,9 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className="bg-background text-foreground">
-      <main className="flex flex-1">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <AppHeader />
+      <main id="main-content" className="flex-1">
         <div className="mx-auto flex w-full max-w-6xl flex-col px-6 py-20 sm:px-8 md:py-24">
           <section className="mx-auto w-full max-w-3xl text-center">
             <h1 className="font-heading text-7xl leading-none font-medium tracking-tight text-primary sm:text-8xl md:text-9xl">
@@ -144,21 +146,16 @@ export default function NotFound() {
                     Did you laugh?
                   </span>
 
-                  <Link href="/">
-                    <Toggle
-                      name="laugh"
-                      aria-label="Did you laugh?"
-                      className="gap-2"
-                    >
+                  <Button asChild variant="outline" size="sm">
+                    <Link href="/">
                       <HugeiconsIcon
                         icon={SmileIcon}
                         size={16}
                         strokeWidth={1.8}
                       />
-
-                      <span>Yes</span>
-                    </Toggle>
-                  </Link>
+                      Yes
+                    </Link>
+                  </Button>
                 </div>
               </CardFooter>
             </Card>
@@ -171,6 +168,7 @@ export default function NotFound() {
           </div>
         </div>
       </main>
+      <AppFooter />
     </div>
   )
 }

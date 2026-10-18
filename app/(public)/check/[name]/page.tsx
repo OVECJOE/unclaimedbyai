@@ -18,7 +18,7 @@ import {
   getCachedSearchSummary,
 } from "@/lib/dashboard-data"
 import { getMeServer } from "@/lib/api-server"
-import { formatDateTime } from "@/lib/utils"
+import { formatDateTime, slugToName } from "@/lib/utils"
 import { OG_PATH, SITE_URL } from "@/lib/site"
 
 export const dynamic = "force-dynamic"
@@ -32,7 +32,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { name } = await params
-  const decoded = decodeURIComponent(name).replace(/-/g, " ").trim()
+  const decoded = slugToName(name)
   return {
     title: `Check the name "${decoded}"`,
     description: `Live check of "${decoded}": domain availability, open social handles, and what AI models already associate with it.`,
@@ -96,9 +96,12 @@ async function LiveCheckView({
   )
 }
 
-export default async function CheckNamePage({ params, searchParams }: PageProps) {
+export default async function CheckNamePage({
+  params,
+  searchParams,
+}: PageProps) {
   const { name } = await params
-  const decoded = decodeURIComponent(name).replace(/-/g, " ").trim()
+  const decoded = slugToName(name)
   if (!decoded) notFound()
   const query = await searchParams
 
@@ -190,7 +193,9 @@ export default async function CheckNamePage({ params, searchParams }: PageProps)
           <section className="border-b px-4 py-6">
             <div className="mx-auto grid max-w-7xl gap-px border bg-border md:grid-cols-2">
               <div className="space-y-2 bg-background p-4">
-                <p className="text-sm font-medium">Free to register right now</p>
+                <p className="text-sm font-medium">
+                  Free to register right now
+                </p>
                 <FreeDomainChips domains={freeDomains} />
               </div>
               <div className="space-y-2 bg-background p-4">
@@ -243,7 +248,7 @@ export default async function CheckNamePage({ params, searchParams }: PageProps)
             </div>
             <div
               id="check-yours"
-              className="space-y-3 border-t pt-8 sm:mx-auto sm:max-w-prose sm:text-center"
+              className="scroll-mt-20 space-y-3 border-t pt-8 sm:mx-auto sm:max-w-prose sm:text-center"
             >
               <p className="font-heading text-2xl">Check a name of your own</p>
               <p className="text-sm text-muted-foreground">

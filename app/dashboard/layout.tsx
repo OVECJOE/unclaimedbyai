@@ -26,7 +26,16 @@ export default async function DashboardLayout({
           Main is a flex column and the content wrapper grows, so on a
           short page the leftover height lands above the footer, not
           below it, and the footer stays pinned to the bottom. */}
-      <main className="flex min-h-screen flex-col pb-16 md:pb-0 md:pl-60">
+      <a
+        href="#main-content"
+        className="sr-only z-100 bg-primary px-4 py-3 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+      >
+        Skip to content
+      </a>
+      <main
+        id="main-content"
+        className="flex min-h-screen flex-col pb-16 md:pb-0 md:pl-60"
+      >
         <ClaimSearches />
         {/* Renders nothing; drives the spotlight tour while active. */}
         <DashboardTour />

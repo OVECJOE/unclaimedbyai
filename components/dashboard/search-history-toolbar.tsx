@@ -10,7 +10,13 @@ import SearchHistoryFilters from "@/components/dashboard/search-history-filters"
 export default function SearchHistoryToolbar() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [value, setValue] = useState(searchParams.get("q") ?? "")
+  const urlQuery = searchParams.get("q") ?? ""
+  const [value, setValue] = useState(urlQuery)
+  const [lastQuery, setLastQuery] = useState(urlQuery)
+  if (urlQuery !== lastQuery) {
+    setLastQuery(urlQuery)
+    setValue(urlQuery)
+  }
 
   function submit(event: React.FormEvent) {
     event.preventDefault()

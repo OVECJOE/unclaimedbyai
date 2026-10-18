@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { TierBadge } from "@/components/tier-badge"
 import type { GradeTier } from "@/lib/name-results"
-import { formatDateTime } from "@/lib/utils"
+import { formatDateTime, nameToSlug } from "@/lib/utils"
 
 type PublicSearch = {
   query: string
@@ -53,7 +53,7 @@ export default async function PublicSearchesStrip() {
           {items.map((item) => (
             <li key={`${item.query}-${item.top_name}`}>
               <Link
-                href={`/searches/${encodeURIComponent(item.top_name)}`}
+                href={`/searches/${nameToSlug(item.top_name)}`}
                 className="flex h-full flex-col gap-2 bg-background p-4 transition-colors hover:bg-muted/50"
                 aria-label={`See check results for ${item.top_name}, found for "${item.query}"`}
               >
@@ -67,7 +67,7 @@ export default async function PublicSearchesStrip() {
                     {item.top_score}/100
                   </span>
                 </div>
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {formatDateTime(item.created_at)}
                 </span>
               </Link>

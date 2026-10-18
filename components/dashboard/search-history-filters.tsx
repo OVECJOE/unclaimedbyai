@@ -8,7 +8,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select"
-import { cn } from "@/lib/utils"
+import { cn, localDayDiff, localDayKey, shiftLocalDays } from "@/lib/utils"
 
 type SearchHistoryFiltersProps = {
   show?: "mobile" | "desktop" | "both"
@@ -47,26 +47,24 @@ const QUALITY_LABELS: Record<string, string> = {
   "needs-attention": "Needs attention",
 }
 
-function rangeToDates(value: string): { from?: string; to?: string } {
-  if (value === "all-time") return {}
-  const to = new Date()
-  const from = new Date(to)
+function rangeToDates(value: string): {
+  from?: string
+  to?: string
+  clear?: string[]
+} {
+  if (value === "all-time") return { clear: ["from", "to"] }
+  const today = localDayKey()
   if (value === "today") {
-    const day = to.toISOString().slice(0, 10)
-    return { from: day, to: day }
+    return { from: today, to: today }
   }
   const days = value === "last-7-days" ? 6 : value === "last-30-days" ? 29 : 89
-  from.setDate(to.getDate() - days)
-  return { from: from.toISOString().slice(0, 10) }
+  return { from: shiftLocalDays(today, -days) }
 }
 
 function datesToRange(from: string | null): string {
   if (!from) return "all-time"
-  const today = new Date().toISOString().slice(0, 10)
-  if (from === today) return "today"
-  const days = Math.round(
-    (new Date(today).getTime() - new Date(from).getTime()) / 86400000
-  )
+  const days = localDayDiff(from, localDayKey())
+  if (days <= 0) return "today"
   if (days <= 6) return "last-7-days"
   if (days <= 29) return "last-30-days"
   return "last-3-months"
@@ -78,11 +76,21 @@ export default function SearchHistoryFilters({
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  function setParams(patch: Record<string, string | undefined>) {
+  function setParams(patch: {
+    from?: string
+    to?: string
+    quality?: string
+    sort?: string
+    clear?: string[]
+  }) {
+    const { clear, ...rest } = patch
     const params = new URLSearchParams(searchParams.toString())
-    for (const [key, value] of Object.entries(patch)) {
+    for (const [key, value] of Object.entries(rest)) {
       if (value === undefined || value === "") params.delete(key)
       else params.set(key, value)
+    }
+    if (clear) {
+      for (const key of clear) params.delete(key)
     }
     params.delete("page")
     const query = params.toString()

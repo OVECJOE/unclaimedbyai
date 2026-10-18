@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import CommentForm from "./comment-form"
 
@@ -14,37 +14,47 @@ export default function ReplyToggle({
   authorName: string
 }) {
   const [open, setOpen] = useState(false)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
 
-  if (!open) {
-    return (
+  useEffect(() => {
+    if (open) {
+      panelRef.current?.querySelector<HTMLTextAreaElement>("textarea")?.focus()
+    }
+  }, [open])
+
+  function close() {
+    setOpen(false)
+    triggerRef.current?.focus()
+  }
+
+  const panelId = `reply-panel-${parentId}`
+
+  return (
+    <>
       <Button
+        ref={triggerRef}
         type="button"
         variant="ghost"
         size="sm"
         aria-expanded={open}
-        onClick={() => setOpen(true)}
+        aria-controls={panelId}
+        onClick={() => (open ? close() : setOpen(true))}
       >
-        Reply
+        {open ? "Close" : "Reply"}
       </Button>
-    )
-  }
-
-  return (
-    <div className="w-full border bg-muted/40 p-3 sm:p-4">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-          Replying to {authorName}
-        </p>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => setOpen(false)}
+      {open ? (
+        <div
+          ref={panelRef}
+          id={panelId}
+          className="w-full border bg-muted/40 p-3 sm:p-4"
         >
-          Close
-        </Button>
-      </div>
-      <CommentForm postId={postId} parentId={parentId} compact />
-    </div>
+          <p className="mb-3 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+            Replying to {authorName}
+          </p>
+          <CommentForm postId={postId} parentId={parentId} compact />
+        </div>
+      ) : null}
+    </>
   )
 }

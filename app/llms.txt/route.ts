@@ -1,5 +1,6 @@
 import { listPublishedPostsPage } from "@/lib/blog/store"
 import { SITE_URL } from "@/lib/site"
+import { nameToSlug } from "@/lib/utils"
 
 /**
  * A curated map of the site for LLM agents, following the llmstxt.org
@@ -12,17 +13,15 @@ import { SITE_URL } from "@/lib/site"
 export const dynamic = "force-static"
 export const revalidate = 3600
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8007"
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8007"
 
 async function reportExamples(): Promise<string[]> {
   // Three recent public reports, so an agent can see the shape of the
   // artifact it is being asked about rather than only its name.
   try {
-    const res = await fetch(
-      `${API_BASE}/api/v1/searches/public-top?limit=3`,
-      { next: { revalidate: 3600 } }
-    )
+    const res = await fetch(`${API_BASE}/api/v1/searches/public-top?limit=3`, {
+      next: { revalidate: 3600 },
+    })
     if (!res.ok) return []
     const data = (await res.json()) as { items: { top_name: string }[] }
     return data.items
@@ -68,7 +67,7 @@ export async function GET(): Promise<Response> {
     lines.push("## Example reports", "")
     for (const name of reports) {
       lines.push(
-        `- [Report for ${oneLine(name)}](${SITE_URL}/searches/${encodeURIComponent(
+        `- [Report for ${oneLine(name)}](${SITE_URL}/searches/${nameToSlug(
           name
         )}): A complete scored report, public by design.`
       )
@@ -78,7 +77,9 @@ export async function GET(): Promise<Response> {
 
   lines.push("## Blog", "")
   if (blog.items.length === 0) {
-    lines.push(`- [Blog index](${SITE_URL}/blog): Writing about naming and name checking.`)
+    lines.push(
+      `- [Blog index](${SITE_URL}/blog): Writing about naming and name checking.`
+    )
   } else {
     for (const post of blog.items) {
       const full = oneLine(post.excerpt)
@@ -89,7 +90,9 @@ export async function GET(): Promise<Response> {
         full.length > 160
           ? `${full.slice(0, full.lastIndexOf(" ", 160)).trimEnd()}...`
           : full
-      lines.push(`- [${oneLine(post.title)}](${SITE_URL}/blog/${post.slug}): ${trimmed}`)
+      lines.push(
+        `- [${oneLine(post.title)}](${SITE_URL}/blog/${post.slug}): ${trimmed}`
+      )
     }
   }
 
@@ -102,8 +105,8 @@ export async function GET(): Promise<Response> {
     "",
     "## Optional",
     "",
-    "- [API reference (markdown)](https://www.unclaimedbyai.com/api/docs.md): The same reference as clean markdown, for tooling and agents.",
-    "- [API reference (OpenAPI)](https://unclaimedbyai.com/api/v1/openapi.json): The machine-readable schema behind the API docs.",
+    `- [API reference (markdown)](${SITE_URL}/api/docs.md): The same reference as clean markdown, for tooling and agents.`,
+    `- [API reference (OpenAPI)](${SITE_URL}/api/v1/openapi.json): The machine-readable schema behind the API docs.`,
     ""
   )
 

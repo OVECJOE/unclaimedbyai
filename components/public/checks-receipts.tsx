@@ -1,4 +1,5 @@
 import GsapReveal from "@/components/about/gsap-reveal"
+import Link from "next/link"
 
 /**
  * The three checks, shown as what they actually return instead of icons
@@ -136,9 +137,9 @@ export default function ChecksReceipts() {
 
         <p className="text-center text-sm text-muted-foreground">
           The same three checks, every time, on every name.{" "}
-          <a href="/product#faq" className="text-primary underline">
+          <Link href="/product#faq" className="text-primary underline">
             See exactly how each one works
-          </a>
+          </Link>
           .
         </p>
       </GsapReveal>

@@ -10,8 +10,8 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { getMeServer, apiServer } from "@/lib/api-server"
-import { ApiError, type Preferences, type SignalProfile } from "@/lib/api"
+import { getMeServer, apiServer, isLoggedOut } from "@/lib/api-server"
+import type { Preferences, SignalProfile } from "@/lib/api"
 
 export const dynamic = "force-dynamic"
 
@@ -33,18 +33,30 @@ export default async function AccountPage({
   const active: TabValue = TABS.some((entry) => entry.value === tab)
     ? (tab as TabValue)
     : "profile"
-  const user = await getMeServer().catch(() => null)
+  const user = await getMeServer().catch((error: unknown) => {
+    if (isLoggedOut(error)) redirect("/auth")
+    throw error
+  })
   if (!user) redirect("/auth")
 
-  const [prefs, signals] = await Promise.all([
-    apiServer<Preferences>("/api/v1/preferences").catch((error: unknown) => {
-      if (error instanceof ApiError && error.status === 401) redirect("/auth")
-      throw error
-    }),
-    apiServer<SignalProfile>("/api/v1/me/signals").catch(
-      (): SignalProfile | null => null
-    ),
+  const [prefsResult, signalsResult] = await Promise.allSettled([
+    apiServer<Preferences>("/api/v1/preferences"),
+    apiServer<SignalProfile>("/api/v1/me/signals"),
   ])
+  if (prefsResult.status === "rejected") {
+    if (isLoggedOut(prefsResult.reason)) redirect("/auth")
+    throw prefsResult.reason
+  }
+  if (
+    signalsResult.status === "rejected" &&
+    isLoggedOut(signalsResult.reason)
+  ) {
+    redirect("/auth")
+  }
+  const prefs = prefsResult.value
+  const signals =
+    signalsResult.status === "fulfilled" ? signalsResult.value : null
+  const signalsFailed = signalsResult.status === "rejected"
 
   return (
     <>
@@ -91,7 +103,7 @@ export default async function AccountPage({
                 <DeleteAccount />
               </TabsContent>
               <TabsContent value="signals">
-                <SignalsForm initial={signals} />
+                <SignalsForm initial={signals} loadFailed={signalsFailed} />
               </TabsContent>
               <TabsContent value="notifications">
                 <PreferencesForm initial={prefs} />

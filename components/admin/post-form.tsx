@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { toast } from "sonner"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ImageAdd01Icon } from "@hugeicons/core-free-icons"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -40,6 +41,13 @@ function parseTags(value: string): string[] {
         .filter(Boolean)
     ),
   ].slice(0, 8)
+}
+
+function isUsableCoverSrc(value: string): boolean {
+  const src = value.trim()
+  return (
+    src.startsWith("https://") || (src.startsWith("/") && !src.startsWith("//"))
+  )
 }
 
 type UploadedImage = {
@@ -101,6 +109,7 @@ export default function PostForm({ post }: { post: Post | null }) {
   const [dirty, setDirty] = useState(false)
   const [pending, startTransition] = useTransition()
   const fileInput = useRef<HTMLInputElement>(null)
+  const issuesAlert = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!dirty) return
@@ -114,6 +123,16 @@ export default function PostForm({ post }: { post: Post | null }) {
       setter(value)
       setDirty(true)
     }
+  }
+
+  function revealIssues() {
+    const node = issuesAlert.current
+    if (!node) return
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    node.scrollIntoView({
+      behavior: reduce ? "auto" : "smooth",
+      block: "start",
+    })
   }
 
   function save(nextStatus: PostStatus) {
@@ -135,10 +154,17 @@ export default function PostForm({ post }: { post: Post | null }) {
 
       if (!result.ok) {
         setIssues(result.issues)
+        toast.error(
+          result.issues.length === 1
+            ? "Not saved. One thing to fix first."
+            : `Not saved. ${result.issues.length} things to fix first.`
+        )
+        requestAnimationFrame(revealIssues)
         return
       }
 
       setIssues([])
+      setUploadError(null)
       setStatus(result.post.status)
       setLiveSlug(result.post.slug)
       setSlug(result.post.slug)
@@ -208,23 +234,25 @@ export default function PostForm({ post }: { post: Post | null }) {
 
         <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
           {issues.length ? (
-            <Alert variant="destructive">
-              <AlertTitle>Fix these before saving</AlertTitle>
-              <AlertDescription>
-                <ul className="list-disc space-y-1 ps-4">
-                  {issues.map((issue, index) => (
-                    <li key={index}>
-                      {issue.line ? `Line ${issue.line}: ` : ""}
-                      {issue.message}
-                    </li>
-                  ))}
-                </ul>
-              </AlertDescription>
-            </Alert>
+            <div ref={issuesAlert} tabIndex={-1} className="outline-none">
+              <Alert variant="destructive">
+                <AlertTitle>Fix these before saving</AlertTitle>
+                <AlertDescription>
+                  <ul className="list-disc space-y-1 ps-4">
+                    {issues.map((issue, index) => (
+                      <li key={index}>
+                        {issue.line ? `Line ${issue.line}: ` : ""}
+                        {issue.message}
+                      </li>
+                    ))}
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            </div>
           ) : null}
 
           {savedAt && !issues.length ? (
-            <Alert>
+            <Alert role="status">
               <AlertTitle>Saved</AlertTitle>
               <AlertDescription>
                 {status === "published"
@@ -335,18 +363,33 @@ export default function PostForm({ post }: { post: Post | null }) {
             {coverImageUrl ? (
               <div className="space-y-2">
                 <div className="relative aspect-video border border-input bg-muted/40">
-                  <Image
-                    src={coverImageUrl}
-                    alt="Cover preview"
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 640px"
-                    className="object-cover"
-                    onError={() =>
-                      setUploadError(
-                        "That image couldn't be loaded. Check the URL and try again."
-                      )
-                    }
-                  />
+                  {isUsableCoverSrc(coverImageUrl) ? (
+                    <Image
+                      src={coverImageUrl}
+                      alt="Cover preview"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 640px"
+                      className="object-cover"
+                      onError={() =>
+                        setUploadError(
+                          "That image couldn't be loaded. Check the URL and try again."
+                        )
+                      }
+                    />
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={coverImageUrl}
+                      alt="Cover preview"
+                      loading="lazy"
+                      className="absolute inset-0 size-full object-cover"
+                      onError={() =>
+                        setUploadError(
+                          "That doesn't look like an image URL that will load. Use an https:// address."
+                        )
+                      }
+                    />
+                  )}
                   {uploading ? (
                     <div className="absolute inset-0 flex items-center justify-center bg-background/70 text-sm font-medium">
                       Uploading…
@@ -425,7 +468,17 @@ export default function PostForm({ post }: { post: Post | null }) {
               onChange={(event) => onCoverUrlChanged(event.target.value)}
               placeholder="…or paste an image URL"
               inputMode="url"
+              aria-invalid={
+                Boolean(coverImageUrl.trim()) &&
+                !isUsableCoverSrc(coverImageUrl)
+              }
             />
+            {coverImageUrl.trim() && !isUsableCoverSrc(coverImageUrl) ? (
+              <p className="text-xs text-destructive">
+                Needs an https:// URL, or a site path starting with a single /
+                like /images/cover.jpg.
+              </p>
+            ) : null}
             {uploadError ? (
               <p className="text-xs text-destructive">{uploadError}</p>
             ) : null}
@@ -463,6 +516,13 @@ export default function PostForm({ post }: { post: Post | null }) {
       </div>
 
       <div className="sticky bottom-0 -mx-4 mt-8 border-t bg-background/95 px-4 py-3 backdrop-blur-sm lg:hidden">
+        {issues.length ? (
+          <p className="mb-2 rounded-md bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive">
+            {issues.length === 1
+              ? "1 thing to fix before this saves."
+              : `${issues.length} things to fix before this saves.`}
+          </p>
+        ) : null}
         <div className="flex gap-2">
           {status === "published" ? (
             <>

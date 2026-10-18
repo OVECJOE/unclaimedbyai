@@ -1,11 +1,9 @@
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
-  approveComment,
-  deleteCommentAction,
-  rejectComment,
-} from "@/lib/blog/actions"
+  DeleteCommentButton,
+  ModerationButtons,
+} from "@/components/admin/comment-moderation"
 import {
   countPendingComments,
   listPendingComments,
@@ -14,24 +12,7 @@ import {
 import type { AdminCommentRow } from "@/lib/blog/types"
 import { formatDateTime } from "@/lib/utils"
 
-function ModerationButtons({ id }: { id: number }) {
-  return (
-    <div className="flex gap-2">
-      <form action={approveComment}>
-        <input type="hidden" name="id" value={id} />
-        <Button type="submit" size="sm">
-          Approve
-        </Button>
-      </form>
-      <form action={rejectComment}>
-        <input type="hidden" name="id" value={id} />
-        <Button type="submit" variant="outline" size="sm">
-          Reject
-        </Button>
-      </form>
-    </div>
-  )
-}
+const MAX_RENDERED_PENDING = 100
 
 function CommentCard({
   comment,
@@ -72,6 +53,7 @@ export default async function AdminCommentsPage() {
     listRecentApprovedComments(20),
     countPendingComments(),
   ])
+  const rendered = pending.slice(0, MAX_RENDERED_PENDING)
 
   return (
     <div className="space-y-10">
@@ -85,13 +67,22 @@ export default async function AdminCommentsPage() {
       <section className="space-y-4">
         <h2 className="font-heading text-2xl">Awaiting approval</h2>
         {pending.length ? (
-          <div className="space-y-4">
-            {pending.map((comment) => (
-              <CommentCard key={comment.id} comment={comment}>
-                <ModerationButtons id={comment.id} />
-              </CommentCard>
-            ))}
-          </div>
+          <>
+            {pending.length > MAX_RENDERED_PENDING ? (
+              <p className="text-sm text-muted-foreground">
+                The queue is long, so only the first {MAX_RENDERED_PENDING} of{" "}
+                {pending.length} show here. Moderate a few and reload to bring
+                the rest up.
+              </p>
+            ) : null}
+            <div className="space-y-4">
+              {rendered.map((comment) => (
+                <CommentCard key={comment.id} comment={comment}>
+                  <ModerationButtons id={comment.id} />
+                </CommentCard>
+              ))}
+            </div>
+          </>
         ) : (
           <p className="text-muted-foreground">
             Queue clear. Nothing awaiting approval.
@@ -105,12 +96,7 @@ export default async function AdminCommentsPage() {
           <div className="space-y-4">
             {approved.map((comment) => (
               <CommentCard key={comment.id} comment={comment}>
-                <form action={deleteCommentAction}>
-                  <input type="hidden" name="id" value={comment.id} />
-                  <Button type="submit" variant="ghost" size="sm">
-                    Delete
-                  </Button>
-                </form>
+                <DeleteCommentButton id={comment.id} />
               </CommentCard>
             ))}
           </div>

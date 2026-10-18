@@ -72,7 +72,7 @@ type DashboardStore = {
   createAndOpen(input: {
     name: string
     signals?: Partial<SignalProfile>
-  }): Promise<Sandbox | null>
+  }): Promise<Sandbox>
 }
 
 /**
@@ -200,13 +200,18 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
     try {
       // Only ideas whose position actually changed are written, so a
       // drag within one page of a long board does not touch every row.
-      await Promise.all(
-        moved.flatMap((idea, index) =>
-          before.get(idea.public_id) === index
-            ? []
-            : [updateIdea(idea.public_id, { position: index })]
-        )
+      // allSettled, because Promise.all abandoning the rest mid-drag
+      // leaves the server holding a mixed order that the rollback then
+      // lies about.
+      const writes = moved.flatMap((idea, index) =>
+        before.get(idea.public_id) === index
+          ? []
+          : [updateIdea(idea.public_id, { position: index })]
       )
+      const results = await Promise.allSettled(writes)
+      if (results.some((result) => result.status === "rejected")) {
+        throw new Error("save failed")
+      }
     } catch {
       // Rollback: the board returns to the order the server still holds.
       set({ detail: { ...detail, ideas: previous }, detailAt: Date.now() })
@@ -279,8 +284,11 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
       }))
       await get().openSandbox(sandbox.public_id, { force: true })
       return sandbox
-    } catch {
-      return null
+    } catch (error) {
+      // The original error carries the reason — a plan cap, a shortage,
+      // a refusal — and callers surface it. Returning null here turned
+      // every one of them into the same generic sentence.
+      throw error
     }
   },
 }))

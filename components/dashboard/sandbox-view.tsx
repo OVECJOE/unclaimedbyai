@@ -196,6 +196,7 @@ export default function SandboxView({
               <IdeaCard
                 key={idea.public_id}
                 idea={idea}
+                sid={sid}
                 onChange={() => void refresh()}
               />
             ))}

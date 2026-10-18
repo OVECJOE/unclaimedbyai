@@ -80,19 +80,22 @@ async function HistoryList({
   }
   const pageCount = Math.max(1, Math.ceil(data.total / pageSize))
   const currentPage = clampPage(page, pageCount)
-  const items =
-    currentPage === page
-      ? data.items
-      : ((
-          await apiServer<SearchList>(
-            historyQuery(currentPage, pageSize, filters)
-          ).catch((error) => {
-            if (error instanceof ApiError && error.status === 401)
-              redirect("/auth")
-            if (error instanceof ApiError && error.status === 429) return null
-            throw error
-          })
-        )?.items ?? [])
+  let items = data.items
+  if (currentPage !== page) {
+    let clamped: SearchList | null
+    try {
+      clamped = await apiServer<SearchList>(
+        historyQuery(currentPage, pageSize, filters)
+      )
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) redirect("/auth")
+      if (error instanceof ApiError && error.status === 429) {
+        return <RateLimited />
+      }
+      throw error
+    }
+    items = clamped.items
+  }
   const cards = items.map((item) => toCardProps(item))
 
   return (

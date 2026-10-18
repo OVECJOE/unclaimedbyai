@@ -98,6 +98,7 @@ export type CommentSubmitState = {
 export type BoostState = {
   ok: boolean
   boosted: boolean
+  inserted?: boolean
   message: string
 }
 

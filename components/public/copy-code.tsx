@@ -20,7 +20,8 @@ export default function CopyCode({ code }: { code: string }) {
 
   // Server and hydration render with the light theme; the dark swap
   // happens after mount so the DOM the client hydrates matches exactly.
-  const codeTheme = mounted && theme === "dark" ? themes.nightOwl : themes.github
+  const codeTheme =
+    mounted && theme === "dark" ? themes.nightOwl : themes.github
 
   async function copy() {
     try {
@@ -38,16 +39,12 @@ export default function CopyCode({ code }: { code: string }) {
       <Button
         size="sm"
         variant="ghost"
-        className="absolute top-2 right-2 z-10 h-7 px-2 text-xs opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+        className="absolute top-2 right-2 z-10 min-h-8 px-2 text-xs opacity-100 transition-opacity focus-visible:opacity-100 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100"
         onClick={() => void copy()}
       >
         {copied ? "Copied" : "Copy"}
       </Button>
-      <Highlight
-        theme={codeTheme}
-        code={code}
-        language="bash"
-      >
+      <Highlight theme={codeTheme} code={code} language="bash">
         {({ style, tokens, getLineProps, getTokenProps }) => (
           <pre
             className="overflow-x-auto p-4 font-mono text-xs leading-relaxed"

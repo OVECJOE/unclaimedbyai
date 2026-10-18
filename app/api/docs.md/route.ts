@@ -1,4 +1,5 @@
 import { endpointsOf, getApiSpec } from "@/lib/openapi"
+import { SITE_URL } from "@/lib/site"
 
 /**
  * The API docs as plain markdown, at /api/docs.md.
@@ -11,7 +12,7 @@ import { endpointsOf, getApiSpec } from "@/lib/openapi"
 export const dynamic = "force-static"
 export const revalidate = 3600
 
-const BASE = "https://unclaimedbyai.com/api/v1"
+const BASE = `${SITE_URL}/api/v1`
 
 function schemaText(schema: unknown): string {
   const s = schema as
@@ -19,10 +20,11 @@ function schemaText(schema: unknown): string {
     | undefined
   if (!s) return "unknown"
   if (Array.isArray(s.anyOf)) {
-    const parts = s.anyOf.map((part) =>
-      schemaText(part)
+    const parts = s.anyOf.map((part) => schemaText(part))
+    return (
+      [...new Set(parts.filter((part) => part !== "null"))].join(" | ") +
+      " | null"
     )
-    return [...new Set(parts.filter((part) => part !== "null"))].join(" | ") + " | null"
   }
   if (s.type === "array") return `${schemaText({ type: "object" })}[]`
   if (s.properties) return "object"
@@ -49,7 +51,9 @@ export async function GET(): Promise<Response> {
   ]
 
   if (endpoints.length === 0) {
-    lines.push("The reference could not be loaded right now. See the HTML docs instead.")
+    lines.push(
+      "The reference could not be loaded right now. See the HTML docs instead."
+    )
   } else {
     for (const [tag, group] of byTag) {
       lines.push(`## ${tag}`, "")
