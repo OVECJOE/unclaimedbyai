@@ -15,7 +15,7 @@ export default function GoogleButton({ plan }: { plan?: string }) {
           if (plan) writePlanCookie(plan)
         }}
       >
-        <HugeiconsIcon icon={GoogleIcon} size="48px" />
+        <HugeiconsIcon icon={GoogleIcon} size={64} />
         <span className="font-semibold">Continue with Google</span>
       </Link>
     </Button>
