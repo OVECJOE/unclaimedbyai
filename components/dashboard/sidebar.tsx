@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
@@ -62,6 +62,15 @@ export default function DashboardSidebar({ user }: { user?: ApiUser | null }) {
   const pathname = usePathname()
   const playgroundActive = isActivePath(pathname, canvasHref)
   const [open, setOpen] = useState(playgroundActive)
+  const router = useRouter()
+
+  const playgroundToggle = () => {
+    router.push(canvasHref)
+    setOpen((value) => {
+      if (pathname == canvasHref && value) return false
+      return true
+    })
+  }
 
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r bg-background md:flex">
@@ -69,7 +78,7 @@ export default function DashboardSidebar({ user }: { user?: ApiUser | null }) {
         <Logo className="h-7 w-auto" href="/dashboard" />
       </div>
 
-      <nav aria-label="Primary" className="flex-1 overflow-y-auto py-4">
+      <nav aria-label="Primary" className="flex-1 overflow-y-auto py-4 space-y-2">
         <Link
           href="/dashboard"
           aria-current={
@@ -87,9 +96,9 @@ export default function DashboardSidebar({ user }: { user?: ApiUser | null }) {
             dead. */}
         <button
           type="button"
-          onClick={() => setOpen((value) => !value)}
+          onClick={playgroundToggle}
           aria-expanded={open}
-          className={linkClass(playgroundActive)}
+          className={cn(linkClass(playgroundActive), "w-full")}
         >
           <HugeiconsIcon icon={playgroundNavItems[0].icon} className="size-4" />
           <span className="flex-1 text-left">Playground</span>

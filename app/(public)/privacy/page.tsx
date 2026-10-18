@@ -50,7 +50,7 @@ const sections: LegalSection[] = [
           </li>
           <li>
             <strong>Names you check.</strong> Every name, brief, search, and
-            report you create, including the results we generate for you.
+            check you run, including the results we generate for you.
           </li>
           <li>
             <strong>Purchase data.</strong> Which credit packs you buy and your
@@ -111,7 +111,7 @@ const sections: LegalSection[] = [
           This one deserves its own section because it surprises people. To tell
           you what AI models already associate with a name, we send that name to
           third-party AI providers (via OpenRouter) and ask what they know about
-          it. Their responses become part of your report.
+          it. Their responses become part of your check results.
         </p>
         <p>
           That means{" "}
@@ -155,8 +155,8 @@ const sections: LegalSection[] = [
             cookie banner for a year (strictly necessary).
           </li>
           <li>
-            <strong>bid</strong> — makes sure a boost you send counts once
-            (two years).
+            <strong>bid</strong> — makes sure a boost you send counts once (two
+            years).
           </li>
           <li>
             <strong>uba-pending-plan</strong> — carries your selected credit
@@ -164,16 +164,16 @@ const sections: LegalSection[] = [
           </li>
         </ul>
         <p>
-          Some pages load Cloudflare Turnstile to verify that requests come
-          from humans rather than bots. We also use privacy-friendly,
-          first-party analytics (no cross-site identifiers) to understand
-          aggregate usage — it only loads if you allow it in the cookie
-          banner, and declining it doesn&apos;t limit the Service in any way.
+          Some pages load Cloudflare Turnstile to verify that requests come from
+          humans rather than bots. We also use privacy-friendly, first-party
+          analytics (no cross-site identifiers) to understand aggregate usage —
+          it only loads if you allow it in the cookie banner, and declining it
+          doesn&apos;t limit the Service in any way.
         </p>
         <p>
-          We do not use advertising cookies or cross-site trackers. If that
-          ever changes, we&apos;ll update this policy and ask for consent where
-          the law requires it.
+          We do not use advertising cookies or cross-site trackers. If that ever
+          changes, we&apos;ll update this policy and ask for consent where the
+          law requires it.
         </p>
       </>
     ),
@@ -228,10 +228,10 @@ const sections: LegalSection[] = [
         </p>
         <p>
           Two things we won&apos;t do. We won&apos;t let a commission change a
-          result: the extensions we show as free are the ones the check
-          actually found free, whether or not a registrar on that list pays us.
-          And we won&apos;t pretend the link isn&apos;t a link. Wherever one
-          appears, it says so.
+          result: the extensions we show as free are the ones the check actually
+          found free, whether or not a registrar on that list pays us. And we
+          won&apos;t pretend the link isn&apos;t a link. Wherever one appears,
+          it says so.
         </p>
         <p>
           Registrars we may link this way include Namecheap, GoDaddy, and
@@ -249,10 +249,10 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          We keep account data, searches, and reports for as long as your
-          account is active, so your history is there when you return. Server
-          logs are kept for a limited period for security and debugging, then
-          deleted or anonymized.
+          We keep account data, searches, and checks for as long as your account
+          is active, so your history is there when you return. Server logs are
+          kept for a limited period for security and debugging, then deleted or
+          anonymized.
         </p>
         <p>
           You can request deletion of your account and associated data at any

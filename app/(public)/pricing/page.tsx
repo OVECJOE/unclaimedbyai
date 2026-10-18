@@ -89,7 +89,7 @@ export default async function PricingPage() {
     },
     {
       title: "Research before you build",
-      body: "Spend 3 credits on a deep market report for an idea: competitors, demand, audience, and how it makes money.",
+      body: "Spend 3 credits on deep market research for an idea: competitors, demand, audience channels, and how it makes money.",
     },
     {
       title: "Search, then re-check",

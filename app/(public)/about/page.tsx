@@ -53,8 +53,8 @@ const PRINCIPLES = [
   },
   {
     index: "04",
-    title: "No subscriptions, ever",
-    body: "Naming a company is a one-time problem. Charging monthly for a one-time problem is rude. Pay per report, keep your credits, no auto-renew button to hunt down.",
+    title: "Free where it matters",
+    body: "The first check on every name is free, forever. Credits buy depth when you need it and never expire. If you live in the tool, Pro adds sandboxes, searches and the watchlist for $14.99 a month. Cancel from the billing page, no phone call.",
   },
 ]
 
@@ -151,7 +151,9 @@ export default function AboutPage() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-2 md:gap-16">
           <GsapReveal className="space-y-3">
             <div className="flex items-center gap-3">
-              <span className="font-mono text-xs text-muted-foreground">01</span>
+              <span className="font-mono text-xs text-muted-foreground">
+                01
+              </span>
               <Badge className="font-heading text-xs text-primary">
                 The first land grab
               </Badge>
@@ -182,7 +184,9 @@ export default function AboutPage() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-2 md:gap-16">
           <GsapReveal className="space-y-3 md:order-2">
             <div className="flex items-center gap-3">
-              <span className="font-mono text-xs text-muted-foreground">02</span>
+              <span className="font-mono text-xs text-muted-foreground">
+                02
+              </span>
               <Badge className="font-heading text-xs text-primary">
                 The fight over names
               </Badge>
@@ -213,7 +217,9 @@ export default function AboutPage() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-2 md:gap-16">
           <GsapReveal className="space-y-3">
             <div className="flex items-center gap-3">
-              <span className="font-mono text-xs text-muted-foreground">03</span>
+              <span className="font-mono text-xs text-muted-foreground">
+                03
+              </span>
               <Badge className="font-heading text-xs text-primary">
                 The second land grab
               </Badge>
@@ -222,8 +228,7 @@ export default function AboutPage() {
               Now there&apos;s a land grab inside people&apos;s heads
             </h2>
             <p className="max-w-prose text-base leading-7 sm:text-lg">
-              <strong>900 million people</strong>
-              {" "}ask ChatGPT something every
+              <strong>900 million people</strong> ask ChatGPT something every
               week, four times the count of two years ago. Whatever a model
               already associates with your name, that&apos;s what it tells all
               of them. No domain search on earth catches that collision. So we
@@ -250,10 +255,10 @@ export default function AboutPage() {
           </div>
           <div className="space-y-4 text-base leading-7 sm:text-lg">
             <p>
-              We picked a name for our own thing the hard way, typing
-              candidates into a registrar tab, a handle checker tab, and a
-              chatbot window, then trying to hold three maybe-answers in our
-              head at once. It felt like doing arithmetic on a moving train.
+              We picked a name for our own thing the hard way, typing candidates
+              into a registrar tab, a handle checker tab, and a chatbot window,
+              then trying to hold three maybe-answers in our head at once. It
+              felt like doing arithmetic on a moving train.
             </p>
             <p>
               The frustrating part wasn&apos;t the work. It was realizing the
@@ -323,7 +328,7 @@ export default function AboutPage() {
           <Link href="/contact" className="text-primary hover:underline">
             Write in
           </Link>{" "}
-, a human reads every message.
+          , a human reads every message.
         </p>
       </section>
     </>
