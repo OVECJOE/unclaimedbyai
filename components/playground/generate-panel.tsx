@@ -90,7 +90,7 @@ export default function GeneratePanel({
             <SelectTrigger id="gen-count" className="w-full sm:w-24">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent position="popper">
               {COUNTS.map((value) => (
                 <SelectItem key={value} value={String(value)}>
                   {value}

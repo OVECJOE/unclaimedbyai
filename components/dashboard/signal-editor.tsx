@@ -154,7 +154,7 @@ export default function SignalEditor({
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper">
                 {mode === "sandbox" ? (
                   <SelectItem value={CLEAR}>
                     Inherit

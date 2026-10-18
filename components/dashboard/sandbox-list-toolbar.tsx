@@ -80,7 +80,7 @@ export default function SandboxListToolbar({ total }: { total: number }) {
             >
               <SelectValue placeholder="Filter" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent position="popper">
               {FILTERS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -98,7 +98,7 @@ export default function SandboxListToolbar({ total }: { total: number }) {
             >
               <SelectValue placeholder="Sort" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent position="popper">
               {SORTS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}

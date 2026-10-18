@@ -79,7 +79,7 @@ export default function SignalFields({
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Pick one" />
             </SelectTrigger>
-            <SelectContent className={SELECT_CONTENT_CLASS}>
+            <SelectContent position="popper" className={SELECT_CONTENT_CLASS}>
               {time.options.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -97,7 +97,7 @@ export default function SignalFields({
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Pick one" />
             </SelectTrigger>
-            <SelectContent className={SELECT_CONTENT_CLASS}>
+            <SelectContent position="popper" className={SELECT_CONTENT_CLASS}>
               {model.options.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -119,7 +119,7 @@ export default function SignalFields({
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Pick one" />
               </SelectTrigger>
-              <SelectContent className={SELECT_CONTENT_CLASS}>
+              <SelectContent position="popper" className={SELECT_CONTENT_CLASS}>
                 {SIGNAL_OPTIONS.tech_comfort.options.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
@@ -137,7 +137,7 @@ export default function SignalFields({
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Pick one" />
               </SelectTrigger>
-              <SelectContent className={SELECT_CONTENT_CLASS}>
+              <SelectContent position="popper" className={SELECT_CONTENT_CLASS}>
                 {SIGNAL_OPTIONS.budget.options.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
