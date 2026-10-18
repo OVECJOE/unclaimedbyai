@@ -242,7 +242,7 @@ export default function PlaygroundCanvas({
               Neither shell renders until the viewport is known, so a
               phone never flashes the desktop column. */}
           {hydrated && isDesktop && panel ? (
-            <div className="max-h-[36rem]">{panel}</div>
+            <div className="h-[36rem]">{panel}</div>
           ) : null}
           <GeneratePanel
             publicId={board.public_id}
