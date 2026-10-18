@@ -69,7 +69,7 @@ export default function PricingBand() {
               data-reveal
               className={
                 tier.highlight
-                  ? "flex flex-col gap-4 bg-primary/5 p-5 sm:p-6"
+                  ? "flex flex-col gap-4 border border-primary bg-background p-5 sm:p-6"
                   : "flex flex-col gap-4 bg-background p-5 sm:p-6"
               }
             >

@@ -80,16 +80,17 @@ export default function ChecksReceipts() {
             Not a score. <span className="text-primary">The receipts.</span>
           </h2>
           <p className="mx-auto max-w-prose text-muted-foreground md:text-lg">
-            Every name gets three checks, run live and shown with their
-            evidence, so you judge the risk instead of trusting a number.
+            Not a made-up score. Three checks, run the moment you ask, each
+            shown with the evidence behind it. You judge the risk. We just hand
+            you the facts.
           </p>
         </div>
 
         <div className="grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-3">
           <ReceiptFrame
             eyebrow="Domains"
-            title="Answered by the registry"
-            body="RDAP, the protocol registrars use internally, queried the moment you click. A domain marked open was unregistered seconds ago."
+            title="Asked the moment you click"
+            body="We ask the domain registry itself, the same source your registrar uses. If we say a name is open, it was open seconds ago."
           >
             <ReceiptRow left="vantis.com" right="taken" tone="taken" />
             <ReceiptRow left="vantis.ai" right="open" tone="open" />
@@ -98,8 +99,8 @@ export default function ChecksReceipts() {
 
           <ReceiptFrame
             eyebrow="Social handles"
-            title="Exact where possible, labeled where not"
-            body="GitHub answers by public API, so those are exact. The rest load the live profile page, and we call that a best guess rather than fake a checkmark."
+            title="Exact where we can be, honest where we can't"
+            body="GitHub tells us a definite yes or no. The other platforms don't offer that, so we check the live profile and label it a best guess rather than fake a green checkmark."
           >
             <ReceiptRow
               left="github.com/vantis"
@@ -120,8 +121,8 @@ export default function ChecksReceipts() {
 
           <ReceiptFrame
             eyebrow="AI associations"
-            title="Asked of three models, independently"
-            body="If a model already answers for your name, it will credit that business with your reviews and your pricing. A domain search never sees this collision."
+            title="What do the models already think your name means?"
+            body="If ChatGPT already answers questions about your name with some other company, it will do that to your customers too. No domain search catches that, so we ask the models directly."
           >
             <ReceiptRow left="GPT" right="no association" tone="open" />
             <ReceiptRow

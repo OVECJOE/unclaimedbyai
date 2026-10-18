@@ -115,9 +115,9 @@ export default async function Page() {
               <div className="space-y-1">
                 <h4 className="font-heading text-xl font-medium">Check</h4>
                 <p className="text-sm text-muted-foreground">
-                  Turn an idea into names, then check them live: domains by
-                  RDAP, handles on five platforms, three AI models asked
-                  independently.
+                  Turn an idea into names, then check each one: the domain, the
+                  social handles, and what ChatGPT and Claude already think the
+                  name means.
                 </p>
               </div>
             </article>
