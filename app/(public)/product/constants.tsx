@@ -91,6 +91,43 @@ export const FAQS: {
   body?: ReactNode
 }[] = [
   {
+    id: "what-is-unclaimedbyai",
+    question: "What is UnclaimedbyAI, exactly?",
+    answer:
+      "A naming studio for the age of AI. Describe what you are building and it generates name ideas in a sandbox; pick one and it turns that idea into names; then it checks your shortlist across domains, social handles, and what ChatGPT, Claude and Perplexity already associate with each name. You can also skip generation and check a name you already have. Generate, check, watch: one place, from blank page to claimed name.",
+    body: (
+      <FaqAnswer lead="A naming studio for the age of AI. One place, from a blank page to a claimed name.">
+        <p className="text-base leading-7">
+          The old version of this problem had two tools: a generator that spit
+          out names nobody would use, and a WHOIS lookup that told you half of
+          them were taken. Neither knew what the other was for. This tool runs
+          the whole path in one place.
+        </p>
+        <FaqPoints
+          points={[
+            [
+              "Generate",
+              "describe what you are building and a sandbox fills with name ideas, four studios arguing from different angles and a judge keeping the strongest",
+            ],
+            [
+              "Check",
+              "turn an idea into names, then check the shortlist live: domains by RDAP, handles on five platforms, and what three AI models already believe the name means",
+            ],
+            [
+              "Watch",
+              "star the names you love and Pro rechecks them every few hours, emailing you the morning something gets claimed",
+            ],
+          ]}
+        />
+        <p className="text-base leading-7">
+          Already have a name in mind? Skip the generator entirely. The{" "}
+          <strong>Name mode</strong> runs the same three checks on one exact
+          name and hands you a shareable results page.
+        </p>
+      </FaqAnswer>
+    ),
+  },
+  {
     id: "what-does-unclaimedbyai-check-when-i-enter-a-name",
     question: "What does UnclaimedbyAI check when I enter a name?",
     answer:
@@ -279,6 +316,35 @@ export const FAQS: {
           reach for. We show all four side by side so you can decide whether
           another extension suits the brand or whether the taken .com is a
           reason to pick a different name.
+        </p>
+      </FaqAnswer>
+    ),
+  },
+  {
+    id: "can-i-buy-the-domain-through-you",
+    question: "Can I buy the domain through you?",
+    answer:
+      "We don't sell domains, so no. What we do is tell you it's open, then hand you a link to a registrar that does: Namecheap, GoDaddy, or Dynadot. Some of those links earn us a commission at no extra cost to you, and we label them when they appear. The check is the product; the registration is yours to finish, at the registrar, in your own name.",
+    body: (
+      <FaqAnswer lead="We don't sell domains, so no. What we do is tell you it's open, then hand you a registrar that does.">
+        <p className="text-base leading-7">
+          A domain check and a domain purchase are two different businesses.
+          Ours is the check: live RDAP lookups, five platforms of handles, three
+          AI models, all in front of you with the receipts. The purchase is a
+          registrar&apos;s job, and it should stay that way.
+        </p>
+        <p className="text-base leading-7">
+          So when a name comes back open, we hand you a link to{" "}
+          <strong>Namecheap, GoDaddy, or Dynadot</strong>, and you finish there,
+          in your own name, at their price. Some of those links earn us a
+          commission at no extra cost to you, and we label them when they
+          appear.
+        </p>
+        <p className="text-base leading-7">
+          We say this plainly because the alternative is a middleman who marks
+          up a domain and calls it convenience.{" "}
+          <strong>The check is the product.</strong> The registration is yours
+          to finish, and it should be in your name, not ours.
         </p>
       </FaqAnswer>
     ),
