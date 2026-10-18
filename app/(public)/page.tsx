@@ -1,13 +1,10 @@
 import { Badge } from "@/components/ui/badge"
 import PrompterCta from "@/components/public/prompter-cta"
 import PublicSearchesStrip from "@/components/public/public-searches-strip"
-import { HugeiconsIcon } from "@hugeicons/react"
-import {
-  AtIcon,
-  BrainIcon,
-  InternetIcon,
-  StarIcon,
-} from "@hugeicons/core-free-icons"
+import PressureSection from "@/components/public/pressure-section"
+import GenerationSection from "@/components/public/generation-section"
+import ChecksReceipts from "@/components/public/checks-receipts"
+import PricingBand from "@/components/public/pricing-band"
 import {
   Avatar,
   AvatarFallback,
@@ -77,76 +74,14 @@ export default async function Page() {
 
       <PublicSearchesStrip />
 
-      {/* Things to know */}
-      <section className="border-b px-4 py-10">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <article className="flex items-start gap-2">
-            <Badge
-              className="bg-primary/20 p-2 text-primary dark:bg-primary/30 dark:text-primary-foreground"
-              asChild
-            >
-              <HugeiconsIcon icon={InternetIcon} className="size-10" />
-            </Badge>
-            <div className="space-y-1">
-              <h3 className="font-heading text-xl font-semibold md:text-2xl">
-                Domains
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Check .com, .ai, .app and more
-              </p>
-            </div>
-          </article>
-          <article className="flex items-start gap-2">
-            <Badge
-              className="bg-primary/20 p-2 text-primary dark:bg-primary/30 dark:text-primary-foreground"
-              asChild
-            >
-              <HugeiconsIcon icon={AtIcon} className="size-10" />
-            </Badge>
-            <div className="space-y-1">
-              <h3 className="font-heading text-xl font-semibold md:text-2xl">
-                Social handles
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Check usernames across the platforms you need.
-              </p>
-            </div>
-          </article>
-          <article className="flex items-start gap-2">
-            <Badge
-              className="bg-primary/20 p-2 text-primary dark:bg-primary/30 dark:text-primary-foreground"
-              asChild
-            >
-              <HugeiconsIcon icon={BrainIcon} className="size-10" />
-            </Badge>
-            <div className="space-y-1">
-              <h3 className="font-heading text-xl font-semibold md:text-2xl">
-                AI association
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Ask top AI models what this name already means.
-              </p>
-            </div>
-          </article>
-          <article className="flex items-start gap-2">
-            <Badge
-              className="bg-primary/20 p-2 text-primary dark:bg-primary/30 dark:text-primary-foreground"
-              asChild
-            >
-              <HugeiconsIcon icon={StarIcon} className="size-10" />
-            </Badge>
-            <div className="space-y-1">
-              <h3 className="font-heading text-xl font-semibold md:text-2xl">
-                Watch
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Star a name and Pro rechecks it every few hours, emailing you
-                the moment something gets claimed.
-              </p>
-            </div>
-          </article>
-        </div>
-      </section>
+      {/* The problem, in three public numbers */}
+      <PressureSection />
+
+      {/* Ideas, generated */}
+      <GenerationSection />
+
+      {/* The three checks, as receipts */}
+      <ChecksReceipts />
 
       {/* How it works */}
       <section id="how-it-works" className="scroll-mt-20 border-b px-4 py-10">
@@ -156,7 +91,7 @@ export default async function Page() {
               How it works
             </h2>
             <p className="text-muted-foreground md:text-lg">
-              Four simple steps to find a name you can actually own.
+              Four steps from a blank page to a name you can actually own.
             </p>
           </div>
           <div className="flex flex-col gap-8 sm:flex-row sm:justify-center sm:gap-3">
@@ -167,9 +102,9 @@ export default async function Page() {
               <div className="space-y-1">
                 <h4 className="font-heading text-xl font-medium">Generate</h4>
                 <p className="text-sm text-muted-foreground">
-                  Tell us what you&apos;re building and we&apos;ll generate
-                  names that fit, or switch to Name mode to check one you
-                  already have in mind.
+                  Describe what you&apos;re building. Four studios argue from
+                  different angles, a judge keeps the strongest, and a sandbox
+                  fills with name ideas.
                 </p>
               </div>
             </article>
@@ -180,8 +115,9 @@ export default async function Page() {
               <div className="space-y-1">
                 <h4 className="font-heading text-xl font-medium">Check</h4>
                 <p className="text-sm text-muted-foreground">
-                  We check domains, social handles, and AI associations in real
-                  time.
+                  Turn an idea into names, then check them live: domains by
+                  RDAP, handles on five platforms, three AI models asked
+                  independently.
                 </p>
               </div>
             </article>
@@ -192,7 +128,8 @@ export default async function Page() {
               <div className="space-y-1">
                 <h4 className="font-heading text-xl font-medium">Claim it</h4>
                 <p className="text-sm text-muted-foreground">
-                  Choose a name with confidence and build without the risk.
+                  Buy the domain at a registrar, in your own name. We tell you
+                  it&apos;s open; the registration is yours.
                 </p>
               </div>
             </article>
@@ -203,8 +140,8 @@ export default async function Page() {
               <div className="space-y-1">
                 <h4 className="font-heading text-xl font-medium">Watch it</h4>
                 <p className="text-sm text-muted-foreground">
-                  Star your favorites and we keep rechecking their domains and
-                  handles while you decide.
+                  Star the name and Pro rechecks it every few hours, emailing
+                  you the morning something gets claimed.
                 </p>
               </div>
             </article>
@@ -212,8 +149,11 @@ export default async function Page() {
         </div>
       </section>
 
+      {/* What it costs */}
+      <PricingBand />
+
       {/* Audience Stats CTA */}
-      <section className="space-y-10 border-b px-4 py-10 sm:text-center">
+      <section className="space-y-10 px-4 py-10 sm:text-center">
         <div className="space-y-4">
           <p className="text-xl">
             Built for founders, creators, and makers launching in the age of AI.
