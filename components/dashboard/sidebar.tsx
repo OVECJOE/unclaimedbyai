@@ -21,14 +21,36 @@ import {
   topNavItems,
 } from "@/components/dashboard/nav"
 
-function initials(user?: ApiUser | null): string {
-  const source = user?.full_name || user?.email || "?"
-  return source
-    .split(/[\s@.]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join("")
+/**
+ * The account avatar from DiceBear, seeded with the email so the same
+ * account always draws the same face and renaming never changes it.
+ */
+function avatarUrl(user?: ApiUser | null): string | null {
+  const seed = user?.email
+  if (!seed) return null
+  return `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}`
+}
+
+function UserAvatar({ user }: { user?: ApiUser | null }) {
+  const src = avatarUrl(user)
+  if (!src) {
+    return (
+      <span className="flex size-8 shrink-0 items-center justify-center bg-primary/10 text-xs font-semibold text-primary">
+        {user?.full_name?.[0] ?? "?"}
+      </span>
+    )
+  }
+  return (
+    /* eslint-disable-next-line @next/next/no-img-element -- A tiny
+       third-party avatar; the image optimizer would proxy every render
+       of a 32px svg for nothing. */
+    <img
+      src={src}
+      alt=""
+      aria-hidden
+      className="size-8 shrink-0 border bg-primary/10"
+    />
+  )
 }
 
 function linkClass(active: boolean): string {
@@ -148,9 +170,7 @@ export default function DashboardSidebar({ user }: { user?: ApiUser | null }) {
 
       <div className="border-t px-4 py-4">
         <div className="flex items-center gap-3">
-          <span className="flex size-8 shrink-0 items-center justify-center bg-primary/10 text-xs font-semibold text-primary">
-            {initials(user)}
-          </span>
+          <UserAvatar user={user} />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm">
               {user?.full_name || "Account"}

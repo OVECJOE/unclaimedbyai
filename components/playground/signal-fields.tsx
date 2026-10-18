@@ -19,6 +19,15 @@ import { SIGNAL_OPTIONS, SIGNAL_TEXT } from "@/lib/signals"
 // with no label at all.
 const UNSET = ""
 
+// Radix portals the select's content to document.body, where two things
+// work against it inside the intake dialog: the body sits at z-50 under
+// the dialog's z-[60] panel, and the modal dialog has set body
+// pointer-events to none, so the portaled list would render behind the
+// dialog and swallow no clicks of its own. Lifting the z-index and
+// re-enabling pointer events on the content fixes both; outside a
+// dialog the additions are harmless.
+const SELECT_CONTENT_CLASS = "z-[70] pointer-events-auto"
+
 /**
  * The three intake questions, with the remaining five behind the
  * caller's expander. Used by the new-sandbox dialog and the studio
@@ -70,7 +79,7 @@ export default function SignalFields({
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Pick one" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className={SELECT_CONTENT_CLASS}>
               {time.options.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -88,7 +97,7 @@ export default function SignalFields({
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Pick one" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className={SELECT_CONTENT_CLASS}>
               {model.options.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -110,7 +119,7 @@ export default function SignalFields({
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Pick one" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={SELECT_CONTENT_CLASS}>
                 {SIGNAL_OPTIONS.tech_comfort.options.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
@@ -128,7 +137,7 @@ export default function SignalFields({
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Pick one" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={SELECT_CONTENT_CLASS}>
                 {SIGNAL_OPTIONS.budget.options.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
