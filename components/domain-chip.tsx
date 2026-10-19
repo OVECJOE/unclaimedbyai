@@ -2,6 +2,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ArrowUpRightStackIcon,
   Cancel01Icon,
+  Globe02Icon,
   InformationCircleIcon,
 } from "@hugeicons/core-free-icons"
 import { registrarLink, type AffiliatePlacement } from "@/lib/affiliate"
@@ -97,10 +98,12 @@ export default function DomainChip({
   const link = registrarLink(placement, domain)
   const body = (
     <div className="inline-flex items-center gap-1">
-      <span className="relative flex size-1.5 shrink-0">
-        <span className="absolute inline-flex size-full animate-ping rounded-full bg-green-500 opacity-60 motion-reduce:animate-none" />
-        <span className="relative inline-flex size-1.5 rounded-full bg-green-500" />
-      </span>
+      <HugeiconsIcon
+        icon={Globe02Icon}
+        strokeWidth={2}
+        data-icon="inline-end"
+        className="size-3 shrink"
+      />
       <span className="font-mono">
         {suffixOnly ? null : `${name}`}
         <span className="font-semibold">.{tld}</span>
@@ -110,7 +113,7 @@ export default function DomainChip({
           icon={ArrowUpRightStackIcon}
           strokeWidth={2}
           data-icon="inline-end"
-          className="size-3 shrink-0 -translate-x-0.5 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100 motion-reduce:transition-none"
+          className="size-3 shrink"
         />
       ) : null}
     </div>
