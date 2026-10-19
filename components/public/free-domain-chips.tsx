@@ -1,32 +1,15 @@
-import { Badge } from "@/components/ui/badge"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { ArrowRight01Icon } from "@hugeicons/core-free-icons"
-import { affiliateLink } from "@/lib/affiliate"
-import { cn } from "@/lib/utils"
-
-const chipClasses =
-  "inline-flex items-center border-green-600/30 bg-green-600/10 px-2.5 py-1 font-mono text-xs text-green-700 dark:border-green-400/30 dark:bg-green-400/10 dark:text-green-400"
-
-// A chip that links somewhere has to look like it does. These sit in a strip
-// that read as inert text for the whole life of the product, so a link among
-// them needs an explicit affordance rather than a hover state nobody discovers
-// until they have already decided the strip is not clickable.
-const linkedChipClasses = cn(
-  chipClasses,
-  "min-h-9 cursor-pointer gap-1 border-green-600/50 transition-colors hover:bg-green-600/20 hover:text-green-800 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 dark:hover:bg-green-400/20 dark:hover:text-green-300"
-)
+import DomainChip from "@/components/domain-chip"
+import { registrarLink } from "@/lib/affiliate"
 
 /**
- * The green "free to register" chips.
+ * The green "free to register" strip.
  *
- * Each chip carries its own link, built for the exact domain it names, so a
- * visitor clicking the `.io` chip lands on a registrar search for that `.io`
- * and not for the first extension in the list. That is the whole point: the
- * chip is useful because it is specific to a name this page just verified
- * free, and a link to the wrong extension is advertising rather than help.
- *
- * Until Namecheap's affiliate link is configured the chips render as plain
- * text, so nothing ships dead before the affiliate account is live.
+ * A wrapper over DomainChip that keeps the strip's own contract: a cap,
+ * an overflow note, and a commission disclosure that only renders when
+ * every chip resolves a link, so the strip never claims a commission it
+ * cannot earn. Each chip deep-links the exact domain it names, so a
+ * click lands on a registrar search for that extension and not the
+ * first one in the list.
  */
 export default function FreeDomainChips({
   domains,
@@ -41,41 +24,29 @@ export default function FreeDomainChips({
     )
   }
 
-  const chips = domains.slice(0, 8).map((domain) => ({
-    ...domain,
-    href: affiliateLink("namecheap", "check-chips", domain.domain),
-  }))
-  // The strip is monetized only if every chip resolved a link, so the
-  // disclosure never claims a commission the strip cannot earn.
-  const monetized = chips.every((chip) => chip.href !== null)
+  const chips = domains.slice(0, 8)
+  const monetized = chips.every(
+    (chip) => registrarLink("check-chips", chip.domain) !== null
+  )
 
   return (
     <div className="space-y-1.5">
       <p className="flex flex-wrap gap-1.5">
-        {chips.map((chip) =>
-          chip.href ? (
-            <Badge key={chip.tld} asChild variant="outline">
-              <a
-                href={chip.href}
-                target="_blank"
-                rel="sponsored noopener noreferrer"
-                title={`Register ${chip.domain} at Namecheap`}
-                className={linkedChipClasses}
-              >
-                {chip.domain}
-                <HugeiconsIcon
-                  icon={ArrowRight01Icon}
-                  strokeWidth={2}
-                  data-icon="inline-end"
-                />
-              </a>
-            </Badge>
-          ) : (
-            <span key={chip.tld} className={chipClasses}>
-              {chip.domain}
-            </span>
+        {chips.map((chip) => {
+          const name = chip.domain.slice(
+            0,
+            chip.domain.length - chip.tld.length - 1
           )
-        )}
+          return (
+            <DomainChip
+              key={chip.tld}
+              name={name}
+              tld={chip.tld}
+              status="available"
+              placement="check-chips"
+            />
+          )
+        })}
       </p>
       {monetized ? (
         <p className="text-xs text-muted-foreground">

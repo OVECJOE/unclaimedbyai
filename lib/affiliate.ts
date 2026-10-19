@@ -27,7 +27,12 @@
 /** Surface an affiliate link appears on. Tagged per placement so earning can
  *  be compared across surfaces in each network's reporting. */
 export type AffiliatePlacement =
-  "check-chips" | "keeper-card" | "watch-email" | "post-checkout"
+  | "check-chips"
+  | "keeper-card"
+  | "watch-email"
+  | "post-checkout"
+  | "results-table"
+  | "report-domains"
 
 export type Registrar = "namecheap" | "godaddy" | "dynadot"
 
@@ -96,5 +101,24 @@ export function affiliateLink(
     return url.toString()
   }
 
+  return null
+}
+
+/**
+ * The link for a chip that names one specific domain: the first
+ * configured registrar that can deep-link a search for that exact
+ * domain, with the registrar so callers can name it in tooltips and
+ * disclosures. Dynadot is absent on purpose — its link lands on the
+ * homepage, and a chip that just verified a domain free must land on
+ * that domain's search, not on advertising.
+ */
+export function registrarLink(
+  placement: AffiliatePlacement,
+  domain: string
+): { href: string; registrar: Registrar } | null {
+  for (const registrar of ["namecheap", "godaddy"] as const) {
+    const href = affiliateLink(registrar, placement, domain)
+    if (href) return { href, registrar }
+  }
   return null
 }

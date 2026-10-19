@@ -35,6 +35,7 @@ import {
 import { toastApiError } from "@/lib/api-errors"
 import { aiAssociationColor, tierColor } from "@/lib/name-results"
 import { SocialAvailabilityList } from "@/components/dashboard/social-icons"
+import DomainChip from "@/components/domain-chip"
 import { useTurnstile } from "@/components/public/turnstile"
 import { WatchButton } from "@/components/dashboard/watch-button"
 
@@ -76,34 +77,35 @@ type ResultsTableProps = {
 }
 
 function AvailabilityList({
+  name,
   items,
   max = 3,
 }: {
-  items: { label: string; available: boolean }[]
+  name: string
+  items: { tld: string; available: boolean }[]
   max?: number
 }) {
   const shown = items.slice(0, max)
   const remaining = items.length - shown.length
   return (
-    <span className="flex items-center gap-2">
+    <span className="flex flex-wrap items-center gap-1.5">
       {shown.map((item) => (
-        <span
-          key={item.label}
-          className={
-            item.available
-              ? "text-xs font-medium text-foreground"
-              : "text-xs text-muted-foreground line-through decoration-border"
-          }
-        >
-          {item.label}
-        </span>
+        <DomainChip
+          key={item.tld}
+          name={name}
+          tld={item.tld}
+          status={item.available ? "available" : "taken"}
+          placement="results-table"
+          size="sm"
+          suffixOnly
+        />
       ))}
       {remaining > 0 ? (
         <span
           className="text-xs text-muted-foreground"
           title={items
             .slice(max)
-            .map((i) => i.label)
+            .map((i) => `.${i.tld}`)
             .join(", ")}
         >
           +{remaining}
@@ -252,12 +254,7 @@ function NameRow({
         </span>
       </TableCell>
       <TableCell>
-        <AvailabilityList
-          items={result.domains.map(({ tld, available }) => ({
-            label: `.${tld}`,
-            available,
-          }))}
-        />
+        <AvailabilityList name={result.name} items={result.domains} />
       </TableCell>
       <TableCell className="hidden md:table-cell">
         <SocialAvailabilityList socials={result.socials} />
@@ -341,12 +338,7 @@ function PendingRow({
       </TableCell>
       <TableCell>
         {snapshot?.domains?.length ? (
-          <AvailabilityList
-            items={snapshot.domains.map(({ tld, available }) => ({
-              label: `.${tld}`,
-              available,
-            }))}
-          />
+          <AvailabilityList name={item.name} items={snapshot.domains} />
         ) : (
           <span className="text-sm text-muted-foreground">Pending</span>
         )}
@@ -545,12 +537,7 @@ function MobileNameCard({
       ) : null}
       <div className="space-y-1.5">
         <PillarRow label="Domains">
-          <AvailabilityList
-            items={result.domains.map(({ tld, available }) => ({
-              label: `.${tld}`,
-              available,
-            }))}
-          />
+          <AvailabilityList name={result.name} items={result.domains} />
         </PillarRow>
         <PillarRow label="Handles">
           <SocialAvailabilityList socials={result.socials} />
@@ -615,12 +602,7 @@ function MobilePendingCard({
         </PillarRow>
         <PillarRow label="Domains">
           {snapshot?.domains?.length ? (
-            <AvailabilityList
-              items={snapshot.domains.map(({ tld, available }) => ({
-                label: `.${tld}`,
-                available,
-              }))}
-            />
+            <AvailabilityList name={item.name} items={snapshot.domains} />
           ) : (
             <span className="text-sm text-muted-foreground">Pending</span>
           )}

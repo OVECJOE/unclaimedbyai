@@ -34,7 +34,7 @@ import { WatchButton } from "@/components/dashboard/watch-button"
 import BuyReportButton from "@/components/dashboard/buy-report-button"
 import PaymentFlag from "@/components/dashboard/payment-flag"
 import { formatDateTime } from "@/lib/utils"
-import { affiliateLink } from "@/lib/affiliate"
+import DomainChip from "@/components/domain-chip"
 import { apiServer } from "@/lib/api-server"
 import {
   ApiError,
@@ -198,13 +198,10 @@ export default async function SearchResultNamePage({
 
   const freeDomains = report.domains.filter((d) => d.status === "available")
   const availableDomains = freeDomains.length
-  // The first free extension is the one worth a register link: a score
+  // The first free extension is the one worth a register chip: a score
   // this high plus a verified-open domain is the warmest moment in the
   // product, and it evaporates the moment someone else notices it.
-  const firstFreeDomain = freeDomains[0]?.domain ?? null
-  const registerHref = firstFreeDomain
-    ? affiliateLink("namecheap", "keeper-card", firstFreeDomain)
-    : null
+  const firstFree = freeDomains[0] ?? null
   const availableSocials = report.socials.filter(
     (s) => s.status === "available"
   ).length
@@ -344,18 +341,16 @@ export default async function SearchResultNamePage({
                   See report packs
                 </Link>
               </p>
-              {registerHref ? (
-                <p className="text-sm">
-                  <a
-                    href={registerHref}
-                    target="_blank"
-                    rel="sponsored noopener noreferrer"
-                    className="text-primary underline"
-                  >
-                    Register {firstFreeDomain}
-                  </a>{" "}
+              {firstFree ? (
+                <p className="flex flex-wrap items-center justify-center gap-2 text-sm">
+                  <DomainChip
+                    name={nameItem.name}
+                    tld={firstFree.tld}
+                    status="available"
+                    placement="keeper-card"
+                  />
                   <span className="text-muted-foreground">
-                    while it is still free.
+                    was free when this check ran. Grab it while it lasts.
                   </span>
                 </p>
               ) : null}
@@ -439,29 +434,38 @@ export default async function SearchResultNamePage({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {report.domains.map((domain) => (
-                        <TableRow key={domain.domain}>
-                          <TableCell className="font-mono">
-                            {domain.domain}
-                          </TableCell>
-                          <TableCell>
-                            <span
-                              className={
-                                domain.status === "available"
-                                  ? "font-medium text-green-600"
-                                  : "text-muted-foreground"
-                              }
-                            >
-                              {domain.status.replace("_", " ")}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-end">
-                            <span className="text-xs text-muted-foreground">
-                              {formatDateTime(domain.checked_at)}
-                            </span>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {report.domains.map((domain) => {
+                        const dot = domain.domain.lastIndexOf(".")
+                        return (
+                          <TableRow key={domain.domain}>
+                            <TableCell>
+                              <DomainChip
+                                name={domain.domain.slice(0, dot)}
+                                tld={domain.domain.slice(dot + 1)}
+                                status={domain.status}
+                                placement="report-domains"
+                                size="sm"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <span
+                                className={
+                                  domain.status === "available"
+                                    ? "font-medium text-green-600"
+                                    : "text-muted-foreground"
+                                }
+                              >
+                                {domain.status.replace("_", " ")}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-end">
+                              <span className="text-xs text-muted-foreground">
+                                {formatDateTime(domain.checked_at)}
+                              </span>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
                     </TableBody>
                   </Table>
                 </CardContent>
