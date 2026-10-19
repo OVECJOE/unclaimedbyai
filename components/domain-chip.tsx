@@ -11,8 +11,10 @@ import Link from "next/link"
 
 export type DomainChipSize = "sm" | "md"
 
+type DomainState = "available" | "taken" | "unknown"
+
 type DomainChipProps = {
-  /** Second-level label, e.g. "Makiro". Ignored when `suffixOnly`. */
+  /** Second-level label, e.g. "Makiro". Hidden visually when `suffixOnly`. */
   name: string
   /** Extension without the dot, e.g. "com". */
   tld: string
@@ -32,13 +34,64 @@ const SIZES: Record<DomainChipSize, string> = {
   md: "gap-1.5 px-2.5 py-1 text-sm",
 }
 
+const STATES: Record<
+  DomainState,
+  {
+    icon: typeof Globe02Icon
+    /** Read by screen readers; the visual state is color and icon only. */
+    srLabel: string
+    chip: string
+    linkChip: string
+    tld: string
+    /** Verb for the link tooltip, e.g. "Register makiro.com at GoDaddy". */
+    verb: string
+    inertTitle: (domain: string) => string
+  }
+> = {
+  available: {
+    icon: Globe02Icon,
+    srLabel: "Available",
+    chip: "border-green-600/40 bg-green-600/10 text-green-800 dark:border-green-400/40 dark:bg-green-400/10 dark:text-green-400",
+    linkChip:
+      "hover:bg-green-600/20 hover:text-green-900 dark:hover:bg-green-400/20 dark:hover:text-green-300",
+    tld: "font-semibold",
+    verb: "Register",
+    inertTitle: (d) => `${d} is free to register`,
+  },
+  taken: {
+    icon: Cancel01Icon,
+    srLabel: "Taken",
+    chip: "border-border bg-muted/40 text-muted-foreground",
+    linkChip: "hover:bg-muted hover:text-foreground",
+    tld: "line-through decoration-current/60",
+    verb: "See",
+    inertTitle: (d) => `${d} is already registered`,
+  },
+  unknown: {
+    icon: InformationCircleIcon,
+    srLabel: "Availability not confirmed",
+    chip: "border-dashed border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+    linkChip: "hover:bg-amber-500/20",
+    tld: "",
+    verb: "Check",
+    inertTitle: (d) => `${d} availability is not confirmed yet`,
+  },
+}
+
+function registrarName(registrar: string) {
+  if (registrar === "namecheap") return "Namecheap"
+  if (registrar === "godaddy") return "GoDaddy"
+  return registrar
+}
+
 /**
  * One domain, as an inline chip.
  *
  * The name sits in the text color, the TLD is emphasized, and status is
- * carried by color, icon, and motion together so it reads at a glance.
- * An available domain links to the first registrar that can deep-link a
- * search for this exact domain; taken and unknown domains render inert.
+ * carried by color and icon, with a screen-reader label alongside.
+ * Whatever the status, the chip links to the first registrar that can
+ * deep-link a search for this exact domain, under the given affiliate
+ * placement. If no registrar link is available it renders inert.
  * Inline-flex by design: it drops into table cells, prose, and card
  * headers without claiming a block of its own.
  */
@@ -50,87 +103,48 @@ export default function DomainChip({
   size = "md",
   suffixOnly = false,
 }: DomainChipProps) {
-  const domain = `${name.toLowerCase()}.${tld}`
-  const label = suffixOnly ? `.${tld}` : domain
-  const sizes = SIZES[size]
-
-  if (status !== "available" && status !== "taken") {
-    return (
-      <span
-        title={`${domain} availability is not confirmed yet`}
-        className={cn(
-          "inline-flex items-center border-dashed border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400",
-          sizes
-        )}
-      >
-        <HugeiconsIcon
-          icon={InformationCircleIcon}
-          className="size-3 shrink-0"
-          strokeWidth={2}
-        />
-        <span className="font-mono">{label}</span>
-      </span>
-    )
-  }
-
-  if (status === "taken") {
-    return (
-      <span
-        title={`${domain} is already registered`}
-        className={cn(
-          "inline-flex cursor-default items-center border-border bg-muted/40 text-muted-foreground",
-          sizes
-        )}
-      >
-        <HugeiconsIcon
-          icon={Cancel01Icon}
-          className="size-3 shrink-0"
-          strokeWidth={2}
-        />
-        <span className="font-mono">
-          {suffixOnly ? null : `${name}`}
-          <span className="line-through decoration-current/60">.{tld}</span>
-        </span>
-      </span>
-    )
-  }
-
+  const state: DomainState =
+    status === "available" || status === "taken" ? status : "unknown"
+  const config = STATES[state]
+  const sld = name.toLowerCase()
+  const domain = `${sld}.${tld}`
   const link = registrarLink(placement, domain)
+
   const body = (
-    <div className="inline-flex items-center gap-1">
+    <>
       <HugeiconsIcon
-        icon={Globe02Icon}
+        icon={config.icon}
         strokeWidth={2}
-        data-icon="inline-end"
-        className="size-3 shrink"
+        aria-hidden="true"
+        data-icon="inline-start"
+        className="size-3 shrink-0"
       />
+      <span className="sr-only">{config.srLabel}: </span>
       <span className="font-mono">
-        {suffixOnly ? null : `${name}`}
-        <span className="font-semibold">.{tld}</span>
+        {suffixOnly ? <span className="sr-only">{sld}</span> : sld}
+        <span className={config.tld}>.{tld}</span>
       </span>
       {link ? (
         <HugeiconsIcon
           icon={ArrowUpRightStackIcon}
           strokeWidth={2}
+          aria-hidden="true"
           data-icon="inline-end"
-          className="size-3 shrink"
+          className="size-3 shrink-0"
         />
       ) : null}
-    </div>
+    </>
   )
-  const chipClass = cn(
-    "inline-flex items-center border-green-600/40 bg-green-600/10 text-green-800 dark:border-green-400/40 dark:bg-green-400/10 dark:text-green-400",
-    sizes,
-    link &&
-      "group relative cursor-pointer transition-colors hover:bg-green-600/20 hover:text-green-900 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 dark:hover:bg-green-400/20 dark:hover:text-green-300"
+
+  const base = cn(
+    "inline-flex items-center border",
+    SIZES[size],
+    config.chip
   )
 
   if (!link) {
     return (
-      <span
-        title={`${domain} is free to register`}
-        className={cn(chipClass, "relative")}
-      >
+      <span title={config.inertTitle(domain)} className={cn(base, "cursor-default")}>
         {body}
       </span>
     )
@@ -141,9 +155,12 @@ export default function DomainChip({
       href={link.href}
       target="_blank"
       rel="sponsored noopener noreferrer"
-      title={`Register ${domain} at ${link.registrar === "namecheap" ? "Namecheap" : "GoDaddy"}`}
-      aria-label={`Register ${domain} at ${link.registrar}`}
-      className={chipClass}
+      title={`${config.verb} ${domain} at ${registrarName(link.registrar)}`}
+      className={cn(
+        base,
+        "cursor-pointer outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50",
+        config.linkChip
+      )}
     >
       {body}
     </Link>
