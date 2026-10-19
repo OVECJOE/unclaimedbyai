@@ -48,7 +48,9 @@ export default function GeneratePanel({
         count,
         seed: seed.trim() || undefined,
       })
-      toast("The studios are working. Ideas land as the judge keeps them.")
+      toast(
+        "The strategy studios are working. Ideas land as the editor keeps them."
+      )
     } catch (error) {
       toastApiError(error, "Could not start a run.")
     } finally {
@@ -61,8 +63,8 @@ export default function GeneratePanel({
       <p className="font-heading text-xl font-semibold">Generate ideas</p>
       <p className="mt-1 text-sm text-muted-foreground">
         {hasIdeas
-          ? "Four studios argue from different angles and a judge keeps the strongest, so a batch spreads rather than repeats."
-          : "Four studios argue from different angles and a judge keeps the strongest. Your first batch lands here."}
+          ? "Four strategy studios argue from different angles and the editor keeps the strongest, so a batch spreads rather than repeats."
+          : "Four strategy studios argue from different angles and the editor keeps the strongest. Your first batch lands here."}
       </p>
 
       {runStatus === "failed" && runError ? (
@@ -106,9 +108,9 @@ export default function GeneratePanel({
       {generating ? (
         <div className="mt-4 space-y-3" aria-label="Generating ideas">
           <p role="status" className="text-sm text-muted-foreground">
-            The four studios are drafting from different angles and the judge
-            is keeping the strongest. Ideas appear on the board as they clear
-            the judge — no need to wait for the whole batch.
+            The four strategy studios are drafting from different angles and
+            the editor is keeping the strongest. Ideas appear on the board as
+            they clear the editor — no need to wait for the whole batch.
           </p>
           <div className="space-y-2">
             <div className="h-5 w-2/3 animate-pulse bg-muted" />

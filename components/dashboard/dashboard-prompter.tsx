@@ -14,16 +14,24 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import Prompter, { type PrompterMode } from "@/components/app/prompter"
-import { createSandbox, directCheck, generateIdeas } from "@/lib/api"
+import {
+  createSandbox,
+  directCheck,
+  generateFilledSearch,
+  generateIdeas,
+  type SignalProfile,
+} from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
 import { nameToSlug } from "@/lib/utils"
 
 /**
- * The prompter inside the dashboard. Ideas and studios build a sandbox
- * and land the canvas on it. A name leaves the dashboard, so it asks
- * first rather than yanking the person out of work in progress. Studio
- * mode shows an onboarding nudge when the account steer is still empty,
- * because a new signup's ideas are only as good as the answers it gets.
+ * The prompter inside the dashboard. Idea runs the brief through the
+ * naming pipeline and lands on the live report — its promise is
+ * names. Studio builds a sandbox of business ideas shaped by the
+ * steer. A name leaves the dashboard, so it asks first rather than
+ * yanking the person out of work in progress. Studio mode shows an
+ * onboarding nudge when the account steer is still empty, because a
+ * new signup's ideas are only as good as the answers it gets.
  */
 export default function DashboardPrompter({
   hasSignals,
@@ -35,8 +43,14 @@ export default function DashboardPrompter({
   const [lastMode, setLastMode] = useState<PrompterMode>("idea")
   const [confirmName, setConfirmName] = useState<string | null>(null)
 
-  async function runIdea(value: string) {
-    const sandbox = await createSandbox({ name: value.slice(0, 80) })
+  async function runStudio(
+    value: string,
+    signals?: Partial<SignalProfile>
+  ) {
+    const sandbox = await createSandbox({
+      name: value.slice(0, 80),
+      ...(signals ? { signals } : {}),
+    })
     try {
       await generateIdeas(sandbox.public_id, {
         count: 6,
@@ -52,16 +66,22 @@ export default function DashboardPrompter({
     router.push(`/dashboard/playground?sandbox=${sandbox.public_id}`)
   }
 
-  async function onSubmit(value: string, mode: PrompterMode) {
+  async function onSubmit(
+    value: string,
+    mode: PrompterMode,
+    signals?: Partial<SignalProfile>
+  ) {
     setPending(true)
     setLastMode(mode)
     try {
-      if (mode === "name") {
-        const result = await directCheck({ name: value })
-        router.push(`/dashboard/history/${result.search_id}`)
+      if (mode === "studio") {
+        await runStudio(value, signals)
         return
       }
-      await runIdea(value)
+      // Idea mode: the brief goes through the naming pipeline and the
+      // live report streams the results.
+      const search = await generateFilledSearch({ query: value, count: 12 })
+      router.push(`/dashboard/history/${search.id}`)
     } catch (error) {
       setPending(false)
       toastApiError(error, "Something went wrong. Try again.")
@@ -92,10 +112,10 @@ export default function DashboardPrompter({
   return (
     <div className="space-y-3">
       <Prompter
-        onSubmit={(value, mode) =>
+        onSubmit={(value, mode, signals) =>
           mode === "name"
             ? submitNameOutside(value)
-            : void onSubmit(value, mode)
+            : void onSubmit(value, mode, signals)
         }
         pending={pending}
       />
@@ -103,7 +123,9 @@ export default function DashboardPrompter({
         <p role="status" className="text-center text-sm text-muted-foreground">
           {lastMode === "name"
             ? "Starting the check. It opens on its own page in a moment."
-            : "Starting a sandbox and running the studios. The canvas opens when the first ideas land."}
+            : lastMode === "studio"
+              ? "Starting a sandbox and running the strategy studios. The canvas opens when the first ideas land."
+              : "Running the naming studios. Your report opens as the names stream in."}
         </p>
       ) : null}
 

@@ -179,8 +179,8 @@ export default function SandboxView({
         <div className="border p-5">
           <p className="font-heading text-xl font-semibold">Generate ideas</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Four studios argue from different angles and a judge keeps the
-            strongest, so a batch spreads rather than repeats.
+            Four strategy studios argue from different angles and the editor
+            keeps the strongest, so a batch spreads rather than repeats.
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_auto]">
             <div className="space-y-1.5">

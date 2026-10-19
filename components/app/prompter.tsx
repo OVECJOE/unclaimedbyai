@@ -32,7 +32,7 @@ const MODES: { value: PrompterMode; label: string; hint: string }[] = [
   {
     value: "studio",
     label: "Studio",
-    hint: "Same, but shaped by what you tell us about your business.",
+    hint: "Business ideas shaped by your skills, edge, and audience.",
   },
   {
     value: "name",
@@ -68,11 +68,12 @@ function ModePill({
 }
 
 /**
- * The prompter: one box, three intentions. Idea makes a sandbox and
- * generates. Studio does the same while collecting the steer inline,
- * for visitors who have no account profile to copy it from. Name checks
- * one exact name. The mode pills sit inside the box so the choice is
- * part of the typing, not a setting above it.
+ * The prompter: one box, three intentions. Idea runs the brief through
+ * the naming pipeline and promises names. Studio builds a sandbox of
+ * business ideas, collecting the steer inline for visitors who have no
+ * account profile to copy it from. Name checks one exact name. The
+ * mode pills sit inside the box so the choice is part of the typing,
+ * not a setting above it.
  */
 export default function Prompter({
   onSubmit,
@@ -184,7 +185,7 @@ export default function Prompter({
           {mode === "studio" && showSignalFields ? (
             <div className="mt-3 space-y-3 border-t pt-3">
               <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-                Steer the studios
+                Steer the strategy studios
               </p>
               <SignalFields
                 signals={signals}

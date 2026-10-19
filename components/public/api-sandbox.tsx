@@ -51,7 +51,7 @@ const ENDPOINTS: SandboxEndpoint[] = [
     path: "/searches/generate",
     label: "Generate names from a brief",
     detail:
-      "The full pipeline: studios, judge, .com screening, then checks. Poll the header until ready.",
+      "The full pipeline: four naming studios, an editor pass, live .com screening, then checks. Poll the header until ready.",
     body: '{\n  "query": "a budgeting app for creatives",\n  "count": 12\n}',
   },
   {

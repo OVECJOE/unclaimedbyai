@@ -35,7 +35,7 @@ function homeSteps(navigate: Navigate): DriveStep[] {
       popover: {
         title: "Start with a brief",
         description:
-          "Describe what you are building and press Generate. Four studios argue from different angles and a judge keeps the strongest names. Name mode checks one exact name instead.",
+          "Describe what you are building and press Generate: four naming studios and an editor turn it into scored name candidates. Name mode checks one exact name instead.",
         side: "bottom",
         align: "center",
       },

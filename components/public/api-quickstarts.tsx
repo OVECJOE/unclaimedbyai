@@ -63,7 +63,7 @@ curl ${BASE}/searches/124/header \\
   -H "Authorization: Bearer uba_live_YOUR_KEY"`}
         />
         <p className="text-sm text-muted-foreground">
-          Sharpened briefs, four naming studios, a judge pass, and live .com
+          Sharpened briefs, four naming studios, an editor pass, and live .com
           screening. Accounts spend one search. Poll the header until generation
           reports ready.
         </p>

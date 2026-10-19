@@ -10,6 +10,7 @@ import {
   ApiError,
   createSandbox,
   directCheck,
+  generateFilledSearch,
   generateIdeas,
   getMe,
   type SignalProfile,
@@ -82,23 +83,30 @@ export default function PrompterCta({
           router.push(`/check/${nameToSlug(value)}?s=${result.search_id}`)
           return
         }
-        // An idea goes into a sandbox of its own, named after the brief,
-        // so the person lands on generated ideas rather than a search
-        // they did not ask for. The canvas opens on the new sandbox.
-        const sandbox = await createSandbox({ name: value.slice(0, 80) })
-        try {
-          await generateIdeas(sandbox.public_id, {
-            count: 6,
-            seed: value.slice(0, 300),
+        if (mode === "studio") {
+          // Studio keeps the sandbox: the steer shapes business ideas
+          // on the canvas.
+          const sandbox = await createSandbox({
+            name: value.slice(0, 80),
+            ...(signals ? { signals } : {}),
           })
-        } catch (error) {
-          // The sandbox exists; land there anyway so nothing is
-          // stranded and the upgrade or retry path is one click away.
-          toastApiError(error, "Ideas could not start.")
+          try {
+            await generateIdeas(sandbox.public_id, {
+              count: 6,
+              seed: value.slice(0, 300),
+            })
+          } catch (error) {
+            toastApiError(error, "Ideas could not start.")
+            router.push(`/dashboard/playground?sandbox=${sandbox.public_id}`)
+            return
+          }
           router.push(`/dashboard/playground?sandbox=${sandbox.public_id}`)
           return
         }
-        router.push(`/dashboard/playground?sandbox=${sandbox.public_id}`)
+        // Idea mode's promise is names: the brief runs the naming
+        // pipeline and the live report streams the results.
+        const search = await generateFilledSearch({ query: value, count: 12 })
+        router.push(`/dashboard/history/${search.id}`)
         return
       }
       if (mode === "name") {
@@ -118,15 +126,39 @@ export default function PrompterCta({
         )
         return
       }
-      // One taste run of idea generation, then a sign-in gate, because
-      // running four studios for someone who never intends to sign in is
-      // the one thing this funnel cannot afford. Studio mode sends the
-      // inline steer along so the run is shaped by it.
+      if (mode === "idea") {
+        // One free generation per session, then a sign-in gate. The
+        // brief runs the naming pipeline and the results stream on the
+        // public report page.
+        const search = await turnstile.verify(
+          (token) =>
+            generateFilledSearch({
+              query: value,
+              count: 12,
+              anon_session_id: getAnonSessionId(),
+              cf_turnstile_token: token,
+            }),
+          { waitMs: 30000 }
+        )
+        if (!search) {
+          toast.error("The human check did not finish. Try again.")
+          return
+        }
+        router.push(
+          `/results/${search.id}?sid=${encodeURIComponent(getAnonSessionId())}`
+        )
+        return
+      }
+      // Studio mode: one taste run of idea generation behind a
+      // sign-in gate, because running four studios for someone who
+      // never intends to sign in is the one thing this funnel cannot
+      // afford. The inline steer rides along so the run is shaped by
+      // it.
       const sandbox = await turnstile.verify(
         (token) =>
           createSandbox({
             name: value.slice(0, 80),
-            signals: mode === "studio" ? signals : undefined,
+            signals: signals ?? undefined,
             anon_session_id: getAnonSessionId(),
             cf_turnstile_token: token,
           }),
