@@ -13,6 +13,8 @@ import {
   type Research,
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
+import { ApiError } from "@/lib/api"
+import { useTurnstile } from "@/components/public/turnstile"
 
 function CanvasLine({ label, value }: { label: string; value: string | null }) {
   if (!value) return null
@@ -42,6 +44,9 @@ export default function IdeaCard({
   const [research, setResearch] = useState<Research | null>(null)
   const [busy, setBusy] = useState(false)
   const [polling, setPolling] = useState(false)
+  // Anonymous name searches are turnstile-gated spends; the widget
+  // rides along here so a returning session can always solve one.
+  const turnstile = useTurnstile("anonymous_check")
   const onChangeRef = useRef(onChange)
   useEffect(() => {
     onChangeRef.current = onChange
@@ -104,6 +109,20 @@ export default function IdeaCard({
       }
       setResearch(current)
     } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        // Research is an account feature; the public sandbox shows the
+        // button, so the refusal has to say what unlocks it.
+        toast.error("Market research runs on your account. Sign in to start it.", {
+          action: {
+            label: "Sign in",
+            onClick: () =>
+              router.push(
+                `/auth?next=${encodeURIComponent(window.location.pathname)}`
+              ),
+          },
+        })
+        return
+      }
       toastApiError(error, "Research could not start.")
     } finally {
       setBusy(false)
@@ -117,15 +136,25 @@ export default function IdeaCard({
         router.push(searchDestination(idea.search_id))
         return
       }
-      const search = await createSearch({
-        query: `${idea.title}. ${idea.concept}`,
-        ...(sid ? { anon_session_id: sid } : {}),
-        idea_id: idea.public_id,
-      })
+      const search = await turnstile.verify(
+        (token) =>
+          createSearch({
+            query: `${idea.title}. ${idea.concept}`,
+            ...(sid ? { anon_session_id: sid } : {}),
+            idea_id: idea.public_id,
+            cf_turnstile_token: token,
+          }),
+        { waitMs: 30000 }
+      )
+      if (!search) {
+        toast.error("The human check did not finish. Try again.")
+        return
+      }
       router.push(searchDestination(search.id))
     } catch (error) {
-      setBusy(false)
       toastApiError(error, "Could not start the search.")
+    } finally {
+      setBusy(false)
     }
   }
 
@@ -217,6 +246,7 @@ export default function IdeaCard({
           Search names · 2
         </Button>
       </div>
+      {sid ? turnstile.widget : null}
     </li>
   )
 }

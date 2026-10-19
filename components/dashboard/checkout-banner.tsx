@@ -1,5 +1,7 @@
 "use client"
 
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 /**
@@ -13,6 +15,20 @@ export default function CheckoutBanner({
 }: {
   kind: "success" | "canceled"
 }) {
+  const router = useRouter()
+
+  // Fulfillment arrives by webhook after this page has already rendered,
+  // so the balance below the banner starts stale. Refresh twice on a
+  // delay so the numbers catch up with the confirmation.
+  useEffect(() => {
+    if (kind !== "success") return
+    const timers = [
+      setTimeout(() => router.refresh(), 3000),
+      setTimeout(() => router.refresh(), 8000),
+    ]
+    return () => timers.forEach((timer) => clearTimeout(timer))
+  }, [kind, router])
+
   if (kind === "canceled") {
     return (
       <Alert className="border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400">

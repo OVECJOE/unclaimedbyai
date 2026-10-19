@@ -34,6 +34,29 @@ type RequestOptions = {
   signal?: AbortSignal
 }
 
+/** FastAPI errors arrive as a string, or as a list of validation
+ *  entries ({loc, msg}) — render the list readable instead of hiding it
+ *  behind "Request failed". */
+function readableDetail(detail: unknown): string | null {
+  if (typeof detail === "string" && detail.trim()) return detail
+  if (Array.isArray(detail)) {
+    const parts = detail.flatMap((entry) => {
+      if (!entry || typeof entry !== "object" || !("msg" in entry)) return []
+      const loc = Array.isArray(entry.loc)
+        ? entry.loc
+            .filter(
+              (part: unknown) =>
+                part !== "body" && part !== "query" && part !== "path"
+            )
+            .join(" ")
+        : ""
+      return [loc ? `${loc}: ${entry.msg}` : String(entry.msg)]
+    })
+    if (parts.length) return parts.join("; ")
+  }
+  return null
+}
+
 export async function apiRequest<T>(
   path: string,
   {
@@ -64,8 +87,7 @@ export async function apiRequest<T>(
       const data = (await res.json().catch(() => null)) as {
         detail?: unknown
       } | null
-      const message =
-        typeof data?.detail === "string" ? data.detail : "Request failed"
+      const message = readableDetail(data?.detail) ?? "Request failed"
       throw new ApiError(res.status, message)
     }
     if (res.status === 204) return undefined as T
@@ -202,11 +224,12 @@ export function getMe(timeoutMs?: number): Promise<ApiUser> {
 
 export function requestMagicLink(
   email: string,
-  cfTurnstileToken?: string
+  cfTurnstileToken?: string,
+  next?: string
 ): Promise<{ sent: boolean }> {
   return apiRequest("/api/v1/auth/magic-link", {
     method: "POST",
-    body: { email, cf_turnstile_token: cfTurnstileToken },
+    body: { email, cf_turnstile_token: cfTurnstileToken, next },
   })
 }
 
@@ -709,7 +732,11 @@ export function deleteSandbox(publicId: string, sid?: string): Promise<void> {
 
 export function addManualIdea(
   publicId: string,
-  input: { title: string; concept: string },
+  input: {
+    title: string
+    concept: string
+    cf_turnstile_token?: string
+  },
   sid?: string
 ): Promise<Idea> {
   const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""

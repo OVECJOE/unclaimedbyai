@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useTurnstile } from "@/components/public/turnstile"
 import { getAnonSessionId } from "@/lib/anon"
-import { directCheck, getMe } from "@/lib/api"
+import { directCheck, getMe, ApiError } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
 import { nameToSlug } from "@/lib/utils"
 
@@ -19,6 +19,7 @@ export default function DirectCheckKickoff({ name }: { name: string }) {
   const { widget, verify, reset } = useTurnstile("anonymous_check")
   const startedRef = useRef(false)
   const [failed, setFailed] = useState(false)
+  const [failureDetail, setFailureDetail] = useState<string | null>(null)
 
   useEffect(() => {
     if (startedRef.current) return
@@ -57,6 +58,11 @@ export default function DirectCheckKickoff({ name }: { name: string }) {
       } catch (error) {
         if (cancelled) return
         setFailed(true)
+        // The API's own reason (spent allowance, credits, outage) is
+        // more useful than any blanket explanation.
+        setFailureDetail(
+          error instanceof ApiError && error.message ? error.message : null
+        )
         toastApiError(error, "The check could not start. Try again.")
       }
     }
@@ -72,16 +78,19 @@ export default function DirectCheckKickoff({ name }: { name: string }) {
       <p className="font-heading text-3xl font-semibold">{name}</p>
       {failed ? (
         <>
-          <p className="text-sm text-muted-foreground">
-            The check could not start. This usually means the human check could
-            not run, which happens when a browser extension or privacy setting
-            blocks Cloudflare. Nothing was charged.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Try allowlisting{" "}
-            <span className="font-mono">challenges.cloudflare.com</span> for
-            this site, or opening this page in a private window, then reload.
-          </p>
+          {failureDetail ? (
+            <p className="text-sm text-muted-foreground">
+              The check could not start. This usually means the human check
+              could not run, which happens when a browser extension or privacy
+              setting blocks Cloudflare. Nothing was charged.
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Try allowlisting{" "}
+              <span className="font-mono">challenges.cloudflare.com</span> for
+              this site, or opening this page in a private window, then reload.
+            </p>
+          )}
           <Button
             onClick={() => {
               setFailed(false)

@@ -44,7 +44,7 @@ async function SearchLiveBlock({
   q,
 }: {
   searchId: number
-  sid: string
+  sid: string | null
   availableOnly: boolean
   sort: string
   q?: string
@@ -52,16 +52,32 @@ async function SearchLiveBlock({
   let header, summary, data
   try {
     ;[header, summary, data] = await Promise.all([
-      getCachedSearchHeader(searchId, sid),
-      getCachedSearchSummary(searchId, sid),
-      getCachedSearchResultsPage(searchId, availableOnly, sort, sid, q),
+      getCachedSearchHeader(searchId, sid ?? undefined),
+      getCachedSearchSummary(searchId, sid ?? undefined),
+      getCachedSearchResultsPage(
+        searchId,
+        availableOnly,
+        sort,
+        sid ?? undefined,
+        q
+      ),
     ])
   } catch (error) {
-    if (error instanceof ApiError && error.status === 404) {
+    if (
+      error instanceof ApiError &&
+      (error.status === 404 || error.status === 401)
+    ) {
+      // The session cookie is tried before giving up: an email or
+      // shared link has no sid, but its owner is usually signed in,
+      // and the API resolves their search from the cookie alone.
       return (
         <LinkNotice
-          title="This results link has moved on"
-          body="The link is missing its access token, or the search no longer exists. Shared links only work for the browser that created them — sign in to keep names, or start a fresh search."
+          title={
+            sid
+              ? "This results link has moved on"
+              : "This results link is incomplete"
+          }
+          body="These links only open in the browser that made them, while its session is still around. Sign in to open your own searches from any device, or start a fresh search."
         />
       )
     }
@@ -72,7 +88,7 @@ async function SearchLiveBlock({
     <LiveSearch
       key={`${availableOnly}-${sort}-${q ?? ""}`}
       searchId={searchId}
-      sid={sid}
+      sid={sid ?? undefined}
       availableOnly={availableOnly}
       sort={sort}
       q={q}
@@ -91,7 +107,9 @@ async function SearchLiveBlock({
             automatically.
           </p>
           <Button asChild>
-            <Link href="/auth">Sign in to save</Link>
+            <Link href={`/auth?next=${encodeURIComponent(`/results/${searchId}`)}`}>
+              Sign in to save
+            </Link>
           </Button>
         </div>
       }
@@ -110,17 +128,9 @@ export default async function PublicResultsPage({
   const id = Number.parseInt(searchId, 10)
   if (!Number.isInteger(id)) notFound()
   const query = await searchParams
-  if (!query.sid) {
-    return (
-      <section className="px-4 py-10">
-        <LinkNotice
-          title="This results link is incomplete"
-          body="It's missing the session token that keeps your names private. If you shared it from another browser or device, open the original link there — or start your own search; it only takes a moment."
-        />
-      </section>
-    )
-  }
-  const sid = query.sid
+  // No sid is fine: the live block falls back to the session cookie,
+  // which resolves the search for its owner (email links, bookmarks).
+  const sid = query.sid ?? null
   const availableOnly = query.available === "1"
   const sort = query.sort || "overall-score-high-to-low"
   const q = query.q || undefined

@@ -120,7 +120,15 @@ export function useTurnstile(action: string) {
       try {
         return await attempt((await waitForToken(2500)) ?? undefined)
       } catch (error) {
-        if (!(error instanceof ApiError) || error.status !== 403) {
+        // Only a real Turnstile rejection earns a retry. The API also
+        // uses 403 for product limits (one free run, one sandbox), and
+        // those must surface their own message instead of demanding a
+        // second captcha solve that cannot help.
+        const rejected =
+          error instanceof ApiError &&
+          error.status === 403 &&
+          error.message.toLowerCase().includes("human verification")
+        if (!rejected) {
           throw error
         }
         tokenRef.current = null

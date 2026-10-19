@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { MagicLinkState } from "@/app/(public)/auth/actions"
 
-const COOLDOWN_SECONDS = 45
+// The server's per-address cooldown is five minutes; matching it here
+// keeps the button from reappearing into a 429.
+const COOLDOWN_SECONDS = 300
 
 function secondsLeft(sentAt: number) {
   return Math.max(
@@ -18,11 +20,13 @@ export function MagicLinkTimer({
   sentAt,
   email,
   plan,
+  next,
   onResendAction,
 }: {
   sentAt?: string
   email: string
   plan?: string
+  next?: string
   onResendAction: (
     prevState: MagicLinkState,
     formData: FormData
@@ -55,6 +59,7 @@ export function MagicLinkTimer({
       <form action={resend}>
         <Input type="hidden" name="email" value={email} />
         {plan ? <Input type="hidden" name="plan" value={plan} /> : null}
+        {next ? <Input type="hidden" name="next" value={next} /> : null}
         <Button
           variant="link"
           size="sm"

@@ -16,6 +16,7 @@ import {
 import { toastApiError } from "@/lib/api-errors"
 import IdeaCard from "@/components/dashboard/idea-card"
 import SignalEditor from "@/components/dashboard/signal-editor"
+import { useTurnstile } from "@/components/public/turnstile"
 
 const POLL_MS = 2500
 
@@ -43,6 +44,10 @@ export default function SandboxView({
   const [adding, setAdding] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const signedIn = !sid
+  // Anonymous spends need a solvable challenge when the bypass cookie
+  // is gone (a return visit, or a day later); the widget renders only
+  // for the session that can be challenged.
+  const turnstile = useTurnstile("anonymous_sandbox")
 
   const refresh = useCallback(async () => {
     try {
@@ -82,15 +87,25 @@ export default function SandboxView({
   async function run() {
     setGenerating(true)
     try {
-      await generateIdeas(
-        initial.public_id,
-        {
-          count,
-          seed: seed.trim() || undefined,
-          anon_session_id: sid,
-        },
-        sid
+      const started = await turnstile.verify(
+        (token) =>
+          generateIdeas(
+            initial.public_id,
+            {
+              count,
+              seed: seed.trim() || undefined,
+              anon_session_id: sid,
+              cf_turnstile_token: token,
+            },
+            sid
+          ),
+        { waitMs: 30000 }
       )
+      if (!started) {
+        setGenerating(false)
+        toast.error("The human check did not finish. Try again.")
+        return
+      }
       await refresh()
     } catch (error) {
       setGenerating(false)
@@ -105,14 +120,23 @@ export default function SandboxView({
     }
     setAdding(true)
     try {
-      await addManualIdea(
-        initial.public_id,
-        {
-          title: title.trim(),
-          concept: concept.trim(),
-        },
-        sid
+      const added = await turnstile.verify(
+        (token) =>
+          addManualIdea(
+            initial.public_id,
+            {
+              title: title.trim(),
+              concept: concept.trim(),
+              cf_turnstile_token: token,
+            },
+            sid
+          ),
+        { waitMs: 30000 }
       )
+      if (!added) {
+        toast.error("The human check did not finish. Try again.")
+        return
+      }
       setTitle("")
       setConcept("")
       await refresh()
@@ -233,6 +257,7 @@ export default function SandboxView({
             </Button>
           </div>
         </div>
+        {sid ? turnstile.widget : null}
       </div>
     </section>
   )

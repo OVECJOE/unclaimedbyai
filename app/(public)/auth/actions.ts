@@ -14,7 +14,9 @@ export async function sendMagicLink(
   const email = formData.get("email")
   const plan = formData.get("plan")
   const turnstileToken = formData.get("cf_turnstile_token")
+  const next = formData.get("next")
   const planSlug = typeof plan === "string" && plan.trim() ? plan.trim() : null
+  const nextPath = typeof next === "string" && next.trim() ? next.trim() : null
   if (typeof email !== "string" || !email.trim()) {
     return { error: "Enter your email address to continue." }
   }
@@ -24,7 +26,8 @@ export async function sendMagicLink(
       email.trim(),
       typeof turnstileToken === "string" && turnstileToken
         ? turnstileToken
-        : undefined
+        : undefined,
+      nextPath ?? undefined
     )
   } catch (error) {
     if (error instanceof ApiError && error.status === 429) {
@@ -57,5 +60,6 @@ export async function sendMagicLink(
     sentAt: String(Date.now()),
   })
   if (planSlug) params.set("plan", planSlug)
+  if (nextPath) params.set("next", nextPath)
   redirect(`/auth?${params.toString()}`)
 }

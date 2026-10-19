@@ -61,7 +61,7 @@ export default async function SandboxPage({
   }
   return (
     <>
-      {!user ? <SandboxGate /> : null}
+      {!user ? <SandboxGate next={`/sandbox/${publicId}`} /> : null}
       <SandboxView sandbox={sandbox} sid={sid} />
     </>
   )

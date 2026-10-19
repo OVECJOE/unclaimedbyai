@@ -39,12 +39,11 @@ export default function ShortageDialog({
     listPacks()
       .then((packs) => {
         if (cancelled) return
-        // The five-pack is the right default here: real runway without
-        // asking for the largest commitment at a moment of friction.
+        // The smallest pack is the right default here: the least
+        // commitment at a moment of friction, and it exists whatever
+        // the slugs are called.
         const pick =
-          packs.find((entry) => entry.slug === "five") ??
-          packs[Math.min(1, packs.length - 1)] ??
-          null
+          [...packs].sort((a, b) => a.price_minor - b.price_minor)[0] ?? null
         setPack(pick)
         if (!pick) setFailed(true)
       })

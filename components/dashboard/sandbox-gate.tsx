@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button"
  * ask: someone who has just seen six ideas generated for their brief is
  * answering a different question than someone who has seen a signup form.
  */
-export default function SandboxGate() {
+export default function SandboxGate({ next }: { next?: string }) {
+  const href = next
+    ? `/auth?next=${encodeURIComponent(next)}`
+    : "/auth"
   return (
     <div className="mx-auto max-w-4xl px-4 pt-10">
       <div className="flex flex-col items-center gap-3 border border-dashed p-6 text-center">
@@ -17,7 +20,7 @@ export default function SandboxGate() {
           ideas you are looking at stay yours.
         </p>
         <Button asChild>
-          <Link href="/auth">Sign in to keep them</Link>
+          <Link href={href}>Sign in to keep them</Link>
         </Button>
       </div>
     </div>

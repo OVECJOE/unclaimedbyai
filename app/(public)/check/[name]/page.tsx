@@ -154,7 +154,7 @@ export default async function CheckNamePage({
     const freeDomains =
       report?.domains.filter((domain) => domain.status === "available") ?? []
     const claimedHandles =
-      report?.socials.filter((social) => social.status !== "available") ?? []
+      report?.socials.filter((social) => social.status === "taken") ?? []
     const user = await getMeServer().catch(() => null)
 
     return (

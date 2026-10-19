@@ -167,7 +167,15 @@ export function WatchForm({
       onDone()
     } catch (error) {
       if (error instanceof ApiError && error.status === 402) {
-        toast.error(error.message)
+        // The backend's own upsell message, plus the door it names.
+        toast.error(error.message, {
+          action: {
+            label: "See plans",
+            onClick: () => {
+              window.location.href = "/dashboard/billing"
+            },
+          },
+        })
       } else {
         toastApiError(error, "Could not save your watch.")
       }

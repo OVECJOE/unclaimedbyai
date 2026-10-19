@@ -23,7 +23,9 @@ export default function BuyReportButton({
     try {
       const user = await getMe(5000).catch(() => null)
       if (!user) {
-        window.location.href = "/auth?plan=single"
+        // Pricing is the public path: it lists the packs and handles
+        // the sign-in handoff from there.
+        window.location.href = "/pricing"
         return
       }
       const packs = await listPacks()

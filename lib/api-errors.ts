@@ -29,7 +29,11 @@ export function toastApiError(error: unknown, fallback: string): void {
     return
   }
   if (error instanceof ApiError && error.status === 429) {
-    toast.error("Too many requests. Wait a moment, then try again.")
+    // The API's own detail distinguishes a spent allowance ("sign in
+    // to keep going") from a transient rate limit; keep it.
+    toast.error(
+      messageFor(error, "Too many requests. Wait a moment, then try again.")
+    )
     return
   }
   toast.error(

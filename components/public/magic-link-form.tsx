@@ -24,7 +24,13 @@ function SubmitButton({ actionPending }: { actionPending: boolean }) {
   )
 }
 
-export default function MagicLinkForm({ plan }: { plan?: string }) {
+export default function MagicLinkForm({
+  plan,
+  next,
+}: {
+  plan?: string
+  next?: string
+}) {
   const [state, action, actionPending] = useActionState(sendMagicLink, {
     error: null,
   })
@@ -65,6 +71,7 @@ export default function MagicLinkForm({ plan }: { plan?: string }) {
           placeholder="you@example.com"
         />
         {plan ? <input type="hidden" name="plan" value={plan} /> : null}
+        {next ? <input type="hidden" name="next" value={next} /> : null}
       </div>
       {state.error ? (
         <p role="alert" className="text-sm text-destructive">

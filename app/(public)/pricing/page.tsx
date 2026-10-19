@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button"
 import { PriceCard, PriceCardProps } from "@/components/price-card"
 import type { Metadata } from "next"
 import Link from "next/link"
+import { Suspense } from "react"
 import { JsonLd } from "@/components/app/json-ld"
 import BuyButton from "@/components/dashboard/buy-button"
+import PaymentFlag from "@/components/dashboard/payment-flag"
 import { getMeServer } from "@/lib/api-server"
 import {
   CURRENCY_SYMBOL,
@@ -17,8 +19,6 @@ import {
   proBenefits,
 } from "@/lib/site"
 import type { Pack } from "@/lib/api"
-
-export const revalidate = 3600
 
 async function loadPacks(): Promise<Pack[]> {
   try {
@@ -104,6 +104,11 @@ export default async function PricingPage() {
   return (
     <>
       <JsonLd data={pricingJsonLd} />
+      {/* Checkout returns here with ?paid=1; this announces the result
+          and refreshes the server-rendered balance. */}
+      <Suspense fallback={null}>
+        <PaymentFlag />
+      </Suspense>
       <section className="space-y-5 px-4 py-10 sm:text-center">
         <Badge
           className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"

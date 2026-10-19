@@ -1,4 +1,5 @@
 export const ANON_SESSION_KEY = "uba-anon-session"
+const ANON_COOKIE = "uba-anon-session"
 
 function fallbackUuid(): string {
   const hex = "0123456789abcdef"
@@ -18,25 +19,67 @@ function fallbackUuid(): string {
   return out
 }
 
+function newSessionId(): string {
+  return typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : fallbackUuid()
+}
+
+function readCookie(): string | null {
+  try {
+    const match = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith(`${ANON_COOKIE}=`))
+    return match ? decodeURIComponent(match.slice(ANON_COOKIE.length + 1)) : null
+  } catch {
+    return null
+  }
+}
+
+function writeCookie(value: string): void {
+  try {
+    document.cookie = `${ANON_COOKIE}=${encodeURIComponent(value)}; path=/; max-age=31536000; samesite=lax`
+  } catch {
+    // Cookies unavailable; the in-memory value still holds for this load.
+  }
+}
+
+// One id per page load when storage is blocked (private modes), so a
+// sandbox created in this tab is the same one the next call reads.
+let memorySessionId: string | null = null
+
 export function getAnonSessionId(): string {
   try {
     const existing = localStorage.getItem(ANON_SESSION_KEY)
     if (existing) return existing
-    const fresh =
-      typeof crypto !== "undefined" && "randomUUID" in crypto
-        ? crypto.randomUUID()
-        : fallbackUuid()
+    const fresh = memorySessionId ?? newSessionId()
+    memorySessionId = fresh
     localStorage.setItem(ANON_SESSION_KEY, fresh)
+    writeCookie(fresh)
     return fresh
   } catch {
-    return fallbackUuid()
+    const existing = readCookie()
+    if (existing) {
+      memorySessionId = existing
+      return existing
+    }
+    const fresh = memorySessionId ?? newSessionId()
+    memorySessionId = fresh
+    writeCookie(fresh)
+    return fresh
   }
 }
 
 export function clearAnonSessionId(): void {
+  memorySessionId = null
   try {
     localStorage.removeItem(ANON_SESSION_KEY)
   } catch {
     // Storage unavailable; nothing to clear.
+  }
+  try {
+    document.cookie = `${ANON_COOKIE}=; path=/; max-age=0`
+  } catch {
+    // Cookies unavailable; nothing to clear.
   }
 }

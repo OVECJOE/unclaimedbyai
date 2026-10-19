@@ -46,7 +46,7 @@ export default async function AuthPage({
 }: {
   searchParams: Promise<{ [key: string]: string }>
 }) {
-  const { email, sentAt, plan, error } = await searchParams
+  const { email, sentAt, plan, error, next: nextPath } = await searchParams
   const picked = plan ? await planTitle(plan) : null
   const errorMessage = error ? (AUTH_ERRORS[error] ?? AUTH_ERRORS.oauth) : null
 
@@ -85,11 +85,16 @@ export default async function AuthPage({
               sentAt={sentAt}
               email={email}
               plan={plan}
+              next={nextPath}
               onResendAction={sendMagicLink}
             />
           </div>
           <Link
-            href={plan ? `/auth?plan=${encodeURIComponent(plan)}` : "/auth"}
+            href={
+              plan || nextPath
+                ? `/auth?${new URLSearchParams({ ...(plan ? { plan } : {}), ...(nextPath ? { next: nextPath } : {}) }).toString()}`
+                : "/auth"
+            }
             className="text-primary"
           >
             Use a different email
@@ -125,11 +130,11 @@ export default async function AuthPage({
         </p>
       ) : null}
 
-      <GoogleButton plan={plan} />
+      <GoogleButton plan={plan} next={nextPath} />
 
       <TextDivider className="mx-auto max-w-lg" />
 
-      <MagicLinkForm plan={plan} />
+      <MagicLinkForm plan={plan} next={nextPath} />
     </section>
   )
 }

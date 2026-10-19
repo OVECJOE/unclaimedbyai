@@ -83,10 +83,18 @@ export default function PrompterCta({
         // so the person lands on generated ideas rather than a search
         // they did not ask for. The canvas opens on the new sandbox.
         const sandbox = await createSandbox({ name: value.slice(0, 80) })
-        await generateIdeas(sandbox.public_id, {
-          count: 6,
-          seed: value.slice(0, 300),
-        })
+        try {
+          await generateIdeas(sandbox.public_id, {
+            count: 6,
+            seed: value.slice(0, 300),
+          })
+        } catch (error) {
+          // The sandbox exists; land there anyway so nothing is
+          // stranded and the upgrade or retry path is one click away.
+          toastApiError(error, "Ideas could not start.")
+          router.push(`/dashboard/playground?sandbox=${sandbox.public_id}`)
+          return
+        }
         router.push(`/dashboard/playground?sandbox=${sandbox.public_id}`)
         return
       }
@@ -127,17 +135,31 @@ export default function PrompterCta({
       }
       const generated = await turnstile.verify(
         (token) =>
-          generateIdeas(sandbox.public_id, {
-            count: 6,
-            seed: value.slice(0, 300),
-            anon_session_id: getAnonSessionId(),
-            cf_turnstile_token: token,
-          }),
+          generateIdeas(
+            sandbox.public_id,
+            {
+              count: 6,
+              seed: value.slice(0, 300),
+              anon_session_id: getAnonSessionId(),
+              cf_turnstile_token: token,
+            },
+            getAnonSessionId()
+          ),
         { waitMs: 30000 }
       )
       if (!generated) {
+        const sid = getAnonSessionId()
         toast.error(
-          "The human check did not finish, so your ideas never generated. Your sandbox is saved — try generating again."
+          "The human check did not finish, so your ideas never generated. Your sandbox is saved.",
+          {
+            action: {
+              label: "Open sandbox",
+              onClick: () =>
+                router.push(
+                  `/sandbox/${sandbox.public_id}?sid=${encodeURIComponent(sid)}`
+                ),
+            },
+          }
         )
         return
       }
@@ -145,14 +167,36 @@ export default function PrompterCta({
         `/sandbox/${sandbox.public_id}?sid=${encodeURIComponent(getAnonSessionId())}`
       )
     } catch (error) {
-      if (error instanceof ApiError && error.status === 403) {
+      const humanCheckFailed =
+        error instanceof ApiError &&
+        error.status === 403 &&
+        error.message.toLowerCase().includes("human verification")
+      if (humanCheckFailed) {
         // verify already waited for a human solve and resent, so a 403
         // here means the fresh token itself was refused. Re-arming the
         // widget gives the next submit something to solve.
         turnstile.reset()
         toast.error(
-          "The human check did not run. A browser extension or privacy setting may be blocking Cloudflare; try a private window."
+          "The human check did not run. Allow challenges.cloudflare.com and try again — or sign in to skip it."
         )
+        return
+      }
+      if (
+        error instanceof ApiError &&
+        error.status === 403 &&
+        error.message.includes("Sign in")
+      ) {
+        // A product limit wearing a 403: the answer is an account,
+        // not another captcha.
+        toast.error(error.message, {
+          action: {
+            label: "Sign in",
+            onClick: () =>
+              router.push(
+                `/auth?next=${encodeURIComponent(window.location.pathname)}`
+              ),
+          },
+        })
         return
       }
       toastApiError(error, "Something went wrong. Try again.")

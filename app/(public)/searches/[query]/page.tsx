@@ -13,7 +13,8 @@ import { getMeServer } from "@/lib/api-server"
 import { formatDateTime, slugToName } from "@/lib/utils"
 import { OG_PATH, SITE_URL } from "@/lib/site"
 
-export const revalidate = 3600
+// Not statically cacheable: the page reads the session cookie through
+// getMeServer, so every request renders fresh. No revalidate here.
 
 type PageProps = { params: Promise<{ query: string }> }
 
@@ -78,7 +79,7 @@ export default async function PublicSearchPage({ params }: PageProps) {
   const freeDomains =
     topReport?.domains.filter((domain) => domain.status === "available") ?? []
   const claimedHandles =
-    topReport?.socials.filter((social) => social.status !== "available") ?? []
+    topReport?.socials.filter((social) => social.status === "taken") ?? []
   const user = await getMeServer().catch(() => null)
 
   return (
