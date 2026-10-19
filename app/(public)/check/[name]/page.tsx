@@ -87,7 +87,6 @@ async function LiveCheckView({
       sort="overall-score-high-to-low"
       homeHref="/"
       homeLabel="Home"
-      detailBase={null}
       initialHeader={header}
       initialSummary={summary}
       initialItems={data.items}

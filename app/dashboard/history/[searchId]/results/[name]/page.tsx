@@ -172,7 +172,13 @@ export default async function SearchResultNamePage({
     ])
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound()
-    if (error instanceof ApiError && error.status === 401) redirect("/auth")
+    if (error instanceof ApiError && error.status === 401) {
+      // Signed out: the auth page is the door, and the carried path
+      // brings the visitor back to this exact name after signing in.
+      redirect(
+        `/auth?next=${encodeURIComponent(`/dashboard/history/${id}/results/${name}`)}`
+      )
+    }
     throw error
   }
 

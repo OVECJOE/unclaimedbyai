@@ -94,7 +94,6 @@ async function SearchLiveBlock({
       q={q}
       homeHref="/"
       homeLabel="Home"
-      detailBase={null}
       initialHeader={header}
       initialSummary={summary}
       initialItems={data.items}
