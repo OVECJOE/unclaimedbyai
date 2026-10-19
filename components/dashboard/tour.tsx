@@ -98,9 +98,12 @@ export default function DashboardTour() {
       },
     })
     instanceRef.current = instance
-    instance.drive(0)
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => instance.drive(0))
+    })
 
     return () => {
+      cancelAnimationFrame(frame)
       instance.destroy()
       instanceRef.current = null
     }
