@@ -104,10 +104,17 @@ export default function GeneratePanel({
         {generating ? "Generating..." : "Generate ideas"}
       </Button>
       {generating ? (
-        <div className="mt-4 space-y-2" aria-label="Generating ideas">
-          <div className="h-5 w-2/3 animate-pulse bg-muted" />
-          <div className="h-3 w-full animate-pulse bg-muted" />
-          <div className="h-3 w-4/5 animate-pulse bg-muted" />
+        <div className="mt-4 space-y-3" aria-label="Generating ideas">
+          <p role="status" className="text-sm text-muted-foreground">
+            The four studios are drafting from different angles and the judge
+            is keeping the strongest. Ideas appear on the board as they clear
+            the judge — no need to wait for the whole batch.
+          </p>
+          <div className="space-y-2">
+            <div className="h-5 w-2/3 animate-pulse bg-muted" />
+            <div className="h-3 w-full animate-pulse bg-muted" />
+            <div className="h-3 w-4/5 animate-pulse bg-muted" />
+          </div>
         </div>
       ) : null}
     </div>
