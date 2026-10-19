@@ -8,6 +8,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   addManualIdea,
   generateIdeas,
   getSandbox,
@@ -187,18 +194,21 @@ export default function SandboxView({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="gen-count">Ideas</Label>
-              <select
-                id="gen-count"
-                value={count}
-                onChange={(event) => setCount(Number(event.target.value))}
-                className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+              <Select
+                value={String(count)}
+                onValueChange={(value) => setCount(Number(value))}
               >
-                {[4, 5, 6, 7, 8].map((value) => (
-                  <option key={value} value={value}>
-                    {value}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id="gen-count" className="w-full sm:w-24">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                  {[4, 5, 6, 7, 8].map((value) => (
+                    <SelectItem key={value} value={String(value)}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <Button

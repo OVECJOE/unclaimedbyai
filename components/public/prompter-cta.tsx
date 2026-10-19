@@ -76,7 +76,10 @@ export default function PrompterCta({
       if (user) {
         if (mode === "name") {
           const result = await directCheck({ name: value })
-          router.push(`/dashboard/history/${result.search_id}`)
+          // The check page streams the run live for its owner; a
+          // history entry is not created, because a check is not a
+          // search.
+          router.push(`/check/${nameToSlug(value)}?s=${result.search_id}`)
           return
         }
         // An idea goes into a sandbox of its own, named after the brief,

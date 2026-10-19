@@ -58,18 +58,18 @@ async function LiveCheckView({
   sid,
 }: {
   searchId: number
-  sid: string
+  sid: string | null
 }) {
   let header, summary, data
   try {
     ;[header, summary, data] = await Promise.all([
-      getCachedSearchHeader(searchId, sid),
-      getCachedSearchSummary(searchId, sid),
+      getCachedSearchHeader(searchId, sid ?? undefined),
+      getCachedSearchSummary(searchId, sid ?? undefined),
       getCachedSearchResultsPage(
         searchId,
         false,
         "overall-score-high-to-low",
-        sid,
+        sid ?? undefined,
         undefined
       ),
     ])
@@ -80,9 +80,9 @@ async function LiveCheckView({
 
   return (
     <LiveSearch
-      key={`${searchId}-${sid}`}
+      key={`${searchId}-${sid ?? "session"}`}
       searchId={searchId}
-      sid={sid}
+      sid={sid ?? undefined}
       availableOnly={false}
       sort="overall-score-high-to-low"
       homeHref="/"
@@ -106,13 +106,17 @@ export default async function CheckNamePage({
   const query = await searchParams
 
   // Phase one: this browser just started the check, so stream it live.
+  // A signed-in caller carries no sid — the session cookie resolves
+  // their own search server-side — so the id alone is enough here;
+  // without this, a fresh check fell through to the kickoff and ran a
+  // second time under a second search.
   const liveId = Number.parseInt(query.s ?? "", 10)
-  if (query.s && query.sid && Number.isInteger(liveId)) {
+  if (query.s && Number.isInteger(liveId)) {
     return (
       <section className="px-4 py-10">
         <div className="mx-auto max-w-7xl">
           <Suspense fallback={<TableSkeleton />}>
-            <LiveCheckView searchId={liveId} sid={query.sid} />
+            <LiveCheckView searchId={liveId} sid={query.sid ?? null} />
           </Suspense>
         </div>
       </section>
