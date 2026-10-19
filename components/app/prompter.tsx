@@ -150,7 +150,7 @@ export default function Prompter({
               />
             ))}
           </div>
-          <p className="mb-2 text-xs text-muted-foreground">
+          <p className="mb-2 text-xs text-muted-foreground text-start">
             {MODES.find((option) => option.value === mode)?.hint}
           </p>
           <Textarea
