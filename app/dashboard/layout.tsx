@@ -1,6 +1,7 @@
 import AppFooter from "@/components/app-footer"
 import ClaimSearches from "@/components/dashboard/claim-searches"
 import DashboardSidebar from "@/components/dashboard/sidebar"
+import MobileHeader from "@/components/dashboard/mobile-header"
 import MobileNav from "@/components/dashboard/mobile-nav"
 import DashboardTour from "@/components/dashboard/tour"
 import { getMeServer } from "@/lib/api-server"
@@ -36,6 +37,7 @@ export default async function DashboardLayout({
         id="main-content"
         className="flex min-h-screen flex-col pb-16 md:pb-0 md:pl-60"
       >
+        <MobileHeader user={user} />
         <ClaimSearches />
         {/* Renders nothing; drives the spotlight tour while active. */}
         <DashboardTour />

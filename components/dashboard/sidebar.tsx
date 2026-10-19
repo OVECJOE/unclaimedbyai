@@ -25,7 +25,7 @@ import {
   topNavItems,
 } from "@/components/dashboard/nav"
 
-function UserAvatar({ user }: { user?: ApiUser | null }) {
+export function UserAvatar({ user }: { user?: ApiUser | null }) {
   const src = user ? accountAvatarUrl(user) : null
   const initial = (user?.full_name || user?.email || "?")
     .trim()
