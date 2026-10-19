@@ -37,7 +37,7 @@ export default function RecentSandboxes({
               className="block border p-5 transition-colors hover:border-primary/50"
             >
               <div className="flex items-baseline justify-between gap-3">
-                <p className="truncate font-heading text-xl font-semibold">
+                <p className="line-clamp-2 font-heading text-xl font-semibold">
                   {sandbox.name}
                 </p>
                 <HugeiconsIcon
