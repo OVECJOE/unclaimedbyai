@@ -706,7 +706,9 @@ export default function ResultsTable({
         { waitMs: 30000 }
       )
       if (!result) {
-        toast.error("The human check did not finish. Try again.")
+        toast.error(
+          "The human check didn't complete. Finish the Cloudflare challenge and retry — or sign in to skip it."
+        )
         return
       }
       onMutation?.()
@@ -749,7 +751,9 @@ export default function ResultsTable({
           { waitMs: 15000 }
         )
         if (!result) {
-          toast.error("The human check did not finish. Try again.")
+          toast.error(
+            "The human check didn't complete. Finish the Cloudflare challenge and retry — or sign in to skip it."
+          )
           return
         }
         skipped += result.skipped

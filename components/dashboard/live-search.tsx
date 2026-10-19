@@ -36,8 +36,7 @@ import { toNameResultFromPayload } from "@/lib/result-mappers"
 
 // Stage labels track the progress values the generation job writes:
 // 5 sharpening, 15-45 studios finishing one by one, 55 screening plus
-// judge scoring, 70+ top-up rounds, 95 wrapping up. Names themselves
-// stream into the results below while any of this is going.
+// judge scoring, 70+ top-up rounds, 95 wrapping up.
 const POLL_MS = 1500
 
 const GENERATION_STAGES: { at: number; label: string }[] = [
