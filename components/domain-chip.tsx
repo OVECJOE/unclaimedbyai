@@ -1,11 +1,12 @@
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
-  ArrowRight01Icon,
+  ArrowUpRightStackIcon,
   Cancel01Icon,
   InformationCircleIcon,
 } from "@hugeicons/core-free-icons"
 import { registrarLink, type AffiliatePlacement } from "@/lib/affiliate"
 import { cn } from "@/lib/utils"
+import Link from "next/link"
 
 export type DomainChipSize = "sm" | "md"
 
@@ -48,7 +49,7 @@ export default function DomainChip({
   size = "md",
   suffixOnly = false,
 }: DomainChipProps) {
-  const domain = `${name.toLocaleLowerCase()}.${tld}`
+  const domain = `${name.toLowerCase()}.${tld}`
   const label = suffixOnly ? `.${tld}` : domain
   const sizes = SIZES[size]
 
@@ -86,8 +87,8 @@ export default function DomainChip({
           strokeWidth={2}
         />
         <span className="font-mono">
-          {suffixOnly ? null : `${name}.`}
-          <span className="line-through decoration-current/60">{`.${tld}`}</span>
+          {suffixOnly ? null : `${name}`}
+          <span className="line-through decoration-current/60">.{tld}</span>
         </span>
       </span>
     )
@@ -95,24 +96,24 @@ export default function DomainChip({
 
   const link = registrarLink(placement, domain)
   const body = (
-    <>
+    <div className="inline-flex items-center gap-1">
       <span className="relative flex size-1.5 shrink-0">
         <span className="absolute inline-flex size-full animate-ping rounded-full bg-green-500 opacity-60 motion-reduce:animate-none" />
         <span className="relative inline-flex size-1.5 rounded-full bg-green-500" />
       </span>
       <span className="font-mono">
-        {suffixOnly ? null : `${name}.`}
-        <span className="font-semibold">{`.${tld}`}</span>
+        {suffixOnly ? null : `${name}`}
+        <span className="font-semibold">.{tld}</span>
       </span>
       {link ? (
         <HugeiconsIcon
-          icon={ArrowRight01Icon}
+          icon={ArrowUpRightStackIcon}
           strokeWidth={2}
           data-icon="inline-end"
           className="size-3 shrink-0 -translate-x-0.5 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100 motion-reduce:transition-none"
         />
       ) : null}
-    </>
+    </div>
   )
   const chipClass = cn(
     "inline-flex items-center border-green-600/40 bg-green-600/10 text-green-800 dark:border-green-400/40 dark:bg-green-400/10 dark:text-green-400",
@@ -133,7 +134,7 @@ export default function DomainChip({
   }
 
   return (
-    <a
+    <Link
       href={link.href}
       target="_blank"
       rel="sponsored noopener noreferrer"
@@ -142,6 +143,6 @@ export default function DomainChip({
       className={chipClass}
     >
       {body}
-    </a>
+    </Link>
   )
 }
