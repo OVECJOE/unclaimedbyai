@@ -23,7 +23,7 @@ const AUDIENCE_EXAMPLE = ["Founders", "Creators", "Makers", "Marketers"]
 export const metadata: Metadata = pageMetadata({
   title: "Discover names for your idea",
   description:
-    "Generate names for your idea, then check domains, social handles, and AI associations across GPT, Claude, and Perplexity before you build around one.",
+    "Four naming studios generate names from your brief, an editor keeps the strongest, and every survivor is screened against live .com registration, social handles, and AI associations before it reaches you.",
   path: "/",
 })
 
@@ -60,12 +60,22 @@ export default async function Page() {
         </Badge>
         <div className="space-y-3">
           <h1 className="mx-auto max-w-3xl font-heading text-4xl font-semibold md:text-5xl">
-            Is your name actually{" "}
-            <span className="text-primary">unclaimed?</span>
+            Every name, <span className="text-primary">checked before you fall for it</span>.
           </h1>
           <p className="mx-auto max-w-prose md:text-lg">
-            Generate names for your idea. Then check domains, social handles,
-            and AI associations before you build around one.
+            Describe what you&apos;re building: four naming studios go to
+            work, an editor keeps the strongest, and every survivor is
+            screened against live .com registration, real handle lookups, and
+            what the biggest AI models already associate with it — so your
+            shortlist is scored by what you can actually register today, not
+            by what sounds nice.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Live .com lookups
+            <span className="px-1.5">·</span>
+            GitHub, X, Instagram, TikTok and YouTube
+            <span className="px-1.5">·</span>
+            GPT, Claude and Perplexity collision checks
           </p>
         </div>
         <PrompterCta signedIn={Boolean(user)} />
@@ -101,9 +111,9 @@ export default async function Page() {
               <div className="space-y-1">
                 <h3 className="font-heading text-xl font-medium">Generate</h3>
                 <p className="text-sm text-muted-foreground">
-                  Describe what you&apos;re building. Four studios argue from
-                  different angles, a judge keeps the strongest, and your
-                  sandbox fills with name ideas worth checking.
+                  Describe what you&apos;re building. Four naming studios
+                  argue from different angles, an editor keeps the strongest,
+                  and your report fills with scored candidates.
                 </p>
               </div>
             </article>
@@ -114,9 +124,9 @@ export default async function Page() {
               <div className="space-y-1">
                 <h3 className="font-heading text-xl font-medium">Check</h3>
                 <p className="text-sm text-muted-foreground">
-                  Turn an idea into names, then check each one: the domain, the
-                  social handles, and what ChatGPT and Claude already think the
-                  name means.
+                  Every candidate arrives checked: live .com registration, the
+                  major social handles, and what ChatGPT and Claude already
+                  think the name means. Re-check any name with one click.
                 </p>
               </div>
             </article>

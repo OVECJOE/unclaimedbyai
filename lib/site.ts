@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 export const SITE_NAME = "Unclaimed by AI"
 export const SITE_URL = "https://www.unclaimedbyai.com"
 export const SITE_DESCRIPTION =
-  "Generate names for your idea. Then check domains, social handles, and AI associations before you build around one."
+  "Four naming studios generate names from your brief, an editor keeps the strongest, and every survivor is screened against live .com registration, social handles, and AI associations before it reaches you."
 export const OG_PATH = "/og-image.png"
 
 export const FREE_SEARCHES = 3
@@ -150,7 +150,7 @@ export const homeJsonLd = {
   "@id": `${SITE_URL}/#webapp`,
   name: SITE_NAME,
   url: SITE_URL,
-  description: `Name checker for founders and creators. Generate name ideas and check domains, social handles, and AI associations across GPT, Claude, and Perplexity before you build around one. ${FREE_SEARCHES} free searches, and the first check on every name is free.`,
+  description: `Name checker for founders and creators. Four naming studios generate names from your brief, an editor keeps the strongest, and every survivor is screened against live .com registration, social handles, and AI associations across GPT, Claude, and Perplexity before it reaches you. ${FREE_SEARCHES} free searches, and the first check on every name is free.`,
   applicationCategory: "BusinessApplication",
   applicationSubCategory: "Name checker",
   operatingSystem: "Web",
