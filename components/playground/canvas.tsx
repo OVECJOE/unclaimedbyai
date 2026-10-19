@@ -26,7 +26,7 @@ import GeneratePanel from "@/components/playground/generate-panel"
 import IdeaBoard from "@/components/playground/idea-board"
 import IdeaDetailPanel from "@/components/playground/idea-detail-panel"
 
-const POLL_MS = 2500
+const POLL_MS = 1500
 
 function ManualIdeaForm({ publicId }: { publicId: string }) {
   const addIdea = useDashboardStore((state) => state.addIdea)

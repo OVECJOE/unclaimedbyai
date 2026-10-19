@@ -34,14 +34,19 @@ import {
 import { toastApiError } from "@/lib/api-errors"
 import { toNameResultFromPayload } from "@/lib/result-mappers"
 
-const POLL_MS = 2500
+// Stage labels track the progress values the generation job writes:
+// 5 sharpening, 15-45 studios finishing one by one, 55 screening plus
+// judge scoring, 70+ top-up rounds, 95 wrapping up. Names themselves
+// stream into the results below while any of this is going.
+const POLL_MS = 1500
 
 const GENERATION_STAGES: { at: number; label: string }[] = [
   { at: 0, label: "Reading your brief" },
-  { at: 10, label: "Sharpening your brief" },
-  { at: 25, label: "Naming studios at work" },
-  { at: 55, label: "Screening live .com lookups" },
-  { at: 90, label: "Wrapping up" },
+  { at: 5, label: "Sharpening your brief" },
+  { at: 15, label: "Naming studios at work" },
+  { at: 55, label: "Screening live .com and handle lookups" },
+  { at: 70, label: "Filling the shortlist" },
+  { at: 95, label: "Wrapping up" },
 ]
 
 function generationStage(progress: number): string {
@@ -310,9 +315,9 @@ export default function LiveSearch({
             Generating names for &apos;{header.query}&apos;
           </p>
           <p className="text-sm text-muted-foreground">
-            {generationStage(header.generation.progress)}… usually takes under a
-            minute. Names, scores, and availability appear here the moment
-            they&apos;re ready.
+            {generationStage(header.generation.progress)}… names land in the
+            results below the moment they clear live screening, so the
+            shortlist builds while you watch.
           </p>
           <div
             className="mx-auto h-2 w-full max-w-md bg-muted"
