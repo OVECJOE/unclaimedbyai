@@ -11,8 +11,9 @@ import { nameToSlug } from "@/lib/utils"
 
 /**
  * First visit to a name nobody has checked: start the free check
- * immediately and swap to the live view on the same URL. Signed-in
- * visitors go to their own history instead, where the check is theirs.
+ * immediately and swap to the live view on the same URL, signed in or
+ * not. A signed-in caller needs no session id — the cookie resolves
+ * their own check server-side.
  */
 export default function DirectCheckKickoff({ name }: { name: string }) {
   const router = useRouter()
@@ -31,7 +32,9 @@ export default function DirectCheckKickoff({ name }: { name: string }) {
         const user = await getMe(5000).catch(() => null)
         if (user) {
           const result = await directCheck({ name })
-          if (!cancelled) router.push(`/dashboard/history/${result.search_id}`)
+          if (!cancelled) {
+            router.replace(`/check/${nameToSlug(name)}?s=${result.search_id}`)
+          }
           return
         }
         // `verify` sends with the pre-solved token when one exists and,
