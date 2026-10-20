@@ -90,7 +90,13 @@ function secondsSince(iso: string): number {
 
 async function fetchJson<T>(url: string): Promise<T | null> {
   try {
-    const res = await fetch(url, HOUR)
+    const res = await fetch(url, {
+      ...HOUR,
+      // The loom streams in behind a Suspense boundary, so a hung
+      // request must not hold the hero skeleton forever. A slow or
+      // moved server degrades to the seed instead of an empty frame.
+      signal: AbortSignal.timeout(6000),
+    })
     if (!res.ok) return null
     return (await res.json()) as T
   } catch {
@@ -132,41 +138,41 @@ function buildChip(
 }
 
 export async function getWildStage(): Promise<WildStage> {
-  const top = await fetchJson<{
-    items: { query: string; created_at: string }[]
-  }>(`${API}/api/v1/searches/public-top?limit=5`)
-  const last = top?.items?.[top.items.length - 1]
-  if (!last) return SEED
+  try {
+    const top = await fetchJson<{
+      items: { query: string; created_at: string }[]
+    }>(`${API}/api/v1/searches/public-top?limit=5`)
+    const last = top?.items?.[top.items.length - 1]
+    if (!last) return SEED
 
-  const detail = await fetchJson<RawDetail>(
-    `${API}/api/v1/searches/by-query?q=${encodeURIComponent(last.query)}`
-  )
-  const checked = (detail?.names ?? [])
-    .filter((n) => n.latest_check?.public_id)
-    .slice(0, 8)
-  if (!checked.length) {
+    const detail = await fetchJson<RawDetail>(
+      `${API}/api/v1/searches/by-query?q=${encodeURIComponent(last.query)}`
+    )
+    const checked = (detail?.names ?? [])
+      .filter((n) => n.latest_check?.public_id)
+      .slice(0, 6)
+    // No scannable names: fall back to the dramatization rather than an
+    // empty frame, so the hero always has a field to show.
+    if (!checked.length) return SEED
+
+    const reports = await Promise.all(
+      checked.map((n) =>
+        fetchJson<RawReport>(
+          `${API}/api/v1/reports/${n.latest_check!.public_id}`
+        )
+      )
+    )
+
+    const chips = checked.map((n, i) => buildChip(n, last.query, reports[i]))
     return {
       query: last.query,
       secondsAgo: secondsSince(last.created_at),
-      chips: [],
+      chips: chips.length
+        ? chips
+        : SEED.chips.map((c) => ({ ...c, query: last.query })),
     }
-  }
-
-  const reports = await Promise.all(
-    checked.map((n) =>
-      fetchJson<RawReport>(`${API}/api/v1/reports/${n.latest_check!.public_id}`)
-    )
-  )
-
-  const chips = checked
-    .map((n, i) => buildChip(n, last.query, reports[i]))
-    .filter((c) => c.domains.length > 0 || c.ghost !== null || c.score > 0)
-
-  return {
-    query: last.query,
-    secondsAgo: secondsSince(last.created_at),
-    chips: chips.length
-      ? chips
-      : SEED.chips.map((c) => ({ ...c, query: last.query })),
+  } catch {
+    // Any surprise upstream degrades to the seed, never to a broken hero.
+    return SEED
   }
 }
