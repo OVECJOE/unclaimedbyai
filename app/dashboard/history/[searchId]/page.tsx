@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation"
 import { Suspense } from "react"
 import LiveSearch from "@/components/dashboard/live-search"
-import { SearchDetailSkeleton } from "@/components/dashboard/skeletons"
+import { SearchDetailSkeleton } from "@/components/skeletons/shared"
 import { ApiError, type WatchList } from "@/lib/api"
 import {
   getCachedSearchHeader,

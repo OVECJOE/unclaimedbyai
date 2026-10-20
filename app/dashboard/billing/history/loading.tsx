@@ -1,4 +1,4 @@
-import { TableSkeleton } from "@/components/dashboard/skeletons"
+import { TableSkeleton } from "@/components/skeletons/shared"
 
 export default function BillingHistoryLoading() {
   return (

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
 import LiveSearch from "@/components/dashboard/live-search"
-import { TableSkeleton } from "@/components/dashboard/skeletons"
+import { TableSkeleton } from "@/components/skeletons/shared"
 import { ApiError } from "@/lib/api"
 import {
   getCachedSearchHeader,
@@ -106,7 +106,9 @@ async function SearchLiveBlock({
             automatically.
           </p>
           <Button asChild>
-            <Link href={`/auth?next=${encodeURIComponent(`/results/${searchId}`)}`}>
+            <Link
+              href={`/auth?next=${encodeURIComponent(`/results/${searchId}`)}`}
+            >
               Sign in to save
             </Link>
           </Button>

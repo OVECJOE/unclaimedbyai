@@ -1,4 +1,4 @@
-import { ListSkeleton } from "@/components/dashboard/skeletons"
+import { ListSkeleton } from "@/components/skeletons/shared"
 
 export default function HistoryLoading() {
   return (

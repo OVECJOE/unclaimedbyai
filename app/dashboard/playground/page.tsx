@@ -1,33 +1,11 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import PlaygroundCanvas from "@/components/playground/canvas"
 import { ApiError, type SandboxDetail, type SandboxList } from "@/lib/api"
 import { apiServer } from "@/lib/api-server"
 
 export const dynamic = "force-dynamic"
-
-function CanvasSkeleton() {
-  return (
-    <div className="grid gap-3 lg:grid-cols-[1fr_20rem]" aria-label="Loading">
-      <div className="grid gap-3 sm:grid-cols-2">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="space-y-3 border p-5">
-            <div className="h-5 w-2/3 animate-pulse bg-muted" />
-            <div className="h-3 w-full animate-pulse bg-muted" />
-            <div className="h-3 w-4/5 animate-pulse bg-muted" />
-          </div>
-        ))}
-      </div>
-      <div className="space-y-3 border p-5">
-        <div className="h-5 w-1/2 animate-pulse bg-muted" />
-        <div className="h-3 w-full animate-pulse bg-muted" />
-        <div className="h-3 w-full animate-pulse bg-muted" />
-      </div>
-    </div>
-  )
-}
 
 async function loadSandboxes(): Promise<SandboxList> {
   try {
@@ -85,13 +63,11 @@ export default async function PlaygroundPage({
             <Link href="/dashboard/playground/sandboxes">All sandboxes</Link>
           </Button>
         </div>
-        <Suspense fallback={<CanvasSkeleton />}>
-          <PlaygroundCanvas
-            initialList={list}
-            initialDetail={detail}
-            activeId={activeId ?? null}
-          />
-        </Suspense>
+        <PlaygroundCanvas
+          initialList={list}
+          initialDetail={detail}
+          activeId={activeId ?? null}
+        />
       </div>
     </section>
   )

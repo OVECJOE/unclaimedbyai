@@ -1,4 +1,4 @@
-import { SearchDetailSkeleton } from "@/components/dashboard/skeletons"
+import { SearchDetailSkeleton } from "@/components/skeletons/shared"
 
 export default function DashboardLoading() {
   return (

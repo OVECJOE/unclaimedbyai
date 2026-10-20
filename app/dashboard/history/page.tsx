@@ -18,7 +18,7 @@ import { Suspense } from "react"
 import { toCardProps } from "@/lib/dashboard-data"
 import RateLimited from "@/components/dashboard/rate-limited"
 import { ApiError, type SearchList } from "@/lib/api"
-import { ListSkeleton } from "@/components/dashboard/skeletons"
+import { ListSkeleton } from "@/components/skeletons/shared"
 import { apiServer } from "@/lib/api-server"
 
 export const dynamic = "force-dynamic"

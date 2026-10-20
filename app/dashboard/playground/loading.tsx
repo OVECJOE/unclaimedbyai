@@ -1,23 +1,17 @@
+import { PlaygroundCanvasSkeleton } from "@/components/skeletons/playground-canvas"
+
 export default function PlaygroundLoading() {
   return (
     <section className="px-4 py-10">
-      <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
-        <div className="space-y-2">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <div
-              key={index}
-              className="h-10 animate-pulse border bg-muted/40"
-            />
-          ))}
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-2">
+            <div className="h-10 w-44 animate-pulse bg-muted md:h-12" />
+            <div className="h-4 w-80 max-w-full animate-pulse bg-muted" />
+          </div>
+          <div className="h-9 w-32 animate-pulse bg-muted/40" />
         </div>
-        <div className="space-y-3">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div
-              key={index}
-              className="h-32 animate-pulse border bg-muted/40"
-            />
-          ))}
-        </div>
+        <PlaygroundCanvasSkeleton />
       </div>
     </section>
   )

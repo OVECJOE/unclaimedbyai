@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { PaginationWindow } from "@/components/ui/pagination-window"
-import { ListSkeleton } from "@/components/dashboard/skeletons"
+import { SandboxListSkeleton } from "@/components/skeletons/sandbox-list"
 import SandboxListToolbar from "@/components/dashboard/sandbox-list-toolbar"
 import SandboxListCard from "@/components/dashboard/sandbox-list-card"
 import NewSandboxButton from "@/components/dashboard/new-sandbox-button"
@@ -126,7 +126,7 @@ export default async function SandboxesPage({
             <NewSandboxButton />
           </div>
         </div>
-        <Suspense fallback={<ListSkeleton rows={6} />}>
+        <Suspense fallback={<SandboxListSkeleton />}>
           <SandboxList filters={filters} />
         </Suspense>
       </div>

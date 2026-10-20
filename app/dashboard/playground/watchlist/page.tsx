@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import WatchlistTabs from "@/components/dashboard/watchlist-tabs"
-import { ListSkeleton } from "@/components/dashboard/skeletons"
+import { WatchlistSkeleton } from "@/components/skeletons/watchlist"
 import { ApiError, type CheckedList } from "@/lib/api"
 import { apiServer } from "@/lib/api-server"
 
@@ -33,7 +33,7 @@ export default function WatchlistPage() {
             anywhere else.
           </p>
         </div>
-        <Suspense fallback={<ListSkeleton rows={5} />}>
+        <Suspense fallback={<WatchlistSkeleton />}>
           <InitialChecked />
         </Suspense>
       </div>
