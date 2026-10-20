@@ -109,18 +109,6 @@ export default function HeroLoom({ stage }: { stage: WildStage }) {
   const active = activeIdx != null ? chips[activeIdx] : null
   const receiptChip = active ?? chips[0]
 
-  function tryItOut() {
-    const el = document.getElementById("prompt") as HTMLTextAreaElement | null
-    if (!el) return
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" })
-    if (reduce) {
-      el.focus({ preventScroll: true })
-    } else {
-      window.setTimeout(() => el.focus({ preventScroll: true }), 450)
-    }
-  }
-
   useEffect(() => {
     const root = stageRef.current
     if (!root) return
@@ -607,17 +595,13 @@ export default function HeroLoom({ stage }: { stage: WildStage }) {
       </div>
 
       {/* ── The real content: title, live line, and the way in. ───── */}
-      <div className="absolute top-3 left-3 z-30 max-w-[64%] border border-border bg-card/85 p-3 backdrop-blur-sm">
+      <div className="absolute -top-3 left-3 z-30 max-w-1/2">
         <h2 className="font-heading text-lg leading-tight font-semibold">
           Live from the wild
         </h2>
         <p className="mt-1 font-sans text-xs text-muted-foreground">
-          anon ran &ldquo;{query}&rdquo;, checked {agoLabel(secondsAgo)}
+          a user ran &ldquo;{query}&rdquo;, checked {agoLabel(secondsAgo)}
         </p>
-        <Button size="sm" onClick={tryItOut} className="mt-2 gap-1.5">
-          Try it out
-          <HugeiconsIcon icon={ArrowRight01Icon} className="size-3.5" />
-        </Button>
       </div>
     </div>
   )
