@@ -479,6 +479,45 @@
   }
 }
 
+/* Ghosts and sparks for the landing scatter: game-like status sprites
+   that bob in place, honoring reduced motion like everything else. */
+@keyframes uba-ghost-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(3deg);
+  }
+}
+
+@keyframes uba-sparkle {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+.ghost-bob {
+  animation: uba-ghost-bob 6s ease-in-out infinite;
+}
+
+.sparkle {
+  animation: uba-sparkle 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ghost-bob,
+  .sparkle {
+    animation: none;
+  }
+}
+
 /* Toasts in the house style: square, bordered, shadow-free, matching
    dialogs and cards instead of sonner's rounded floating default.
    Attribute selectors beat sonner's injected stylesheet, and the

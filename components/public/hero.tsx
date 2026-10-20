@@ -1,22 +1,34 @@
+import { Suspense } from "react"
 import PrompterCta from "@/components/public/prompter-cta"
 import HeroLoom from "@/components/public/hero-loom"
 import { Badge } from "@/components/ui/badge"
-import { getLoomTicker } from "@/lib/landing/loom"
+import { getWildStage } from "@/lib/landing/wild"
 
 /**
- * The landing hero. Left column keeps the existing, SEO-proven copy
- * and the working prompter; right column is the Haunted Shortlist
- * loom — the theatre that shows what a check actually does. The loom
- * receives only real public searches; its scanning drama is seeded
- * demo copy and stays behind aria-hidden.
+ * The landing hero. Left column keeps the existing, SEO-proven copy;
+ * the prompter and the loom are separate grid cells so that on mobile
+ * the loom can rise above the prompter while on desktop it sits to the
+ * right, spanning both rows. The loom streams in behind a Suspense
+ * boundary, so its public-feed fetch never holds up the words.
  */
-export default async function Hero({ signedIn }: { signedIn: boolean }) {
-  const ticker = await getLoomTicker()
+function LoomSkeleton() {
+  return (
+    <div className="h-[420px] w-full border border-border bg-sidebar/30 lg:h-[520px]" />
+  )
+}
 
+async function LoomStage() {
+  const stage = await getWildStage()
+  if (!stage.chips.length) return <LoomSkeleton />
+  return <HeroLoom stage={stage} />
+}
+
+export default function Hero({ signedIn }: { signedIn: boolean }) {
   return (
     <section className="relative border-b">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-14 lg:py-14">
-        <div className="space-y-5 sm:text-center lg:text-start">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-x-14 lg:gap-y-6 lg:py-14">
+        {/* The words. */}
+        <div className="space-y-5 sm:text-center lg:col-start-1 lg:row-start-1 lg:text-start">
           <Badge
             className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
             asChild
@@ -43,15 +55,26 @@ export default async function Hero({ signedIn }: { signedIn: boolean }) {
             </p>
             <p className="text-sm text-muted-foreground">
               Live .com lookups,
-              <span className="px-1.5" />
+              <span className="px-1" />
               GitHub, X, Instagram, TikTok and YouTube,
-              <span className="px-1.5" />
+              <span className="px-1" />
               and GPT, Claude and Perplexity collision checks
             </p>
           </div>
+        </div>
+
+        {/* The loom: real names from the wild, before the prompter on
+            mobile, beside it on desktop. */}
+        <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          <Suspense fallback={<LoomSkeleton />}>
+            <LoomStage />
+          </Suspense>
+        </div>
+
+        {/* The prompter. */}
+        <div className="lg:col-start-1 lg:row-start-2">
           <PrompterCta signedIn={signedIn} />
         </div>
-        <HeroLoom ticker={ticker} />
       </div>
     </section>
   )

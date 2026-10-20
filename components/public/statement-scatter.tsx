@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useRef } from "react"
 import { gsap } from "gsap"
@@ -10,50 +9,44 @@ import { Button } from "@/components/ui/button"
 gsap.registerPlugin(ScrollTrigger)
 
 /**
- * The page's signature scroll moment. Ten curated photographs start
- * stacked behind the statement and fan outward as the section scrolls
- * up — positions seeded so the static frame (reduced motion, no JS)
- * is already the finished composition. GSAP only re-stages it into a
- * scrub. Theme: words, doors, crowds, fog — the life a name gets.
+ * The page's signature scroll moment, told in the product's own words
+ * instead of stock photography. A field of candidate names drifts in
+ * the margins, each wearing the false memory a model already has of it:
+ * struck through, dimmed, haunted. The few that are clean glow violet.
+ * The statement sits directly on the page over a soft vignette, no
+ * card, so the words and the ghosts share one plane. Positions are
+ * seeded, so the static frame (reduced motion, no JS) is already the
+ * finished composition.
  */
 
-const PHOTOS = [
+type Plate = { name: string; ghost: string; clean: boolean }
+
+const PLATES: Plate[] = [
   {
-    src: "/images/landing/craft-typewriter.jpg",
-    alt: "Amber typewriter keys in close-up",
+    name: "Fernport",
+    ghost: "a 2021 crypto wallet, per ChatGPT",
+    clean: false,
+  },
+  { name: "Quibbl", ghost: "no ghosts. it is yours to claim.", clean: true },
+  {
+    name: "Snackwyse",
+    ghost: "the internet's sourdough authority",
+    clean: false,
+  },
+  { name: "Tindrop", ghost: "a discontinued camera, per Gemini", clean: false },
+  { name: "Marrowly", ghost: "no ghosts. it is yours to claim.", clean: true },
+  { name: "Blimpnote", ghost: "a 2018 TikTok dance, allegedly", clean: false },
+  { name: "Corkscrewx", ghost: "an Ohio ham-radio call sign", clean: false },
+  { name: "Pastelio", ghost: "no ghosts. it is yours to claim.", clean: true },
+  {
+    name: "Vantaworks",
+    ghost: "a shuttered Lisbon studio, per Claude",
+    clean: false,
   },
   {
-    src: "/images/landing/sign-barber.jpg",
-    alt: "Hand-painted barber shop sign",
-  },
-  { src: "/images/landing/crowd-blur.jpg", alt: "A blurred crowd in motion" },
-  {
-    src: "/images/landing/fog-ghosts.jpg",
-    alt: "Fog rolling over a forested ridge",
-  },
-  {
-    src: "/images/landing/chess-pieces.jpg",
-    alt: "Black and white chess pieces, sculptural",
-  },
-  {
-    src: "/images/landing/sign-thrift.jpg",
-    alt: "Old storefront with a hand-lettered name",
-  },
-  {
-    src: "/images/landing/billboards-night.jpg",
-    alt: "Billboards glowing above a night street",
-  },
-  {
-    src: "/images/landing/chess-board.jpg",
-    alt: "A chess game mid-play, shallow focus",
-  },
-  {
-    src: "/images/landing/lookout.jpg",
-    alt: "Coin binoculars pointing at a valley",
-  },
-  {
-    src: "/images/landing/crossing.jpg",
-    alt: "A crowded crossing seen from above",
+    name: "Bellhaus",
+    ghost: "a failed metaverse hotel, per GPT",
+    clean: false,
   },
 ]
 
@@ -68,20 +61,51 @@ function mulberry32(seed: number) {
   }
 }
 
-/** Ring positions around the statement, seeded, in stage percentages. */
-const PHOTO_POSITIONS = (() => {
-  const rand = mulberry32(19841024)
-  return PHOTOS.map((_, i) => {
-    const angle = (i / PHOTOS.length) * Math.PI * 2 + rand() * 0.5
-    const rx = 30 + rand() * 14
-    const ry = 27 + rand() * 13
+/** Ring positions around the statement, seeded, in stage percentages,
+ *  kept clear of the center column so the words never fight a name. */
+const PLATE_POSITIONS = (() => {
+  const rand = mulberry32(31415926)
+  return PLATES.map((_, i) => {
+    const angle = (i / PLATES.length) * Math.PI * 2 + rand() * 0.45
+    const rx = 31 + rand() * 15
+    const ry = 28 + rand() * 14
     return {
       left: 50 + Math.cos(angle) * rx,
-      top: 52 + Math.sin(angle) * ry,
-      rotate: (rand() - 0.5) * 16,
+      top: 50 + Math.sin(angle) * ry,
+      rotate: (rand() - 0.5) * 14,
     }
   })
 })()
+
+/** A friendly ghost: the marker for a name a model already haunts. */
+function GhostGlyph({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M12 2C7.4 2 4.5 5.6 4.5 10.6V21l2.3-1.9 2.3 1.9 2.4-1.9 2.4 1.9 2.3-1.9 2.3 1.9v-10.4C19.5 5.6 16.6 2 12 2Z" />
+      <circle cx="9.4" cy="10.2" r="1.35" fill="var(--background)" />
+      <circle cx="14.6" cy="10.2" r="1.35" fill="var(--background)" />
+    </svg>
+  )
+}
+
+/** A sparkle: the marker for a clean name worth claiming. */
+function SparkGlyph({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2L12 2z" />
+    </svg>
+  )
+}
 
 export default function StatementScatter() {
   const rootRef = useRef<HTMLElement>(null)
@@ -93,8 +117,8 @@ export default function StatementScatter() {
     const mm = gsap.matchMedia()
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       const ctx = gsap.context(() => {
-        const photos = gsap.utils.toArray<HTMLElement>(
-          "[data-scatter-photo]",
+        const plates = gsap.utils.toArray<HTMLElement>(
+          "[data-ghost-plate]",
           root
         )
         const stage = root.querySelector<HTMLElement>("[data-scatter-stage]")
@@ -105,22 +129,21 @@ export default function StatementScatter() {
           const r = el.getBoundingClientRect()
           return {
             x: s.width / 2 - (r.left - s.left + r.width / 2),
-            y: s.height * 0.52 - (r.top - s.top + r.height / 2),
+            y: s.height / 2 - (r.top - s.top + r.height / 2),
           }
         }
 
-        gsap.from(photos, {
+        gsap.from(plates, {
           x: (i, el) => centerDelta(el).x,
           y: (i, el) => centerDelta(el).y,
           rotate: 0,
-          scale: 0.82,
-          autoAlpha: 0.25,
+          scale: 0.8,
           ease: "none",
           stagger: { each: 0.04, from: "random" },
           scrollTrigger: {
             trigger: root,
-            start: "top 88%",
-            end: "top 32%",
+            start: "top 90%",
+            end: "top 34%",
             scrub: 0.5,
             invalidateOnRefresh: true,
           },
@@ -132,8 +155,8 @@ export default function StatementScatter() {
           ease: "none",
           scrollTrigger: {
             trigger: root,
-            start: "top 70%",
-            end: "top 38%",
+            start: "top 72%",
+            end: "top 40%",
             scrub: 0.5,
           },
         })
@@ -145,115 +168,121 @@ export default function StatementScatter() {
 
   return (
     <section ref={rootRef} className="relative overflow-hidden border-b">
+      {/* A soft violet wash, so the section has a pulse without a box. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_45%,color-mix(in_oklch,var(--primary)_12%,transparent)_0%,transparent_70%)]"
+      />
+      {/* Ambient ghosts: game-like sprites haunting the margins, bobbing
+          in place. Pure decoration, so they stay aria-hidden. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0"
+      >
+        <span className="ghost-bob absolute top-[10%] left-[7%] text-primary/25">
+          <GhostGlyph className="size-8" />
+        </span>
+        <span
+          className="ghost-bob absolute top-[68%] right-[9%] text-primary/20"
+          style={{ animationDelay: "1.6s" }}
+        >
+          <GhostGlyph className="size-11" />
+        </span>
+        <span
+          className="ghost-bob absolute bottom-[12%] left-[15%] text-primary/15"
+          style={{ animationDelay: "3.1s" }}
+        >
+          <GhostGlyph className="size-7" />
+        </span>
+      </div>
       <div
         data-scatter-stage
-        className="relative mx-auto flex min-h-[620px] max-w-7xl flex-col items-center justify-center px-4 py-16 lg:min-h-[780px]"
+        className="relative mx-auto flex min-h-[660px] max-w-7xl flex-col items-center justify-center px-4 py-20 lg:min-h-[820px]"
       >
-        {PHOTOS.map((photo, i) => (
+        {PLATES.map((plate, i) => (
           <div
-            key={photo.src}
-            data-scatter-photo
-            className="absolute z-0 border border-border"
+            key={plate.name}
+            data-ghost-plate
+            className="absolute z-0"
             style={{
-              left: `${PHOTO_POSITIONS[i].left}%`,
-              top: `${PHOTO_POSITIONS[i].top}%`,
-              width: "clamp(140px, 18vw, 230px)",
-              aspectRatio: "4 / 3",
-              transform: `translate(-50%, -50%) rotate(${PHOTO_POSITIONS[i].rotate}deg)`,
+              left: `${PLATE_POSITIONS[i].left}%`,
+              top: `${PLATE_POSITIONS[i].top}%`,
+              width: "clamp(150px, 19vw, 232px)",
+              transform: `translate(-50%, -50%) rotate(${PLATE_POSITIONS[i].rotate}deg)`,
             }}
           >
-            <Image
-              src={photo.src}
-              alt={photo.alt}
-              width={480}
-              height={360}
-              className="h-full w-full object-cover"
-            />
+            <div
+              className={`border p-3 backdrop-blur-sm ${
+                plate.clean
+                  ? "border-primary/50 bg-primary/[0.06] shadow-[0_0_24px_-6px_var(--primary)]"
+                  : "border-border bg-card/80 opacity-70"
+              }`}
+            >
+              <p className="relative flex items-center gap-1.5 font-heading text-lg leading-tight">
+                <span
+                  className={
+                    plate.clean
+                      ? "sparkle text-primary"
+                      : "ghost-bob text-muted-foreground/70"
+                  }
+                >
+                  {plate.clean ? (
+                    <SparkGlyph className="size-3.5" />
+                  ) : (
+                    <GhostGlyph className="size-3.5" />
+                  )}
+                </span>
+                <span className="relative">
+                  <span className={plate.clean ? "" : "text-muted-foreground"}>
+                    {plate.name}
+                  </span>
+                  {plate.clean ? null : (
+                    <span
+                      aria-hidden="true"
+                      className="absolute top-1/2 right-0 left-0 h-px origin-left bg-foreground/60"
+                    />
+                  )}
+                </span>
+              </p>
+              <p
+                className={`mt-1 font-sans text-[11px] leading-snug ${
+                  plate.clean ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                {plate.ghost}
+              </p>
+            </div>
           </div>
         ))}
 
-        <div data-scatter-copy className="relative z-10 max-w-2xl">
-          {/* The glow the glass casts on the photographs behind it. */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -inset-8 -z-10 bg-primary/15 blur-3xl"
-          />
-          {/* Bulletproof glass: took a round from a sniper, kept every
-              molecule in place. The web is just showing off. */}
-          <div className="relative border border-white/50 bg-background/55 p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.75),inset_0_-24px_48px_rgba(255,255,255,0.10),0_30px_60px_-30px_var(--primary)] backdrop-blur-xl sm:p-10 dark:border-white/15 dark:bg-background/75 dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),inset_0_-24px_48px_rgba(255,255,255,0.04),0_30px_60px_-30px_var(--primary)]">
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/45 via-white/5 to-white/20 dark:from-white/10 dark:via-white/0 dark:to-white/5"
-            />
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 400 300"
-              preserveAspectRatio="xMaxYMin slice"
-              className="pointer-events-none absolute inset-0 h-full w-full opacity-60 dark:opacity-40"
-              fill="none"
-            >
-              {/* Impact point, top right. Spokes. */}
-              <g stroke="rgba(255,255,255,0.85)" strokeWidth="0.9">
-                <path d="M338 44 L150 8" />
-                <path d="M338 44 L208 78" />
-                <path d="M338 44 L96 96" />
-                <path d="M338 44 L14 178" />
-                <path d="M338 44 L52 284" />
-                <path d="M338 44 L214 296" />
-                <path d="M338 44 L330 236" />
-                <path d="M338 44 L398 156" />
-                <path d="M338 44 L392 22" />
-              </g>
-              {/* Two torn rings of web between the spokes. */}
-              <g
-                stroke="rgba(255,255,255,0.6)"
-                strokeWidth="0.7"
-                strokeDasharray="3 5"
-              >
-                <path d="M318 20 L300 62 L262 74 L286 116 L244 148 L282 178 L272 224" />
-                <path d="M262 6 L232 44 L188 38 L176 84 L120 78" />
-              </g>
-              <g
-                stroke="rgba(167,139,250,0.55)"
-                strokeWidth="0.7"
-                strokeDasharray="2 6"
-              >
-                <path d="M212 30 L186 92 L118 118 L104 190 L34 226" />
-                <path d="M244 148 L182 172 L150 236" />
-              </g>
-              {/* The impact itself: a bright chip of glass, intact. */}
-              <circle cx="338" cy="44" r="4.5" fill="rgba(255,255,255,0.9)" />
-              <circle
-                cx="338"
-                cy="44"
-                r="9"
-                stroke="rgba(255,255,255,0.7)"
-                strokeWidth="0.9"
-              />
-            </svg>
-            <div className="relative space-y-6 text-center">
-              <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
-                A name is a story.{" "}
-                <span className="text-primary dark:text-[color-mix(in_oklch,var(--primary)_55%,white)]">
-                  Make sure no chatbot wrote yours already
-                </span>
-                .
-              </h2>
-              <p className="mx-auto max-w-prose text-muted-foreground md:text-lg">
-                Every week, founders fall in love with a name that already means
-                something else inside the models: a dead startup, a discontinued
-                camera, a TikTok dance. We surface the ghosts before you print
-                the shirts.
-              </p>
-              <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Button size="lg" asChild>
-                  <Link href="/check">Run a free check</Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="/blog">Read the field guide</Link>
-                </Button>
-              </div>
-            </div>
+        {/* The vignette: fades the drifting names to nothing behind the
+            words, so the statement reads clean without a card. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(45%_42%_at_50%_50%,var(--background)_35%,transparent_75%)]"
+        />
+
+        <div data-scatter-copy className="relative z-10 max-w-2xl text-center">
+          <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
+            A name is a story.{" "}
+            <span className="text-primary">
+              Make sure no chatbot wrote yours already
+            </span>
+            .
+          </h2>
+          <p className="mx-auto mt-5 max-w-prose text-muted-foreground md:text-lg">
+            Every week, founders fall in love with a name that already means
+            something else inside the models: a dead startup, a discontinued
+            camera, a TikTok dance. We surface the ghosts before you print the
+            shirts.
+          </p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button size="lg" asChild>
+              <Link href="/check">Run a free check</Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <Link href="/blog">Read the field guide</Link>
+            </Button>
           </div>
         </div>
       </div>
