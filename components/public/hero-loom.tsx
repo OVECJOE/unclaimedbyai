@@ -574,7 +574,7 @@ export default function HeroLoom({ stage }: { stage: WildStage }) {
         </div>
 
         {/* The shortlist wall. */}
-        <div className="absolute top-3 right-3 z-30 w-[168px] border border-border bg-card/90 p-3">
+        <div className="absolute bottom-3 right-3 z-30 w-42 border border-border bg-card/90 p-3">
           <p className="font-sans text-[10px] tracking-widest text-muted-foreground uppercase">
             Shortlist
           </p>
@@ -595,7 +595,7 @@ export default function HeroLoom({ stage }: { stage: WildStage }) {
       </div>
 
       {/* ── The real content: title, live line, and the way in. ───── */}
-      <div className="absolute -top-3 left-3 z-30 max-w-1/2">
+      <div className="absolute -top-3 left-3 z-30 max-w-1/2 bg-card/75">
         <h2 className="font-heading text-lg leading-tight font-semibold">
           Live from the wild
         </h2>
