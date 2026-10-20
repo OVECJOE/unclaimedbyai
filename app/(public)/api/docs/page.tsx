@@ -201,7 +201,7 @@ export default async function ApiDocsPage() {
           </div>
 
           {groups.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground md:text-center">
               The reference could not be loaded right now. The quickstarts above
               and the sandbox still work.
             </p>
