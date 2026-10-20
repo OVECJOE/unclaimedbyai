@@ -53,19 +53,20 @@ function ModePill({
   onClick: () => void
 }) {
   return (
-    <button
+    <Button
       type="button"
+      size="sm"
+      variant="secondary"
       aria-pressed={active}
       onClick={onClick}
-      className={cn(
-        "min-h-11 border px-3 text-sm font-medium backdrop-blur-sm transition-colors",
-        active
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-background/80 text-foreground hover:border-primary/50 hover:text-primary"
-      )}
+      className={cn({
+        "bg-primary text-primary-foreground hover:text-primary": active,
+        "bg-background/80 text-foreground hover:border-primary/50 hover:text-primary":
+          !active,
+      })}
     >
       {label}
-    </button>
+    </Button>
   )
 }
 
@@ -165,7 +166,7 @@ export default function Prompter({
               />
             ))}
           </div>
-          <p className="mb-2 text-xs text-muted-foreground text-start">
+          <p className="mb-2 text-start text-xs text-muted-foreground">
             {MODES.find((option) => option.value === mode)?.hint}
           </p>
           <Textarea
