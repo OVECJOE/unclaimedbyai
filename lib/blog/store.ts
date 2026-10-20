@@ -1,5 +1,6 @@
 import "server-only"
 import { createHash } from "node:crypto"
+import { cache } from "react"
 import { getSql } from "./db"
 import type {
   AdminCommentRow,
@@ -211,7 +212,7 @@ export async function listPublishedSlugs(): Promise<string[]> {
   return rows.map((row) => row.slug)
 }
 
-export async function getPublishedPost(
+export const getPublishedPost = cache(async function getPublishedPost(
   slug: string
 ): Promise<Post | PostRedirect | null> {
   if (!configured()) return null
@@ -229,7 +230,7 @@ export async function getPublishedPost(
   `) as { slug: string }[]
 
   return redirects[0] ? { redirectTo: redirects[0].slug } : null
-}
+})
 
 export async function getPostById(id: number): Promise<Post | null> {
   const rows = await queryPosts(`${POST_SELECT} where p.id = $1`, [id])
