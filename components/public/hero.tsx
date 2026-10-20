@@ -1,28 +1,14 @@
-import { Suspense } from "react"
 import PrompterCta from "@/components/public/prompter-cta"
 import HeroLoom from "@/components/public/hero-loom"
 import { Badge } from "@/components/ui/badge"
-import { getWildStage } from "@/lib/landing/wild"
 
 /**
  * The landing hero. Left column keeps the existing, SEO-proven copy;
  * the prompter and the loom are separate grid cells so that on mobile
- * the loom can rise above the prompter while on desktop it sits to the
- * right, spanning both rows. The loom streams in behind a Suspense
- * boundary, so its public-feed fetch never holds up the words.
+ * the loom rises above the prompter while on desktop it sits to the
+ * right, spanning both rows. The loom is self-contained demo theatre,
+ * so it renders instantly with no fetch.
  */
-function LoomSkeleton() {
-  return (
-    <div className="h-[420px] w-full border border-border bg-sidebar/30 lg:h-[520px]" />
-  )
-}
-
-async function LoomStage() {
-  const stage = await getWildStage()
-  if (!stage.chips.length) return <LoomSkeleton />
-  return <HeroLoom stage={stage} />
-}
-
 export default function Hero({ signedIn }: { signedIn: boolean }) {
   return (
     <section className="relative border-b">
@@ -63,12 +49,10 @@ export default function Hero({ signedIn }: { signedIn: boolean }) {
           </div>
         </div>
 
-        {/* The loom: real names from the wild, before the prompter on
+        {/* The loom: self-contained demo theatre, before the prompter on
             mobile, beside it on desktop. */}
         <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
-          <Suspense fallback={<LoomSkeleton />}>
-            <LoomStage />
-          </Suspense>
+          <HeroLoom />
         </div>
 
         {/* The prompter. */}

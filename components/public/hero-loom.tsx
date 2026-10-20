@@ -8,25 +8,136 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { tierColor } from "@/lib/name-results"
-import {
-  agoLabel,
-  type WildChip,
-  type WildStage,
-} from "@/lib/landing/wild-format"
 
 /**
- * The hero's "Live from the wild" loom, fed by a real public search.
- * The drifting field, the scanning reticle, the check receipt and the
- * shortlist are pure theatre (aria-hidden), but the names and their
- * verdicts are honest: a name is haunted because a model actually links
- * it to something, and clean when nothing does. The serif title, the
- * live line, and the "Try it out" button are real, exposed content.
+ * The hero's "Live from the wild" loom. Self-contained: the drifting
+ * candidate chips, their check receipts and their ghosts are seeded
+ * demo copy, a dramatization of what a check looks like, not a claim
+ * about a specific real name. No API calls, so the hero never blocks
+ * or breaks on the backend's mood.
  *
  * GSAP owns all motion, React owns all markup. The receipt content is
- * React-rendered per scanned chip, so real domains and handles render
- * cleanly; GSAP only fades the receipt and moves the chips. Positions
- * are seeded per chip count so the static frame hydrates exactly.
+ * React-rendered per scanned chip; GSAP only fades the receipt and
+ * moves the chips. Positions are seeded per chip count so the static
+ * frame hydrates exactly.
  */
+
+type LoomChip = {
+  name: string
+  query: string
+  score: number
+  tier: "Excellent" | "Good" | "Okay" | "Poor"
+  aiVerdict: "excellent" | "good" | "okay" | "poor"
+  aiLabel: string
+  caption: string
+  domains: { passed: number; checked: number } | null
+  handles: { passed: number; checked: number } | null
+  haunted: boolean
+}
+
+const AI_LABELS: Record<LoomChip["aiVerdict"], string> = {
+  excellent: "AI clean",
+  good: "AI light overlap",
+  okay: "AI overlap",
+  poor: "AI collision",
+}
+
+function agoLabel(secondsAgo: number): string {
+  if (secondsAgo < 60) return `${secondsAgo}s ago`
+  const minutes = Math.round(secondsAgo / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.round(minutes / 60)
+  if (hours < 48) return `${hours}h ago`
+  return `${Math.round(hours / 24)}d ago`
+}
+
+/** The live line cycles through a few dramatized searches. */
+const TICKER = [
+  { query: "meal kit delivery for new dads", secondsAgo: 42 },
+  { query: "AI lawyer for small claims", secondsAgo: 240 },
+  { query: "budgeting app for freelancers", secondsAgo: 610 },
+  { query: "a newsletter about building hardware", secondsAgo: 1450 },
+]
+
+function chip(
+  name: string,
+  query: string,
+  score: number,
+  aiVerdict: LoomChip["aiVerdict"],
+  caption: string,
+  domains: { passed: number; checked: number },
+  handles: { passed: number; checked: number }
+): LoomChip {
+  return {
+    name,
+    query,
+    score,
+    tier: score >= 80 ? "Excellent" : score >= 60 ? "Good" : "Okay",
+    aiVerdict,
+    aiLabel: AI_LABELS[aiVerdict],
+    caption,
+    domains,
+    handles,
+    haunted: aiVerdict !== "excellent",
+  }
+}
+
+const CHIPS: LoomChip[] = [
+  chip(
+    "Fernport",
+    "an eco luggage brand",
+    71,
+    "poor",
+    "ChatGPT already links this to a 2021 crypto wallet.",
+    { passed: 4, checked: 6 },
+    { passed: 4, checked: 5 }
+  ),
+  chip(
+    "Quibbl",
+    "an app for friendly debate clubs",
+    88,
+    "excellent",
+    "Clean across every model. Worth claiming.",
+    { passed: 6, checked: 6 },
+    { passed: 5, checked: 5 }
+  ),
+  chip(
+    "Snackwyse",
+    "an AI snack recommender",
+    66,
+    "okay",
+    "Some overlap with a sourdough blog the models like.",
+    { passed: 3, checked: 6 },
+    { passed: 5, checked: 5 }
+  ),
+  chip(
+    "Marrowly",
+    "a bone broth subscription",
+    91,
+    "excellent",
+    "No collisions anywhere. A rare find.",
+    { passed: 6, checked: 6 },
+    { passed: 5, checked: 5 }
+  ),
+  chip(
+    "Blimpnote",
+    "an async standup tool",
+    58,
+    "poor",
+    "Every model ties it to a 2018 TikTok dance.",
+    { passed: 2, checked: 6 },
+    { passed: 3, checked: 5 }
+  ),
+  chip(
+    "Pastelio",
+    "paint-by-numbers for kids",
+    84,
+    "good",
+    "A little overlap, nothing serious.",
+    { passed: 5, checked: 6 },
+    { passed: 5, checked: 5 }
+  ),
+]
 
 function mulberry32(seed: number) {
   let a = seed
@@ -72,15 +183,15 @@ function PillarRow({
 }
 
 /** Verdict colors, matching the public search leaderboard's dots. */
-const AI_VERDICT_COLORS: Record<WildChip["aiVerdict"], string> = {
+const AI_VERDICT_COLORS: Record<LoomChip["aiVerdict"], string> = {
   excellent: "bg-green-600 text-white",
   good: "bg-primary text-primary-foreground",
   okay: "bg-amber-500 text-black",
   poor: "bg-red-600 text-white",
 }
 
-export default function HeroLoom({ stage }: { stage: WildStage }) {
-  const { query, secondsAgo, chips } = stage
+export default function HeroLoom() {
+  const chips = CHIPS
   const stageRef = useRef<HTMLDivElement>(null)
   const receiptRef = useRef<HTMLDivElement>(null)
   const reticleLabelRef = useRef<HTMLSpanElement>(null)
@@ -92,6 +203,16 @@ export default function HeroLoom({ stage }: { stage: WildStage }) {
 
   const [activeIdx, setActiveIdx] = useState<number | null>(null)
   const [landed, setLanded] = useState<string[]>([])
+  const [tickerIdx, setTickerIdx] = useState(0)
+
+  useEffect(() => {
+    const id = setInterval(
+      () => setTickerIdx((i) => (i + 1) % TICKER.length),
+      5000
+    )
+    return () => clearInterval(id)
+  }, [])
+  const tickerItem = TICKER[tickerIdx % TICKER.length]
 
   const positions = useMemo(() => makePositions(chips.length), [chips.length])
   const active = activeIdx != null ? chips[activeIdx] : null
@@ -608,7 +729,8 @@ export default function HeroLoom({ stage }: { stage: WildStage }) {
           Live from the wild
         </h2>
         <p className="mt-1 font-sans text-xs text-muted-foreground">
-          anon ran &ldquo;{query}&rdquo;, checked {agoLabel(secondsAgo)}
+          anon ran &ldquo;{tickerItem.query}&rdquo;, checked{" "}
+          {agoLabel(tickerItem.secondsAgo)}
         </p>
         <Button size="sm" onClick={tryItOut} className="mt-2 gap-1.5">
           Try it out
