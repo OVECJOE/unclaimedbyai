@@ -7,9 +7,12 @@ import { BrandfetchIcon, ArrowRight01Icon } from "@hugeicons/core-free-icons"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { SocialAvailabilityList } from "@/components/dashboard/social-icons"
-import { aiAssociationColor, tierColor } from "@/lib/name-results"
-import { agoLabel, type WildStage } from "@/lib/landing/wild-format"
+import { tierColor } from "@/lib/name-results"
+import {
+  agoLabel,
+  type WildChip,
+  type WildStage,
+} from "@/lib/landing/wild-format"
 
 /**
  * The hero's "Live from the wild" loom, fed by a real public search.
@@ -68,27 +71,12 @@ function PillarRow({
   )
 }
 
-/** Inert twin of the DomainChip's available/taken look: the loom's
- *  receipt is decoration, and focusable links inside aria-hidden are an
- *  accessibility trap. */
-function LoomDomainChip({
-  tld,
-  available,
-}: {
-  tld: string
-  available: boolean
-}) {
-  return (
-    <span
-      className={`border px-1.5 py-0.5 text-xs ${
-        available
-          ? "border-green-600/40 bg-green-600/10 text-green-800 dark:border-green-400/40 dark:bg-green-400/10 dark:text-green-400"
-          : "border-destructive/40 bg-destructive/10 text-destructive"
-      }`}
-    >
-      <span className="font-semibold">.{tld}</span>
-    </span>
-  )
+/** Verdict colors, matching the public search leaderboard's dots. */
+const AI_VERDICT_COLORS: Record<WildChip["aiVerdict"], string> = {
+  excellent: "bg-green-600 text-white",
+  good: "bg-primary text-primary-foreground",
+  okay: "bg-amber-500 text-black",
+  poor: "bg-red-600 text-white",
 }
 
 export default function HeroLoom({ stage }: { stage: WildStage }) {
@@ -108,6 +96,20 @@ export default function HeroLoom({ stage }: { stage: WildStage }) {
   const positions = useMemo(() => makePositions(chips.length), [chips.length])
   const active = activeIdx != null ? chips[activeIdx] : null
   const receiptChip = active ?? chips[0]
+
+  function tryItOut() {
+    const el = document.querySelector(
+      "[data-tour='prompter']"
+    ) as HTMLFormElement | null
+    if (!el) return
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" })
+    if (reduce) {
+      el.focus({ preventScroll: true })
+    } else {
+      window.setTimeout(() => el.focus({ preventScroll: true }), 450)
+    }
+  }
 
   useEffect(() => {
     const root = stageRef.current
@@ -301,8 +303,8 @@ export default function HeroLoom({ stage }: { stage: WildStage }) {
               `${label}+=0.55`
             )
 
-          if (chip.ghost) {
-            // The kill: strike, desaturate, let the ghost have it.
+          if (chip.haunted) {
+            // The kill: strike, desaturate, let the collision have it.
             tl.to(
               strike,
               { scaleX: 1, duration: 0.4, ease: "power2.in" },
@@ -524,47 +526,53 @@ export default function HeroLoom({ stage }: { stage: WildStage }) {
                   </span>
                 </div>
                 <p className="truncate text-xs text-muted-foreground italic">
-                  {c.ghost ?? "no ghosts found. this name is clean"}
+                  {c.caption}
                 </p>
                 <div className="space-y-1.5">
                   <PillarRow label="Domains">
-                    {c.domains.length ? (
-                      <span className="flex flex-wrap gap-1.5">
-                        {c.domains.slice(0, 4).map((d) => (
-                          <LoomDomainChip
-                            key={d.tld}
-                            tld={d.tld}
-                            available={d.available}
-                          />
-                        ))}
+                    {c.domains ? (
+                      <span className="text-xs">
+                        <span className="font-medium text-foreground tabular-nums">
+                          {c.domains.passed}/{c.domains.checked}
+                        </span>{" "}
+                        <span className="text-muted-foreground">
+                          still free
+                        </span>
                       </span>
                     ) : (
                       <span className="text-xs text-muted-foreground">
-                        none checked
+                        not checked
                       </span>
                     )}
                   </PillarRow>
                   <PillarRow label="Handles">
-                    {c.socials.length ? (
-                      <SocialAvailabilityList socials={c.socials} />
+                    {c.handles ? (
+                      <span className="text-xs">
+                        <span className="font-medium text-foreground tabular-nums">
+                          {c.handles.passed}/{c.handles.checked}
+                        </span>{" "}
+                        <span className="text-muted-foreground">
+                          still open
+                        </span>
+                      </span>
                     ) : (
                       <span className="text-xs text-muted-foreground">
-                        none checked
+                        not checked
                       </span>
                     )}
                   </PillarRow>
                   <PillarRow label="AI">
-                    <Badge className={aiAssociationColor(c.aiLevel)}>
-                      {c.aiLevel}
+                    <Badge className={AI_VERDICT_COLORS[c.aiVerdict]}>
+                      {c.aiLabel}
                     </Badge>
                   </PillarRow>
                 </div>
                 <p
                   className={`border-t border-border pt-2 font-sans text-[10px] tracking-widest uppercase ${
-                    c.ghost ? "text-destructive" : "text-primary"
+                    c.haunted ? "text-destructive" : "text-primary"
                   }`}
                 >
-                  {c.ghost
+                  {c.haunted
                     ? "verdict: haunted, skipped"
                     : "verdict: clean, shortlisted"}
                 </p>
@@ -574,7 +582,7 @@ export default function HeroLoom({ stage }: { stage: WildStage }) {
         </div>
 
         {/* The shortlist wall. */}
-        <div className="absolute bottom-3 right-3 z-30 w-42 border border-border bg-card/90 p-3">
+        <div className="absolute right-3 bottom-3 z-30 w-42 border border-border bg-card/90 p-3">
           <p className="font-sans text-[10px] tracking-widest text-muted-foreground uppercase">
             Shortlist
           </p>
@@ -595,13 +603,17 @@ export default function HeroLoom({ stage }: { stage: WildStage }) {
       </div>
 
       {/* ── The real content: title, live line, and the way in. ───── */}
-      <div className="absolute -top-3 left-3 z-30 max-w-1/2 bg-card/75">
+      <div className="absolute top-3 left-3 z-30 max-w-[64%] border border-border bg-card/75 p-3 backdrop-blur-sm">
         <h2 className="font-heading text-lg leading-tight font-semibold">
           Live from the wild
         </h2>
         <p className="mt-1 font-sans text-xs text-muted-foreground">
-          a user ran &ldquo;{query}&rdquo;, checked {agoLabel(secondsAgo)}
+          anon ran &ldquo;{query}&rdquo;, checked {agoLabel(secondsAgo)}
         </p>
+        <Button size="sm" onClick={tryItOut} className="mt-2 gap-1.5">
+          Try it out
+          <HugeiconsIcon icon={ArrowRight01Icon} className="size-3.5" />
+        </Button>
       </div>
     </div>
   )
