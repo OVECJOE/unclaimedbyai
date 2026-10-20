@@ -15,6 +15,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
   allowedDevOrigins: ["127.0.0.1"],
+  experimental: {
+    // next dev on 16.2.x leaks on the render path: every App Router page
+    // render retains heap plus a V8 context that is never released, so a
+    // long-lived dev server climbs until it dies with a heap OOM. Radix's
+    // barrel entry is the worst amplifier in this tree. Server Fast
+    // Refresh is the other contributor; off, it restarts on server edits.
+    optimizePackageImports: ["radix-ui"],
+    turbopackServerFastRefresh: false,
+  },
   async rewrites() {
     return [
       {
