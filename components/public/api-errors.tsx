@@ -49,7 +49,7 @@ export default function ApiErrors() {
         {ERRORS.map((error) => (
           <li
             key={error.status}
-            className="flex flex-col gap-1 p-3 sm:flex-row sm:items-baseline sm:gap-4"
+            className="flex gap-1 p-3 items-start sm:gap-4"
           >
             <code className="shrink-0 border px-1.5 py-0.5 text-center font-mono text-xs font-semibold sm:w-14">
               {error.status}
