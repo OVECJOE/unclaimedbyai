@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { Button } from "@/components/ui/button"
+import { PROMPTER_NAME_MODE_EVENT } from "@/components/app/prompter"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -109,6 +110,19 @@ function SparkGlyph({ className = "" }: { className?: string }) {
 
 export default function StatementScatter() {
   const rootRef = useRef<HTMLElement>(null)
+
+  function runFreeCheck() {
+    const prompter = document.querySelector<HTMLFormElement>(
+      "[data-tour='prompter']"
+    )
+    if (!prompter) return
+    window.dispatchEvent(new Event(PROMPTER_NAME_MODE_EVENT))
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    prompter.scrollIntoView({
+      behavior: reduce ? "auto" : "smooth",
+      block: "center",
+    })
+  }
 
   useEffect(() => {
     const root = rootRef.current
@@ -277,8 +291,8 @@ export default function StatementScatter() {
             shirts.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button size="lg" asChild>
-              <Link href="/check">Run a free check</Link>
+            <Button size="lg" onClick={runFreeCheck}>
+              Run a free check
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link href="/blog">Read the field guide</Link>

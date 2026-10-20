@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -22,6 +22,8 @@ const EXAMPLES = [
 ]
 
 export type PrompterMode = "idea" | "studio" | "name"
+
+export const PROMPTER_NAME_MODE_EVENT = "prompter:name-mode"
 
 const MODES: { value: PrompterMode; label: string; hint: string }[] = [
   {
@@ -100,6 +102,19 @@ export default function Prompter({
     EXAMPLES,
     mode !== "name" && value.length === 0
   )
+
+  useEffect(() => {
+    function onNameMode() {
+      setMode("name")
+      const field = document.getElementById("prompt")
+      if (field instanceof HTMLTextAreaElement) {
+        field.focus({ preventScroll: true })
+      }
+    }
+    window.addEventListener(PROMPTER_NAME_MODE_EVENT, onNameMode)
+    return () =>
+      window.removeEventListener(PROMPTER_NAME_MODE_EVENT, onNameMode)
+  }, [])
 
   function submit() {
     if (!value.trim()) return
