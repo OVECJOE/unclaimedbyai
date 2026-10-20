@@ -54,7 +54,7 @@ export default function GenerationMock() {
     >
       <div className="mb-3 flex items-center justify-between">
         <p className="font-mono text-[0.625rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase">
-          Weekend bets · sandbox
+          Weekend bets / sandbox
         </p>
         <span className="flex items-center gap-1.5 font-mono text-[0.625rem] text-muted-foreground">
           <span

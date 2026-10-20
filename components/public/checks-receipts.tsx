@@ -105,17 +105,17 @@ export default function ChecksReceipts() {
           >
             <ReceiptRow
               left="github.com/vantis"
-              right="taken · exact"
+              right="taken, exact"
               tone="taken"
             />
             <ReceiptRow
               left="x.com/vantis"
-              right="open · best guess"
+              right="open, best guess"
               tone="open"
             />
             <ReceiptRow
               left="instagram.com/vantis"
-              right="open · best guess"
+              right="open, best guess"
               tone="open"
             />
           </ReceiptFrame>
@@ -128,7 +128,7 @@ export default function ChecksReceipts() {
             <ReceiptRow left="GPT" right="no association" tone="open" />
             <ReceiptRow
               left="Claude"
-              right="Vantis · analytics firm"
+              right="Vantis, an analytics firm"
               tone="taken"
             />
             <ReceiptRow left="Perplexity" right="no association" tone="open" />

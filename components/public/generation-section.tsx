@@ -22,11 +22,10 @@ export default function GenerationSection() {
           </h2>
           <p className="max-w-prose text-muted-foreground md:text-lg">
             Tell us what you&apos;re building, and four naming studios take a
-            shot at it from different angles. An editor throws out the weak
-            ones and the duplicates, and every survivor is checked against
-            live .com registration and social handles before it reaches you.
-            What lands is a scored shortlist you can actually register — not a
-            pile of maybes.
+            shot at it from different angles. An editor throws out the weak ones
+            and the duplicates, and every survivor is checked against live .com
+            registration and social handles before it reaches you. What lands is
+            a scored shortlist you can actually register, not a pile of maybes.
           </p>
           <ul className="space-y-2">
             {[

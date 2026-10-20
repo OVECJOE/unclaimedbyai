@@ -154,6 +154,37 @@ export async function listPublishedPostsPage(
   return { items: rows.map(toSummary), total: counts[0]?.total ?? 0 }
 }
 
+export type TopPost = PostSummary & { boosts: number }
+
+/**
+ * The landing page's "most boosted" trio. Boosts are the blog's only
+ * popularity signal (blog_signals rows on the post itself); a post with
+ * no boosts yet is not penalized, because the tie-break is recency, so a
+ * fresh blog simply shows its newest three.
+ */
+export async function listTopPublishedPosts(limit: number): Promise<TopPost[]> {
+  if (!configured()) return []
+
+  const sql = getSql()
+  const rows = (await sql`
+    select p.id::int as id, p.slug, p.title, p.excerpt, p.cover_image_url,
+      p.cover_image_width::int as cover_image_width,
+      p.cover_image_height::int as cover_image_height,
+      p.published_at, p.updated_at, p.tags, e.name as author_name,
+      e.avatar_url as author_avatar_url,
+      count(s.id)::int as boosts
+    from blog_posts p
+    join blog_editors e on e.id = p.author_id
+    left join blog_signals s on s.post_id = p.id and s.comment_id is null
+    where p.status = 'published'
+    group by p.id, e.id
+    order by count(s.id) desc, p.published_at desc, p.id desc
+    limit ${limit}
+  `) as unknown as (SummaryRow & { boosts: number })[]
+
+  return rows.map((row) => ({ ...toSummary(row), boosts: row.boosts }))
+}
+
 export async function listPublishedForSitemap(): Promise<
   { slug: string; updatedAt: string }[]
 > {

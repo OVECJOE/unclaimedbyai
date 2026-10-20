@@ -1,5 +1,6 @@
-import { Badge } from "@/components/ui/badge"
-import PrompterCta from "@/components/public/prompter-cta"
+import Hero from "@/components/public/hero"
+import StatementScatter from "@/components/public/statement-scatter"
+import BlogCarousel from "@/components/public/blog-carousel"
 import PublicSearchesStrip from "@/components/public/public-searches-strip"
 import PressureSection from "@/components/public/pressure-section"
 import GenerationSection from "@/components/public/generation-section"
@@ -48,38 +49,8 @@ export default async function Page() {
     <>
       <JsonLd data={homeJsonLd} />
 
-      {/* Hero */}
-      <section className="mx-auto max-w-7xl space-y-5 border-b px-4 py-10 sm:text-center">
-        <Badge
-          className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
-          asChild
-        >
-          <p className="px-2 py-1 sm:px-3">
-            Claim it before someone&apos;s chatbot already has
-          </p>
-        </Badge>
-        <div className="space-y-3">
-          <h1 className="mx-auto max-w-3xl font-heading text-4xl font-semibold md:text-5xl">
-            Every name, <span className="text-primary">checked before you fall for it</span>.
-          </h1>
-          <p className="mx-auto max-w-prose md:text-lg">
-            Describe what you&apos;re building: four naming studios go to
-            work, an editor keeps the strongest, and every survivor is
-            screened against live .com registration, real handle lookups, and
-            what the biggest AI models already associate with it — so your
-            shortlist is scored by what you can actually register today, not
-            by what sounds nice.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Live .com lookups
-            <span className="px-1.5">·</span>
-            GitHub, X, Instagram, TikTok and YouTube
-            <span className="px-1.5">·</span>
-            GPT, Claude and Perplexity collision checks
-          </p>
-        </div>
-        <PrompterCta signedIn={Boolean(user)} />
-      </section>
+      {/* Hero: copy and prompter on the left, the Haunted Shortlist on the right */}
+      <Hero signedIn={Boolean(user)} />
 
       <PublicSearchesStrip />
 
@@ -88,6 +59,9 @@ export default async function Page() {
 
       {/* Ideas, generated */}
       <GenerationSection />
+
+      {/* The story, in photographs: names get haunted */}
+      <StatementScatter />
 
       {/* The three checks, as receipts */}
       <ChecksReceipts />
@@ -111,9 +85,9 @@ export default async function Page() {
               <div className="space-y-1">
                 <h3 className="font-heading text-xl font-medium">Generate</h3>
                 <p className="text-sm text-muted-foreground">
-                  Describe what you&apos;re building. Four naming studios
-                  argue from different angles, an editor keeps the strongest,
-                  and your report fills with scored candidates.
+                  Describe what you&apos;re building. Four naming studios argue
+                  from different angles, an editor keeps the strongest, and your
+                  report fills with scored candidates.
                 </p>
               </div>
             </article>
@@ -157,6 +131,9 @@ export default async function Page() {
           </div>
         </div>
       </section>
+
+      {/* Most-boosted writing */}
+      <BlogCarousel />
 
       {/* What it costs */}
       <PricingBand />

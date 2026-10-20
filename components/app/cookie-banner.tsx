@@ -52,9 +52,9 @@ export default function CookieBanner() {
       <div className="space-y-3">
         <p className="text-sm text-muted-foreground">
           We use a few strictly necessary cookies (to keep you signed in and
-          remember this choice), Cloudflare&apos;s bot check, and — only if you
-          allow it — privacy-friendly analytics. No ads, no cross-site tracking.
-          Details live in the{" "}
+          remember this choice), Cloudflare&apos;s bot check, and
+          privacy-friendly analytics only if you allow it. No ads, no cross-site
+          tracking. Details live in the{" "}
           <Link href="/privacy#cookies" className="text-primary underline">
             privacy policy
           </Link>

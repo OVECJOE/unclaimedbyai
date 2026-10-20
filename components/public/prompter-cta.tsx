@@ -212,7 +212,7 @@ export default function PrompterCta({
         // widget gives the next submit something to solve.
         turnstile.reset()
         toast.error(
-          "The human check did not run. Allow challenges.cloudflare.com and try again — or sign in to skip it."
+          "The human check did not run. Allow challenges.cloudflare.com and try again, or sign in to skip it."
         )
         return
       }
