@@ -6,7 +6,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
 import Image from "next/image"
 
 type CompanyMeta = {
@@ -67,6 +66,10 @@ function loadMeta(domain: string): Promise<CompanyMeta | null> {
   )
     .then((res) => (res.ok ? (res.json() as Promise<CompanyMeta>) : null))
     .catch(() => null)
+    .then((result) => {
+      if (!result) metaCache.delete(domain)
+      return result
+    })
   metaCache.set(domain, request)
   return request
 }
@@ -215,16 +218,15 @@ export default function CompanyCard({
               <div className="h-3 animate-pulse bg-muted" />
               <div className="h-3 w-4/5 animate-pulse bg-muted" />
             </div>
+          ) : meta?.description ? (
+            <p className="text-sm">{decodeEntities(meta.description)}</p>
+          ) : meta ? (
+            <p className="text-sm text-muted-foreground">
+              No description published by {host}.
+            </p>
           ) : (
-            <p
-              className={cn(
-                "text-sm",
-                !meta?.description && "text-muted-foreground"
-              )}
-            >
-              {meta?.description
-                ? decodeEntities(meta.description)
-                : `No description published by ${host}.`}
+            <p className="text-sm text-muted-foreground">
+              Could not load details for {host} right now.
             </p>
           )}
         </div>

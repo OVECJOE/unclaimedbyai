@@ -194,7 +194,6 @@ export async function GET(request: Request) {
 
   let html: string | null = null
   let servedFrom = targets[0]
-  let blocked = false
 
   for (const target of targets) {
     const host = new URL(target).hostname
@@ -219,9 +218,6 @@ export async function GET(request: Request) {
           break
         }
       }
-      if (res.status === 401 || res.status === 403 || res.status === 429) {
-        blocked = true
-      }
     } catch {
       continue
     } finally {
@@ -230,16 +226,16 @@ export async function GET(request: Request) {
   }
 
   if (html === null) {
-    if (blocked) {
-      const rendered = await fetchRenderedMeta(targets[0])
+    const rendered = await fetchRenderedMeta(targets[0])
+    if (rendered && (rendered.title || rendered.description)) {
       return NextResponse.json(
         {
           domain,
           url: targets[0],
-          title: rendered?.title ?? null,
-          description: rendered?.description ?? null,
+          title: rendered.title,
+          description: rendered.description,
           logo:
-            rendered?.logo ??
+            rendered.logo ??
             `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
           icon: null,
         },
