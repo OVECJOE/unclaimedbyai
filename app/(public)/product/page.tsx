@@ -11,12 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
+import { FaqItem, FaqList } from "@/components/ui/faq-list"
 import PrompterCta from "@/components/public/prompter-cta"
 import type { Metadata } from "next"
 import { JsonLd } from "@/components/app/json-ld"
@@ -115,6 +110,10 @@ export default function ProductPage() {
         </Badge>
         <div className="space-y-3">
           <h1 className="mx-auto max-w-xl font-heading text-4xl font-semibold md:text-5xl">
+            {/* The slogan alone names no entity; the screen-reader
+                prefix gives the heading the brand and category that
+                crawlers and assistive tech both key on. */}
+            <span className="sr-only">Unclaimed by AI, the name checker: </span>
             What actually happens when you hit{" "}
             <span className="text-primary">&quot;check&quot;?</span>
           </h1>
@@ -420,23 +419,21 @@ export default function ProductPage() {
           <h2 className="font-heading text-3xl font-medium sm:text-center sm:text-4xl">
             Questions people actually ask
           </h2>
-          <Accordion
-            type="single"
-            defaultValue={"what-does-unclaimedbyai-check-when-i-enter-a-name"}
-          >
+          <FaqList>
             {FAQS.map((faq) => (
-              <AccordionItem key={faq.id} value={faq.id}>
-                <AccordionTrigger className="text-left text-lg sm:text-xl">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-base">
-                  {/* The schema keeps the plain answer; the accordion
-                      shows the rich body when an entry earned one. */}
-                  {faq.body ?? faq.answer}
-                </AccordionContent>
-              </AccordionItem>
+              <FaqItem
+                key={faq.id}
+                question={faq.question}
+                open={
+                  faq.id === "what-does-unclaimedbyai-check-when-i-enter-a-name"
+                }
+              >
+                {/* The schema keeps the plain answer; the row shows the
+                    rich body when an entry earned one. */}
+                {faq.body ?? faq.answer}
+              </FaqItem>
             ))}
-          </Accordion>
+          </FaqList>
         </div>
       </section>
 
