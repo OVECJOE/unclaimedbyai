@@ -27,6 +27,7 @@ export default function IdeaBoardCard({
   expanded: boolean
   onExpand: () => void
 }) {
+  const hasSearch = Boolean(idea.search_id)
   const {
     attributes,
     listeners,
@@ -34,7 +35,7 @@ export default function IdeaBoardCard({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: idea.public_id })
+  } = useSortable({ id: idea.public_id, disabled: hasSearch })
 
   return (
     <li
@@ -50,15 +51,19 @@ export default function IdeaBoardCard({
       )}
     >
       <div className="flex items-start gap-2">
-        <button
-          type="button"
-          className="mt-0.5 cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
-          aria-label={`Reorder ${idea.title}`}
-          {...attributes}
-          {...listeners}
-        >
-          <HugeiconsIcon icon={Drag01Icon} className="size-4" />
-        </button>
+        {hasSearch ? (
+          <span className="mt-0.5 block size-4 shrink-0" aria-hidden="true" />
+        ) : (
+          <button
+            type="button"
+            className="mt-0.5 cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
+            aria-label={`Reorder ${idea.title}`}
+            {...attributes}
+            {...listeners}
+          >
+            <HugeiconsIcon icon={Drag01Icon} className="size-4" />
+          </button>
+        )}
         <button
           type="button"
           onClick={onExpand}

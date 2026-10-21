@@ -115,6 +115,7 @@ export default function IdeaBoard({
     if (!dragged) return
 
     if (over.id === GENERATE_ZONE_ID) {
+      if (dragged.search_id) return
       await toSearch(dragged)
       return
     }
