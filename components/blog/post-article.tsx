@@ -12,11 +12,13 @@ export default function PostArticle({ post }: { post: Post }) {
         <Link href="/blog" className="text-sm text-muted-foreground">
           Blog
         </Link>
-        <h1 className="font-heading text-4xl font-semibold md:text-5xl">
+        <h1 className="font-heading text-4xl font-semibold break-words md:text-5xl">
           {post.title}
         </h1>
         {post.excerpt ? (
-          <p className="text-muted-foreground md:text-xl">{post.excerpt}</p>
+          <p className="break-words text-muted-foreground md:text-xl">
+            {post.excerpt}
+          </p>
         ) : null}
         <p className="text-sm text-muted-foreground">
           {post.author.name}

@@ -136,6 +136,12 @@
   .blog-prose {
     font-size: 1.1875rem;
     line-height: 1.8;
+    /* A bare URL or long link is one unbreakable run, and without this
+       it pushes the page wider than the viewport on a phone. Inherited
+       by every descendant, so paragraphs, links, inline code and table
+       cells all wrap; `pre` keeps white-space: pre, so code blocks
+       still scroll instead of reflowing. */
+    overflow-wrap: anywhere;
   }
   .blog-prose > :where(* + *) {
     margin-block-start: 1.5rem;
