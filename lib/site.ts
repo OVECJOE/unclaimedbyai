@@ -130,6 +130,13 @@ export const siteJsonLd = {
       logo: `${SITE_URL}/logo.png`,
       image: `${SITE_URL}${OG_PATH}`,
       description: SITE_DESCRIPTION,
+      // The profiles linked in the footer, so an engine can tie the
+      // site entity to the accounts that corroborate it.
+      sameAs: [
+        "https://x.com/UnclaimedByAI",
+        "https://instagram.com/unclaimedbyai",
+        "https://linkedin.com/in/victorohachor",
+      ],
     },
   ],
 }

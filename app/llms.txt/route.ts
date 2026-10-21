@@ -58,14 +58,26 @@ export async function GET(): Promise<Response> {
     "",
     "## Guides",
     "",
-    `- [Check one exact name](${SITE_URL}/check/nexuare): A worked example of the free first check.`,
+    // The worked example points at a real public report rather than a
+    // /check/ permalink: that page is a JS kickoff whose canonical
+    // points at /searches/<name>, and the name this used to link to
+    // has no such sibling — an agent following the guide landed on a
+    // canonical target that did not exist.
+    ...(reports.length > 0
+      ? [
+          `- [Check one exact name](${SITE_URL}/searches/${nameToSlug(
+            reports[0]
+          )}): A worked example of a free first check, every score with its evidence.`,
+        ]
+      : []),
     `- [API quickstarts](${SITE_URL}/api/docs#quickstarts): Three copy-paste paths that cover most of what people build.`,
     "",
   ]
 
-  if (reports.length > 0) {
+  const exampleReports = reports.slice(1)
+  if (exampleReports.length > 0) {
     lines.push("## Example reports", "")
-    for (const name of reports) {
+    for (const name of exampleReports) {
       lines.push(
         `- [Report for ${oneLine(name)}](${SITE_URL}/searches/${nameToSlug(
           name

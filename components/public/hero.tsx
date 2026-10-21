@@ -25,6 +25,12 @@ export default function Hero({ signedIn }: { signedIn: boolean }) {
           </Badge>
           <div className="space-y-3">
             <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl xl:text-7xl">
+              {/* The slogan alone names no entity; the screen-reader
+                  prefix gives the heading the brand and category that
+                  crawlers and assistive tech both key on. */}
+              <span className="sr-only">
+                Unclaimed by AI, the name checker:{" "}
+              </span>
               Every name,{" "}
               <span className="text-primary">
                 checked before you fall for it
