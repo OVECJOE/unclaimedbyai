@@ -16,13 +16,11 @@ const nextConfig: NextConfig = {
   },
   allowedDevOrigins: ["127.0.0.1"],
   experimental: {
-    // next dev on 16.2.x leaks on the render path: every App Router page
-    // render retains heap plus a V8 context that is never released, so a
-    // long-lived dev server climbs until it dies with a heap OOM. Radix's
-    // barrel entry is the worst amplifier in this tree. Server Fast
-    // Refresh is the other contributor; off, it restarts on server edits.
+    // Radix ships one barrel entry that every ui/ component imports
+    // from, so nothing in it tree-shakes. Naming it here pulls only
+    // what each page actually uses, which trims the client bundle
+    // regardless of the dev-server leak this used to also mitigate.
     optimizePackageImports: ["radix-ui"],
-    turbopackServerFastRefresh: false,
   },
   async rewrites() {
     return [
