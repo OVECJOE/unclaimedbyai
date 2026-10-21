@@ -5,9 +5,15 @@ import { useFormStatus } from "react-dom"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group"
 import { Label } from "@/components/ui/label"
 import { saveSocials } from "@/lib/blog/actions"
-import { SOCIAL_PLATFORMS } from "@/lib/blog/socials"
+import { SOCIAL_PLATFORMS, socialHandle } from "@/lib/blog/socials"
 import type { Editor, SocialsFormState } from "@/lib/blog/types"
 
 function SaveButton() {
@@ -40,14 +46,32 @@ export default function SocialsForm({ editor }: { editor: Editor }) {
               <HugeiconsIcon icon={platform.icon} size="1rem" />
               {platform.label}
             </Label>
-            <Input
-              id={`social-${platform.value}`}
-              name={platform.value}
-              type="url"
-              inputMode="url"
-              defaultValue={current?.url ?? ""}
-              placeholder="https://"
-            />
+            {platform.prefix ? (
+              <InputGroup>
+                <InputGroupAddon>
+                  <InputGroupText className="font-mono">
+                    {platform.prefix.replace("https://", "")}
+                  </InputGroupText>
+                </InputGroupAddon>
+                <InputGroupInput
+                  id={`social-${platform.value}`}
+                  name={platform.value}
+                  defaultValue={
+                    current ? socialHandle(current.url, platform.prefix) : ""
+                  }
+                  autoComplete="off"
+                />
+              </InputGroup>
+            ) : (
+              <Input
+                id={`social-${platform.value}`}
+                name={platform.value}
+                type="url"
+                inputMode="url"
+                defaultValue={current?.url ?? ""}
+                placeholder="https://"
+              />
+            )}
           </div>
         )
       })}

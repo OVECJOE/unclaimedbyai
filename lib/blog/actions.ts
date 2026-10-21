@@ -24,7 +24,7 @@ import {
 } from "./store"
 import { validateMdx } from "./validate"
 import { isSafeCoverUrl } from "./cover-image"
-import { SOCIAL_PLATFORMS } from "./socials"
+import { SOCIAL_PLATFORMS, composeSocialUrl } from "./socials"
 import type {
   AuthorSocial,
   BoostState,
@@ -137,8 +137,6 @@ function checkFields(input: PostInput): ContentIssue[] {
   return issues
 }
 
-const SOCIAL_URL_MAX = 300
-
 export async function saveSocials(
   _previous: SocialsFormState,
   formData: FormData
@@ -148,12 +146,15 @@ export async function saveSocials(
   const socials: AuthorSocial[] = []
   for (const platform of SOCIAL_PLATFORMS) {
     const raw = formData.get(platform.value)
-    const url = typeof raw === "string" ? raw.trim() : ""
-    if (!url) continue
-    if (!url.startsWith("https://") || url.length > SOCIAL_URL_MAX) {
+    const value = typeof raw === "string" ? raw.trim() : ""
+    if (!value) continue
+    const url = composeSocialUrl(value, platform.prefix)
+    if (!url) {
       return {
         ok: false,
-        message: `Enter a full https:// link for ${platform.label}, or leave the field empty.`,
+        message: platform.prefix
+          ? `${platform.label}: enter the handle only — letters, numbers, dots, underscores and hyphens.`
+          : `${platform.label}: enter a full https:// link, or leave the field empty.`,
       }
     }
     socials.push({ platform: platform.value, url })
