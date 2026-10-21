@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 
-export type TocItem = { id: string; title: string }
+export type TocItem = { id: string; title: string; depth?: number }
 
 export default function TableOfContents({ items }: { items: TocItem[] }) {
   const [active, setActive] = useState<string>(items[0]?.id ?? "")
@@ -56,7 +56,8 @@ function TocList({ items, active }: { items: TocItem[]; active: string }) {
             href={`#${item.id}`}
             aria-current={active === item.id ? "true" : undefined}
             className={cn(
-              "flex gap-2 border-l-2 py-1.5 pr-2 pl-3 text-sm transition-colors",
+              "flex gap-2 border-l-2 py-1.5 pr-2 text-sm transition-colors",
+              item.depth === 3 ? "pl-7" : "pl-3",
               active === item.id
                 ? "border-primary font-medium text-foreground"
                 : "border-transparent text-muted-foreground hover:border-ring hover:text-foreground"

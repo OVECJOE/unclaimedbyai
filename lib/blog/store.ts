@@ -2,6 +2,7 @@ import "server-only"
 import { createHash } from "node:crypto"
 import { cache } from "react"
 import { getSql } from "./db"
+import { tagToSlug } from "./tags"
 import type {
   AdminCommentRow,
   AdminPostRow,
@@ -224,6 +225,71 @@ export async function listPublishedSlugs(): Promise<string[]> {
   `) as { slug: string }[]
   return rows.map((row) => row.slug)
 }
+
+export type TagSummary = { tag: string; slug: string; count: number }
+
+/**
+ * Every tag on a published post with its archive URL and article count.
+ * The slug is derived (see tagToSlug), so two written forms of the same
+ * tag merge into one archive whose display name is whichever appeared
+ * first; counts are summed before sorting so the blog index can show
+ * the busiest topics first.
+ */
+export const listPublishedTags = cache(async function listPublishedTags(): Promise<
+  TagSummary[]
+> {
+  if (!configured()) return []
+
+  const sql = getSql()
+  const rows = (await sql`
+    select unnest(tags) as tag, count(*)::int as count
+    from blog_posts where status = 'published'
+    group by 1
+  `) as { tag: string; count: number }[]
+
+  const bySlug = new Map<string, TagSummary>()
+  for (const row of rows) {
+    const slug = tagToSlug(row.tag)
+    if (!slug) continue
+    const existing = bySlug.get(slug)
+    if (existing) existing.count += row.count
+    else bySlug.set(slug, { tag: row.tag, slug, count: row.count })
+  }
+
+  return [...bySlug.values()].sort(
+    (a, b) => b.count - a.count || a.tag.localeCompare(b.tag)
+  )
+})
+
+/**
+ * All published posts carrying a tag, newest first. Returns null for a
+ * tag that does not exist (drives notFound on the archive route).
+ *
+ * The filter runs in JS on the full published list instead of matching
+ * the array in SQL: normalization has to stay identical to tagToSlug on
+ * both sides, and a blog's published set is small enough that one extra
+ * read of the summary columns is cheaper than a subtly divergent regex.
+ */
+export const listPublishedPostsByTag = cache(
+  async function listPublishedPostsByTag(
+    tagSlug: string
+  ): Promise<PostSummary[] | null> {
+    if (!configured()) return null
+
+    const tags = await listPublishedTags()
+    if (!tags.some((entry) => entry.slug === tagSlug)) return null
+
+    const sql = getSql()
+    const rows = (await sql.query(
+      `${SUMMARY_SELECT} where p.status = 'published'
+       order by p.published_at desc, p.id desc`
+    )) as SummaryRow[]
+
+    return rows
+      .map(toSummary)
+      .filter((post) => post.tags.some((tag) => tagToSlug(tag) === tagSlug))
+  }
+)
 
 export const getPublishedPost = cache(async function getPublishedPost(
   slug: string

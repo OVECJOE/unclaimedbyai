@@ -1,13 +1,21 @@
 import Link from "next/link"
 import Image from "next/image"
 import { HugeiconsIcon } from "@hugeicons/react"
+import TableOfContents from "@/components/legal/table-of-contents"
 import { SOCIAL_PLATFORMS } from "@/lib/blog/socials"
+import { extractHeadings } from "@/lib/blog/headings"
 import { MdxContent } from "@/lib/blog/mdx"
 import { isSafeCoverUrl } from "@/lib/blog/cover-image"
+import { tagToSlug } from "@/lib/blog/tags"
 import type { Post } from "@/lib/blog/types"
 import DateLabel from "./date-label"
 
 export default function PostArticle({ post }: { post: Post }) {
+  // Two or more headings is the threshold for a rail worth reading;
+  // a short post with a lone section is better without one.
+  const headings = extractHeadings(post.bodyMdx)
+  const showToc = headings.length >= 2
+
   return (
     <article className="mx-auto max-w-7xl space-y-8 px-4 py-10">
       <header className="space-y-3">
@@ -57,6 +65,20 @@ export default function PostArticle({ post }: { post: Post }) {
             </ul>
           ) : null}
         </p>
+        {post.tags.length ? (
+          <ul className="flex flex-wrap gap-1.5">
+            {post.tags.map((tag) => (
+              <li key={tag}>
+                <Link
+                  href={`/blog/tag/${tagToSlug(tag)}`}
+                  className="inline-block border border-primary/30 px-1.5 py-0.5 text-[0.625rem] font-semibold tracking-widest text-primary uppercase transition-colors hover:bg-primary/10"
+                >
+                  {tag}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </header>
       {post.coverImageUrl && isSafeCoverUrl(post.coverImageUrl) ? (
         post.coverImageWidth && post.coverImageHeight ? (
@@ -81,9 +103,18 @@ export default function PostArticle({ post }: { post: Post }) {
           />
         )
       ) : null}
-      <div className="blog-prose">
-        <MdxContent source={post.bodyMdx} />
-      </div>
+      {showToc ? (
+        <div className="grid gap-8 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10">
+          <TableOfContents items={headings} />
+          <div className="blog-prose min-w-0">
+            <MdxContent source={post.bodyMdx} />
+          </div>
+        </div>
+      ) : (
+        <div className="blog-prose">
+          <MdxContent source={post.bodyMdx} />
+        </div>
+      )}
     </article>
   )
 }
