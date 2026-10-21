@@ -5,6 +5,7 @@ import { getSql } from "./db"
 import type {
   AdminCommentRow,
   AdminPostRow,
+  AuthorSocial,
   BlogComment,
   CommentStatus,
   Editor,
@@ -33,6 +34,7 @@ type PostRow = {
   tags: string[]
   author_name: string
   author_avatar_url: string | null
+  author_socials: AuthorSocial[] | null
 }
 
 type SummaryRow = Pick<
@@ -49,6 +51,7 @@ type SummaryRow = Pick<
   | "tags"
   | "author_name"
   | "author_avatar_url"
+  | "author_socials"
 >
 
 type EditorRow = {
@@ -56,6 +59,7 @@ type EditorRow = {
   email: string
   name: string
   avatar_url: string | null
+  socials: AuthorSocial[] | null
 }
 
 const POST_SELECT = `
@@ -64,7 +68,7 @@ const POST_SELECT = `
     p.cover_image_height::int as cover_image_height,
     p.body_mdx, p.status, p.published_at, p.updated_at, p.seo_title,
     p.seo_description, p.tags, e.name as author_name,
-    e.avatar_url as author_avatar_url
+    e.avatar_url as author_avatar_url, e.socials as author_socials
   from blog_posts p
   join blog_editors e on e.id = p.author_id`
 
@@ -73,7 +77,7 @@ const SUMMARY_SELECT = `
     p.cover_image_width::int as cover_image_width,
     p.cover_image_height::int as cover_image_height,
     p.published_at, p.updated_at, p.tags, e.name as author_name,
-    e.avatar_url as author_avatar_url
+    e.avatar_url as author_avatar_url, e.socials as author_socials
   from blog_posts p
   join blog_editors e on e.id = p.author_id`
 
@@ -97,7 +101,11 @@ function toPost(row: PostRow): Post {
     seoTitle: row.seo_title,
     seoDescription: row.seo_description,
     tags: row.tags,
-    author: { name: row.author_name, avatarUrl: row.author_avatar_url },
+    author: {
+      name: row.author_name,
+      avatarUrl: row.author_avatar_url,
+      socials: row.author_socials ?? [],
+    },
   }
 }
 
@@ -112,7 +120,11 @@ function toSummary(row: SummaryRow): PostSummary {
     coverImageHeight: row.cover_image_height,
     publishedAt: row.published_at ? iso(row.published_at) : null,
     updatedAt: iso(row.updated_at),
-    author: { name: row.author_name, avatarUrl: row.author_avatar_url },
+    author: {
+      name: row.author_name,
+      avatarUrl: row.author_avatar_url,
+      socials: row.author_socials ?? [],
+    },
     tags: row.tags,
   }
 }
@@ -127,6 +139,7 @@ function toEditor(row: EditorRow): Editor {
     email: row.email,
     name: row.name,
     avatarUrl: row.avatar_url,
+    socials: row.socials ?? [],
   }
 }
 
@@ -172,7 +185,7 @@ export async function listTopPublishedPosts(limit: number): Promise<TopPost[]> {
       p.cover_image_width::int as cover_image_width,
       p.cover_image_height::int as cover_image_height,
       p.published_at, p.updated_at, p.tags, e.name as author_name,
-      e.avatar_url as author_avatar_url,
+      e.avatar_url as author_avatar_url, e.socials as author_socials,
       count(s.id)::int as boosts
     from blog_posts p
     join blog_editors e on e.id = p.author_id
@@ -369,7 +382,7 @@ export async function updatePost(
 export async function getEditorByEmail(email: string): Promise<Editor | null> {
   const sql = getSql()
   const rows = (await sql`
-    select id::int as id, email, name, avatar_url
+    select id::int as id, email, name, avatar_url, socials
     from blog_editors where lower(email) = ${email.toLowerCase()}
   `) as EditorRow[]
   return rows[0] ? toEditor(rows[0]) : null
@@ -378,10 +391,21 @@ export async function getEditorByEmail(email: string): Promise<Editor | null> {
 export async function getEditorById(id: number): Promise<Editor | null> {
   const sql = getSql()
   const rows = (await sql`
-    select id::int as id, email, name, avatar_url
+    select id::int as id, email, name, avatar_url, socials
     from blog_editors where id = ${id}
   `) as EditorRow[]
   return rows[0] ? toEditor(rows[0]) : null
+}
+
+export async function updateEditorSocials(
+  editorId: number,
+  socials: AuthorSocial[]
+): Promise<void> {
+  const sql = getSql()
+  await sql`
+    update blog_editors set socials = ${JSON.stringify(socials)}::jsonb
+    where id = ${editorId}
+  `
 }
 
 export function hashToken(token: string): string {

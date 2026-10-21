@@ -76,7 +76,13 @@ export default async function BlogPostPage({ params }: PageProps) {
               : `${SITE_URL}${post.coverImageUrl}`
             : undefined,
           keywords: post.tags.length ? post.tags.join(", ") : undefined,
-          author: { "@type": "Person", name: post.author.name },
+          author: {
+            "@type": "Person",
+            name: post.author.name,
+            ...(post.author.socials.length
+              ? { sameAs: post.author.socials.map((social) => social.url) }
+              : {}),
+          },
           publisher: { "@id": `${SITE_URL}/#organization` },
           inLanguage: "en",
         }}

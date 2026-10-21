@@ -1,5 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { SOCIAL_PLATFORMS } from "@/lib/blog/socials"
 import { MdxContent } from "@/lib/blog/mdx"
 import { isSafeCoverUrl } from "@/lib/blog/cover-image"
 import type { Post } from "@/lib/blog/types"
@@ -20,13 +22,39 @@ export default function PostArticle({ post }: { post: Post }) {
             {post.excerpt}
           </p>
         ) : null}
-        <p className="text-sm text-muted-foreground">
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
           {post.author.name}
           {post.publishedAt ? (
             <>
-              {" · "}
+              {"·"}
               <DateLabel value={post.publishedAt} dateStyle="long" />
             </>
+          ) : null}
+          {post.author.socials.length ? (
+            <ul className="flex items-center gap-0.5">
+              {post.author.socials.map((social) => {
+                const platform = SOCIAL_PLATFORMS.find(
+                  (entry) => entry.value === social.platform
+                )
+                if (!platform) return null
+                return (
+                  <li key={social.platform}>
+                    <a
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer me"
+                      title={`${post.author.name} on ${platform.label}`}
+                      className="inline-flex min-h-9 min-w-9 items-center justify-center transition-colors hover:text-primary"
+                    >
+                      <HugeiconsIcon icon={platform.icon} size="1.25rem" />
+                      <span className="sr-only">
+                        {post.author.name} on {platform.label}
+                      </span>
+                    </a>
+                  </li>
+                )
+              })}
+            </ul>
           ) : null}
         </p>
       </header>

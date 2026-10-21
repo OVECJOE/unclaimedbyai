@@ -19,17 +19,21 @@ import {
   hashToken,
   moderateComment,
   storeLoginToken,
+  updateEditorSocials,
   updatePost,
 } from "./store"
 import { validateMdx } from "./validate"
 import { isSafeCoverUrl } from "./cover-image"
+import { SOCIAL_PLATFORMS } from "./socials"
 import type {
+  AuthorSocial,
   BoostState,
   CommentSubmitState,
   ContentIssue,
   LoginState,
   PostInput,
   SaveResult,
+  SocialsFormState,
 } from "./types"
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -131,6 +135,45 @@ function checkFields(input: PostInput): ContentIssue[] {
   }
 
   return issues
+}
+
+const SOCIAL_URL_MAX = 300
+
+export async function saveSocials(
+  _previous: SocialsFormState,
+  formData: FormData
+): Promise<SocialsFormState> {
+  const editor = await requireEditor()
+
+  const socials: AuthorSocial[] = []
+  for (const platform of SOCIAL_PLATFORMS) {
+    const raw = formData.get(platform.value)
+    const url = typeof raw === "string" ? raw.trim() : ""
+    if (!url) continue
+    if (!url.startsWith("https://") || url.length > SOCIAL_URL_MAX) {
+      return {
+        ok: false,
+        message: `Enter a full https:// link for ${platform.label}, or leave the field empty.`,
+      }
+    }
+    socials.push({ platform: platform.value, url })
+  }
+
+  try {
+    await updateEditorSocials(editor.id, socials)
+  } catch (error) {
+    console.error("Saving editor socials failed", error)
+    return {
+      ok: false,
+      message: "Could not save the links. Try again in a moment.",
+    }
+  }
+
+  revalidatePath("/blog", "layout")
+  return {
+    ok: true,
+    message: "Saved. These links now appear on every post you have written.",
+  }
 }
 
 export async function savePost(input: PostInput): Promise<SaveResult> {

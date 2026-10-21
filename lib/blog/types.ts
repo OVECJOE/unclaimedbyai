@@ -1,15 +1,25 @@
 export type PostStatus = "draft" | "published"
 
+export type SocialPlatform =
+  "x" | "linkedin" | "instagram" | "github" | "website"
+
+export type AuthorSocial = {
+  platform: SocialPlatform
+  url: string
+}
+
 export type Editor = {
   id: number
   email: string
   name: string
   avatarUrl: string | null
+  socials: AuthorSocial[]
 }
 
 export type PostAuthor = {
   name: string
   avatarUrl: string | null
+  socials: AuthorSocial[]
 }
 
 export type PostSummary = {
@@ -70,6 +80,11 @@ export type SaveResult =
 export type LoginState = {
   status: "idle" | "sent" | "error"
   message?: string
+}
+
+export type SocialsFormState = {
+  ok: boolean
+  message: string
 }
 
 export type CommentStatus = "pending" | "approved" | "rejected"

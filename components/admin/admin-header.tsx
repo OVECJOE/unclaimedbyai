@@ -36,6 +36,9 @@ export default function AdminHeader({ editor }: { editor: Editor }) {
           <span className="hidden truncate text-muted-foreground sm:block">
             {editor.name}
           </span>
+          <Button type="button" variant="ghost" size="sm" asChild>
+            <Link href="/admin/blog/profile">Profile</Link>
+          </Button>
           <Button
             type="button"
             variant="ghost"
