@@ -12,7 +12,7 @@ export function PlaygroundCanvasSkeleton() {
       <div className="grid gap-5 lg:grid-cols-[1fr_22rem]">
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-col gap-3 md:flex-row md:items-baseline">
+            <div className="flex flex-col gap-3">
               <div className="h-7 w-52 animate-pulse bg-muted" />
               <div className="h-4 w-32 animate-pulse bg-muted" />
             </div>
