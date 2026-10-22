@@ -41,21 +41,23 @@ export default function TagHero({
             </Link>
           </Badge>
         </div>
-        <h1 className="font-heading text-4xl font-semibold break-words md:text-6xl">
+        <h1 className="font-heading text-4xl font-semibold wrap-break-word md:text-6xl">
           {display}
         </h1>
-        <p className="mx-auto max-w-prose text-muted-foreground md:text-lg">
-          Everything tagged &ldquo;{display}&rdquo;, newest first.
-        </p>
-        <p className="text-sm text-muted-foreground">
-          {count} {count === 1 ? "post" : "posts"}
-          {latest ? (
-            <>
-              {" · Latest "}
-              <DateLabel value={latest} dateStyle="long" />
-            </>
-          ) : null}
-        </p>
+        <div className="space-y-1">
+          <p className="mx-auto max-w-prose text-muted-foreground md:text-lg">
+            Everything tagged &ldquo;{display}&rdquo;, newest first.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {count} {count === 1 ? "post" : "posts"}
+            {latest ? (
+              <>
+                {" · Latest "}
+                <DateLabel value={latest} dateStyle="long" />
+              </>
+            ) : null}
+          </p>
+        </div>
       </div>
 
       {tags.length > 1 ? (
