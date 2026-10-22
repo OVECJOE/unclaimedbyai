@@ -30,16 +30,18 @@ export default function PostArticle({ post }: { post: Post }) {
             {post.excerpt}
           </p>
         ) : null}
-        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-          {post.author.name}
-          {post.publishedAt ? (
-            <>
-              {"·"}
-              <DateLabel value={post.publishedAt} dateStyle="long" />
-            </>
-          ) : null}
+        <div className="space-y-1 text-sm text-muted-foreground">
+          <p>
+            Written by {post.author.name}
+            {post.publishedAt ? (
+              <>
+                {" on "}
+                <DateLabel value={post.publishedAt} dateStyle="long" />
+              </>
+            ) : null}
+          </p>
           {post.author.socials.length ? (
-            <ul className="flex items-center gap-0.5">
+            <ul className="-ml-2 flex items-center gap-0.5">
               {post.author.socials.map((social) => {
                 const platform = SOCIAL_PLATFORMS.find(
                   (entry) => entry.value === social.platform
@@ -64,7 +66,7 @@ export default function PostArticle({ post }: { post: Post }) {
               })}
             </ul>
           ) : null}
-        </p>
+        </div>
         {post.tags.length ? (
           <ul className="flex flex-wrap gap-1.5">
             {post.tags.map((tag) => (
