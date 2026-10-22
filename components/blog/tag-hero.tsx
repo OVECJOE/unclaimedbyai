@@ -5,10 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import DateLabel from "@/components/blog/date-label"
 import { BLOG_TITLE } from "@/lib/blog/config"
 import type { TagSummary } from "@/lib/blog/store"
-import { cn } from "@/lib/utils"
-
-const CHIP =
-  "inline-block border px-2 py-0.5 text-[0.625rem] font-semibold tracking-widest uppercase transition-colors"
+import TagScroller from "./tag-scroller"
 
 /**
  * The tag archive's masthead, in the same grand pattern as the legal
@@ -62,39 +59,11 @@ export default function TagHero({
       </div>
 
       {tags.length > 1 ? (
-        <div className="mx-auto mt-10 max-w-3xl">
+        <div className="mx-auto mt-10 max-w-7xl">
           <p className="mb-3 text-center text-xs font-semibold tracking-widest text-muted-foreground uppercase">
             All topics
           </p>
-          <ul className="flex flex-wrap justify-center gap-1.5">
-            {tags.map((entry) =>
-              entry.slug === currentSlug ? (
-                <li key={entry.slug}>
-                  <span
-                    aria-current="page"
-                    className={cn(
-                      CHIP,
-                      "border-primary bg-primary text-primary-foreground"
-                    )}
-                  >
-                    {entry.tag}
-                  </span>
-                </li>
-              ) : (
-                <li key={entry.slug}>
-                  <Link
-                    href={`/blog/tag/${entry.slug}`}
-                    className={cn(
-                      CHIP,
-                      "border-primary/30 text-primary hover:bg-primary/10"
-                    )}
-                  >
-                    {entry.tag}
-                  </Link>
-                </li>
-              )
-            )}
-          </ul>
+          <TagScroller tags={tags} currentSlug={currentSlug} />
         </div>
       ) : null}
     </section>

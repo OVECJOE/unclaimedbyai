@@ -1,10 +1,10 @@
-import Link from "next/link"
 import { notFound } from "next/navigation"
 import { PaginationWindow } from "@/components/ui/pagination-window"
 import { BLOG_SUBHEADING, BLOG_TITLE, POSTS_PER_PAGE } from "@/lib/blog/config"
 import { listPublishedPostsPage, listPublishedTags } from "@/lib/blog/store"
 import BlogCard from "./blog-card"
 import EmptyBlogIllustration from "./empty-blog-illustration"
+import TagScroller from "./tag-scroller"
 
 export function blogPageHref(page: number): string {
   return page === 1 ? "/blog" : `/blog/page/${page}`
@@ -27,20 +27,7 @@ export default async function BlogListing({ page }: { page: number }) {
             {BLOG_TITLE}
           </h1>
           <p className="max-w-prose md:mx-auto md:text-lg">{BLOG_SUBHEADING}</p>
-          {tags.length ? (
-            <ul className="flex flex-wrap gap-1.5 md:justify-center">
-              {tags.map((entry) => (
-                <li key={entry.slug}>
-                  <Link
-                    href={`/blog/tag/${entry.slug}`}
-                    className="inline-block border border-primary/30 px-1.5 py-0.5 text-[0.625rem] font-semibold tracking-widest text-primary uppercase transition-colors hover:bg-primary/10"
-                  >
-                    {entry.tag}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : null}
+          {tags.length ? <TagScroller tags={tags} /> : null}
         </div>
 
         {items.length ? (
