@@ -13,3 +13,29 @@ export function tagToSlug(tag: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
 }
+
+// Words a title-case pass must keep short. CSS text-transform:
+// capitalize would render "ai collision detection" as "Ai Collision
+// Detection", and an "Ai" heading is exactly the kind of detail that
+// makes a page look machine-stamped.
+const ACRONYMS = new Set([
+  "ai", "api", "crm", "cta", "gpt", "llm", "llms", "mvp", "rdap", "saas",
+  "seo", "ui", "ux",
+])
+
+/**
+ * Display casing for a stored (lowercase) tag: every word capitalized,
+ * acronyms kept short. "ai collision detection" becomes "AI Collision
+ * Detection"; chips keep rendering the raw tag under uppercase CSS.
+ */
+export function tagToDisplay(tag: string): string {
+  return tag
+    .trim()
+    .split(/\s+/)
+    .map((word) => {
+      const lower = word.toLowerCase()
+      if (ACRONYMS.has(lower)) return lower.toUpperCase()
+      return lower.charAt(0).toUpperCase() + lower.slice(1)
+    })
+    .join(" ")
+}
