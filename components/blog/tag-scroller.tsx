@@ -15,7 +15,11 @@ const CHIP =
  * starts flush with its first chip and scrolls from there. The edge
  * mask fades chips only where they actually reach the container's
  * border, which doubles as the "there is more this way" affordance;
- * the scrollbar itself stays hidden.
+ * the scrollbar itself stays hidden. The list carries its own px-4
+ * (16px, past the mask's 10px fade) so the first and last pill sit
+ * clear of the fade at both scroll extremes instead of looking
+ * gnawed on — padding on the list travels with the scroll extent,
+ * which is what makes the far end reliable.
  */
 export default function TagScroller({
   tags,
@@ -35,7 +39,7 @@ export default function TagScroller({
         className
       )}
     >
-      <ul className="mx-auto flex w-max gap-1.5 py-1">
+      <ul className="mx-auto flex w-max gap-1.5 px-4 py-1">
         {tags.map((entry) =>
           entry.slug === currentSlug ? (
             <li key={entry.slug}>
