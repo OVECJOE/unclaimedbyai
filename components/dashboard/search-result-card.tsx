@@ -125,7 +125,7 @@ export function SearchResultCard({
         </div>
       </Link>
 
-      <div className="absolute right-2 bottom-3 z-10 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+      <div className="absolute right-2 bottom-3 z-10 opacity-100 transition-opacity focus-visible:opacity-100 pointer-fine:opacity-0 pointer-fine:group-focus-within:opacity-100 pointer-fine:group-hover:opacity-100">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
