@@ -46,7 +46,7 @@ export default function RecentSandboxes({
                 />
               </div>
               {summary ? (
-                <p className="mt-1 truncate text-sm text-muted-foreground">
+                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                   {summary}
                 </p>
               ) : null}{" "}
