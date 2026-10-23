@@ -35,7 +35,7 @@ export default async function DashboardLayout({
       </a>
       <main
         id="main-content"
-        className="flex min-h-screen flex-col pb-16 md:pb-0 md:pl-60"
+        className="flex min-h-screen flex-col pb-[calc(4rem_+_env(safe-area-inset-bottom))] md:pb-0 md:pl-60"
       >
         <MobileHeader user={user} />
         <ClaimSearches />

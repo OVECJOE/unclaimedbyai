@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
+import { playSound } from "@/lib/sound/engine"
 
 /**
  * Checkout can return to any page through return_to, so payment results
@@ -28,6 +29,7 @@ export default function PaymentFlag({
   useEffect(() => {
     if (keepPaid) return
     if (paid) {
+      playSound("reward", "payment")
       toast.success("Payment received. Your credits are on the account.")
     } else if (canceled) {
       toast.warning("Checkout was canceled. No charge was made.")

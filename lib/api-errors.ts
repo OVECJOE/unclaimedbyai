@@ -2,6 +2,7 @@
 
 import { toast } from "sonner"
 import { ApiError } from "@/lib/api"
+import { playSound } from "@/lib/sound/engine"
 
 function billingHref(): string {
   if (typeof window === "undefined") return "/pricing"
@@ -17,6 +18,11 @@ function messageFor(error: ApiError, fallback: string): string {
 }
 
 export function toastApiError(error: unknown, fallback: string): void {
+  const message =
+    error instanceof ApiError ? messageFor(error, fallback) : fallback
+  // A soft descending fall rather than a buzz: the toast already says
+  // what happened, the sound only says "that didn't go through".
+  playSound("error", message)
   if (error instanceof ApiError && error.status === 402) {
     toast.error("You're out of report credits. Top up to keep going.", {
       action: {

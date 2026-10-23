@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { playSound } from "@/lib/sound/engine"
 import { nameToSlug } from "@/lib/utils"
 
 /**
@@ -26,9 +27,11 @@ export default function CopyPermalink({
     try {
       await navigator.clipboard.writeText(url)
       setCopied(true)
+      playSound("spark", `copy:${name}`)
       toast.success(`Link to ${name} copied.`)
       setTimeout(() => setCopied(false), 2000)
     } catch {
+      playSound("error", "copy")
       toast.error("The link could not be copied. Copy it from the address bar.")
     }
   }

@@ -21,6 +21,8 @@ import {
   type SandboxDetail,
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
+import { announceCompletion } from "@/lib/sound/announce"
+import { playSound } from "@/lib/sound/engine"
 import IdeaCard from "@/components/dashboard/idea-card"
 import SignalEditor from "@/components/dashboard/signal-editor"
 import { useTurnstile } from "@/components/public/turnstile"
@@ -78,7 +80,10 @@ export default function SandboxView({
       if (fresh && fresh.run_status !== "generating") {
         setGenerating(false)
         if (fresh.run_status === "failed" && fresh.run_error) {
+          playSound("error", `run:${initial.public_id}`)
           toast.error(fresh.run_error)
+        } else {
+          announceCompletion(`run:${initial.public_id}`, "Your ideas are ready")
         }
         return
       }
@@ -89,7 +94,7 @@ export default function SandboxView({
       cancelled = true
       if (timer.current) clearTimeout(timer.current)
     }
-  }, [generating, refresh])
+  }, [generating, refresh, initial.public_id])
 
   async function run() {
     setGenerating(true)

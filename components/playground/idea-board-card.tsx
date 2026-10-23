@@ -56,7 +56,7 @@ export default function IdeaBoardCard({
         ) : (
           <button
             type="button"
-            className="mt-0.5 cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
+            className="cursor-grab touch-none p-2 -m-2 text-muted-foreground hover:text-foreground active:cursor-grabbing"
             aria-label={`Reorder ${idea.title}`}
             {...attributes}
             {...listeners}

@@ -6,6 +6,7 @@ import { JsonLd } from "@/components/app/json-ld"
 import { Toaster } from "@/components/ui/sonner"
 import Analytics from "@/components/app/analytics"
 import CookieBanner from "@/components/app/cookie-banner"
+import SoundBridge from "@/components/sound/sound-bridge"
 import {
   OG_PATH,
   SITE_DESCRIPTION,
@@ -85,6 +86,7 @@ export default function RootLayout({
         <Analytics />
         <JsonLd data={siteJsonLd} />
         <ThemeProvider>{children}</ThemeProvider>
+        <SoundBridge />
         <Toaster position="bottom-center" />
         <CookieBanner />
       </body>

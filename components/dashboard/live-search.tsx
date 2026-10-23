@@ -32,6 +32,8 @@ import {
   type SearchSummaryPayload,
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
+import { announceCompletion } from "@/lib/sound/announce"
+import { playSound } from "@/lib/sound/engine"
 import { toNameResultFromPayload } from "@/lib/result-mappers"
 
 // Stage labels track the progress values the generation job writes:
@@ -133,6 +135,40 @@ export default function LiveSearch({
 
   const generating = header.generation.status === "generating"
   const active = generating || pending.length > 0
+
+  // The settle is the emotional peak of the whole product, so it is
+  // sounded like one: a shimmer when the first names land, a warm
+  // chord when the shortlist finishes, a muted fall when the run
+  // fails. If the tab is in the background, the title carries the
+  // news instead, and the chord plays when the visitor comes back.
+  const prevActiveRef = useRef(active)
+  const sawWorkRef = useRef(false)
+  const sawNamesRef = useRef(header.name_count > 0)
+  useEffect(() => {
+    const wasActive = prevActiveRef.current
+    prevActiveRef.current = active
+    if (active) {
+      sawWorkRef.current = true
+      return
+    }
+    if (!wasActive) return
+    if (header.generation.status === "failed") {
+      playSound("error", `search:${searchId}`)
+      return
+    }
+    const flash =
+      header.name_count === 1
+        ? "Your name is ready"
+        : `${header.name_count} names are ready`
+    announceCompletion(`search:${searchId}`, flash)
+  }, [active, header.generation.status, header.name_count, searchId])
+  useEffect(() => {
+    if (sawNamesRef.current || header.name_count === 0) return
+    sawNamesRef.current = true
+    if (sawWorkRef.current || generating) {
+      playSound("reveal", `search:${searchId}`)
+    }
+  }, [header.name_count, generating, searchId])
 
   function syncUrl(next: { availableOnly: boolean; sort: string; q: string }) {
     const params = new URLSearchParams(window.location.search)

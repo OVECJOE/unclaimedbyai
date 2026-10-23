@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/dialog"
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import type { SandboxDetail, SandboxList } from "@/lib/api"
+import { announceCompletion } from "@/lib/sound/announce"
+import { playSound } from "@/lib/sound/engine"
 import { useDashboardStore } from "@/lib/store/dashboard"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import SandboxSwitcher from "@/components/playground/sandbox-switcher"
@@ -171,9 +173,13 @@ export default function PlaygroundCanvas({
       const fresh = await openSandbox(detail.public_id, { force: true })
       if (cancelled || !fresh) return
       if (fresh.run_status === "failed" && fresh.run_error) {
+        playSound("error", `run:${detail.public_id}`)
         toast.error(fresh.run_error)
       }
       if (fresh.run_status !== "generating") {
+        if (fresh.run_status !== "failed") {
+          announceCompletion(`run:${detail.public_id}`, "Your ideas are ready")
+        }
         void ensureSandboxes({ force: true })
       }
     }, POLL_MS)
@@ -259,7 +265,10 @@ export default function PlaygroundCanvas({
           if (!open) setExpandedId(null)
         }}
       >
-        <SheetContent side="bottom" className="h-[85vh] p-0">
+        <SheetContent
+          side="bottom"
+          className="max-h-[85vh] overflow-hidden p-0"
+        >
           <SheetTitle className="sr-only">
             {expanded?.title ?? "Idea"}
           </SheetTitle>

@@ -6,6 +6,7 @@ import { TextDivider } from "@/components/app/text-divider"
 import GoogleButton from "@/components/public/google-button"
 import MagicLinkForm from "@/components/public/magic-link-form"
 import { MagicLinkTimer } from "@/components/public/magic-link-timer"
+import PlaySound from "@/components/sound/play-sound"
 import { sendMagicLink } from "./actions"
 import type { Metadata } from "next"
 
@@ -53,6 +54,7 @@ export default async function AuthPage({
   if (email) {
     return (
       <section className="space-y-5 px-4 py-10 text-center md:mt-16">
+        <PlaySound mood="reveal" seed={`magic-link:${email}`} />
         <div className="space-y-3">
           <Badge
             variant="default"

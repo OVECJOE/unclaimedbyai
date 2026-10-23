@@ -6,6 +6,7 @@ import Logo from "@/components/app/logo"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Menu09Icon } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
+import SoundToggle from "@/components/sound/sound-toggle"
 import {
   Sheet,
   SheetContent,
@@ -56,6 +57,7 @@ export default function AppHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
+          <SoundToggle />
           <Button asChild>
             <Link href="/dashboard">Dashboard</Link>
           </Button>
@@ -75,6 +77,12 @@ export default function AppHeader() {
           <SheetContent side="right">
             <SheetTitle className="sr-only">Navigation menu</SheetTitle>
             <nav aria-label="Mobile" className="mt-8 flex flex-col gap-4 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+                  Sound
+                </span>
+                <SoundToggle />
+              </div>
               {navLinks.map((link) => {
                 const active = pathname === link.href
                 return (

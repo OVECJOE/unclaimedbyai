@@ -14,6 +14,7 @@ import {
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
 import { ApiError } from "@/lib/api"
+import { playSound } from "@/lib/sound/engine"
 import { useTurnstile } from "@/components/public/turnstile"
 
 function CanvasLine({ label, value }: { label: string; value: string | null }) {
@@ -69,8 +70,12 @@ export default function IdeaCard({
             setPolling(false)
             setResearch(fresh)
             onChangeRef.current()
+            // Paid work landing: the reward timbre, seeded by the idea
+            // so every idea's research sounds like itself.
+            playSound("reward", `research:${idea.public_id}`)
           } else if (fresh.status === "failed") {
             setPolling(false)
+            playSound("error", `research:${idea.public_id}`)
             toast.error(fresh.error ?? "Research failed. Try again.")
           }
         })
@@ -112,15 +117,18 @@ export default function IdeaCard({
       if (error instanceof ApiError && error.status === 401) {
         // Research is an account feature; the public sandbox shows the
         // button, so the refusal has to say what unlocks it.
-        toast.error("Market research runs on your account. Sign in to start it.", {
-          action: {
-            label: "Sign in",
-            onClick: () =>
-              router.push(
-                `/auth?next=${encodeURIComponent(window.location.pathname)}`
-              ),
-          },
-        })
+        toast.error(
+          "Market research runs on your account. Sign in to start it.",
+          {
+            action: {
+              label: "Sign in",
+              onClick: () =>
+                router.push(
+                  `/auth?next=${encodeURIComponent(window.location.pathname)}`
+                ),
+            },
+          }
+        )
         return
       }
       toastApiError(error, "Research could not start.")

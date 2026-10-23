@@ -201,7 +201,7 @@ export default function IdeaDetailPanel({
   }
 
   return (
-    <div className="flex h-full flex-col border bg-card">
+    <div className="flex h-full min-h-0 flex-col border bg-card">
       <div className="flex items-start justify-between gap-3 border-b p-4">
         <div className="min-w-0">
           <p className="truncate font-heading text-xl font-semibold">
@@ -226,7 +226,7 @@ export default function IdeaDetailPanel({
         </Button>
       </div>
 
-      <div className="flex-1 space-y-4 overflow-y-auto p-4">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
         <p className="text-sm text-muted-foreground">{idea.concept}</p>
         {idea.canvas ? (
           <div className="space-y-1 border-l-2 pl-3">

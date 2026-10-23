@@ -28,6 +28,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { ApiError, addWatch, removeWatch, updateWatch } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
+import { playSound } from "@/lib/sound/engine"
 import { cn } from "@/lib/utils"
 
 export const TLD_OPTIONS = [
@@ -162,12 +163,14 @@ export function WatchForm({
         toast.success(
           `Now watching ${name}. We will email you if any of its domains or handles get claimed.`
         )
+        playSound("spark", `watch:${name}`)
         onSaved?.(watch.id, tlds, platforms)
       }
       onDone()
     } catch (error) {
       if (error instanceof ApiError && error.status === 402) {
         // The backend's own upsell message, plus the door it names.
+        playSound("error", error.message)
         toast.error(error.message, {
           action: {
             label: "See plans",

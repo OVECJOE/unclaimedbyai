@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowUpIcon } from "@hugeicons/core-free-icons"
 import useTypewriter from "@/hooks/typewriter"
+import { playSound } from "@/lib/sound/engine"
 import { cn } from "@/lib/utils"
 import type { SignalProfile } from "@/lib/api"
 import SignalFields from "@/components/playground/signal-fields"
@@ -118,7 +119,10 @@ export default function Prompter({
   }, [])
 
   function submit() {
-    if (!value.trim()) return
+    if (!value.trim() || pending) return
+    // The launch chord is seeded by the brief itself: every idea
+    // sounds like the idea it was born from, and never twice the same.
+    playSound("launch", `${mode}:${value.trim()}`)
     if (mode === "name" || !showSignalFields) {
       onSubmit?.(value.trim(), mode)
       return
