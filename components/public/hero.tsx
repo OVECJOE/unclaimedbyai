@@ -4,10 +4,11 @@ import { Badge } from "@/components/ui/badge"
 
 /**
  * The landing hero. Left column keeps the existing, SEO-proven copy;
- * the prompter and the loom are separate grid cells so that on mobile
- * the loom rises above the prompter while on desktop it sits to the
- * right, spanning both rows. The loom is self-contained demo theatre,
- * so it renders instantly with no fetch.
+ * the prompter and the loom are separate grid cells so that on
+ * desktop the loom sits to the right, spanning both rows, while on
+ * phones the loom hides entirely — it would push the prompter below
+ * the fold, and the prompter is the pitch. The loom is
+ * self-contained demo theatre, so it renders instantly with no fetch.
  */
 export default function Hero({ signedIn }: { signedIn: boolean }) {
   return (
@@ -37,19 +38,12 @@ export default function Hero({ signedIn }: { signedIn: boolean }) {
               </span>
               .
             </h1>
-            <p className="mx-auto max-w-prose text-muted-foreground md:text-lg lg:mx-0 hidden lg:block">
-              Describe what you&apos;re building: four naming studios go to
-              work, an editor keeps the strongest, and every survivor is
-              screened against live .com registration, real handle lookups, and
-              what the biggest AI models already associate with it, so your
-              shortlist is scored by what you can actually register today, not
-              by what sounds nice.
-            </p>
-            <p className="max-w-prose text-muted-foreground md:text-lg lg:hidden">
-              Describe what you&apos;re building. Four naming studios generate,
-              and every survivor is screened live against .com registration,
-              real social handles, and what GPT and Claude already associate
-              with it — scored by what you can actually register today.
+            <p className="mx-auto max-w-prose text-muted-foreground md:text-lg lg:mx-0">
+              Tell us what you&apos;re building. We generate name ideas and
+              screen every one against live .com availability, social handles,
+              and what ChatGPT and Claude already associate with it — then
+              score the shortlist, so you know exactly which names you can
+              register today.
             </p>
             <p className="text-sm text-muted-foreground">
               Live .com lookups,
@@ -61,9 +55,10 @@ export default function Hero({ signedIn }: { signedIn: boolean }) {
           </div>
         </div>
 
-        {/* The loom: self-contained demo theatre, before the prompter on
-            mobile, beside it on desktop. */}
-        <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+        {/* The loom: self-contained demo theatre, desktop only — on a
+            phone it pushes the prompter below the fold, and the
+            prompter IS the pitch. */}
+        <div className="hidden lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:block">
           <HeroLoom />
         </div>
 
