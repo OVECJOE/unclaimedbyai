@@ -83,3 +83,34 @@ export function clearAnonSessionId(): void {
     // Cookies unavailable; nothing to clear.
   }
 }
+
+// The one-shot "claim my anonymous work when I next arrive signed in"
+// flag, armed ONLY by the sign-in buttons on the anon results page.
+// A sign-in from anywhere else must never silently adopt searches the
+// user never chose to keep — that is how anonymous work quietly pushed
+// people over their plan's monthly count.
+const CLAIM_INTENT_KEY = "uba-claim-on-signin"
+
+export function armClaimOnSignIn(): void {
+  try {
+    localStorage.setItem(CLAIM_INTENT_KEY, getAnonSessionId())
+  } catch {
+    // Storage unavailable; the click simply won't claim.
+  }
+}
+
+export function readClaimIntent(): string | null {
+  try {
+    return localStorage.getItem(CLAIM_INTENT_KEY)
+  } catch {
+    return null
+  }
+}
+
+export function clearClaimIntent(): void {
+  try {
+    localStorage.removeItem(CLAIM_INTENT_KEY)
+  } catch {
+    // Storage unavailable; nothing to clear.
+  }
+}

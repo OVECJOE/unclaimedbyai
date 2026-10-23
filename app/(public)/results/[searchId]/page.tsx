@@ -10,6 +10,7 @@ import {
   getCachedSearchResultsPage,
   getCachedSearchSummary,
 } from "@/lib/dashboard-data"
+import SignInToClaim from "@/components/public/sign-in-to-claim"
 import type { Metadata } from "next"
 
 export const dynamic = "force-dynamic"
@@ -28,9 +29,9 @@ function LinkNotice({ title, body }: { title: string; body: string }) {
         <Button asChild>
           <Link href="/dashboard">Start your own search</Link>
         </Button>
-        <Button variant="outline" asChild>
-          <Link href="/auth">Sign in</Link>
-        </Button>
+        <SignInToClaim href="/auth" variant="outline">
+          Sign in
+        </SignInToClaim>
       </div>
     </div>
   )
@@ -105,13 +106,9 @@ async function SearchLiveBlock({
             Sign in and this search moves into your dashboard history
             automatically.
           </p>
-          <Button asChild>
-            <Link
-              href={`/auth?next=${encodeURIComponent(`/results/${searchId}`)}`}
-            >
-              Sign in to save
-            </Link>
-          </Button>
+          <SignInToClaim href={`/auth?next=${encodeURIComponent(`/results/${searchId}`)}`}>
+            Sign in to save
+          </SignInToClaim>
         </div>
       }
     />
