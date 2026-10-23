@@ -269,7 +269,7 @@ export default function LiveSearch({
           </span>
         </div>
         {header.brief_summary || header.brief_attributes ? (
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+          <div className="space-y-1.5">
             {header.brief_summary ? (
               <p className="max-w-prose text-sm text-muted-foreground italic">
                 &ldquo;{header.brief_summary}&rdquo;
@@ -281,6 +281,7 @@ export default function LiveSearch({
                   key={key}
                   className="border px-1.5 py-0.5 text-xs text-muted-foreground"
                 >
+                  <strong className="text-primary">[{key}]</strong>{" "}
                   {header.brief_attributes[key]}
                 </span>
               ) : null
@@ -315,8 +316,8 @@ export default function LiveSearch({
           </p>
           <p className="text-sm text-muted-foreground">
             {generationStage(header.generation.progress)}… names land in the
-            results below the moment they clear live screening, so the
-            shortlist builds while you watch.
+            results below the moment they clear live screening, so the shortlist
+            builds while you watch.
           </p>
           <div
             className="mx-auto h-2 w-full max-w-md bg-muted"
