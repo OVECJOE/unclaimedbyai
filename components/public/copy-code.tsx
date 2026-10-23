@@ -7,6 +7,7 @@ import { Highlight, themes } from "prism-react-renderer"
 import "@/lib/prism-setup"
 import "prismjs/components/prism-bash"
 import { Button } from "@/components/ui/button"
+import { playSound } from "@/lib/sound/engine"
 
 export default function CopyCode({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)
@@ -27,6 +28,7 @@ export default function CopyCode({ code }: { code: string }) {
     try {
       await navigator.clipboard.writeText(code)
       setCopied(true)
+      playSound("spark", "copy:code")
       toast.success("Copied to clipboard.")
       setTimeout(() => setCopied(false), 2000)
     } catch {

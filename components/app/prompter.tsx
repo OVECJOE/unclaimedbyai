@@ -254,6 +254,7 @@ export default function Prompter({
             <Button
               type="submit"
               disabled={!value.trim() || pending}
+              data-sound="none"
               className="gap-2"
             >
               {mode === "name"

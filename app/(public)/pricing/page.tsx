@@ -151,6 +151,10 @@ export default async function PricingPage() {
             />
           ))}
         </div>
+        <p className="mx-auto max-w-prose text-sm text-muted-foreground">
+          Pro bills monthly and cancels any time from Billing — the plan stays
+          active until the period ends. Credits never expire, on any plan.
+        </p>
 
         <div>
           <h2 className="mb-3 font-heading text-xl font-semibold">

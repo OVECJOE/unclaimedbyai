@@ -6,11 +6,15 @@ function StatCard({
   value,
   note,
   href,
+  meter,
 }: {
   label: string
   value: string
   note: string
   href?: string
+  /** Share of the allowance used,0–100. Goal-gradient: seeing the
+   *  meter fill is what pulls effort toward the next search. */
+  meter?: number
 }) {
   const body = (
     <>
@@ -19,6 +23,21 @@ function StatCard({
       </p>
       <p className="mt-2 font-heading text-4xl font-semibold">{value}</p>
       <p className="mt-1 text-xs text-muted-foreground">{note}</p>
+      {meter !== undefined ? (
+        <div
+          className="mt-3 h-1.5 w-full bg-muted"
+          role="progressbar"
+          aria-valuenow={meter}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`${label} used this month`}
+        >
+          <div
+            className="h-full bg-primary transition-all duration-700"
+            style={{ width: `${Math.max(4, meter)}%` }}
+          />
+        </div>
+      ) : null}
     </>
   )
   if (href) {
@@ -45,6 +64,10 @@ function StatCard({
  * readable instead of wrapping one word per line.
  */
 export default function StatsRow({ stats }: { stats: MeStats }) {
+  const searchesPct =
+    stats.searches_limit > 0
+      ? Math.min(100, Math.round((stats.searches_used / stats.searches_limit) * 100))
+      : 0
   return (
     <div
       data-tour="stats"
@@ -55,6 +78,7 @@ export default function StatsRow({ stats }: { stats: MeStats }) {
         value={`${stats.searches_used}/${stats.searches_limit}`}
         note="This month. Resets on the first."
         href="/dashboard/history"
+        meter={searchesPct}
       />
       <StatCard
         label="Sandboxes"

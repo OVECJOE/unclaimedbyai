@@ -29,7 +29,9 @@ export const metadata: Metadata = pageMetadata({
 })
 
 export default async function Page() {
-  let communityCount = 308
+  // The real number when stats answer, nothing when they don't: a
+  // stale constant worse than no counter at all.
+  let communityCount: number | null = null
   try {
     const base = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8007"
     const res = await fetch(`${base}/api/v1/stats`, {
@@ -42,7 +44,7 @@ export default async function Page() {
       }
     }
   } catch {
-    communityCount = 308
+    communityCount = null
   }
   const user = await getMeServer().catch(() => null)
   return (
@@ -77,8 +79,8 @@ export default async function Page() {
               Four steps from a blank page to a name you can actually own.
             </p>
           </div>
-          <div className="flex flex-col gap-8 sm:flex-row sm:justify-center sm:gap-3">
-            <article className="flex-1 space-y-2 border border-primary/20 bg-sidebar/50 px-3 py-5 text-start sm:border-0">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <article className="space-y-2 border border-primary/20 bg-sidebar/50 px-3 py-5 text-start">
               <p className="font-heading text-xs font-bold text-primary uppercase">
                 Step 1
               </p>
@@ -91,7 +93,7 @@ export default async function Page() {
                 </p>
               </div>
             </article>
-            <article className="flex-1 space-y-2 border border-primary/20 bg-sidebar/60 px-3 py-5 text-start sm:border-0">
+            <article className="space-y-2 border border-primary/20 bg-sidebar/60 px-3 py-5 text-start">
               <p className="font-heading text-xs font-bold text-primary uppercase">
                 Step 2
               </p>
@@ -104,7 +106,7 @@ export default async function Page() {
                 </p>
               </div>
             </article>
-            <article className="flex-1 space-y-2 border border-primary/20 bg-sidebar/70 px-3 py-5 text-start sm:border-0">
+            <article className="space-y-2 border border-primary/20 bg-sidebar/70 px-3 py-5 text-start">
               <p className="font-heading text-xs font-bold text-primary uppercase">
                 Step 3
               </p>
@@ -116,7 +118,7 @@ export default async function Page() {
                 </p>
               </div>
             </article>
-            <article className="flex-1 space-y-2 border border-primary/20 bg-sidebar/80 px-3 py-5 text-start sm:border-0">
+            <article className="space-y-2 border border-primary/20 bg-sidebar/80 px-3 py-5 text-start">
               <p className="font-heading text-xs font-bold text-primary uppercase">
                 Step 4
               </p>
@@ -150,11 +152,15 @@ export default async function Page() {
                 <AvatarFallback>{audience.charAt(0)}</AvatarFallback>
               </Avatar>
             ))}
-            <AvatarGroupCount>+{communityCount}</AvatarGroupCount>
+            {communityCount !== null ? (
+              <AvatarGroupCount>+{communityCount}</AvatarGroupCount>
+            ) : null}
           </AvatarGroup>
         </div>
         <Button size="lg" className="h-auto px-8 py-5 text-lg" asChild>
-          <Link href={user ? "/dashboard" : "/auth"}>Claim yours</Link>
+          <Link href={user ? "/dashboard" : "/auth"}>
+            Claim your first shortlist
+          </Link>
         </Button>
       </section>
     </>

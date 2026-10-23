@@ -23,6 +23,19 @@ import { toastApiError } from "@/lib/api-errors"
 
 const PAGE_SIZE = 12
 
+/** How far away the next background sweep is, in human time. */
+function untilSweep(nextSweepAt: string | null): string | null {
+  if (!nextSweepAt) return null
+  const ms = new Date(nextSweepAt).getTime() - Date.now()
+  if (!Number.isFinite(ms)) return null
+  if (ms <= 0) return "any moment"
+  const minutes = Math.max(1, Math.round(ms / 60000))
+  if (minutes < 60) return `in ${minutes} min`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 48) return `in ${hours}h ${minutes % 60}m`
+  return `in ${Math.round(hours / 24)} days`
+}
+
 function eventSentence(event: WatchEventItem): string {
   switch (event.kind) {
     case "domain_taken":
@@ -240,6 +253,12 @@ export default function Watchlist({ onChanged }: { onChanged?: () => void }) {
                           ? formatDateTime(item.last_swept_at)
                           : "has not run yet"}
                       </strong>
+                      {untilSweep(item.next_sweep_at) ? (
+                        <>
+                          . Next sweep{" "}
+                          <strong>{untilSweep(item.next_sweep_at)}</strong>
+                        </>
+                      ) : null}
                       .
                     </p>
                   </div>

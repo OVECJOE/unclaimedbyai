@@ -561,6 +561,12 @@ export function createProCheckout(returnTo?: string): Promise<{
   })
 }
 
+/** Stripe's hosted portal: pause, cancel, card changes. Subscribers
+ *  only; free accounts get 404 and should never see this button. */
+export function createPortalSession(): Promise<{ url: string }> {
+  return apiRequest("/api/v1/portal", { method: "POST" })
+}
+
 export type SignalProfile = {
   skills: string | null
   time_available: string | null
@@ -817,6 +823,26 @@ export function listOrders(): Promise<OrderItem[]> {
   return apiRequest<OrderItem[]>("/api/v1/orders")
 }
 
+export type LedgerEntry = {
+  id: number
+  unit: string
+  delta: number
+  reason: string
+  note: string | null
+  created_at: string
+  /** The credit balance right after this entry; null for non-credit units. */
+  balance_after: number | null
+}
+
+export type Ledger = {
+  balance: number
+  items: LedgerEntry[]
+}
+
+export function getLedger(): Promise<Ledger> {
+  return apiRequest<Ledger>("/api/v1/me/ledger")
+}
+
 export type Preferences = {
   report_ready: boolean
   payment_receipts: boolean
@@ -884,6 +910,7 @@ export type WatchItem = {
   clean_since: string | null
   days_clean: number | null
   last_swept_at: string | null
+  next_sweep_at: string | null
   created_at: string
   events: WatchEventItem[]
 }

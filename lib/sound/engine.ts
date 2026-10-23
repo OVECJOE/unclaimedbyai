@@ -29,6 +29,9 @@ export type SoundMood =
 const SOUND_STORAGE_KEY = "uba-sound"
 const SALT_STORAGE_KEY = "uba-sonic-salt"
 const MIN_GAP_MS = 40
+/** Distinct moods may layer (tap → launch); identical ones coalesce
+ *  (an explicitly played error and the toast's own error cue). */
+const MOOD_GAP_MS = 250
 const MAX_VOICES = 14
 
 /* ------------------------------------------------------------------ */
@@ -146,7 +149,7 @@ type Engine = {
 let engine: Engine | null = null
 let noise: AudioBuffer | null = null
 let activeVoices = 0
-let lastPlayedAt = 0
+const lastPlayedAt: Record<string, number> = {}
 
 function ensureEngine(): Engine | null {
   if (engine) return engine
@@ -608,7 +611,8 @@ export function playSound(mood: SoundMood, seed = ""): void {
   // when the visitor returns.
   if (document.visibilityState === "hidden") return
   const now = performance.now()
-  if (now - lastPlayedAt < MIN_GAP_MS) return
+  const gap = mood === "tap" ? MIN_GAP_MS : MOOD_GAP_MS
+  if (now - (lastPlayedAt[mood] ?? Number.NEGATIVE_INFINITY) < gap) return
   const e = ensureEngine()
   if (!e) return
   if (e.ctx.state !== "running") {
@@ -616,7 +620,7 @@ export function playSound(mood: SoundMood, seed = ""): void {
     void e.ctx.resume().catch(() => {})
     return
   }
-  lastPlayedAt = now
+  lastPlayedAt[mood] = now
   const rng = mulberry32(hashSeed(`${userSalt()}|${mood}|${seed}`))
   schedule(mood, e, rng)
 }

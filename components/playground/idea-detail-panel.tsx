@@ -258,7 +258,9 @@ export default function IdeaDetailPanel({
             disabled={busy}
             onClick={() => void openResearch()}
           >
-            {idea.status === "researched" ? "Read research" : "Research · 3"}
+            {idea.status === "researched"
+              ? "Read research"
+              : "Run research · 3 credits"}
           </Button>
         </div>
 

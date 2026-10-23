@@ -243,7 +243,7 @@ export default function IdeaCard({
             ? "Researching…"
             : idea.status === "researched"
               ? "Read research"
-              : "Research · 3"}
+              : "Run research · 3 credits"}
         </Button>
         <Button
           size="sm"
@@ -251,9 +251,14 @@ export default function IdeaCard({
           disabled={busy}
           onClick={() => void toSearch()}
         >
-          Search names · 2
+          Search names
         </Button>
       </div>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Research returns competitors, demand, audience channels, and how it
+        earns — 3 credits. Searches use your monthly allowance first, then 2
+        credits each.
+      </p>
       {sid ? turnstile.widget : null}
     </li>
   )

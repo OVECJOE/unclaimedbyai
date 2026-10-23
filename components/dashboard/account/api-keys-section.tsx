@@ -31,6 +31,7 @@ import {
   type ApiKeyItem,
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
+import { playSound } from "@/lib/sound/engine"
 import { formatDateTime } from "@/lib/utils"
 
 function RevealPanel({
@@ -46,6 +47,7 @@ function RevealPanel({
     try {
       await navigator.clipboard.writeText(rawKey)
       setCopied(true)
+      playSound("spark", "copy:api-key")
       toast.success("Key copied.")
     } catch {
       toast.error("The key could not be copied. Select it and copy manually.")

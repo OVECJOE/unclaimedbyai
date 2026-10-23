@@ -90,15 +90,35 @@ export default function SoundBridge() {
       if (event.key === "uba-sound") syncSoundEnabledFromStorage()
     }
 
+    // Every error toast in the app sounds, without touching a single
+    // call site: sonner mounts each toast as
+    // <li data-sonner-toast data-type="…">. Successes are sounded
+    // where they earn it (watch, copy, payment) so they stay special.
+    const toastObserver = new MutationObserver((records) => {
+      for (const record of records) {
+        for (const node of record.addedNodes) {
+          if (!(node instanceof Element)) continue
+          const toast =
+            node.matches?.("li[data-sonner-toast]")
+              ? node
+              : node.querySelector?.("li[data-sonner-toast]")
+          if (!toast || toast.getAttribute("data-type") !== "error") continue
+          playSound("error", (toast.textContent ?? "error").slice(0, 80))
+        }
+      }
+    })
+
     document.addEventListener("pointerdown", onPointerDown, {
       passive: true,
     })
     document.addEventListener("keydown", onKeyDown)
     window.addEventListener("storage", onStorage)
+    toastObserver.observe(document.body, { childList: true, subtree: true })
     return () => {
       document.removeEventListener("pointerdown", onPointerDown)
       document.removeEventListener("keydown", onKeyDown)
       window.removeEventListener("storage", onStorage)
+      toastObserver.disconnect()
     }
   }, [])
 

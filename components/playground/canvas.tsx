@@ -165,13 +165,22 @@ export default function PlaygroundCanvas({
   const generating = detail?.run_status === "generating"
 
   // Poll while a run is going and stop the moment it is not, so a tab
-  // left open does not poll forever.
+  // left open does not poll forever. Each tick that lands new ideas
+  // gets one reveal chirp — the board visibly answers the wait.
   useEffect(() => {
     if (!generating || !detail) return
     let cancelled = false
+    let seenIdeas = detail.ideas.length
     const timer = setInterval(async () => {
       const fresh = await openSandbox(detail.public_id, { force: true })
       if (cancelled || !fresh) return
+      if (fresh.ideas.length > seenIdeas) {
+        seenIdeas = fresh.ideas.length
+        playSound(
+          "reveal",
+          `idea:${fresh.ideas[fresh.ideas.length - 1]?.public_id ?? ""}`
+        )
+      }
       if (fresh.run_status === "failed" && fresh.run_error) {
         playSound("error", `run:${detail.public_id}`)
         toast.error(fresh.run_error)

@@ -8,6 +8,7 @@ import { PriceCard } from "@/components/price-card"
 import BuyButton from "@/components/dashboard/buy-button"
 import UpgradeButton from "@/components/dashboard/upgrade-button"
 import CheckoutBanner from "@/components/dashboard/checkout-banner"
+import PortalButton from "@/components/dashboard/portal-button"
 import PostCheckoutStrip from "@/components/dashboard/post-checkout-strip"
 import PaymentFlag from "@/components/dashboard/payment-flag"
 import ClearPlanCookie from "@/components/dashboard/clear-plan-cookie"
@@ -111,6 +112,7 @@ export default async function BillingPage({
                     ? "Renews monthly. Cancel any time."
                     : "Free forever. Upgrade when you outgrow it."}
                 </p>
+                {isPro ? <PortalButton className="mt-3" /> : null}
               </div>
               <div className="border p-5 md:col-span-2">
                 <p className="mb-3 text-sm text-muted-foreground">This month</p>

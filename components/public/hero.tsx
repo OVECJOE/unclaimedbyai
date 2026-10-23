@@ -37,13 +37,19 @@ export default function Hero({ signedIn }: { signedIn: boolean }) {
               </span>
               .
             </h1>
-            <p className="mx-auto max-w-prose text-muted-foreground md:text-lg lg:mx-0">
+            <p className="mx-auto max-w-prose text-muted-foreground md:text-lg lg:mx-0 hidden lg:block">
               Describe what you&apos;re building: four naming studios go to
               work, an editor keeps the strongest, and every survivor is
               screened against live .com registration, real handle lookups, and
               what the biggest AI models already associate with it, so your
               shortlist is scored by what you can actually register today, not
               by what sounds nice.
+            </p>
+            <p className="max-w-prose text-muted-foreground md:text-lg lg:hidden">
+              Describe what you&apos;re building. Four naming studios generate,
+              and every survivor is screened live against .com registration,
+              real social handles, and what GPT and Claude already associate
+              with it — scored by what you can actually register today.
             </p>
             <p className="text-sm text-muted-foreground">
               Live .com lookups,
