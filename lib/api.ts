@@ -730,6 +730,18 @@ export function deleteSandbox(publicId: string, sid?: string): Promise<void> {
   })
 }
 
+export function deleteSearch(
+  searchId: number,
+  anonSessionId?: string
+): Promise<void> {
+  const query = anonSessionId
+    ? `?anon_session_id=${encodeURIComponent(anonSessionId)}`
+    : ""
+  return apiRequest(`/api/v1/searches/${searchId}${query}`, {
+    method: "DELETE",
+  })
+}
+
 export function addManualIdea(
   publicId: string,
   input: {

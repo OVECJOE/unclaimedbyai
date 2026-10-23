@@ -7,12 +7,24 @@ import { toast } from "sonner"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   Cancel01Icon,
+  Delete02Icon,
   Pin02Icon,
   Search01Icon,
   MagicWand01Icon,
 } from "@hugeicons/core-free-icons"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import {
   createSearch,
   getResearch,
@@ -120,6 +132,7 @@ export default function IdeaDetailPanel({
 }) {
   const router = useRouter()
   const setPinned = useDashboardStore((state) => state.setPinned)
+  const detachSearch = useDashboardStore((state) => state.detachSearch)
   const [research, setResearch] = useState<Research | null>(null)
   const [startingResearch, setStartingResearch] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -169,6 +182,21 @@ export default function IdeaDetailPanel({
       toast.error(
         error instanceof Error ? error.message : "The pin could not save."
       )
+    }
+  }
+
+  async function removeSearch() {
+    setBusy(true)
+    try {
+      await detachSearch(idea.public_id)
+      toast("Search deleted.")
+      router.refresh()
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "The delete failed."
+      )
+    } finally {
+      setBusy(false)
     }
   }
 
@@ -235,13 +263,50 @@ export default function IdeaDetailPanel({
         </div>
 
         {idea.search_id ? (
-          <Link
-            href={`/dashboard/history/${idea.search_id}`}
-            className="flex items-center gap-2 border p-4 text-sm text-primary transition-colors hover:border-primary/50"
-          >
-            <HugeiconsIcon icon={Search01Icon} className="size-4" />
-            Open the names already generated for this idea
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/dashboard/history/${idea.search_id}`}
+              className="flex flex-1 items-center gap-2 border p-4 text-sm text-primary transition-colors hover:border-primary/50"
+            >
+              <HugeiconsIcon icon={Search01Icon} className="size-4" />
+              Open the names already generated for this idea
+            </Link>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label="Delete this idea's search"
+                  className="border text-muted-foreground hover:border-destructive hover:text-destructive"
+                  disabled={busy}
+                >
+                  <HugeiconsIcon icon={Delete02Icon} className="size-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete this search?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    The names generated for this idea stop being reachable, and
+                    the idea goes back to ready for a fresh run. This cannot be
+                    undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Keep it</AlertDialogCancel>
+                  <AlertDialogAction
+                    disabled={busy}
+                    onClick={(event) => {
+                      event.preventDefault()
+                      void removeSearch()
+                    }}
+                  >
+                    {busy ? "Deleting..." : "Delete search"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         ) : null}
       </div>
 

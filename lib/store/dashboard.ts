@@ -5,6 +5,7 @@ import {
   addManualIdea,
   createSandbox,
   deleteSandbox,
+  deleteSearch,
   generateIdeas,
   getPlan,
   getSandbox,
@@ -69,6 +70,7 @@ type DashboardStore = {
   setPinned(ideaId: string, pinned: boolean): Promise<void>
   renameSandbox(publicId: string, name: string): Promise<void>
   removeSandbox(publicId: string): Promise<void>
+  detachSearch(ideaId: string): Promise<void>
   createAndOpen(input: {
     name: string
     signals?: Partial<SignalProfile>
@@ -272,6 +274,32 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
       // server's truth and must not quietly drop a sandbox that survived.
       set({ sandboxes, sandboxesAt: Date.now() })
       throw new Error("The sandbox could not be deleted.")
+    }
+  },
+
+  async detachSearch(ideaId) {
+    const { detail } = get()
+    const idea = detail?.ideas.find((item) => item.public_id === ideaId)
+    if (!detail || !idea?.search_id) return
+    const searchId = idea.search_id
+
+    // Clear the link first so the card flips back to "Generate names"
+    // the moment the dialog confirms; the detail is restored verbatim
+    // if the API refuses.
+    set({
+      detail: {
+        ...detail,
+        ideas: detail.ideas.map((item) =>
+          item.public_id === ideaId ? { ...item, search_id: null } : item
+        ),
+      },
+      detailAt: Date.now(),
+    })
+    try {
+      await deleteSearch(searchId)
+    } catch {
+      set({ detail, detailAt: Date.now() })
+      throw new Error("The search could not be deleted.")
     }
   },
 
