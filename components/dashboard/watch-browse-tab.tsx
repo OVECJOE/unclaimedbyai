@@ -5,7 +5,6 @@ import Link from "next/link"
 import { toast } from "sonner"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Search01Icon } from "@hugeicons/core-free-icons"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Toggle } from "@/components/ui/toggle"
@@ -33,21 +32,7 @@ import {
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
 import NameSearch from "@/components/dashboard/name-search"
-
-const TIER_LABEL: Record<string, string> = {
-  excellent: "Excellent",
-  good: "Good",
-  okay: "Okay",
-  poor: "Poor",
-}
-
-const TIER_TONE: Record<string, string> = {
-  excellent:
-    "bg-green-500/10 text-green-600 dark:bg-green-400/10 dark:text-green-400",
-  good: "bg-primary/10 text-primary",
-  okay: "bg-amber-500/10 text-amber-600 dark:bg-amber-400/10 dark:text-amber-500",
-  poor: "bg-red-500/10 text-red-600 dark:bg-red-400/10 dark:text-red-400",
-}
+import { TierBadge } from "@/components/tier-badge"
 
 const SORT_LABELS: Record<string, string> = {
   recent: "Recently checked",
@@ -227,9 +212,7 @@ export default function BrowseTab({
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">
                   {item.tier ? (
-                    <Badge className={TIER_TONE[item.tier] ?? ""}>
-                      {TIER_LABEL[item.tier] ?? item.tier}
-                    </Badge>
+                    <TierBadge tier={item.tier} />
                   ) : (
                     <span className="text-muted-foreground">None</span>
                   )}

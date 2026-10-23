@@ -5,7 +5,11 @@ import { useState } from "react"
 import Link from "next/link"
 import { toast } from "sonner"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { BrandfetchIcon, Delete02Icon } from "@hugeicons/core-free-icons"
+import {
+  BrandfetchIcon,
+  Delete02Icon,
+  PencilEdit01Icon,
+} from "@hugeicons/core-free-icons"
 import { formatDateTime } from "@/lib/utils"
 import {
   Avatar,
@@ -15,6 +19,14 @@ import {
   AvatarFallback,
 } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,7 +38,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { deleteSearch, restoreSearch } from "@/lib/api"
+import { deleteSearch, restoreSearch, updateSearch } from "@/lib/api"
 import { TierBadge } from "@/components/tier-badge"
 import type { GradeTier } from "@/lib/name-results"
 
@@ -51,6 +63,30 @@ export function SearchResultCard({
 }: SearchResultCardProps) {
   const router = useRouter()
   const [busy, setBusy] = useState(false)
+  const [renaming, setRenaming] = useState(false)
+  const [draft, setDraft] = useState(query)
+
+  async function rename(event: React.FormEvent) {
+    event.preventDefault()
+    const next = draft.trim()
+    if (!next || next === query) {
+      setRenaming(false)
+      return
+    }
+    setBusy(true)
+    try {
+      await updateSearch(Number(id), next)
+      setRenaming(false)
+      router.refresh()
+      toast.success("Renamed.")
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "The rename failed."
+      )
+    } finally {
+      setBusy(false)
+    }
+  }
 
   async function remove() {
     setBusy(true)
@@ -144,7 +180,20 @@ export function SearchResultCard({
         </div>
       </Link>
 
-      <div className="absolute right-2 bottom-3 z-10 opacity-100 transition-opacity focus-visible:opacity-100 pointer-fine:opacity-0 pointer-fine:group-focus-within:opacity-100 pointer-fine:group-hover:opacity-100">
+      <div className="absolute right-2 bottom-3 z-10 flex opacity-100 transition-opacity focus-visible:opacity-100 pointer-fine:opacity-0 pointer-fine:group-focus-within:opacity-100 pointer-fine:group-hover:opacity-100">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label={`Rename the search "${query}"`}
+          className="text-muted-foreground hover:text-primary"
+          disabled={busy}
+          onClick={() => {
+            setDraft(query)
+            setRenaming(true)
+          }}
+        >
+          <HugeiconsIcon icon={PencilEdit01Icon} className="size-4" />
+        </Button>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -162,7 +211,8 @@ export function SearchResultCard({
               <AlertDialogTitle>Delete this search?</AlertDialogTitle>
               <AlertDialogDescription>
                 The names it generated stop being reachable, and the month&apos;s
-                search slot it used comes back. This cannot be undone.
+                search slot it used comes back. Undo sits in the toast for a
+                few seconds after.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -180,6 +230,39 @@ export function SearchResultCard({
           </AlertDialogContent>
         </AlertDialog>
       </div>
+
+      <Dialog open={renaming} onOpenChange={setRenaming}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename this search</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={(event) => void rename(event)} className="space-y-4">
+            <Input
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              aria-label="Search brief"
+              maxLength={400}
+              autoFocus
+            />
+            <p className="text-xs text-muted-foreground">
+              The brief is the title everywhere this search appears — history,
+              breadcrumbs, and the report header.
+            </p>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setRenaming(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={busy || !draft.trim()}>
+                {busy ? "Saving..." : "Save name"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

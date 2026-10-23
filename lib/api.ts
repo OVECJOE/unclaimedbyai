@@ -779,6 +779,21 @@ export function restoreSearch(
   })
 }
 
+/** Rename: the brief is the title on every surface, so PATCH edits it. */
+export function updateSearch(
+  searchId: number,
+  query: string,
+  anonSessionId?: string
+): Promise<void> {
+  const search = anonSessionId
+    ? `?anon_session_id=${encodeURIComponent(anonSessionId)}`
+    : ""
+  return apiRequest(`/api/v1/searches/${searchId}${search}`, {
+    method: "PATCH",
+    body: { query },
+  })
+}
+
 export function addManualIdea(
   publicId: string,
   input: {

@@ -171,6 +171,14 @@ const sections: LegalSection[] = [
           doesn&apos;t limit the Service in any way.
         </p>
         <p>
+          On top of that, the app sends a small number of first-party usage
+          events to our own servers — which page you were on and which action
+          you took (for example, that a search finished), never the text you
+          typed. They run on the session above, set no cookies, involve no
+          third parties, and exist so we can see where the product helps and
+          where it gets in the way.
+        </p>
+        <p>
           We do not use advertising cookies or cross-site trackers. If that ever
           changes, we&apos;ll update this policy and ask for consent where the
           law requires it.
