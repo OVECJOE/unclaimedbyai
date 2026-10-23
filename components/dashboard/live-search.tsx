@@ -279,7 +279,7 @@ export default function LiveSearch({
               header.brief_attributes?.[key] ? (
                 <span
                   key={key}
-                  className="border px-1.5 py-0.5 text-xs text-muted-foreground"
+                  className="border px-1.5 py-0.5 text-xs text-muted-foreground not-last:mr-2"
                 >
                   <strong className="text-primary">[{key}]</strong>{" "}
                   {header.brief_attributes[key]}
