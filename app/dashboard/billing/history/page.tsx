@@ -142,11 +142,10 @@ export default async function HistoryPage({
                 Credit history
               </h2>
               <p className="text-xs text-muted-foreground">
-                Balance right now:{" "}
                 <strong className="font-mono text-sm text-foreground">
                   {ledger.balance}
                 </strong>{" "}
-                credits
+                credits left
               </p>
             </div>
             <p className="text-sm text-muted-foreground">
