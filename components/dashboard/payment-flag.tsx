@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
+import { track } from "@/lib/analytics"
 import { playSound } from "@/lib/sound/engine"
 
 /**
@@ -30,6 +31,7 @@ export default function PaymentFlag({
     if (keepPaid) return
     if (paid) {
       playSound("reward", "payment")
+      track("payment_received")
       toast.success("Payment received. Your credits are on the account.")
     } else if (canceled) {
       toast.warning("Checkout was canceled. No charge was made.")

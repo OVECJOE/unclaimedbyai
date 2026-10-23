@@ -7,6 +7,7 @@ import GoogleButton from "@/components/public/google-button"
 import MagicLinkForm from "@/components/public/magic-link-form"
 import { MagicLinkTimer } from "@/components/public/magic-link-timer"
 import PlaySound from "@/components/sound/play-sound"
+import TrackOnce from "@/components/app/track"
 import { sendMagicLink } from "./actions"
 import type { Metadata } from "next"
 
@@ -55,6 +56,7 @@ export default async function AuthPage({
     return (
       <section className="space-y-5 px-4 py-10 text-center md:mt-16">
         <PlaySound mood="reveal" seed={`magic-link:${email}`} />
+        <TrackOnce name="magic_link_sent" />
         <div className="space-y-3">
           <Badge
             variant="default"

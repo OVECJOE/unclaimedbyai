@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog"
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import type { SandboxDetail, SandboxList } from "@/lib/api"
+import { track } from "@/lib/analytics"
 import { announceCompletion } from "@/lib/sound/announce"
 import { playSound } from "@/lib/sound/engine"
 import { useDashboardStore } from "@/lib/store/dashboard"
@@ -188,6 +189,7 @@ export default function PlaygroundCanvas({
       if (fresh.run_status !== "generating") {
         if (fresh.run_status !== "failed") {
           announceCompletion(`run:${detail.public_id}`, "Your ideas are ready")
+          track("ideas_complete")
         }
         void ensureSandboxes({ force: true })
       }

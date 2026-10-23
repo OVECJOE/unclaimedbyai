@@ -32,6 +32,7 @@ import {
   type SearchSummaryPayload,
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
+import { track } from "@/lib/analytics"
 import { announceCompletion } from "@/lib/sound/announce"
 import { playSound } from "@/lib/sound/engine"
 import { toNameResultFromPayload } from "@/lib/result-mappers"
@@ -154,8 +155,10 @@ export default function LiveSearch({
     if (!wasActive) return
     if (header.generation.status === "failed") {
       playSound("error", `search:${searchId}`)
+      track("search_failed")
       return
     }
+    track("search_complete", String(header.name_count))
     const flash =
       header.name_count === 1
         ? "Your name is ready"

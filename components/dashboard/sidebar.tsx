@@ -12,6 +12,7 @@ import {
 } from "@hugeicons/core-free-icons"
 import Logo from "@/components/app/logo"
 import SoundToggle from "@/components/sound/sound-toggle"
+import NotificationsBell from "@/components/dashboard/notifications-bell"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { accountAvatarUrl } from "@/lib/avatar"
@@ -78,7 +79,10 @@ export default function DashboardSidebar({ user }: { user?: ApiUser | null }) {
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r bg-background md:flex">
       <div className="flex items-center justify-between border-b px-4 py-5">
         <Logo className="h-7 w-auto" href="/dashboard" />
-        <SoundToggle />
+        <div className="flex items-center">
+          <NotificationsBell />
+          <SoundToggle />
+        </div>
       </div>
 
       <nav

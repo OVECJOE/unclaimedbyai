@@ -28,6 +28,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { ApiError, addWatch, removeWatch, updateWatch } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
+import { track } from "@/lib/analytics"
 import { playSound } from "@/lib/sound/engine"
 import { cn } from "@/lib/utils"
 
@@ -164,6 +165,7 @@ export function WatchForm({
           `Now watching ${name}. We will email you if any of its domains or handles get claimed.`
         )
         playSound("spark", `watch:${name}`)
+        track("watch_added")
         onSaved?.(watch.id, tlds, platforms)
       }
       onDone()

@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { Compass01Icon, Logout02Icon } from "@hugeicons/core-free-icons"
 import Logo from "@/components/app/logo"
 import SoundToggle from "@/components/sound/sound-toggle"
+import NotificationsBell from "@/components/dashboard/notifications-bell"
 import { UserAvatar } from "@/components/dashboard/sidebar"
 import {
   DropdownMenu,
@@ -24,6 +25,7 @@ export default function MobileHeader({ user }: { user: ApiUser }) {
     <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background/95 px-4 backdrop-blur-sm md:hidden">
       <Logo className="h-6 w-auto" href="/dashboard" />
       <div className="flex items-center gap-1">
+        <NotificationsBell />
         <SoundToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

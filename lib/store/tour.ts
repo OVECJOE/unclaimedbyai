@@ -1,6 +1,7 @@
 "use client"
 
 import { create } from "zustand"
+import { track } from "@/lib/analytics"
 
 const SEEN_KEY = "uba-tour-seen"
 
@@ -35,6 +36,9 @@ export const useTourStore = create<TourStore>((set) => ({
   markSeen: () => {
     if (typeof window !== "undefined") {
       window.localStorage.setItem(SEEN_KEY, "1")
+      // Fired wherever the run ends — final step or early close, both
+      // mean the tour has been faced once.
+      track("tour_seen")
     }
     set({ active: false, seen: true })
   },

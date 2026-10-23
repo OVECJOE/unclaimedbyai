@@ -14,6 +14,7 @@ import {
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
 import { ApiError } from "@/lib/api"
+import { track } from "@/lib/analytics"
 import { playSound } from "@/lib/sound/engine"
 import { useTurnstile } from "@/components/public/turnstile"
 
@@ -73,6 +74,7 @@ export default function IdeaCard({
             // Paid work landing: the reward timbre, seeded by the idea
             // so every idea's research sounds like itself.
             playSound("reward", `research:${idea.public_id}`)
+            track("research_ready")
           } else if (fresh.status === "failed") {
             setPolling(false)
             playSound("error", `research:${idea.public_id}`)

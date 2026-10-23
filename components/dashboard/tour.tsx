@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { driver, type Driver } from "driver.js"
 import "driver.js/dist/driver.css"
+import { track } from "@/lib/analytics"
 import { useTourStore } from "@/lib/store/tour"
 import { stepsFor } from "@/components/dashboard/tour-steps"
 
@@ -35,6 +36,7 @@ export default function DashboardTour() {
     const params = new URLSearchParams(window.location.search)
     if (params.get("welcome") !== "1") return
     if (useTourStore.getState().seen) return
+    track("onboarding_started")
     // Strip the flag so a refresh does not replay the tour.
     params.delete("welcome")
     const query = params.toString()

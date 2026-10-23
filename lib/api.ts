@@ -874,6 +874,22 @@ export function getLedger(): Promise<Ledger> {
   return apiRequest<Ledger>("/api/v1/me/ledger")
 }
 
+export type NotificationItem = {
+  id: number
+  watch_id: number
+  name: string
+  kind: string
+  label: string
+  created_at: string
+}
+
+/** Watch events newer than `afterId` (0 for "everything recent"). */
+export function getNotifications(afterId = 0): Promise<NotificationItem[]> {
+  return apiRequest<NotificationItem[]>(
+    `/api/v1/notifications?after_id=${afterId}`
+  )
+}
+
 export type Preferences = {
   report_ready: boolean
   payment_receipts: boolean

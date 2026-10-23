@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { createCheckout } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
+import { track } from "@/lib/analytics"
 
 export default function BuyButton({
   packSlug,
@@ -17,6 +18,7 @@ export default function BuyButton({
   async function buy() {
     setPending(true)
     try {
+      track("checkout_started", packSlug)
       const { checkout_url } = await createCheckout(
         packSlug,
         `${window.location.pathname}${window.location.search}`

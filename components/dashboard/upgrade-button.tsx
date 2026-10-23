@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { createProCheckout } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
+import { track } from "@/lib/analytics"
 
 /**
  * Starts a Pro subscription checkout. Recurring rather than one-shot, so
@@ -22,6 +23,7 @@ export default function UpgradeButton({
   async function upgrade() {
     setPending(true)
     try {
+      track("checkout_started", "pro")
       const { checkout_url } = await createProCheckout(
         `${window.location.pathname}${window.location.search}`
       )
