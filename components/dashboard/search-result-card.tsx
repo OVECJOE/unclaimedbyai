@@ -26,7 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { deleteSearch } from "@/lib/api"
+import { deleteSearch, restoreSearch } from "@/lib/api"
 import { TierBadge } from "@/components/tier-badge"
 import type { GradeTier } from "@/lib/name-results"
 
@@ -56,8 +56,27 @@ export function SearchResultCard({
     setBusy(true)
     try {
       await deleteSearch(Number(id))
-      toast("Search deleted.")
       router.refresh()
+      toast(`“${query}” retired.`, {
+        duration: 6000,
+        action: {
+          label: "Undo",
+          onClick: () => {
+            void restoreSearch(Number(id))
+              .then(() => {
+                router.refresh()
+                toast.success(`“${query}” is back in your history.`)
+              })
+              .catch((error: unknown) => {
+                toast.error(
+                  error instanceof Error
+                    ? error.message
+                    : "Could not bring that back."
+                )
+              })
+          },
+        },
+      })
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "The delete failed."

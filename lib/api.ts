@@ -19,9 +19,12 @@ const DEFAULT_BASE = typeof window === "undefined" ? API_ORIGIN : API_BASE
 
 export class ApiError extends Error {
   status: number
-  constructor(status: number, message: string) {
+  /** Seconds the server asked us to wait (Retry-After), when it sent one. */
+  retryAfter: number | null
+  constructor(status: number, message: string, retryAfter: number | null = null) {
     super(message)
     this.status = status
+    this.retryAfter = retryAfter
   }
 }
 
@@ -88,7 +91,13 @@ export async function apiRequest<T>(
         detail?: unknown
       } | null
       const message = readableDetail(data?.detail) ?? "Request failed"
-      throw new ApiError(res.status, message)
+      // Only the delta-seconds form of Retry-After is worth parsing
+      // here; the rate limiter always sends it that way.
+      const rawRetry = res.headers.get("retry-after")?.trim() ?? ""
+      const retryAfter = /^\d+$/.test(rawRetry)
+        ? Math.min(Number(rawRetry), 3600)
+        : null
+      throw new ApiError(res.status, message, retryAfter)
     }
     if (res.status === 204) return undefined as T
     return (await res.json()) as T
@@ -736,6 +745,14 @@ export function deleteSandbox(publicId: string, sid?: string): Promise<void> {
   })
 }
 
+/** The undo behind the sandbox delete toast: clears the retire. */
+export function restoreSandbox(publicId: string, sid?: string): Promise<void> {
+  const query = sid ? `?sid=${encodeURIComponent(sid)}` : ""
+  return apiRequest(`/api/v1/sandboxes/${publicId}/restore${query}`, {
+    method: "POST",
+  })
+}
+
 export function deleteSearch(
   searchId: number,
   anonSessionId?: string
@@ -745,6 +762,20 @@ export function deleteSearch(
     : ""
   return apiRequest(`/api/v1/searches/${searchId}${query}`, {
     method: "DELETE",
+  })
+}
+
+/** The undo behind the delete toast: clears the retire. Failed runs
+ *  stay retired server-side, so this 404s for them by design. */
+export function restoreSearch(
+  searchId: number,
+  anonSessionId?: string
+): Promise<void> {
+  const query = anonSessionId
+    ? `?anon_session_id=${encodeURIComponent(anonSessionId)}`
+    : ""
+  return apiRequest(`/api/v1/searches/${searchId}/restore${query}`, {
+    method: "POST",
   })
 }
 

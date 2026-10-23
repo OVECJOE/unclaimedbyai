@@ -31,6 +31,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import type { Sandbox } from "@/lib/api"
+import { restoreSandbox } from "@/lib/api"
 import { useDashboardStore } from "@/lib/store/dashboard"
 import { signalSummary } from "@/lib/signals"
 
@@ -49,6 +50,7 @@ export default function SandboxListCard({ sandbox }: { sandbox: Sandbox }) {
   const router = useRouter()
   const renameSandbox = useDashboardStore((state) => state.renameSandbox)
   const removeSandbox = useDashboardStore((state) => state.removeSandbox)
+  const ensureSandboxes = useDashboardStore((state) => state.ensureSandboxes)
   const [renaming, setRenaming] = useState(false)
   const [name, setName] = useState(sandbox.name)
   const [busy, setBusy] = useState(false)
@@ -72,8 +74,31 @@ export default function SandboxListCard({ sandbox }: { sandbox: Sandbox }) {
     setBusy(true)
     try {
       await removeSandbox(sandbox.public_id)
-      toast(`${sandbox.name} deleted.`)
       router.refresh()
+      toast(`${sandbox.name} retired.`, {
+        duration: 6000,
+        action: {
+          label: "Undo",
+          onClick: () => {
+            void restoreSandbox(sandbox.public_id)
+              .then(async () => {
+                // The store's optimistic removal already dropped it
+                // from the lists, so the undo has to repopulate them,
+                // not just refresh the server page underneath.
+                await ensureSandboxes({ force: true })
+                router.refresh()
+                toast.success(`${sandbox.name} is back.`)
+              })
+              .catch((error: unknown) => {
+                toast.error(
+                  error instanceof Error
+                    ? error.message
+                    : "Could not bring that back."
+                )
+              })
+          },
+        },
+      })
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "The delete failed.")
     } finally {
