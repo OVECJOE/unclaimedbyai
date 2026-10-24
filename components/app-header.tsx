@@ -74,15 +74,12 @@ export default function AppHeader() {
               <HugeiconsIcon icon={Menu09Icon} />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right">
+          <SheetContent side="right" className="flex h-full flex-col">
             <SheetTitle className="sr-only">Navigation menu</SheetTitle>
-            <nav aria-label="Mobile" className="mt-8 flex flex-col gap-4 px-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-                  Sound
-                </span>
-                <SoundToggle />
-              </div>
+            <nav
+              aria-label="Mobile"
+              className="mt-8 flex flex-1 flex-col gap-4 px-4"
+            >
               {navLinks.map((link) => {
                 const active = pathname === link.href
                 return (
@@ -108,6 +105,12 @@ export default function AppHeader() {
                   <Link href="/dashboard">Dashboard</Link>
                 </Button>
               </SheetClose>
+              <div className="mt-auto flex items-center justify-between border-t pt-4">
+                <span className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+                  Sound
+                </span>
+                <SoundToggle />
+              </div>
             </nav>
           </SheetContent>
         </Sheet>
