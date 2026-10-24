@@ -753,6 +753,27 @@ export function restoreSandbox(publicId: string, sid?: string): Promise<void> {
   })
 }
 
+export type PublicSearchStripItem = {
+  query: string
+  top_name: string
+  top_score: number
+  top_tier: string
+  created_at: string
+}
+
+export type PublicSearchStripResponse = {
+  items: PublicSearchStripItem[]
+}
+
+export async function getPublicSearchStrip(
+  limit = 10,
+  signal?: AbortSignal
+): Promise<PublicSearchStripResponse> {
+  return apiRequest<PublicSearchStripResponse>(`/api/v1/searches/public-top?limit=${encodeURIComponent(String(limit))}`, {
+    signal,
+  })
+}
+
 export function deleteSearch(
   searchId: number,
   anonSessionId?: string

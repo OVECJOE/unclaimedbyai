@@ -5,6 +5,8 @@ import DashboardPrompter from "@/components/dashboard/dashboard-prompter"
 import StatsRow from "@/components/dashboard/stats-row"
 import ActivityChart from "@/components/dashboard/activity-chart"
 import RecentSandboxes from "@/components/dashboard/recent-sandboxes"
+import DailyNameCard from "@/components/dashboard/daily-name-card"
+import OnboardingChecklist from "@/components/dashboard/onboarding-checklist"
 import { getMeServer, apiServer } from "@/lib/api-server"
 import {
   ApiError,
@@ -93,6 +95,12 @@ export default async function DashboardHomePage() {
         </div>
 
         {stats ? <StatsRow stats={stats} /> : null}
+
+        <OnboardingChecklist
+          searchesUsed={stats?.searches_used ?? 0}
+          sandboxesCount={sandboxes?.items?.length ?? 0}
+        />
+        <DailyNameCard userKey={user.id ? String(user.id) : user.email} />
 
         {/* The prompter leads and the chart follows, side by side on
             desktop. The prompter wears no card: its own bordered box

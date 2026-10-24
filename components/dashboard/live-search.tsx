@@ -42,6 +42,15 @@ import { toNameResultFromPayload } from "@/lib/result-mappers"
 // judge scoring, 70+ top-up rounds, 95 wrapping up.
 const POLL_MS = 1500
 
+// The stream sends exactly the snapshot the three poll endpoints
+// return — one frame per change instead of three requests per tick.
+type StreamSnapshot = {
+  header: SearchHeader
+  summary: SearchSummaryPayload
+  items: SearchResultsPayload["items"]
+  pending: PendingName[]
+}
+
 const GENERATION_STAGES: { at: number; label: string }[] = [
   { at: 0, label: "Reading your brief" },
   { at: 5, label: "Sharpening your brief" },
@@ -111,6 +120,9 @@ export default function LiveSearch({
   const failuresRef = useRef(0)
   const refreshSeqRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  // True while a stream frame arrived recently: the polling interval
+  // keeps running but stands down, so the two transports never fight.
+  const streamingRef = useRef(false)
   const [expired, setExpired] = useState(false)
 
   // Stars should reflect the account's current watches even when the
@@ -236,6 +248,9 @@ export default function LiveSearch({
     if (!active || paused) return
     const controller = new AbortController()
     timerRef.current = setInterval(() => {
+      // The stream is live and feeding us snapshots; polling is the
+      // fallback, not the default.
+      if (streamingRef.current) return
       refresh(controller.signal).catch((error) => {
         if (error instanceof ApiError && error.status === 429) return
         if (error instanceof ApiError && error.status === 401) {
@@ -257,6 +272,53 @@ export default function LiveSearch({
       if (timerRef.current) clearInterval(timerRef.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, paused, searchId, sid, filters])
+
+  // Live results ride a single server-sent-events connection while the
+  // run is active: one request narrates the whole settle instead of a
+  // triple-poll every 1.5 seconds. Same-origin through the Next rewrite,
+  // so the session cookie and the anonymous id behave exactly as they
+  // do for polling. If anything along the way cannot stream — an old
+  // backend, a buffering proxy, a dropped connection — the interval
+  // above is already ticking and takes the wheel again; this is an
+  // upgrade to the transport we had, never a dependency on it.
+  useEffect(() => {
+    if (!active || paused || typeof EventSource === "undefined") return
+    const params = new URLSearchParams()
+    if (filters.availableOnly) params.set("available_only", "true")
+    if (filters.sort) params.set("sort", filters.sort)
+    if (filters.q) params.set("q", filters.q)
+    if (sid) params.set("anon_session_id", sid)
+    const source = new EventSource(
+      `/api/v1/searches/${searchId}/stream?${params.toString()}`
+    )
+    const standDown = () => {
+      streamingRef.current = false
+      source.close()
+    }
+    source.onmessage = (event) => {
+      let snapshot: StreamSnapshot
+      try {
+        snapshot = JSON.parse(event.data) as StreamSnapshot
+      } catch {
+        return
+      }
+      streamingRef.current = true
+      failuresRef.current = 0
+      // Any poll already in flight carries older data than this frame.
+      refreshSeqRef.current += 1
+      setHeader(snapshot.header)
+      setSummary(snapshot.summary)
+      setItems(snapshot.items)
+      setPending(snapshot.pending)
+    }
+    // The server closes with `done` once the run settles; it also
+    // signals mid-stream refusals (a retired search, an expired
+    // session) as `error`, and the polling path renders the page's
+    // answer for those. Both mean "hand back to polling".
+    source.addEventListener("done", standDown)
+    source.addEventListener("error", standDown)
+    return standDown
   }, [active, paused, searchId, sid, filters])
 
   const results = items.map(toNameResultFromPayload)
