@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Unclaimed by AI",
+  "version": "0.1.0",
+  "description": "Right-click any text: screen a name against live .com, real handles and AI associations, or send a rough idea straight to the naming studios.",
+  "minimum_chrome_version": "116",
+  "side_panel": { "default_path": "index.html" },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "permissions": ["sidePanel", "contextMenus", "storage", "alarms"],
+  "host_permissions": [
+    "https://unclaimedbyai.com/*",
+    "https://www.unclaimedbyai.com/*",
+    "http://localhost:3000/*",
+    "http://127.0.0.1:3000/*"
+  ],
+  "action": { "default_title": "Unclaimed by AI — screen a name" },
+  "icons": { "48": "icon.png", "128": "icon.png" }
+}

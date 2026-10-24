@@ -1,0 +1,22 @@
+@import "../../app/globals.css";
+
+/* Tailwind v4 discovers classes from cwd when the site builds, which
+   happens to be the repo root — but the extension build must not rely
+   on where it was launched from. */
+@source "../";
+@source "../../components";
+@source "../../lib";
+
+/* The site's font variables are injected at runtime by next/font; the
+   extension has no Next pipeline, so we name fallbacks under the same
+   variables and everything downstream (including .font-heading) just
+   resolves. The real faces are used when installed locally. */
+:root {
+  --font-sans:
+    "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  --font-heading:
+    "Instrument Serif", ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  --font-mono:
+    "Geist Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+}

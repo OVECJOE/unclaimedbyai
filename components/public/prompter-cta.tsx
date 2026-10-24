@@ -37,9 +37,44 @@ export default function PrompterCta({
   const [pending, setPending] = useState(false)
   const [lastMode, setLastMode] = useState<PrompterMode>("idea")
   const [known, setKnown] = useState<boolean | null>(signedIn ?? null)
+  // A handoff from the extension (or any deep link): ?mode=…&brief=….
+  // Read once on mount from window rather than useSearchParams, so the
+  // static prerender owes no Suspense boundary — then the params are
+  // taken back out of the address bar so a refresh doesn't re-seed.
+  const [prefill, setPrefill] = useState<{
+    brief: string
+    mode: PrompterMode
+  } | null>(null)
   const userRef = useRef<ApiUser | null>(null)
   const router = useRouter()
   const turnstile = useTurnstile("anonymous_generate")
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      const params = new URLSearchParams(window.location.search)
+      const brief = params.get("brief")
+      const rawMode = params.get("mode")
+      const mode: PrompterMode | null =
+        rawMode === "idea" || rawMode === "studio" || rawMode === "name"
+          ? rawMode
+          : null
+      if (brief === null && mode === null) return
+      if (cancelled) return
+      setPrefill({ brief: (brief ?? "").slice(0, 400), mode: mode ?? "idea" })
+      params.delete("brief")
+      params.delete("mode")
+      const query = params.toString()
+      window.history.replaceState(
+        null,
+        "",
+        `${window.location.pathname}${query ? `?${query}` : ""}`
+      )
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   useEffect(() => {
     if (known !== null) return
@@ -243,9 +278,11 @@ export default function PrompterCta({
   return (
     <div className="space-y-3">
       <Prompter
+        key={prefill ? "prefilled" : "prompter"}
         onSubmit={(value, mode, signals) => void onSubmit(value, mode, signals)}
         pending={pending}
-        defaultValue={defaultValue}
+        defaultValue={prefill ? prefill.brief : defaultValue}
+        defaultMode={prefill?.mode}
         // A signed-in visitor's steer lives on the account, so the
         // inline fields would ask twice. Unknown counts as signed out
         // until the mount check says otherwise.

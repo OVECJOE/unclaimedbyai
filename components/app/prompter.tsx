@@ -84,6 +84,7 @@ export default function Prompter({
   onSubmit,
   pending = false,
   defaultValue = "",
+  defaultMode = "idea",
   showSignalFields = false,
 }: {
   onSubmit?: (
@@ -93,12 +94,15 @@ export default function Prompter({
   ) => void
   pending?: boolean
   defaultValue?: string
+  /** Which tab opens first — the extension hands a rough brief to the
+   *  studio and an idea to the studios through the URL. */
+  defaultMode?: PrompterMode
   /** Studio mode collects the eight signals inline when true, which is
    *  only right for visitors without an account steer to inherit. */
   showSignalFields?: boolean
 }) {
   const [value, setValue] = useState(defaultValue)
-  const [mode, setMode] = useState<PrompterMode>("idea")
+  const [mode, setMode] = useState<PrompterMode>(defaultMode)
   const [signals, setSignals] = useState<Partial<SignalProfile>>({})
   const [signalsExpanded, setSignalsExpanded] = useState(false)
   const ghostText = useTypewriter(

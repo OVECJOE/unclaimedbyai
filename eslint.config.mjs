@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The browser extension's build output (sources are linted):
+    "extension/dist/**",
   ]),
 ]);
 
