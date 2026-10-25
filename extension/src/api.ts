@@ -7,6 +7,15 @@ import {
 
 export const SITE = process.env.NEXT_PUBLIC_API_URL
 
+export type TextKind = "name" | "idea" | "rough"
+
+/** The classifier model's reading of a selection (POST /classify). */
+export type Verdict = {
+  kind: TextKind
+  reason: string
+  screenAs: string | null
+}
+
 export type ScreenResult = {
   searchId: number
   item: SearchResultsPayload["items"][number] | null
@@ -62,6 +71,34 @@ export async function syncNotifications(
     })
   }
   return items
+}
+
+/* -------------------------------------------------------------- triage */
+
+/**
+ * Ask the house classifier model what the highlighted text is —
+ * name, idea, or rough. Signed-in only (the panel gates on its key
+ * first), debounced by the caller so a sentence costs one call, not
+ * one per keystroke. On upstream failure the endpoint answers a calm
+ * 502 and the caller falls back to its manual mode chips.
+ */
+export async function classifyText(
+  text: string,
+  apiKey: string,
+  signal?: AbortSignal
+): Promise<Verdict> {
+  const res = await apiRequest<{
+    kind: TextKind
+    reason: string
+    screen_as: string | null
+  }>("/api/v1/classify", {
+    method: "POST",
+    body: { text },
+    base: SITE,
+    headers: auth(apiKey),
+    signal,
+  })
+  return { kind: res.kind, reason: res.reason, screenAs: res.screen_as }
 }
 
 /* ---------------------------------------------------------------- screening */

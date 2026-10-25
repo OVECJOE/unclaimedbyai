@@ -37,13 +37,18 @@ backend skips the Turnstile challenge on direct checks.
 - **Right-click → "Screen '%s'"** stashes the selection and opens the
   side panel (a context-menu click is the user gesture the sidePanel
   API needs).
-- **Classification runs on-device** (`src/classify.ts`): name / idea /
-  rough, with the reasoning shown and a one-tap overrule. It never
-  sends highlighted text anywhere. Hosted decision models (Jev
-  $0.042/1M input tokens, OpenAI Decisions $0.10/1M) were evaluated as
-  a fallback for low-confidence cases — ~$126 and ~$300 per 10M calls
-  respectively, versus the target of a cent; local rules are the only
-  thing that reaches free, and they cover this task's shape.
+- **Classification is a model call, not a rules list.** The panel
+  debounces 900 ms after typing stops and `POST /api/v1/classify`s the
+  selection (signed-in bearer only, text capped at 400 chars); the
+  backend spends the house OpenRouter model on it — `gpt-5-nano` by
+  default (`OPENROUTER_CLASSIFIER_MODEL` to swap; Jev at $0.042/M is
+  the drop-in if unit costs ever matter). Roughly **5¢ per 1000
+  calls**, spent under the same LLM POST rate cap as generation. The
+  model's one-sentence reason shows under the chips, a one-tap chip
+  overrules it, and a calm 502 falls back to manual chips — never a
+  silent guess. Note the privacy consequence: unlike the old on-device
+  rules, the selection now travels to our API (first-party) on each
+  settled pause, same as any submitted brief.
 - **Name** → one direct check through the API, polled until the jobs
   settle (45s leash), verdict rendered with the site's `TierBadge`.
 - **Idea / rough** → opens the site with `?mode=idea|studio&brief=…`;
@@ -62,8 +67,7 @@ extension/
   vite.config.ts            # @ → repo root, site origin via EXT_SITE_ORIGIN
   src/background.ts         # context menu handoff + watch-badge poller (no imports)
   src/App.tsx               # panel: setup → intake → verdict
-  src/classify.ts           # on-device name/idea/rough heuristic
-  src/api.ts                # bearer auth through the site's /api/v1 rewrite
+  src/api.ts                # bearer auth; /classify verdict + check/poll paths
 ```
 
 Gates: `npm run typecheck` covers this folder too (`tsc -p

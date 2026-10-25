@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ApiError } from "@/lib/api"
 import { playSound } from "@/lib/sound/engine"
 import { TierBadge } from "@/components/tier-badge"
@@ -6,16 +6,18 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { classify, type TextKind } from "./classify"
 import Logo from "./Logo"
 import {
   SITE,
+  classifyText,
   getSelectionHandoff,
   loadApiKey,
   saveApiKey,
   screenName,
   syncNotifications,
   type ScreenResult,
+  type TextKind,
+  type Verdict,
 } from "./api"
 
 type Phase = "loading" | "setup" | "intake" | "result"
@@ -53,6 +55,10 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<ScreenResult | null>(null)
   const [notices, setNotices] = useState(0)
+  const [verdict, setVerdict] = useState<Verdict | null>(null)
+  const [classifying, setClassifying] = useState(false)
+  const [classifyFailed, setClassifyFailed] = useState(false)
+  const classifySeqRef = useRef(0)
 
   // Mount: key, then the context-menu handoff, then the watch badge's
   // first sync (which also proves the key still works).
@@ -84,10 +90,55 @@ export default function App() {
     }
   }, [])
 
-  const classification = useMemo(() => classify(text), [text])
-  const kind: TextKind =
-    override && override.for === text ? override.kind : classification.kind
-  const reason = override && override.for === text ? "Overruled — your call." : classification.reason
+  // Model-backed triage: one call per settled text (900 ms of quiet —
+  // never per keystroke; every call spends the house classifier model
+  // and the server also spends it under the LLM POST rate cap), and
+  // none at all once the user has overruled it with a chip. A seq
+  // counter discards answers that arrive after newer text landed.
+  useEffect(() => {
+    const trimmed = text.trim()
+    const overridden = override !== null && override.for === text
+    const timer = setTimeout(() => {
+      if (!apiKey || trimmed.length < 3 || overridden) {
+        setVerdict(null)
+        setClassifying(false)
+        setClassifyFailed(false)
+        return
+      }
+      const seq = ++classifySeqRef.current
+      setClassifying(true)
+      setClassifyFailed(false)
+      classifyText(trimmed, apiKey)
+        .then((next) => {
+          if (classifySeqRef.current !== seq) return
+          setVerdict(next)
+          setClassifying(false)
+        })
+        .catch(() => {
+          if (classifySeqRef.current !== seq) return
+          setVerdict(null)
+          setClassifying(false)
+          setClassifyFailed(true)
+        })
+    }, 900)
+    return () => clearTimeout(timer)
+  }, [text, override, apiKey])
+
+  const overridden = override !== null && override.for === text
+  const kind: TextKind = overridden
+    ? override.kind
+    : (verdict?.kind ?? "name")
+  const reason = text.trim().length === 0
+    ? "Nothing to read yet."
+    : overridden
+      ? "Overruled — your call."
+      : classifying
+        ? "Reading it…"
+        : verdict
+          ? verdict.reason
+          : classifyFailed
+            ? "Couldn't reach the classifier — pick a mode below."
+            : "Pick a mode if you'd rather not wait."
 
   async function saveKey(): Promise<void> {
     const key = keyDraft.trim()
@@ -116,7 +167,9 @@ export default function App() {
 
   async function screen(): Promise<void> {
     if (!apiKey || pending) return
-    const name = text.trim()
+    // Lists screen their first item — the model says which, and the
+    // reason line says so before the button is ever pressed.
+    const name = (verdict?.screenAs ?? text).trim()
     if (!name) return
     setPending(true)
     setError(null)
