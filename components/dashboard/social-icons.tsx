@@ -67,7 +67,7 @@ function AvailabilityMark({
   available,
 }: {
   platform: string
-  available: boolean
+  available: boolean | null
 }) {
   const icon = SOCIAL_ICONS[platform as keyof typeof SOCIAL_ICONS] ?? null
   const dimmed = available
@@ -88,7 +88,9 @@ function AvailabilityMark({
   return (
     <span
       title={platform}
-      aria-label={`${platform} ${available ? "available" : "taken"}`}
+      aria-label={`${platform} ${
+        available === null ? "unknown" : available ? "available" : "taken"
+      }`}
       className={`flex size-4 items-center justify-center text-[10px] font-bold ${dimmed}`}
     >
       {TEXT_MARKS[platform] ?? platform.slice(0, 2).toUpperCase()}
@@ -99,7 +101,7 @@ function AvailabilityMark({
 export function SocialAvailabilityList({
   socials,
 }: {
-  socials: { platform: string; available: boolean }[]
+  socials: { platform: string; available: boolean | null }[]
 }) {
   return (
     <span className="flex items-center gap-2">

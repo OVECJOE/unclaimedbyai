@@ -4,10 +4,11 @@ export interface NameResult {
   rationale?: string | null
   score: number
   tier: "Excellent" | "Good" | "Okay" | "Poor"
-  domains: { tld: "com" | "ai" | "io" | "co"; available: boolean }[]
+  // null = the check could not tell; never render it as taken.
+  domains: { tld: "com" | "ai" | "io" | "co"; available: boolean | null }[]
   socials: {
     platform: "github" | "npm" | "x" | "instagram"
-    available: boolean
+    available: boolean | null
   }[]
   aiAssociation: "Low" | "Medium" | "High" | "Very High"
 }

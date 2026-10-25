@@ -82,7 +82,7 @@ function AvailabilityList({
   max = 3,
 }: {
   name: string
-  items: { tld: string; available: boolean }[]
+  items: { tld: string; available: boolean | null }[]
   max?: number
 }) {
   const shown = items.slice(0, max)
@@ -94,7 +94,13 @@ function AvailabilityList({
           key={item.tld}
           name={name}
           tld={item.tld}
-          status={item.available ? "available" : "taken"}
+          status={
+            item.available === null
+              ? "unknown"
+              : item.available
+                ? "available"
+                : "taken"
+          }
           placement="results-table"
           size="sm"
           suffixOnly

@@ -452,7 +452,7 @@ function Verdict({
   parts,
 }: {
   label: string
-  parts: { key: string; ok: boolean; text: string }[]
+  parts: { key: string; ok: boolean | null; text: string }[]
 }) {
   if (parts.length === 0) return null
   return (
@@ -466,10 +466,17 @@ function Verdict({
             key={part.key}
             className={
               "border px-1.5 py-0.5 font-mono text-xs " +
-              (part.ok ? "text-green-600" : "text-red-600")
+              // null is a shrug, not a verdict: gray "unknown" instead
+              // of a red "taken" the check never actually returned.
+              (part.ok === null
+                ? "text-muted-foreground"
+                : part.ok
+                  ? "text-green-600"
+                  : "text-red-600")
             }
           >
-            {part.text} {part.ok ? "free" : "taken"}
+            {part.text}{" "}
+            {part.ok === null ? "unknown" : part.ok ? "free" : "taken"}
           </span>
         ))}
       </div>

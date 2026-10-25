@@ -38,11 +38,21 @@ export function toNameResult(
     tier: toTier(report.overall_risk_level),
     domains: report.domains.map((domain) => ({
       tld: domain.tld as NameResult["domains"][number]["tld"],
-      available: domain.status === "available",
+      available:
+        domain.status === "available"
+          ? true
+          : domain.status === "taken"
+            ? false
+            : null,
     })),
     socials: report.socials.map((social) => ({
       platform: social.platform as NameResult["socials"][number]["platform"],
-      available: social.status === "available",
+      available:
+        social.status === "available"
+          ? true
+          : social.status === "taken"
+            ? false
+            : null,
     })),
     aiAssociation: associationFor(report),
   }

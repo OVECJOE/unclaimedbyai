@@ -397,8 +397,10 @@ export type SearchResultsPayload = {
     about: string | null
     score: number
     tier: string
-    domains: { tld: string; available: boolean }[]
-    socials: { platform: string; available: boolean }[]
+    // null = the check could not tell (unknown/error/rate-limited).
+    // Rendering that as "taken" was a confident lie.
+    domains: { tld: string; available: boolean | null }[]
+    socials: { platform: string; available: boolean | null }[]
     aiAssociation: string
   }[]
   pending: PendingName[]
