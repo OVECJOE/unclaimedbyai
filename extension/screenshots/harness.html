@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Unclaimed by AI — screenshot harness</title>
+    <link rel="stylesheet" href="./panel.css" />
+    <script src="./chrome-stub.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #17171b;
+      }
+      /* The store screenshot stage: exactly 1280×800, cropped verbatim. */
+      #stage {
+        position: relative;
+        display: flex;
+        width: 1280px;
+        height: 800px;
+        overflow: hidden;
+        background: #fff;
+      }
+      #web {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+      }
+      #web iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: #fff;
+      }
+      /* The panel, docked like the real side panel: 420px against the
+         site's content, with a hairline and a soft lift. */
+      #panel {
+        width: 420px;
+        height: 100%;
+        overflow: hidden;
+        border-left: 1px solid #e6e6e6;
+        background: #fff;
+        box-shadow: -10px 0 28px rgba(0, 0, 0, 0.07);
+      }
+      #root {
+        height: 100%;
+      }
+
+      /* The 440×280 small promo tile lives on the same page; ?mode=tile
+         hides the stage and shows it, so one capture pipeline serves
+         every asset size. */
+      #tile {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        width: 440px;
+        height: 280px;
+        background: oklch(0.491 0.27 292.581);
+        text-align: center;
+      }
+      body.tile #stage {
+        display: none;
+      }
+      body.tile #tile {
+        display: flex;
+      }
+      #tile img {
+        height: 44px;
+        width: auto;
+      }
+      #tile .tagline {
+        margin: 0;
+        color: #fff;
+        font-family: var(--font-heading);
+        font-size: 24px;
+        line-height: 1.25;
+      }
+      #tile .sub {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <div id="web">
+        <iframe id="frame" title="site" src="/"></iframe>
+      </div>
+      <div id="panel"><div id="root"></div></div>
+    </div>
+
+    <div id="tile">
+      <img src="/logo-dark.png" alt="Unclaimed by AI" />
+      <p class="tagline">Check any name,<br />from any page.</p>
+      <p class="sub">Live .com · handles · AI associations</p>
+    </div>
+
+    <script>
+      // Capture-time wiring from the query string, before the panel
+      // module (deferred) reads storage or fires a single fetch.
+      const params = new URLSearchParams(location.search)
+      if (params.get("mode") === "tile") document.body.classList.add("tile")
+      if (params.get("web")) {
+        document.getElementById("frame").src = params.get("web")
+      }
+    </script>
+    <script type="module" src="./panel.js"></script>
+  </body>
+</html>

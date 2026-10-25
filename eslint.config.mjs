@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // The browser extension's build output (sources are linted):
     "extension/dist/**",
+    // Generated screenshot-harness fixtures (copied from dist):
+    "public/_shots/**",
   ]),
 ]);
 

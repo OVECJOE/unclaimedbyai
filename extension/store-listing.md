@@ -89,17 +89,49 @@ work is pre-launch productivity, not programming).
 - **Browsing history collected:** No.
 - **Privacy policy:** https://unclaimedbyai.com/privacy
 
-## Screenshots (manual — at least one, 1280×800 or 640×400)
+## Screenshots & promo tile — shipped in `store-assets/`
 
-1. The verdict card after a screen (score, tier, clickable domain
-   chips, handles) — the layout you already captured in chat works.
-2. Intake: a selection in the textarea, the classifier's one-sentence
-   reason, and the Name/Idea/Rough chips.
-3. The right-click menu on a real selection, with the side panel open
-   beside it.
+All PNG, 24-bit (no alpha), within the store's limits:
 
-Optional assets: 440×280 small promo tile, 1280×280 promo graphic —
-neither is required.
+| File | Size | Shows |
+| --- | --- | --- |
+| `01-verdict-screen.png` | 1280×800 | Result card beside the real check page: score, tier, all three chip states, handles, AI associations |
+| `02-classify-name-list.png` | 1280×800 | Intake with a highlighted name list, the classifier's "screening the first" reason, NAME active |
+| `03-idea-to-studios.png` | 1280×800 | A product brief classified as an idea — IDEA active, "Name it with the studios" |
+| `04-rough-to-studio.png` | 1280×800 | A rambling thought classified rough — ROUGH active, "Shape it in the studio" |
+| `promo-tile-440x280.png` | 440×280 | Small promo tile: wordmark + tagline on brand purple |
+
+Upload in that order (verdict first — it carries the product).
+
+### Regenerating (the harness)
+
+`extension/screenshots/` holds the capture harness: the **real panel
+bundle** (`dist/panel.js` + CSS) mounted beside a real site page in an
+iframe, under a `chrome.*` stub with canned API responses
+(`chrome-stub.js` — real Lumenfen check data mirrored, no backend or
+model key needed).
+
+```bash
+npm run extension:build && mkdir -p public/_shots \
+  && cp extension/dist/panel.js public/_shots/ \
+  && cp extension/dist/assets/*.css public/_shots/panel.css \
+  && cp extension/screenshots/{chrome-stub.js,harness.html} public/_shots/
+```
+
+Then open, focus, and capture full-page:
+
+```
+/_shots/harness.html?classify=name&web=/check/Lumenfen&text=Lumenfen
+/_shots/harness.html?classify=list&web=/&text=Lumenfen,%20Nocturnib,%20Quiet%20Atlas
+/_shots/harness.html?classify=idea&web=/product&text=…
+/_shots/harness.html?classify=rough&web=/about&text=…
+/_shots/harness.html?mode=tile
+```
+
+Per capture: set `uba-consent=declined`, drain the iframe's streamed
+boundaries (`$RV($RB)`), remove any `nextjs-portal` dev badge, wait for
+the classifier reason, screenshot `fullPage`, crop to size, `convert("RGB")`.
+(`public/_shots/` is gitignored.)
 
 ## Submission checklist
 
