@@ -23,8 +23,12 @@ import type { Pack } from "@/lib/api"
 async function loadPacks(): Promise<Pack[]> {
   try {
     const base = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8007"
+    // Prices are the product's promise: an hour of stale cache after a
+    // price change shows wrong numbers on the very page selling them
+    // (checkout would still charge the truth from the row, so the page
+    // would even *lie* about what it charges).
     const res = await fetch(`${base}/api/v1/packs`, {
-      next: { revalidate: 3600 },
+      cache: "no-store",
     })
     if (!res.ok) return []
     const packs = (await res.json()) as Pack[]

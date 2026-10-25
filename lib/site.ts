@@ -7,7 +7,7 @@ export const SITE_DESCRIPTION =
 export const OG_PATH = "/og-image.png"
 
 export const FREE_SEARCHES = 3
-export const PRO_PRICE = 14.99
+export const PRO_PRICE = 4.99
 export const CURRENCY = "USD"
 export const CURRENCY_SYMBOL = "$"
 
@@ -55,10 +55,13 @@ export function proBenefits(limits: {
   ]
 }
 
+// Mirrors the credit_packs rows (db/seed_reference.py) for static
+// consumers: JSON-LD offers on the homepage and pricing page. Deploy
+// updates both together — rows via migration, these at build.
 const BASE_PLANS = [
-  { slug: "credits-20", title: "20 credits", amount: 7.99, credits: 20 },
-  { slug: "credits-60", title: "60 credits", amount: 19.99, credits: 60 },
-  { slug: "credits-150", title: "150 credits", amount: 39.99, credits: 150 },
+  { slug: "credits-20", title: "20 credits", amount: 3.99, credits: 20 },
+  { slug: "credits-50", title: "50 credits", amount: 5.99, credits: 50 },
+  { slug: "credits-150", title: "150 credits", amount: 13.99, credits: 150 },
 ]
 
 const BASE_RATE = BASE_PLANS[0].amount / BASE_PLANS[0].credits

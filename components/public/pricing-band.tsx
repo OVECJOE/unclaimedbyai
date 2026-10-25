@@ -18,7 +18,7 @@ const TIERS = [
   },
   {
     name: "Credits",
-    price: "$0.27",
+    price: "$0.09",
     cadence: "per credit, in packs",
     lines: [
       "Market research: 3 credits",
@@ -31,7 +31,7 @@ const TIERS = [
   },
   {
     name: "Pro",
-    price: "$14.99",
+    price: "$4.99",
     cadence: "per month",
     lines: [
       "10 sandboxes, 50 searches a month",

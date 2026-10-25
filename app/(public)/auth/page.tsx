@@ -20,7 +20,7 @@ async function planTitle(slug: string): Promise<string | null> {
   try {
     const base = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8007"
     const res = await fetch(`${base}/api/v1/packs`, {
-      next: { revalidate: 3600 },
+      cache: "no-store",
     })
     if (!res.ok) return null
     const packs = (await res.json()) as { slug: string; title: string }[]
