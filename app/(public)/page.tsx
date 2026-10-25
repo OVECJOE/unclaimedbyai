@@ -11,7 +11,9 @@ import {
   AvatarFallback,
   AvatarGroup,
   AvatarGroupCount,
+  AvatarImage,
 } from "@/components/ui/avatar"
+import { dicebearAvatar } from "@/lib/avatar"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import type { Metadata } from "next"
@@ -149,6 +151,7 @@ export default async function Page() {
           <AvatarGroup className="flex sm:justify-center">
             {AUDIENCE_EXAMPLE.map((audience) => (
               <Avatar size="lg" key={audience}>
+                <AvatarImage src={dicebearAvatar(audience)} alt="" />
                 <AvatarFallback>{audience.charAt(0)}</AvatarFallback>
               </Avatar>
             ))}
