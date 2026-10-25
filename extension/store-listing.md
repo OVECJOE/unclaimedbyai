@@ -75,19 +75,36 @@ work is pre-launch productivity, not programming).
 - **alarms** — Polls the user's own watch notifications once a minute
   to raise the toolbar badge; runs only while the browser is open.
 
-## Data safety questionnaire draft
+## Data usage form (legacy "Data usage" console section)
 
-- **Data collected:** *User content* — only the text the user
-  explicitly selects for screening/classification — and *authentication
-  information* — the API key, sent as a bearer token to authenticate.
-- **Purposes:** App functionality, Account management.
-- **Data transmitted off-device:** Yes — to unclaimedbyai.com (our
-  servers); name checks are additionally processed by a model provider
-  acting as our processor, as described in the privacy policy.
-- **Data encrypted in transit:** Yes (HTTPS/TLS).
-- **Data sold or shared for advertising/any third-party purpose:** No.
-- **Browsing history collected:** No.
-- **Privacy policy:** https://unclaimedbyai.com/privacy
+**"What user data do you plan to collect from users now or in the
+future?"** — the extension transmits exactly two things: the
+deliberately selected text and the API key. Tick:
+
+- ✅ **Personally identifiable information** — selected text and
+  results are linked to an account; the privacy policy covers the
+  account's email, and this form certifies policy consistency.
+- ✅ **Authentication information** — the `uba_live_…` API key travels
+  as a bearer credential on every request.
+- ✅ **Website content** — the highlighted selection is page text sent
+  to our API for classification/screening. This is the core one.
+- ⬜ Health · ⬜ Financial and payment (billing is website-side only,
+  never in the extension) · ⬜ Personal communications (only explicit
+  selections, disclosed as website content — no inbox/message access)
+  · ⬜ Location · ⬜ Web history · ⬜ User activity (no analytics, no
+  click/scroll/keystroke logging at all).
+
+**"I certify that the following disclosures are true:"** — certify
+**all three**: nothing is sold or shared (the model provider is a
+processor under the approved use cases); every transmitted byte serves
+the declared single purpose (screen/develop names); nothing touches
+creditworthiness or lending.
+
+Discipline: re-run the shipped-code data audit before each release and
+update these disclosures when behavior changes — "now or in the future"
+asks for today's truthful set, not speculation.
+
+**Privacy policy:** https://unclaimedbyai.com/privacy
 
 ## Screenshots & promo tile — shipped in `store-assets/`
 
