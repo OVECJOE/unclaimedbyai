@@ -61,6 +61,10 @@ export default function App() {
   const [classifying, setClassifying] = useState(false)
   const [classifyFailed, setClassifyFailed] = useState(false)
   const classifySeqRef = useRef(0)
+  // Bumped when a fresh right-click handoff supersedes whatever the
+  // panel was doing — a screening already in flight must not land on
+  // top of the selection that replaced it.
+  const intakeSeqRef = useRef(0)
 
   // Mount: key, then the context-menu handoff, then the watch badge's
   // first sync (which also proves the key still works).
@@ -70,13 +74,13 @@ export default function App() {
       const key = await loadApiKey()
       if (!alive) return
       setApiKey(key)
+      const handoff = await getSelectionHandoff()
+      if (!alive) return
+      if (handoff.selection) setText(handoff.selection)
       if (!key) {
         setPhase("setup")
         return
       }
-      const handoff = await getSelectionHandoff()
-      if (!alive) return
-      if (handoff.selection) setText(handoff.selection)
       try {
         const fresh = await syncNotifications(key)
         if (!alive) return
@@ -90,6 +94,32 @@ export default function App() {
     return () => {
       alive = false
     }
+  }, [])
+
+  // A right-click while this panel is already open: sidePanel.open()
+  // is a no-op on an open panel, so the handoff only travels through
+  // storage — watch for it and restart intake. The stamp in the
+  // background makes even re-picking the same text fire this; the seq
+  // bump strands an in-flight screening so its late result cannot
+  // stomp the selection that superseded it.
+  useEffect(() => {
+    const onChanged = (
+      changes: { [key: string]: chrome.storage.StorageChange },
+      areaName: string
+    ) => {
+      if (areaName !== "session" || !changes.selection) return
+      const next = changes.selection.newValue
+      if (typeof next !== "string" || !next) return
+      intakeSeqRef.current += 1
+      setText(next)
+      setOverride(null)
+      setError(null)
+      setResult(null)
+      // Never yank a first-run user out of key setup.
+      setPhase((current) => (current === "setup" ? "setup" : "intake"))
+    }
+    chrome.storage.onChanged.addListener(onChanged)
+    return () => chrome.storage.onChanged.removeListener(onChanged)
   }, [])
 
   // Model-backed triage: one call per settled text (900 ms of quiet —
@@ -173,11 +203,13 @@ export default function App() {
     // reason line says so before the button is ever pressed.
     const name = (verdict?.screenAs ?? text).trim()
     if (!name) return
+    const seq = ++intakeSeqRef.current
     setPending(true)
     setError(null)
     playSound("launch", `extension-screen:${name}`)
     try {
       const outcome = await screenName(name, apiKey)
+      if (intakeSeqRef.current !== seq) return // a newer right-click won
       setResult(outcome)
       setPhase("result")
       if (outcome.item) {
@@ -188,6 +220,7 @@ export default function App() {
         playSound("error", "extension-result-failed")
       }
     } catch (caught) {
+      if (intakeSeqRef.current !== seq) return
       setError(errorMessage(caught))
       playSound("error", `extension-screen-error:${name}`)
       if (caught instanceof ApiError && caught.status === 401) {
@@ -196,6 +229,8 @@ export default function App() {
         setPhase("setup")
       }
     } finally {
+      // Cleared even when superseded: the new intake must not inherit
+      // a pending state it never started.
       setPending(false)
     }
   }

@@ -41,6 +41,10 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   void chrome.storage.session.set({
     selection: info.selectionText.slice(0, 400),
     sourceUrl: info.pageUrl ?? "",
+    // Stamps the write: re-picking the same text must still fire the
+    // storage change listener in an already-open panel (identical
+    // values fire no change event).
+    pickedAt: Date.now(),
   })
   if (tab?.id === undefined) {
     // No tab to anchor to (rare): the panel is just a page, so a tab
