@@ -12,30 +12,48 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.sidePanel
     .setPanelBehavior({ openPanelOnActionClick: true })
     .catch(() => {})
-  chrome.contextMenus.create({
-    id: MENU_ID,
-    title: 'Screen "%s" with Unclaimed AI',
-    contexts: ["selection"],
+  // removeAll first: reloading an unpacked extension leaves the old
+  // menu in place, and create() would then throw a duplicate-id error
+  // taking down everything after it in this listener — the alarm.
+  chrome.contextMenus.removeAll(() => {
+    try {
+      chrome.contextMenus.create({
+        id: MENU_ID,
+        title: 'Screen "%s" with Unclaimed AI',
+        contexts: ["selection"],
+      })
+    } catch (error) {
+      console.error("context menu create failed:", error)
+    }
+    // The daily engine: a watch sweep can free a .com or a handle while
+    // the browser is open, and the badge is where that shows up.
+    chrome.alarms.create(ALARM_ID, { periodInMinutes: 1 })
   })
-  // The daily engine: a watch sweep can free a .com or a handle while
-  // the browser is open, and the badge is where that shows up.
-  chrome.alarms.create(ALARM_ID, { periodInMinutes: 1 })
 })
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId !== MENU_ID || !info.selectionText) return
-  void chrome.storage.session
-    .set({
-      selection: info.selectionText.slice(0, 400),
-      sourceUrl: info.pageUrl ?? "",
-    })
-    .then(() => {
-      if (tab?.id !== undefined) {
-        // Opening from a context-menu click is a user gesture, which
-        // the sidePanel API requires.
-        chrome.sidePanel.open({ tabId: tab.id }).catch(() => {})
-      }
-    })
+  // Write the handoff first — the write is issued synchronously and
+  // the panel cannot read before its bundle has loaded — but OPEN the
+  // panel before any await: sidePanel.open() only honors a live user
+  // gesture, and doing it inside storage.set().then() (what this
+  // replaces) makes the API reject and the click vanish silently.
+  void chrome.storage.session.set({
+    selection: info.selectionText.slice(0, 400),
+    sourceUrl: info.pageUrl ?? "",
+  })
+  if (tab?.id === undefined) {
+    // No tab to anchor to (rare): the panel is just a page, so a tab
+    // renders the exact same component.
+    void chrome.tabs.create({ url: "index.html" })
+    return
+  }
+  chrome.sidePanel.open({ tabId: tab.id }).catch((error) => {
+    // Belt and braces: if the gesture check ever fails anyway, the
+    // click still lands somewhere visible instead of nowhere.
+    console.error("sidePanel.open failed, opening as a tab:", error)
+    void chrome.tabs.create({ url: "index.html" })
+  })
 })
 
 chrome.alarms.onAlarm.addListener((alarm) => {
