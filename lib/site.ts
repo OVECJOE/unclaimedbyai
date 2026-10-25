@@ -64,7 +64,10 @@ const BASE_PLANS = [
   { slug: "credits-150", title: "150 credits", amount: 13.99, credits: 150 },
 ]
 
-const BASE_RATE = BASE_PLANS[0].amount / BASE_PLANS[0].credits
+/** Per-credit rate of the smallest pack — the "single rate" the
+ *  FAQ quotes. Exported so copy renders the number the packs
+ *  actually charge instead of remembering one. */
+export const BASE_RATE = BASE_PLANS[0].amount / BASE_PLANS[0].credits
 
 export const PLANS = BASE_PLANS.map((plan) => ({
   ...plan,

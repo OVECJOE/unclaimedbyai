@@ -10,7 +10,7 @@ import CountUp from "@/components/about/count-up"
 import GsapReveal from "@/components/about/gsap-reveal"
 import PrompterCta from "@/components/public/prompter-cta"
 import { JsonLd } from "@/components/app/json-ld"
-import { pageMetadata, SITE_NAME, SITE_URL } from "@/lib/site"
+import { PRO_PRICE, pageMetadata, SITE_NAME, SITE_URL } from "@/lib/site"
 
 export const metadata: Metadata = pageMetadata({
   title: "About us",
@@ -54,7 +54,7 @@ const PRINCIPLES = [
   {
     index: "04",
     title: "Free where it matters",
-    body: "The first check on every name is free, forever. Credits buy depth when you need it and never expire. If you live in the tool, Pro adds sandboxes, searches and the watchlist for $14.99 a month. Cancel from the billing page, no phone call.",
+    body: `The first check on every name is free, forever. Credits buy depth when you need it and never expire. If you live in the tool, Pro adds sandboxes, searches and the watchlist for $${PRO_PRICE} a month. Cancel from the billing page, no phone call.`,
   },
 ]
 

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { BASE_RATE, PRO_PRICE } from "@/lib/site"
 import {
   GithubIcon,
   InstagramIcon,
@@ -516,7 +517,7 @@ export const FAQS: {
     id: "how-do-credits-work",
     question: "How do credits work?",
     answer:
-      "Credits are the pay-as-you-go layer on top of the free plan. Research costs 3, a search past your monthly allowance costs 2, and re-checking a name costs 1. The first check on every name is always free. Credits never expire, cost $0.50 each at the single rate and less in packs, and they only buy those three things: research, searches and re-checks.",
+      `Credits are the pay-as-you-go layer on top of the free plan. Research costs 3, a search past your monthly allowance costs 2, and re-checking a name costs 1. The first check on every name is always free. Credits never expire, cost $${BASE_RATE.toFixed(2)} each at the single rate and less in packs, and they only buy those three things: research, searches and re-checks.`,
     body: (
       <FaqAnswer lead="Credits are the pay-as-you-go layer on top of the free plan. Three things cost them, and nothing else does.">
         <FaqExample
@@ -529,7 +530,11 @@ export const FAQS: {
           ]}
         />
         <p className="text-base leading-7">
-          They cost <strong>$0.50 each</strong> at the single rate and less in
+          They cost <strong>
+            {"$"}
+            {BASE_RATE.toFixed(2)} each
+          </strong>
+          at the single rate and less in
           packs, they never expire, and they only buy those three things. The
           monthly search allowance on your plan always spends first; credits
           pick up when it runs dry, so running out of plan never blocks you.
@@ -541,7 +546,7 @@ export const FAQS: {
     id: "is-unclaimedbyai-free-to-use",
     question: "Is UnclaimedbyAI free to use?",
     answer:
-      "Yes, and the free tier is a real product, not a demo. Every account starts with one sandbox, three searches a month, three idea runs a day, and the first check on every name costs nothing. When you need more, credits buy research, searches and re-checks without a subscription, and Pro at $14.99 a month is for people who live in the tool: ten sandboxes, fifty searches, five checks per name, twenty idea runs a day, and the watchlist.",
+      `Yes, and the free tier is a real product, not a demo. Every account starts with one sandbox, three searches a month, three idea runs a day, and the first check on every name costs nothing. When you need more, credits buy research, searches and re-checks without a subscription, and Pro at $${PRO_PRICE} a month is for people who live in the tool: ten sandboxes, fifty searches, five checks per name, twenty idea runs a day, and the watchlist.`,
     body: (
       <FaqAnswer lead="Yes, and the free tier is a real product, not a demo that ends at the good part.">
         <FaqExample
@@ -557,7 +562,11 @@ export const FAQS: {
         <p className="text-base leading-7">
           When you need more than that, <strong>credits</strong> buy research,
           extra searches and re-checks with no subscription attached. And{" "}
-          <strong>Pro, at $14.99 a month</strong>, is for people who live in the
+          <strong>
+            Pro, at {"$"}
+            {PRO_PRICE} a month
+          </strong>
+          , is for people who live in the
           tool: ten sandboxes, fifty searches a month, five checks per name,
           twenty idea runs a day, and the watchlist.
         </p>

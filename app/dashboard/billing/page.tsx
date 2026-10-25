@@ -18,6 +18,7 @@ import { ApiError, type Pack, type PlanInfo } from "@/lib/api"
 import {
   CURRENCY_SYMBOL,
   PRO_LIMITS,
+  PRO_PRICE,
   creditPackBenefits,
   proBenefits,
 } from "@/lib/site"
@@ -179,7 +180,8 @@ export default async function BillingPage({
                   <p className="font-heading text-3xl font-semibold">Pro</p>
                   <p className="flex items-baseline gap-2">
                     <span className="font-heading text-5xl font-semibold">
-                      $14.99
+                      {"$"}
+                      {PRO_PRICE}
                     </span>
                     <span className="font-mono text-sm text-muted-foreground">
                       per month
