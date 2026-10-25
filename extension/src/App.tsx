@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { classify, type TextKind } from "./classify"
+import Logo from "./Logo"
 import {
   SITE,
   getSelectionHandoff,
@@ -383,9 +384,7 @@ export default function App() {
 function Header({ notices = 0 }: { notices?: number }) {
   return (
     <header className="flex items-center justify-between gap-3 border-b pb-4">
-      <p className="font-heading text-lg font-semibold">
-        Unclaimed<span className="text-primary"> by AI</span>
-      </p>
+      <Logo />
       {notices > 0 ? (
         <span className="text-xs text-muted-foreground">
           {notices} unseen
