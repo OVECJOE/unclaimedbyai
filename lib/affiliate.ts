@@ -33,6 +33,8 @@ export type AffiliatePlacement =
   | "post-checkout"
   | "results-table"
   | "report-domains"
+  /** The browser extension's side-panel verdict. */
+  | "extension-panel"
 
 export type Registrar = "namecheap" | "godaddy" | "dynadot"
 

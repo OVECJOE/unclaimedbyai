@@ -32,10 +32,10 @@ import {
   runCheck,
   type PendingName,
 } from "@/lib/api"
+import { AvailabilityList } from "@/components/dashboard/availability-list"
 import { toastApiError } from "@/lib/api-errors"
 import { aiAssociationColor, tierColor } from "@/lib/name-results"
 import { SocialAvailabilityList } from "@/components/dashboard/social-icons"
-import DomainChip from "@/components/domain-chip"
 import { useTurnstile } from "@/components/public/turnstile"
 import { WatchButton } from "@/components/dashboard/watch-button"
 
@@ -74,51 +74,6 @@ type ResultsTableProps = {
   watched?: Record<string, number>
   onMutation?: () => void
   onShortage?: () => void
-}
-
-function AvailabilityList({
-  name,
-  items,
-  max = 3,
-}: {
-  name: string
-  items: { tld: string; available: boolean | null }[]
-  max?: number
-}) {
-  const shown = items.slice(0, max)
-  const remaining = items.length - shown.length
-  return (
-    <span className="flex flex-wrap items-center gap-1.5">
-      {shown.map((item) => (
-        <DomainChip
-          key={item.tld}
-          name={name}
-          tld={item.tld}
-          status={
-            item.available === null
-              ? "unknown"
-              : item.available
-                ? "available"
-                : "taken"
-          }
-          placement="results-table"
-          size="sm"
-          suffixOnly
-        />
-      ))}
-      {remaining > 0 ? (
-        <span
-          className="text-xs text-muted-foreground"
-          title={items
-            .slice(max)
-            .map((i) => `.${i.tld}`)
-            .join(", ")}
-        >
-          +{remaining}
-        </span>
-      ) : null}
-    </span>
-  )
 }
 
 function AnimatedScore({ value }: { value: number }) {

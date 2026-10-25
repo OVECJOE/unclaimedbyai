@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { AvailabilityList } from "@/components/dashboard/availability-list"
+import { SocialAvailabilityList } from "@/components/dashboard/social-icons"
 import Logo from "./Logo"
 import {
   SITE,
@@ -287,18 +289,23 @@ export default function App() {
               </span>
             </p>
 
-            <Verdict
-              label="Domains"
-              parts={item.domains.map((d) => ({ key: d.tld, ok: d.available, text: d.tld }))}
-            />
-            <Verdict
-              label="Handles"
-              parts={item.socials.map((s) => ({
-                key: s.platform,
-                ok: s.available,
-                text: s.platform,
-              }))}
-            />
+            <div className="space-y-1">
+              <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+                Domains
+              </p>
+              <AvailabilityList
+                name={item.name}
+                items={item.domains}
+                max={24}
+                placement="extension-panel"
+              />
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+                Handles
+              </p>
+              <SocialAvailabilityList socials={item.socials} />
+            </div>
             <div className="space-y-1">
               <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
                 AI associations
@@ -444,42 +451,5 @@ function Header({ notices = 0 }: { notices?: number }) {
         </span>
       ) : null}
     </header>
-  )
-}
-
-function Verdict({
-  label,
-  parts,
-}: {
-  label: string
-  parts: { key: string; ok: boolean | null; text: string }[]
-}) {
-  if (parts.length === 0) return null
-  return (
-    <div className="space-y-1">
-      <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-        {label}
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {parts.map((part) => (
-          <span
-            key={part.key}
-            className={
-              "border px-1.5 py-0.5 font-mono text-xs " +
-              // null is a shrug, not a verdict: gray "unknown" instead
-              // of a red "taken" the check never actually returned.
-              (part.ok === null
-                ? "text-muted-foreground"
-                : part.ok
-                  ? "text-green-600"
-                  : "text-red-600")
-            }
-          >
-            {part.text}{" "}
-            {part.ok === null ? "unknown" : part.ok ? "free" : "taken"}
-          </span>
-        ))}
-      </div>
-    </div>
   )
 }
