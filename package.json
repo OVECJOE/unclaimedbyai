@@ -11,7 +11,8 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit && tsc -p extension/tsconfig.json --noEmit",
     "extension:build": "vite build extension",
-    "extension:dev": "vite build extension --watch"
+    "extension:dev": "vite build extension --watch",
+    "extension:package": "EXT_SITE_ORIGIN=https://www.unclaimedbyai.com npm run extension:build && python3 -c \"import shutil; shutil.make_archive('extension/unclaimedbyai-extension', 'zip', root_dir='extension/dist')\""
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

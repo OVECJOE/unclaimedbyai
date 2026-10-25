@@ -10,19 +10,21 @@ lookalike.
 ## Build & load
 
 ```bash
-npm run extension:build     # → extension/dist/
+npm run extension:build     # → extension/dist/ (site origin: localhost)
 npm run extension:dev       # watch mode
+npm run extension:package   # store zip: origin baked to www.unclaimedbyai.com
 ```
 
 Chrome → `chrome://extensions` → Developer mode → **Load unpacked** →
 pick `extension/dist/`.
 
 Development talks to `http://localhost:3000` (the Next rewrite proxy).
-For a store build:
-
-```bash
-EXT_SITE_ORIGIN=https://unclaimedbyai.com npm run extension:build
-```
+The manifest is **generated at build time** from `vite.config.ts`:
+`host_permissions` follow `EXT_SITE_ORIGIN` (plus its www twin for real
+domains, never localhost in a store package) and Chrome's field limits
+are enforced at build, not at upload. The packaged
+`extension/unclaimedbyai-extension.zip` is what goes to the store —
+submission steps and listing copy live in `store-listing.md`.
 
 ## Setup (once)
 
@@ -63,8 +65,8 @@ backend skips the Turnstile challenge on direct checks.
 
 ```
 extension/
-  public/manifest.json      # MV3: sidePanel, contextMenus, storage, alarms
-  vite.config.ts            # @ → repo root, site origin via EXT_SITE_ORIGIN
+  vite.config.ts            # @ → repo root, site origin, manifest generator
+  store-listing.md          # Chrome Web Store copy + submission checklist
   src/background.ts         # context menu handoff + watch-badge poller (no imports)
   src/App.tsx               # panel: setup → intake → verdict
   src/api.ts                # bearer auth; /classify verdict + check/poll paths
