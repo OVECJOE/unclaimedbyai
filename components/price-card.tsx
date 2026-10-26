@@ -79,7 +79,7 @@ export function PriceCard({
           ))}
         </ul>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="mt-auto">
         <CardAction className="w-full">
           {action ?? (
             <Button size="lg" asChild className="w-full">
