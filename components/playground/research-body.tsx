@@ -1,14 +1,5 @@
-import type { Research } from "@/lib/api"
+import type { Research, ResearchSection } from "@/lib/api"
 import { Button } from "@/components/ui/button"
-
-/**
- * The paid market research, structured: four sections, each either
- * landing right now (shimmer), standing with evidence, or carrying an
- * honest gap with a retry. Extracted from the idea detail panel so the
- * canvas rail and the idea cards tell exactly the same story — and so
- * the apology text a failed section used to print can never be mistaken
- * for a finding again.
- */
 
 export type ResearchLike = Pick<Research, "status" | "error"> &
   Partial<
@@ -31,14 +22,112 @@ const SECTIONS: { key: SectionKey; label: string }[] = [
   { key: "monetization", label: "How it earns" },
 ]
 
-/** A null section means the report is still building it — or a retry is
- *  in flight. Poll while this holds; the UI never asks for an F5. */
 export function sectionPending(research: ResearchLike): boolean {
   return SECTIONS.some((section) => research[section.key] == null)
 }
 
-function Empty({ children }: { children: string }) {
-  return <p className="text-xs text-muted-foreground">{children}</p>
+function hostname(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "")
+  } catch {
+    return url
+  }
+}
+
+function SourcesBar({ urls }: { urls: string[] }) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[0.625rem] text-muted-foreground">
+      <span className="font-semibold tracking-widest uppercase">Sources</span>
+      {urls.map((url) => (
+        <a
+          key={url}
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline underline-offset-2 hover:text-foreground"
+        >
+          {hostname(url)}
+        </a>
+      ))}
+    </div>
+  )
+}
+
+function sectionBody(key: SectionKey, value: ResearchSection) {
+  if (key === "competitors") {
+    return value.competitors?.length ? (
+      <ul className="space-y-1.5">
+        {value.competitors.map((competitor) => (
+          <li key={competitor.name} className="text-sm">
+            <span className="font-medium">{competitor.name}</span>
+            {competitor.pricing ? (
+              <span className="text-xs text-muted-foreground tabular-nums">
+                {" "}
+                · {competitor.pricing}
+              </span>
+            ) : null}
+            {competitor.note ? (
+              <p className="text-xs text-muted-foreground">{competitor.note}</p>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="text-xs text-muted-foreground">
+        None surfaced — the space looks genuinely open.
+      </p>
+    )
+  }
+  if (key === "demand") {
+    return value.signals?.length ? (
+      <ul className="space-y-1 text-sm">
+        {value.signals.map((signal) => (
+          <li key={signal} className="flex gap-1.5">
+            <span className="text-primary">•</span>
+            <span>{signal}</span>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="text-xs text-muted-foreground">No demand signals landed.</p>
+    )
+  }
+  if (key === "audience_channels") {
+    return value.channels?.length ? (
+      <ul className="space-y-1.5">
+        {value.channels.map((channel) => (
+          <li key={channel.channel} className="text-sm">
+            <span className="font-medium">{channel.channel}</span>
+            {channel.note ? (
+              <p className="text-xs text-muted-foreground">{channel.note}</p>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="text-xs text-muted-foreground">No channels landed.</p>
+    )
+  }
+  return value.paths?.length ? (
+    <ul className="space-y-1.5">
+      {value.paths.map((path) => (
+        <li key={path.model} className="text-sm">
+          <span className="font-medium">{path.model}</span>
+          {path.price ? (
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {" "}
+              · {path.price}
+            </span>
+          ) : null}
+          {path.note ? (
+            <p className="text-xs text-muted-foreground">{path.note}</p>
+          ) : null}
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p className="text-xs text-muted-foreground">No revenue path landed.</p>
+  )
 }
 
 export function ResearchBody({
@@ -92,80 +181,13 @@ export function ResearchBody({
                 This section could not be researched. The three that worked
                 stand.
               </p>
-            ) : section.key === "competitors" ? (
-              value.competitors?.length ? (
-                <ul className="space-y-1.5">
-                  {value.competitors.map((competitor) => (
-                    <li key={competitor.name} className="text-sm">
-                      <span className="font-medium">{competitor.name}</span>
-                      {competitor.pricing ? (
-                        <span className="text-xs text-muted-foreground tabular-nums">
-                          {" "}
-                          · {competitor.pricing}
-                        </span>
-                      ) : null}
-                      {competitor.note ? (
-                        <p className="text-xs text-muted-foreground">
-                          {competitor.note}
-                        </p>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <Empty>None surfaced — the space looks genuinely open.</Empty>
-              )
-            ) : section.key === "demand" ? (
-              value.signals?.length ? (
-                <ul className="space-y-1 text-sm">
-                  {value.signals.map((signal) => (
-                    <li key={signal} className="flex gap-1.5">
-                      <span className="text-primary">•</span>
-                      <span>{signal}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <Empty>No demand signals landed.</Empty>
-              )
-            ) : section.key === "audience_channels" ? (
-              value.channels?.length ? (
-                <ul className="space-y-1.5">
-                  {value.channels.map((channel) => (
-                    <li key={channel.channel} className="text-sm">
-                      <span className="font-medium">{channel.channel}</span>
-                      {channel.note ? (
-                        <p className="text-xs text-muted-foreground">
-                          {channel.note}
-                        </p>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <Empty>No channels landed.</Empty>
-              )
-            ) : value.paths?.length ? (
-              <ul className="space-y-1.5">
-                {value.paths.map((path) => (
-                  <li key={path.model} className="text-sm">
-                    <span className="font-medium">{path.model}</span>
-                    {path.price ? (
-                      <span className="text-xs text-muted-foreground tabular-nums">
-                        {" "}
-                        · {path.price}
-                      </span>
-                    ) : null}
-                    {path.note ? (
-                      <p className="text-xs text-muted-foreground">
-                        {path.note}
-                      </p>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
             ) : (
-              <Empty>No revenue path landed.</Empty>
+              <>
+                {sectionBody(section.key, value)}
+                {value.sources?.length ? (
+                  <SourcesBar urls={value.sources} />
+                ) : null}
+              </>
             )}
           </div>
         )

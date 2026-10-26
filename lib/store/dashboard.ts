@@ -13,6 +13,7 @@ import {
   updateIdea,
   updateSandbox,
   type Idea,
+  type IdeaCanvas,
   type PlanInfo,
   type Sandbox,
   type SandboxDetail,
@@ -68,6 +69,7 @@ type DashboardStore = {
   ): Promise<Idea | null>
   reorderIdeas(orderedIds: string[]): Promise<void>
   setPinned(ideaId: string, pinned: boolean): Promise<void>
+  saveIdeaCanvas(ideaId: string, canvas: IdeaCanvas): Promise<void>
   renameSandbox(publicId: string, name: string): Promise<void>
   removeSandbox(publicId: string): Promise<void>
   detachSearch(ideaId: string): Promise<void>
@@ -239,6 +241,27 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
     } catch {
       set({ detail: { ...detail, ideas: previous }, detailAt: Date.now() })
       throw new Error("The pin could not be saved.")
+    }
+  },
+
+  async saveIdeaCanvas(ideaId, canvas) {
+    const { detail } = get()
+    if (!detail) return
+    const previous = detail.ideas
+    set({
+      detail: {
+        ...detail,
+        ideas: previous.map((idea) =>
+          idea.public_id === ideaId ? { ...idea, canvas } : idea
+        ),
+      },
+      detailAt: Date.now(),
+    })
+    try {
+      await updateIdea(ideaId, { canvas })
+    } catch {
+      set({ detail: { ...detail, ideas: previous }, detailAt: Date.now() })
+      throw new Error("The steer could not save.")
     }
   },
 

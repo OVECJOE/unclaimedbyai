@@ -26,11 +26,21 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import {
   createSearch,
   getResearch,
   retryResearchSection,
   startResearch,
+  suggestPositioning,
   type Idea,
+  type IdeaCanvas,
   type Research,
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
@@ -68,9 +78,12 @@ export default function IdeaDetailPanel({
   const router = useRouter()
   const setPinned = useDashboardStore((state) => state.setPinned)
   const detachSearch = useDashboardStore((state) => state.detachSearch)
+  const saveIdeaCanvas = useDashboardStore((state) => state.saveIdeaCanvas)
   const [research, setResearch] = useState<Research | null>(null)
   const [polling, setPolling] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [positioning, setPositioning] = useState<IdeaCanvas | null>(null)
+  const [distilling, setDistilling] = useState(false)
 
   async function openResearch() {
     setBusy(true)
@@ -172,11 +185,50 @@ export default function IdeaDetailPanel({
     }
   }, [polling, idea.public_id])
 
+  async function openPositioning() {
+    setDistilling(true)
+    try {
+      const suggestion = await suggestPositioning(idea.public_id)
+      setPositioning({
+        audience: suggestion.audience ?? idea.canvas?.audience ?? null,
+        wedge: suggestion.wedge ?? idea.canvas?.wedge ?? null,
+        model: suggestion.model ?? idea.canvas?.model ?? null,
+      })
+    } catch (error) {
+      toastApiError(error, "Positioning could not be distilled.")
+    } finally {
+      setDistilling(false)
+    }
+  }
+
+  async function applyPositioning() {
+    if (!positioning) return
+    setBusy(true)
+    try {
+      await saveIdeaCanvas(idea.public_id, positioning)
+      setPositioning(null)
+      toast("Steer saved — the next name run names this positioning.")
+    } catch (error) {
+      toastApiError(error, "The steer could not save.")
+    } finally {
+      setBusy(false)
+    }
+  }
+
   async function toSearch() {
     setBusy(true)
     try {
+      const steer = idea.canvas
+        ? [
+            idea.canvas.audience ? `Audience: ${idea.canvas.audience}` : null,
+            idea.canvas.wedge ? `Positioning gap: ${idea.canvas.wedge}` : null,
+            idea.canvas.model ? `Revenue model: ${idea.canvas.model}` : null,
+          ].filter((line): line is string => line !== null)
+        : []
       const search = await createSearch({
-        query: `${idea.title}. ${idea.concept}`,
+        query: steer.length
+          ? `${idea.title}. ${idea.concept}\n${steer.join("\n")}`
+          : `${idea.title}. ${idea.concept}`,
         idea_id: idea.public_id,
       })
       router.push(`/dashboard/history/${search.id}`)
@@ -273,6 +325,20 @@ export default function IdeaDetailPanel({
                 ? "Read research"
                 : "Run research · 3 credits"}
           </Button>
+
+          {research && research.status === "ready" ? (
+            <Button
+              size="sm"
+              variant="outline"
+              className="mt-2"
+              disabled={busy || distilling}
+              onClick={() => void openPositioning()}
+            >
+              {distilling
+                ? "Distilling positioning…"
+                : "Apply positioning to steer"}
+            </Button>
+          ) : null}
         </div>
 
         {idea.search_id ? (
@@ -337,6 +403,53 @@ export default function IdeaDetailPanel({
           {idea.pinned ? "Kept" : "Keep"}
         </Button>
       </div>
+
+      <Dialog
+        open={positioning !== null}
+        onOpenChange={(open) => {
+          if (!open) setPositioning(null)
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Steer the next name run</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {(["audience", "wedge", "model"] as const).map((key) => (
+              <div key={key} className="space-y-1">
+                <label
+                  htmlFor={`steer-${key}`}
+                  className="text-sm font-medium capitalize"
+                >
+                  {key}
+                </label>
+                <Input
+                  id={`steer-${key}`}
+                  value={positioning?.[key] ?? ""}
+                  onChange={(event) =>
+                    setPositioning((current) =>
+                      current
+                        ? {
+                            ...current,
+                            [key]: event.target.value || null,
+                          }
+                        : current
+                    )
+                  }
+                />
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPositioning(null)}>
+              Cancel
+            </Button>
+            <Button disabled={busy} onClick={() => void applyPositioning()}>
+              {busy ? "Saving..." : "Apply"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -631,6 +631,7 @@ export type Idea = {
 export type ResearchSection = {
   summary?: string
   error?: string
+  sources?: string[]
   competitors?: { name: string; pricing?: string; note?: string }[]
   signals?: string[]
   channels?: { channel: string; note?: string }[]
@@ -858,6 +859,7 @@ export function updateIdea(
     concept?: string
     position?: number
     pinned?: boolean
+    canvas?: IdeaCanvas
   },
   sid?: string
 ): Promise<Idea> {
@@ -874,6 +876,19 @@ export function retryResearchSection(
 ): Promise<{ status: string; version: number }> {
   return apiRequest<{ status: string; version: number }>(
     `/api/v1/ideas/${ideaId}/research/sections/${section}`,
+    { method: "POST" }
+  )
+}
+
+export type Positioning = {
+  audience?: string | null
+  wedge?: string | null
+  model?: string | null
+}
+
+export function suggestPositioning(ideaId: string): Promise<Positioning> {
+  return apiRequest<Positioning>(
+    `/api/v1/ideas/${ideaId}/research/positioning`,
     { method: "POST" }
   )
 }
