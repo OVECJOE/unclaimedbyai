@@ -69,23 +69,23 @@ export default function BuildPromptButton({
     }
   }, [status, ideaId, copyPrompt, setStatus])
 
-  async function onClick() {
-    if (status === "ready") {
-      setBusy(true)
-      try {
-        const state = await getBuildPrompt(ideaId)
-        if (state.prompt) {
-          await copyPrompt(state.prompt)
-        } else {
-          setStatus(ideaId, state.status)
-        }
-      } catch (error) {
-        toastApiError(error, "The prompt could not load.")
-      } finally {
-        setBusy(false)
+  async function copy() {
+    setBusy(true)
+    try {
+      const state = await getBuildPrompt(ideaId)
+      if (state.prompt) {
+        await copyPrompt(state.prompt)
+      } else {
+        setStatus(ideaId, state.status)
       }
-      return
+    } catch (error) {
+      toastApiError(error, "The prompt could not load.")
+    } finally {
+      setBusy(false)
     }
+  }
+
+  async function start() {
     setBusy(true)
     try {
       await startBuildPrompt(ideaId)
@@ -98,18 +98,37 @@ export default function BuildPromptButton({
     }
   }
 
+  if (status === "generating") {
+    return (
+      <Button size="sm" variant="outline" disabled>
+        Writing prompt…
+      </Button>
+    )
+  }
+
+  if (status === "ready") {
+    return (
+      <span className="inline-flex items-center gap-1">
+        <Button size="sm" variant="outline" disabled={busy} onClick={() => void copy()}>
+          Copy build prompt
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="text-xs text-muted-foreground"
+          disabled={busy}
+          title="Regenerate from the idea's latest details — research, names, steer"
+          onClick={() => void start()}
+        >
+          Rewrite
+        </Button>
+      </span>
+    )
+  }
+
   return (
-    <Button
-      size="sm"
-      variant="outline"
-      disabled={busy || status === "generating"}
-      onClick={() => void onClick()}
-    >
-      {status === "generating"
-        ? "Writing prompt…"
-        : status === "ready"
-          ? "Copy build prompt"
-          : "Build prompt"}
+    <Button size="sm" variant="outline" disabled={busy} onClick={() => void start()}>
+      {status === "failed" ? "Retry prompt" : "Build prompt"}
     </Button>
   )
 }
