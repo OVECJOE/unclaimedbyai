@@ -33,6 +33,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import BuildPromptButton from "@/components/playground/build-prompt-button"
 import {
   createSearch,
   getResearch,
@@ -402,6 +403,11 @@ export default function IdeaDetailPanel({
           <HugeiconsIcon icon={Pin02Icon} className="size-4" />
           {idea.pinned ? "Kept" : "Keep"}
         </Button>
+        <BuildPromptButton
+          ideaId={idea.public_id}
+          status={idea.build_prompt_status ?? "missing"}
+          hasNames={Boolean(idea.search_id)}
+        />
       </div>
 
       <Dialog

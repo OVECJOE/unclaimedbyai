@@ -22,6 +22,7 @@ import {
   ResearchBody,
   sectionPending,
 } from "@/components/playground/research-body"
+import BuildPromptButton from "@/components/playground/build-prompt-button"
 
 function CanvasLine({ label, value }: { label: string; value: string | null }) {
   if (!value) return null
@@ -262,6 +263,11 @@ export default function IdeaCard({
         >
           Search names
         </Button>
+        <BuildPromptButton
+          ideaId={idea.public_id}
+          status={idea.build_prompt_status ?? "missing"}
+          hasNames={Boolean(idea.search_id)}
+        />
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
         Research returns competitors, demand, audience channels, and how it

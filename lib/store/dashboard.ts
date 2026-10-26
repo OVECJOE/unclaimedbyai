@@ -12,6 +12,7 @@ import {
   listSandboxes,
   updateIdea,
   updateSandbox,
+  type BuildPromptState,
   type Idea,
   type IdeaCanvas,
   type PlanInfo,
@@ -70,6 +71,7 @@ type DashboardStore = {
   reorderIdeas(orderedIds: string[]): Promise<void>
   setPinned(ideaId: string, pinned: boolean): Promise<void>
   saveIdeaCanvas(ideaId: string, canvas: IdeaCanvas): Promise<void>
+  setBuildPromptStatus(ideaId: string, status: BuildPromptState): void
   renameSandbox(publicId: string, name: string): Promise<void>
   removeSandbox(publicId: string): Promise<void>
   detachSearch(ideaId: string): Promise<void>
@@ -263,6 +265,22 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
       set({ detail: { ...detail, ideas: previous }, detailAt: Date.now() })
       throw new Error("The steer could not save.")
     }
+  },
+
+  setBuildPromptStatus(ideaId, status) {
+    const { detail } = get()
+    if (!detail) return
+    set({
+      detail: {
+        ...detail,
+        ideas: detail.ideas.map((idea) =>
+          idea.public_id === ideaId
+            ? { ...idea, build_prompt_status: status }
+            : idea
+        ),
+      },
+      detailAt: Date.now(),
+    })
   },
 
   async renameSandbox(publicId, name) {

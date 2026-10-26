@@ -613,6 +613,14 @@ export type IdeaCanvas = {
   model: string | null
 }
 
+export type BuildPromptState = "missing" | "generating" | "ready" | "failed"
+
+export type BuildPrompt = {
+  status: BuildPromptState
+  prompt: string | null
+  error: string | null
+}
+
 export type Idea = {
   public_id: string
   title: string
@@ -622,6 +630,7 @@ export type Idea = {
   status: string
   position: number
   pinned: boolean
+  build_prompt_status?: BuildPromptState
   // Omitted on the wire when the idea has no search yet, which the
   // API's exclude-none contract produces, hence the optional marker.
   search_id?: number | null
@@ -891,6 +900,16 @@ export function suggestPositioning(ideaId: string): Promise<Positioning> {
     `/api/v1/ideas/${ideaId}/research/positioning`,
     { method: "POST" }
   )
+}
+
+export function getBuildPrompt(ideaId: string): Promise<BuildPrompt> {
+  return apiRequest<BuildPrompt>(`/api/v1/ideas/${ideaId}/build-prompt`)
+}
+
+export function startBuildPrompt(ideaId: string): Promise<BuildPrompt> {
+  return apiRequest<BuildPrompt>(`/api/v1/ideas/${ideaId}/build-prompt`, {
+    method: "POST",
+  })
 }
 
 export function getResearch(ideaId: string): Promise<Research | null> {
