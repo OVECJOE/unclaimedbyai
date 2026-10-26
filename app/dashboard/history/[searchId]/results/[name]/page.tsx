@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { SocialIcon } from "@/components/dashboard/social-icons"
 import {
   Table,
   TableBody,
@@ -493,10 +494,16 @@ export default async function SearchResultNamePage({
                       {report.socials.map((social) => (
                         <TableRow key={social.platform}>
                           <TableCell>
-                            <span className="font-medium capitalize">
-                              {social.platform}{" "}
-                              <span className="text-muted-foreground">
-                                @{social.handle}
+                            <span className="flex items-center gap-2">
+                              <SocialIcon
+                                platform={social.platform}
+                                className="size-4 shrink-0 text-muted-foreground"
+                              />
+                              <span className="font-medium capitalize">
+                                {social.platform}{" "}
+                                <span className="text-muted-foreground">
+                                  @{social.handle}
+                                </span>
                               </span>
                             </span>
                           </TableCell>

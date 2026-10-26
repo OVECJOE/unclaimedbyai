@@ -1,3 +1,5 @@
+"use client"
+
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   Behance01Icon,
@@ -49,16 +51,31 @@ export function SocialIcon({
   platform,
   className,
 }: {
-  platform: keyof typeof SOCIAL_ICONS
+  platform: string
   className?: string
 }) {
+  const icon = SOCIAL_ICONS[platform as keyof typeof SOCIAL_ICONS]
+  if (icon) {
+    return (
+      <HugeiconsIcon
+        icon={icon}
+        strokeWidth={2}
+        aria-hidden="true"
+        className={className}
+      />
+    )
+  }
   return (
-    <HugeiconsIcon
-      icon={SOCIAL_ICONS[platform]}
-      strokeWidth={2}
+    <span
+      title={platform}
       aria-hidden="true"
-      className={className}
-    />
+      className={
+        className ??
+        "inline-flex size-4 items-center justify-center text-[0.55rem] font-semibold text-muted-foreground"
+      }
+    >
+      {TEXT_MARKS[platform] ?? platform.slice(0, 2).toUpperCase()}
+    </span>
   )
 }
 
