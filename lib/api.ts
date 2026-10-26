@@ -640,6 +640,7 @@ export type Idea = {
 export type ResearchSection = {
   summary?: string
   error?: string
+  cause?: string
   sources?: string[]
   competitors?: { name: string; pricing?: string; note?: string }[]
   signals?: string[]

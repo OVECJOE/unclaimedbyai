@@ -177,10 +177,17 @@ export function ResearchBody({
                 <div className="h-3 w-5/6 animate-pulse bg-muted" />
               </div>
             ) : "error" in value ? (
-              <p className="border border-dashed border-destructive/40 px-2 py-1.5 text-xs text-destructive">
-                This section could not be researched. The three that worked
-                stand.
-              </p>
+              <div className="border border-dashed border-destructive/40 px-2 py-1.5 text-xs text-destructive">
+                <p>
+                  This section could not be researched. The three that worked
+                  stand.
+                </p>
+                {value.cause ? (
+                  <p className="mt-1 text-[0.625rem] break-words text-muted-foreground">
+                    {value.cause}
+                  </p>
+                ) : null}
+              </div>
             ) : (
               <>
                 {sectionBody(section.key, value)}
