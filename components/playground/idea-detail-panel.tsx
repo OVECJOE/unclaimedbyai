@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
@@ -28,12 +28,19 @@ import {
 import {
   createSearch,
   getResearch,
+  retryResearchSection,
   startResearch,
   type Idea,
   type Research,
 } from "@/lib/api"
 import { toastApiError } from "@/lib/api-errors"
+import { track } from "@/lib/analytics"
+import { playSound } from "@/lib/sound/engine"
 import { useDashboardStore } from "@/lib/store/dashboard"
+import {
+  ResearchBody,
+  sectionPending,
+} from "@/components/playground/research-body"
 
 function CanvasLine({ label, value }: { label: string; value: string | null }) {
   if (!value) return null
@@ -42,78 +49,6 @@ function CanvasLine({ label, value }: { label: string; value: string | null }) {
       <span className="font-medium">{label}</span>{" "}
       <span className="text-muted-foreground">{value}</span>
     </p>
-  )
-}
-
-function ResearchBody({
-  research,
-}: {
-  research: Pick<Research, "status" | "error"> &
-    Partial<
-      Pick<Research, "summary" | "competitors" | "demand" | "monetization">
-    >
-}) {
-  if (research.status === "failed") {
-    return (
-      <p className="text-sm text-destructive">
-        {research.error ?? "Research failed. Try again."}
-      </p>
-    )
-  }
-  if (research.status === "generating") {
-    return (
-      <div className="space-y-2" aria-label="Generating research">
-        <div className="h-4 w-2/3 animate-pulse bg-muted" />
-        <div className="h-3 w-full animate-pulse bg-muted" />
-        <div className="h-3 w-5/6 animate-pulse bg-muted" />
-        <p className="text-xs text-muted-foreground">
-          Researching. Refresh in a moment.
-        </p>
-      </div>
-    )
-  }
-  return (
-    <div className="space-y-3">
-      {research.summary ? (
-        <p className="text-sm text-muted-foreground">{research.summary}</p>
-      ) : null}
-      {research.competitors?.competitors?.length ? (
-        <div>
-          <p className="text-sm font-medium">Competitors</p>
-          <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
-            {research.competitors.competitors.map((competitor) => (
-              <li key={competitor.name}>
-                {competitor.name}
-                {competitor.pricing ? `, ${competitor.pricing}` : ""}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-      {research.demand?.signals?.length ? (
-        <div>
-          <p className="text-sm font-medium">Demand signals</p>
-          <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
-            {research.demand.signals.map((signal) => (
-              <li key={signal}>{signal}</li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-      {research.monetization?.paths?.length ? (
-        <div>
-          <p className="text-sm font-medium">How it earns</p>
-          <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
-            {research.monetization.paths.map((path) => (
-              <li key={path.model}>
-                {path.model}
-                {path.price ? ` at ${path.price}` : ""}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-    </div>
   )
 }
 
@@ -134,22 +69,36 @@ export default function IdeaDetailPanel({
   const setPinned = useDashboardStore((state) => state.setPinned)
   const detachSearch = useDashboardStore((state) => state.detachSearch)
   const [research, setResearch] = useState<Research | null>(null)
-  const [startingResearch, setStartingResearch] = useState(false)
+  const [polling, setPolling] = useState(false)
   const [busy, setBusy] = useState(false)
-  const researching = startingResearch || research?.status === "generating"
 
   async function openResearch() {
     setBusy(true)
     try {
       const current = await getResearch(idea.public_id)
-      if (current && current.status === "ready") {
+      if (current && current.status === "ready" && !sectionPending(current)) {
         setResearch(current)
         return
       }
-      if (!current) {
+      if (current && current.status === "generating") {
+        setPolling(true)
+        return
+      }
+      // Nothing bought yet, or a failed run that already refunded:
+      // both are a fresh purchase, never a re-bill of dead work.
+      if (!current || current.status === "failed") {
         await startResearch(idea.public_id)
-        setStartingResearch(true)
-        toast("Researching. This takes a moment.")
+        setResearch({
+          status: "generating",
+          error: null,
+          competitors: null,
+          demand: null,
+          audience_channels: null,
+          monetization: null,
+          summary: null,
+        })
+        setPolling(true)
+        toast("Four sections, researched live — each lands as it finishes.")
         return
       }
       setResearch(current)
@@ -159,6 +108,69 @@ export default function IdeaDetailPanel({
       setBusy(false)
     }
   }
+
+  async function retrySection(section: string) {
+    try {
+      await retryResearchSection(idea.public_id, section)
+      setResearch((current) =>
+        current ? ({ ...current, [section]: null } as Research) : current
+      )
+      setPolling(true)
+    } catch (error) {
+      toastApiError(error, "The section could not be re-run.")
+    }
+  }
+
+  // Load what was already bought the moment the idea opens — a bought
+  // report should be visible without a click, let alone a refresh.
+  useEffect(() => {
+    let cancelled = false
+    void getResearch(idea.public_id)
+      .then((existing) => {
+        if (cancelled || !existing) return
+        setResearch(existing)
+        if (existing.status === "generating") setPolling(true)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [idea.public_id])
+
+  // While anything is still being researched, poll: sections land one
+  // by one in front of the buyer. The old copy said "refresh in a
+  // moment"; this never asks for an F5.
+  useEffect(() => {
+    if (!polling) return
+    let cancelled = false
+    let attempts = 0
+    const id = setInterval(() => {
+      attempts += 1
+      if (attempts > 80) {
+        setPolling(false)
+        return
+      }
+      void getResearch(idea.public_id)
+        .then((fresh) => {
+          if (cancelled || !fresh) return
+          setResearch(fresh)
+          if (fresh.status === "ready" && !sectionPending(fresh)) {
+            setPolling(false)
+            playSound("reward", `research:${idea.public_id}`)
+            track("research_ready")
+          } else if (fresh.status === "failed") {
+            setPolling(false)
+            playSound("error", `research:${idea.public_id}`)
+            toast.error(fresh.error ?? "Research failed. Try again.")
+          }
+        })
+        .catch(() => {})
+    }, 3000)
+    return () => {
+      cancelled = true
+      clearInterval(id)
+    }
+  }, [polling, idea.public_id])
 
   async function toSearch() {
     setBusy(true)
@@ -238,13 +250,9 @@ export default function IdeaDetailPanel({
 
         <div className="border p-4">
           <p className="text-sm font-medium">Market research</p>
-          {research && research.status !== "generating" ? (
+          {research ? (
             <div className="mt-2">
-              <ResearchBody research={research} />
-            </div>
-          ) : researching ? (
-            <div className="mt-2">
-              <ResearchBody research={{ status: "generating", error: null }} />
+              <ResearchBody research={research} onRetry={retrySection} />
             </div>
           ) : (
             <p className="mt-1 text-sm text-muted-foreground">
@@ -252,15 +260,18 @@ export default function IdeaDetailPanel({
               behind a real decision.
             </p>
           )}
+
           <Button
             size="sm"
             className="mt-3"
-            disabled={busy}
+            disabled={busy || polling}
             onClick={() => void openResearch()}
           >
-            {idea.status === "researched"
-              ? "Read research"
-              : "Run research · 3 credits"}
+            {polling || research?.status === "generating"
+              ? "Researching…"
+              : idea.status === "researched"
+                ? "Read research"
+                : "Run research · 3 credits"}
           </Button>
         </div>
 

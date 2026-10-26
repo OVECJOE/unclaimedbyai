@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import {
   createSearch,
   getResearch,
+  retryResearchSection,
   startResearch,
   type Idea,
   type Research,
@@ -17,6 +18,10 @@ import { ApiError } from "@/lib/api"
 import { track } from "@/lib/analytics"
 import { playSound } from "@/lib/sound/engine"
 import { useTurnstile } from "@/components/public/turnstile"
+import {
+  ResearchBody,
+  sectionPending,
+} from "@/components/playground/research-body"
 
 function CanvasLine({ label, value }: { label: string; value: string | null }) {
   if (!value) return null
@@ -54,6 +59,22 @@ export default function IdeaCard({
     onChangeRef.current = onChange
   })
 
+  // Load whatever research was already bought when the card mounts —
+  // no click needed to see the report you paid for.
+  useEffect(() => {
+    let cancelled = false
+    void getResearch(idea.public_id)
+      .then((existing) => {
+        if (cancelled || !existing) return
+        setResearch(existing)
+        if (existing.status === "generating") setPolling(true)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [idea.public_id])
+
   useEffect(() => {
     if (!polling) return
     let cancelled = false
@@ -67,9 +88,11 @@ export default function IdeaCard({
       void getResearch(idea.public_id)
         .then((fresh) => {
           if (cancelled || !fresh) return
-          if (fresh.status === "ready") {
+          // Progressive: every tick refreshes what the card shows, so
+          // sections land one by one instead of all at the end.
+          setResearch(fresh)
+          if (fresh.status === "ready" && !sectionPending(fresh)) {
             setPolling(false)
-            setResearch(fresh)
             onChangeRef.current()
             // Paid work landing: the reward timbre, seeded by the idea
             // so every idea's research sounds like itself.
@@ -89,6 +112,18 @@ export default function IdeaCard({
     }
   }, [polling, idea.public_id])
 
+  async function retrySection(section: string) {
+    try {
+      await retryResearchSection(idea.public_id, section)
+      setResearch((current) =>
+        current ? ({ ...current, [section]: null } as Research) : current
+      )
+      setPolling(true)
+    } catch (error) {
+      toastApiError(error, "The section could not be re-run.")
+    }
+  }
+
   function searchDestination(searchId: number): string {
     return sid
       ? `/results/${searchId}?sid=${encodeURIComponent(sid)}`
@@ -99,15 +134,26 @@ export default function IdeaCard({
     setBusy(true)
     try {
       const current = await getResearch(idea.public_id)
-      if (current && current.status === "ready") {
+      if (current && current.status === "ready" && !sectionPending(current)) {
         setResearch(current)
         onChange()
         return
       }
-      if (!current) {
+      // Nothing bought yet, or a failed run that already refunded:
+      // both are a fresh purchase, never a re-bill of dead work.
+      if (!current || current.status === "failed") {
         await startResearch(idea.public_id)
-        toast("Researching. This takes a moment.")
+        setResearch({
+          status: "generating",
+          error: null,
+          competitors: null,
+          demand: null,
+          audience_channels: null,
+          monetization: null,
+          summary: null,
+        })
         setPolling(true)
+        toast("Four sections, researched live — each lands as it finishes.")
         return
       }
       if (current.status === "generating") {
@@ -190,48 +236,9 @@ export default function IdeaCard({
         </div>
       ) : null}
 
-      {research && research.status === "ready" ? (
-        <div className="mt-4 space-y-3 border p-4">
-          <p className="font-heading text-lg font-semibold">Market research</p>
-          {research.summary ? (
-            <p className="text-sm text-muted-foreground">{research.summary}</p>
-          ) : null}
-          {research.competitors?.competitors?.length ? (
-            <div>
-              <p className="text-sm font-medium">Competitors</p>
-              <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
-                {research.competitors.competitors.map((competitor) => (
-                  <li key={competitor.name}>
-                    {competitor.name}
-                    {competitor.pricing ? ` — ${competitor.pricing}` : ""}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-          {research.demand?.signals?.length ? (
-            <div>
-              <p className="text-sm font-medium">Demand signals</p>
-              <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
-                {research.demand.signals.map((signal) => (
-                  <li key={signal}>{signal}</li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-          {research.monetization?.paths?.length ? (
-            <div>
-              <p className="text-sm font-medium">How it earns</p>
-              <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
-                {research.monetization.paths.map((path) => (
-                  <li key={path.model}>
-                    {path.model}
-                    {path.price ? ` at ${path.price}` : ""}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
+      {research ? (
+        <div className="mt-4">
+          <ResearchBody research={research} onRetry={retrySection} />
         </div>
       ) : null}
 

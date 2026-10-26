@@ -630,6 +630,7 @@ export type Idea = {
 
 export type ResearchSection = {
   summary?: string
+  error?: string
   competitors?: { name: string; pricing?: string; note?: string }[]
   signals?: string[]
   channels?: { channel: string; note?: string }[]
@@ -865,6 +866,16 @@ export function updateIdea(
     method: "PATCH",
     body: input,
   })
+}
+
+export function retryResearchSection(
+  ideaId: string,
+  section: string
+): Promise<{ status: string; version: number }> {
+  return apiRequest<{ status: string; version: number }>(
+    `/api/v1/ideas/${ideaId}/research/sections/${section}`,
+    { method: "POST" }
+  )
 }
 
 export function getResearch(ideaId: string): Promise<Research | null> {
