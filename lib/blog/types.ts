@@ -36,11 +36,17 @@ export type PostSummary = {
   tags: string[]
 }
 
+export type BlogFaq = {
+  question: string
+  answer: string
+}
+
 export type Post = PostSummary & {
   bodyMdx: string
   status: PostStatus
   seoTitle: string | null
   seoDescription: string | null
+  faqs: BlogFaq[]
 }
 
 export type AdminPostRow = {
@@ -67,6 +73,7 @@ export type PostInput = {
   seoTitle: string | null
   seoDescription: string | null
   tags: string[]
+  faqs?: BlogFaq[]
 }
 
 export type ContentIssue = {

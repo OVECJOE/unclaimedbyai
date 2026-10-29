@@ -8,6 +8,7 @@ import type {
   AdminPostRow,
   AuthorSocial,
   BlogComment,
+  BlogFaq,
   CommentStatus,
   Editor,
   Paged,
@@ -33,6 +34,7 @@ type PostRow = {
   seo_title: string | null
   seo_description: string | null
   tags: string[]
+  faqs: BlogFaq[]
   author_name: string
   author_avatar_url: string | null
   author_socials: AuthorSocial[] | null
@@ -68,7 +70,7 @@ const POST_SELECT = `
     p.cover_image_width::int as cover_image_width,
     p.cover_image_height::int as cover_image_height,
     p.body_mdx, p.status, p.published_at, p.updated_at, p.seo_title,
-    p.seo_description, p.tags, e.name as author_name,
+    p.seo_description, p.tags, p.faqs, e.name as author_name,
     e.avatar_url as author_avatar_url, e.socials as author_socials
   from blog_posts p
   join blog_editors e on e.id = p.author_id`
@@ -102,6 +104,7 @@ function toPost(row: PostRow): Post {
     seoTitle: row.seo_title,
     seoDescription: row.seo_description,
     tags: row.tags,
+    faqs: row.faqs ?? [],
     author: {
       name: row.author_name,
       avatarUrl: row.author_avatar_url,
@@ -369,14 +372,15 @@ export async function createPost(
     insert into blog_posts (
       slug, title, excerpt, cover_image_url, cover_image_width,
       cover_image_height, body_mdx, status, published_at,
-      author_id, seo_title, seo_description, tags
+      author_id, seo_title, seo_description, tags, faqs
     ) values (
       ${input.slug}, ${input.title}, ${input.excerpt}, ${input.coverImageUrl},
       ${input.coverImageWidth}, ${input.coverImageHeight},
       ${input.bodyMdx}, ${input.status},
       case when ${input.status} = 'published' then now() else null end,
       ${editorId}, ${input.seoTitle}, ${input.seoDescription},
-      ${input.tags}::text[]
+      ${input.tags}::text[],
+      ${input.faqs ?? []}::jsonb
     ) returning id::int as id
   `) as { id: number }[]
 
@@ -419,7 +423,8 @@ export async function updatePost(
         end,
         seo_title = ${input.seoTitle},
         seo_description = ${input.seoDescription},
-        tags = ${input.tags}::text[]
+        tags = ${input.tags}::text[],
+        faqs = ${input.faqs ?? []}::jsonb
       where id = ${id}
     `,
     ...(slugChanged

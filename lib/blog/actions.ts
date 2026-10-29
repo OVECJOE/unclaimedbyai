@@ -132,6 +132,9 @@ function checkFields(input: PostInput): ContentIssue[] {
       issues.push({ message: "Add an excerpt before publishing." })
     }
     if (!input.bodyMdx.trim()) issues.push({ message: "The post is empty." })
+    if (!input.faqs?.length) {
+      issues.push({ message: "Add at least one FAQ answer before publishing." })
+    }
   }
 
   return issues

@@ -29,6 +29,7 @@ create table blog_posts (
   seo_title text,
   seo_description text,
   tags text[] not null default '{}',
+  faqs jsonb not null default '[]',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   check (status <> 'published' or published_at is not null)

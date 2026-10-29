@@ -101,6 +101,7 @@ export default function PostForm({ post }: { post: Post | null }) {
     post?.seoDescription ?? ""
   )
   const [body, setBody] = useState(post?.bodyMdx ?? "")
+  const [faqs, setFaqs] = useState(post?.faqs ?? [{ question: "", answer: "" }])
   const [issues, setIssues] = useState<ContentIssue[]>([])
   const [savedAt, setSavedAt] = useState<Date | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -135,6 +136,31 @@ export default function PostForm({ post }: { post: Post | null }) {
     })
   }
 
+  function updateFaq(
+    index: number,
+    patch: Partial<{ question: string; answer: string }>
+  ) {
+    setFaqs((value) => {
+      const next = [...value]
+      next[index] = { ...next[index], ...patch }
+      return next
+    })
+    setDirty(true)
+  }
+
+  function removeFaq(index: number) {
+    setFaqs((value) => {
+      const next = value.filter((_, position) => position !== index)
+      return next.length ? next : [{ question: "", answer: "" }]
+    })
+    setDirty(true)
+  }
+
+  function addFaq() {
+    setFaqs((value) => [...value, { question: "", answer: "" }])
+    setDirty(true)
+  }
+
   function save(nextStatus: PostStatus) {
     startTransition(async () => {
       const result = await savePost({
@@ -150,6 +176,12 @@ export default function PostForm({ post }: { post: Post | null }) {
         seoTitle: seoTitle.trim() || null,
         seoDescription: seoDescription.trim() || null,
         tags: parseTags(tags),
+        faqs: faqs
+          .map((faq) => ({
+            question: faq.question.trim(),
+            answer: faq.answer.trim(),
+          }))
+          .filter((faq) => faq.question || faq.answer),
       })
 
       if (!result.ok) {
@@ -508,6 +540,53 @@ export default function PostForm({ post }: { post: Post | null }) {
                     rows={3}
                     placeholder={excerpt}
                   />
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="faq">
+              <AccordionTrigger>FAQ</AccordionTrigger>
+              <AccordionContent className="space-y-4">
+                <div className="space-y-3">
+                  {faqs.map((faq, index) => (
+                    <div
+                      key={index}
+                      className="space-y-2 rounded-md border p-3"
+                    >
+                      <Input
+                        value={faq.question}
+                        onChange={(event) =>
+                          updateFaq(index, { question: event.target.value })
+                        }
+                        placeholder={`Question ${index + 1}`}
+                      />
+                      <Textarea
+                        value={faq.answer}
+                        onChange={(event) =>
+                          updateFaq(index, { answer: event.target.value })
+                        }
+                        rows={3}
+                        placeholder="Answer the reader will see."
+                      />
+                      {faqs.length > 1 ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => removeFaq(index)}
+                        >
+                          Remove
+                        </Button>
+                      ) : null}
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addFaq}
+                  >
+                    Add answer
+                  </Button>
                 </div>
               </AccordionContent>
             </AccordionItem>

@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { HugeiconsIcon } from "@hugeicons/react"
 import TableOfContents from "@/components/legal/table-of-contents"
+import { FaqItem, FaqList } from "@/components/ui/faq-list"
 import { SOCIAL_PLATFORMS } from "@/lib/blog/socials"
 import { extractHeadings } from "@/lib/blog/headings"
 import { MdxContent } from "@/lib/blog/mdx"
@@ -117,6 +118,22 @@ export default function PostArticle({ post }: { post: Post }) {
           <MdxContent source={post.bodyMdx} />
         </div>
       )}
+      {post.faqs.length ? (
+        <section id="faq" className="scroll-mt-20 border-t px-4 py-10">
+          <div className="mx-auto max-w-7xl space-y-5">
+            <h2 className="font-heading text-3xl font-medium sm:text-center sm:text-4xl">
+              Questions people actually ask
+            </h2>
+            <FaqList>
+              {post.faqs.map((faq, index) => (
+                <FaqItem key={index} question={faq.question}>
+                  {faq.answer}
+                </FaqItem>
+              ))}
+            </FaqList>
+          </div>
+        </section>
+      ) : null}
     </article>
   )
 }

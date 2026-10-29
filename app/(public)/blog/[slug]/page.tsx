@@ -88,10 +88,28 @@ export default async function BlogPostPage({ params }: PageProps) {
           inLanguage: "en",
         }}
       />
+      {post.faqs.length ? (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "@id": `${url}#faq`,
+            mainEntity: post.faqs.map((faq) => ({
+              "@type": "Question",
+              name: faq.question,
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: faq.answer,
+              },
+            })),
+          }}
+        />
+      ) : null}
       <JsonLd
         data={{
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
+          "@id": `${url}#breadcrumb`,
           itemListElement: [
             {
               "@type": "ListItem",
