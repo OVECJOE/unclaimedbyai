@@ -17,7 +17,9 @@ import {
   pricingJsonLd,
   creditPackBenefits,
   proBenefits,
+  SITE_URL,
 } from "@/lib/site"
+import { FAQS } from "@/app/(public)/product/constants"
 import type { Pack } from "@/lib/api"
 
 async function loadPacks(): Promise<Pack[]> {
@@ -50,6 +52,39 @@ function toPriceCard(pack: Pack, singleRate: number): PriceCardProps {
         ? Math.round((1 - perCredit / singleRate) * 100)
         : undefined,
   }
+}
+
+const pricingFaqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": `${SITE_URL}/pricing#faq`,
+  mainEntity: FAQS.map((faq) => ({
+    "@type": "Question",
+    name: faq.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.answer,
+    },
+  })),
+}
+
+const pricingBreadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: { "@type": "WebPage", name: "Home", url: SITE_URL },
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Pricing",
+      item: { "@type": "WebPage", name: "Pricing", url: `${SITE_URL}/pricing` },
+    },
+  ],
 }
 
 export const metadata: Metadata = pageMetadata({
@@ -108,6 +143,8 @@ export default async function PricingPage() {
   return (
     <>
       <JsonLd data={pricingJsonLd} />
+      <JsonLd data={pricingFaqJsonLd} />
+      <JsonLd data={pricingBreadcrumbJsonLd} />
       {/* Checkout returns here with ?paid=1; this announces the result
           and refreshes the server-rendered balance. */}
       <Suspense fallback={null}>

@@ -88,6 +88,36 @@ export default async function BlogPostPage({ params }: PageProps) {
           inLanguage: "en",
         }}
       />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Home",
+              item: { "@type": "WebPage", name: "Home", url: SITE_URL },
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "Blog",
+              item: {
+                "@type": "WebPage",
+                name: "Blog",
+                url: `${SITE_URL}/blog`,
+              },
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: post.title,
+              item: { "@type": "WebPage", name: post.title, url },
+            },
+          ],
+        }}
+      />
       <PostArticle post={post} />
       <BoostStateProvider postId={post.id}>
         <PostBoost postId={post.id} />

@@ -39,11 +39,11 @@ export default function Hero({ signedIn }: { signedIn: boolean }) {
               .
             </h1>
             <p className="mx-auto max-w-prose text-muted-foreground md:text-lg lg:mx-0">
-              Tell us what you&apos;re building. We generate name ideas and
-              screen every one against live .com availability, social handles,
-              and what ChatGPT and Claude already associate with it — then
-              score the shortlist, so you know exactly which names you can
-              register today.
+              You have an idea or you have a name, and either way the tool
+              generates options, screens every survivor, and scores the result.
+              The screening runs against live domain registration, real social
+              handles, and what AI models already associate with the name, so
+              you know which names are clear before you register.
             </p>
             <p className="text-sm text-muted-foreground">
               Live .com lookups,

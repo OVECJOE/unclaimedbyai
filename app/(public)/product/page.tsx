@@ -93,6 +93,28 @@ const productJsonLd = {
         },
       })),
     },
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${SITE_URL}/product#breadcrumb`,
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: { "@type": "WebPage", name: "Home", url: SITE_URL },
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Product",
+          item: {
+            "@type": "WebPage",
+            name: "Product",
+            url: `${SITE_URL}/product`,
+          },
+        },
+      ],
+    },
   ],
 }
 

@@ -18,10 +18,56 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { JsonLd } from "@/components/app/json-ld"
-import { homeJsonLd, pageMetadata } from "@/lib/site"
+import { homeJsonLd, pageMetadata, SITE_URL } from "@/lib/site"
+import { FAQS } from "@/app/(public)/product/constants"
 import { getMeServer } from "@/lib/api-server"
 
 const AUDIENCE_EXAMPLE = ["Founders", "Creators", "Makers", "Marketers"]
+
+const faqJsonLdData = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": `${SITE_URL}/#faq`,
+  mainEntity: FAQS.map((faq) => ({
+    "@type": "Question",
+    name: faq.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.answer,
+    },
+  })),
+}
+
+const howToJsonLdData = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "@id": `${SITE_URL}/#how-to`,
+  name: "Check a name before you build on it",
+  description:
+    "Generate a name from a brief, screen the survivor against live domain registration, real social handles, and AI associations, and score it before you register.",
+  step: [
+    {
+      "@type": "HowToStep",
+      name: "Generate",
+      text: "Describe what you are building, and four naming studios argue from different angles while an editor keeps the strongest, so the report fills with scored candidates.",
+    },
+    {
+      "@type": "HowToStep",
+      name: "Check",
+      text: "Every candidate arrives checked against live domain registration, real social handles, and what the AI models already think the name means, and every check comes with receipts.",
+    },
+    {
+      "@type": "HowToStep",
+      name: "Claim",
+      text: "Buy the domain at a registrar in your own name, after the tool tells you the name is open, and finish the registration yourself.",
+    },
+    {
+      "@type": "HowToStep",
+      name: "Watch",
+      text: "Star the name and the pro plan rechecks it every few hours, emailing you the morning something gets claimed.",
+    },
+  ],
+}
 
 export const metadata: Metadata = pageMetadata({
   title: "Discover names for your idea",
@@ -52,6 +98,8 @@ export default async function Page() {
   return (
     <>
       <JsonLd data={homeJsonLd} />
+      <JsonLd data={faqJsonLdData} />
+      <JsonLd data={howToJsonLdData} />
 
       {/* Hero: copy and prompter on the left, the Haunted Shortlist on the right */}
       <Hero signedIn={Boolean(user)} />
