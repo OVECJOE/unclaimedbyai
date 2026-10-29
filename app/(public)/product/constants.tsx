@@ -621,6 +621,24 @@ export const FAQS: {
       </FaqAnswer>
     ),
   },
+  {
+    id: "how-long-does-a-name-check-take",
+    question: "How long does a name check take?",
+    answer:
+      "The full check runs three models in parallel, so a complete check finishes in seconds. In a study of one hundred fifty one names, the median wall clock was two seconds and the ninety fifth percentile was two point nine seconds, while the worst case was five point nine seconds. The first check on any name stays free, and every re-check after it costs one credit.",
+  },
+  {
+    id: "what-happens-when-the-ai-association-check-cannot-answer",
+    question: "What happens when the AI association check cannot answer?",
+    answer:
+      "The check reports the failure instead of guessing. When an AI provider is unavailable at the moment of the probe, the report marks that pillar as unverified rather than filling the answer with a confident wrong one.",
+  },
+  {
+    id: "how-many-names-can-a-search-check",
+    question: "How many names can a search check?",
+    answer:
+      "A search carries a shortlist of generated names, and the check all action runs the same three checks against every unchecked name in the shortlist. Names that already carry a verdict are skipped, and each pending job reports its own progress.",
+  },
 ]
 
 export const PROOF_POINTS = [
