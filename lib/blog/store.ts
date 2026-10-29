@@ -380,7 +380,7 @@ export async function createPost(
       case when ${input.status} = 'published' then now() else null end,
       ${editorId}, ${input.seoTitle}, ${input.seoDescription},
       ${input.tags}::text[],
-      ${input.faqs ?? []}::jsonb
+      ${JSON.stringify(input.faqs ?? [])}::jsonb
     ) returning id::int as id
   `) as { id: number }[]
 
@@ -424,7 +424,7 @@ export async function updatePost(
         seo_title = ${input.seoTitle},
         seo_description = ${input.seoDescription},
         tags = ${input.tags}::text[],
-        faqs = ${input.faqs ?? []}::jsonb
+        faqs = ${JSON.stringify(input.faqs ?? [])}::jsonb
       where id = ${id}
     `,
     ...(slugChanged
