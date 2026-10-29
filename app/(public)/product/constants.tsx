@@ -639,6 +639,38 @@ export const FAQS: {
     answer:
       "A search carries a shortlist of generated names, and the check all action runs the same three checks against every unchecked name in the shortlist. Names that already carry a verdict are skipped, and each pending job reports its own progress.",
   },
+  {
+    id: "how-does-ai-name-check-score-a-name",
+    question: "How does an AI name check score a name?",
+    answer:
+      "An AI name check builds a short question about the name, its category, and the words inside it, then sends that question to each AI model in turn. It turns the answer into a structured score, because a reasoned verdict is comparable and a raw answer is not. That is how the same check can rank names on the same footing.",
+  },
+  {
+    id: "why-do-ai-assistants-disagree-about-the-same-name",
+    question: "Why do AI assistants disagree about the same name?",
+    answer:
+      "Each model weighs the same signals differently, so they can surface different associations for one name. The check asks each model the same focused question with no hint about the idea, and it reports what each one says, so the disagreement is visible instead of papered over.",
+    body: (
+      <FaqAnswer lead="The split matters more than either answer alone, because a name one model flags and another misses is exactly the kind of ambiguity worth a human look.">
+        <FaqPoints
+          points={[
+            [
+              "Same question",
+              "GPT, Claude, and Perplexity are asked the same focused query with no hint about the idea",
+            ],
+            [
+              "Different weights",
+              "each model weighs context, phrasing, and training differently, so answers can diverge",
+            ],
+            [
+              "Reported split",
+              "the check shows each answer, so you judge the disagreement instead of trusting one model",
+            ],
+          ]}
+        />
+      </FaqAnswer>
+    ),
+  },
 ]
 
 export const PROOF_POINTS = [
