@@ -14,10 +14,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
+import { FAQ_ANSWER_MAX_LENGTH } from "@/lib/blog/config"
 import { savePost } from "@/lib/blog/actions"
 import type { ContentIssue, Post, PostStatus } from "@/lib/blog/types"
 import { PostEditor } from "./post-editor-loader"
@@ -54,6 +56,12 @@ type UploadedImage = {
   url: string
   width: number | null
   height: number | null
+}
+
+type FaqDraft = {
+  rowKey: string
+  question: string
+  answer: string
 }
 
 async function uploadImageFile(file: File): Promise<UploadedImage> {
@@ -101,7 +109,11 @@ export default function PostForm({ post }: { post: Post | null }) {
     post?.seoDescription ?? ""
   )
   const [body, setBody] = useState(post?.bodyMdx ?? "")
-  const [faqs, setFaqs] = useState(post?.faqs ?? [{ question: "", answer: "" }])
+  const [faqs, setFaqs] = useState<FaqDraft[]>(() => {
+    const rows = post?.faqs ?? []
+    if (!rows.length) return [{ rowKey: "0", question: "", answer: "" }]
+    return rows.map((faq, index) => ({ rowKey: String(index), ...faq }))
+  })
   const [issues, setIssues] = useState<ContentIssue[]>([])
   const [savedAt, setSavedAt] = useState<Date | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -111,6 +123,7 @@ export default function PostForm({ post }: { post: Post | null }) {
   const [pending, startTransition] = useTransition()
   const fileInput = useRef<HTMLInputElement>(null)
   const issuesAlert = useRef<HTMLDivElement>(null)
+  const faqRowsUsed = useRef(faqs.length)
 
   useEffect(() => {
     if (!dirty) return
@@ -149,15 +162,15 @@ export default function PostForm({ post }: { post: Post | null }) {
   }
 
   function removeFaq(index: number) {
-    setFaqs((value) => {
-      const next = value.filter((_, position) => position !== index)
-      return next.length ? next : [{ question: "", answer: "" }]
-    })
+    setFaqs((value) => value.filter((_, position) => position !== index))
     setDirty(true)
   }
 
   function addFaq() {
-    setFaqs((value) => [...value, { question: "", answer: "" }])
+    setFaqs((value) => [
+      ...value,
+      { rowKey: String(faqRowsUsed.current++), question: "", answer: "" },
+    ])
     setDirty(true)
   }
 
@@ -262,6 +275,76 @@ export default function PostForm({ post }: { post: Post | null }) {
             }}
             uploadImage={uploadImage}
           />
+
+          <section className="space-y-4">
+            <div className="space-y-1">
+              <h2 className="font-heading text-2xl">
+                Frequently asked questions
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Publishing needs at least one question and answer. Answers
+                render under the post and feed the FAQ schema on the page, so
+                ask them the way a reader would and keep each answer under{" "}
+                {FAQ_ANSWER_MAX_LENGTH} characters.
+              </p>
+            </div>
+
+            {faqs.map((faq, index) => (
+              <Card key={faq.rowKey} size="sm">
+                <CardHeader>
+                  <div className="flex items-center justify-between gap-3">
+                    <Label htmlFor={`faq-question-${faq.rowKey}`}>
+                      Question
+                    </Label>
+                    {faqs.length > 1 ? (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFaq(index)}
+                      >
+                        Remove
+                      </Button>
+                    ) : null}
+                  </div>
+                  <Input
+                    id={`faq-question-${faq.rowKey}`}
+                    value={faq.question}
+                    onChange={(event) =>
+                      updateFaq(index, { question: event.target.value })
+                    }
+                    placeholder="What does an AI name check actually measure?"
+                  />
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <Label>Answer</Label>
+                    <span
+                      className={cn(
+                        "text-xs text-muted-foreground tabular-nums",
+                        faq.answer.trim().length > FAQ_ANSWER_MAX_LENGTH &&
+                          "text-destructive"
+                      )}
+                    >
+                      {faq.answer.trim().length} / {FAQ_ANSWER_MAX_LENGTH}
+                    </span>
+                  </div>
+                  <PostEditor
+                    compact
+                    initialMarkdown={faq.answer}
+                    onChange={(markdown) =>
+                      updateFaq(index, { answer: markdown })
+                    }
+                    uploadImage={uploadImage}
+                  />
+                </CardContent>
+              </Card>
+            ))}
+
+            <Button type="button" variant="outline" onClick={addFaq}>
+              Add question
+            </Button>
+          </section>
         </div>
 
         <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
@@ -540,53 +623,6 @@ export default function PostForm({ post }: { post: Post | null }) {
                     rows={3}
                     placeholder={excerpt}
                   />
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="faq">
-              <AccordionTrigger>FAQ</AccordionTrigger>
-              <AccordionContent className="space-y-4">
-                <div className="space-y-3">
-                  {faqs.map((faq, index) => (
-                    <div
-                      key={index}
-                      className="space-y-2 rounded-md border p-3"
-                    >
-                      <Input
-                        value={faq.question}
-                        onChange={(event) =>
-                          updateFaq(index, { question: event.target.value })
-                        }
-                        placeholder={`Question ${index + 1}`}
-                      />
-                      <Textarea
-                        value={faq.answer}
-                        onChange={(event) =>
-                          updateFaq(index, { answer: event.target.value })
-                        }
-                        rows={3}
-                        placeholder="Answer the reader will see."
-                      />
-                      {faqs.length > 1 ? (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => removeFaq(index)}
-                        >
-                          Remove
-                        </Button>
-                      ) : null}
-                    </div>
-                  ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={addFaq}
-                  >
-                    Add answer
-                  </Button>
                 </div>
               </AccordionContent>
             </AccordionItem>

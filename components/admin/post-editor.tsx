@@ -106,12 +106,14 @@ export type PostEditorProps = {
   initialMarkdown: string
   onChange: (markdown: string) => void
   uploadImage: (file: File) => Promise<string>
+  compact?: boolean
 }
 
 export default function PostEditor({
   initialMarkdown,
   onChange,
   uploadImage,
+  compact = false,
 }: PostEditorProps) {
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme
@@ -127,7 +129,9 @@ export default function PostEditor({
         { "dark-theme": isDark },
         "rounded-none border border-input bg-background"
       )}
-      contentEditableClassName="blog-prose min-h-96"
+      contentEditableClassName={
+        compact ? "blog-prose min-h-32" : "blog-prose min-h-96"
+      }
       plugins={[
         headingsPlugin(),
         listsPlugin(),
@@ -155,24 +159,35 @@ export default function PostEditor({
         toolbarPlugin({
           toolbarClassName:
             "max-lg:overflow-x-auto! max-lg:flex-nowrap! max-lg:scrollbar-none",
-          toolbarContents: () => (
-            <DiffSourceToggleWrapper>
-              <UndoRedo />
-              <Separator />
-              <BlockTypeSelect />
-              <BoldItalicUnderlineToggles />
-              <CodeToggle />
-              <Separator />
-              <ListsToggle />
-              <CreateLink />
-              <InsertImage />
-              <InsertTable />
-              <InsertThematicBreak />
-              <InsertCodeBlock />
-              <Separator />
-              <WidgetMenu />
-            </DiffSourceToggleWrapper>
-          ),
+          toolbarContents: () =>
+            compact ? (
+              <DiffSourceToggleWrapper>
+                <UndoRedo />
+                <Separator />
+                <BoldItalicUnderlineToggles />
+                <CodeToggle />
+                <Separator />
+                <ListsToggle />
+                <CreateLink />
+              </DiffSourceToggleWrapper>
+            ) : (
+              <DiffSourceToggleWrapper>
+                <UndoRedo />
+                <Separator />
+                <BlockTypeSelect />
+                <BoldItalicUnderlineToggles />
+                <CodeToggle />
+                <Separator />
+                <ListsToggle />
+                <CreateLink />
+                <InsertImage />
+                <InsertTable />
+                <InsertThematicBreak />
+                <InsertCodeBlock />
+                <Separator />
+                <WidgetMenu />
+              </DiffSourceToggleWrapper>
+            ),
         }),
       ]}
     />

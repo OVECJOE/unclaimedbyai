@@ -7,6 +7,7 @@ import BoostStateProvider from "@/components/blog/boost-state"
 import CommentSection from "@/components/blog/comment-section"
 import PrompterCta from "@/components/public/prompter-cta"
 import { getPublishedPost, listPublishedSlugs } from "@/lib/blog/store"
+import { markdownToPlainText } from "@/lib/blog/markdown"
 import { SITE_URL, pageMetadata } from "@/lib/site"
 
 export const revalidate = 3600
@@ -99,7 +100,7 @@ export default async function BlogPostPage({ params }: PageProps) {
               name: faq.question,
               acceptedAnswer: {
                 "@type": "Answer",
-                text: faq.answer,
+                text: markdownToPlainText(faq.answer),
               },
             })),
           }}

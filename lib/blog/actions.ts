@@ -23,6 +23,7 @@ import {
   updatePost,
 } from "./store"
 import { validateMdx } from "./validate"
+import { FAQ_ANSWER_MAX_LENGTH } from "./config"
 import { isSafeCoverUrl } from "./cover-image"
 import { SOCIAL_PLATFORMS, composeSocialUrl } from "./socials"
 import type {
@@ -133,7 +134,22 @@ function checkFields(input: PostInput): ContentIssue[] {
     }
     if (!input.bodyMdx.trim()) issues.push({ message: "The post is empty." })
     if (!input.faqs?.length) {
-      issues.push({ message: "Add at least one FAQ answer before publishing." })
+      issues.push({
+        message: "Add at least one question and answer before publishing.",
+      })
+    } else {
+      input.faqs.forEach((faq, index) => {
+        if (!faq.question.trim() || !faq.answer.trim()) {
+          issues.push({
+            message: `FAQ row ${index + 1} needs both a question and an answer before publishing.`,
+          })
+        }
+        if (faq.answer.length > FAQ_ANSWER_MAX_LENGTH) {
+          issues.push({
+            message: `Answer ${index + 1} is over ${FAQ_ANSWER_MAX_LENGTH} characters.`,
+          })
+        }
+      })
     }
   }
 

@@ -127,7 +127,7 @@ export default function PostArticle({ post }: { post: Post }) {
             <FaqList>
               {post.faqs.map((faq, index) => (
                 <FaqItem key={index} question={faq.question}>
-                  {faq.answer}
+                  <MdxContent source={faq.answer} />
                 </FaqItem>
               ))}
             </FaqList>
