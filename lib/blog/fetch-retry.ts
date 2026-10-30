@@ -16,7 +16,10 @@ export async function fetchWithRetry(
   let lastError: unknown
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
-      const response = await fetch(url, init)
+      const response = await fetch(url, {
+        ...init,
+        next: { tags: ["blog"] },
+      })
       if (!RETRYABLE_STATUSES.has(response.status)) return response
       try {
         await response.arrayBuffer()

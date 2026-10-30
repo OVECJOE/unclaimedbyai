@@ -1,7 +1,7 @@
 "use server"
 
 import { randomBytes } from "node:crypto"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, updateTag } from "next/cache"
 import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
 import { SITE_URL } from "@/lib/site"
@@ -42,6 +42,7 @@ const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/
 const RESERVED_SLUGS = new Set(["page"])
 
 function revalidateBlog(slugs: string[]) {
+  updateTag("blog")
   revalidatePath("/blog")
   revalidatePath("/blog/page/[page]", "page")
   for (const slug of slugs) revalidatePath(`/blog/${slug}`)
@@ -189,6 +190,7 @@ export async function saveSocials(
     }
   }
 
+  updateTag("blog")
   revalidatePath("/blog", "layout")
   return {
     ok: true,
