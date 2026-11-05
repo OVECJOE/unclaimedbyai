@@ -255,8 +255,8 @@ export default function PostForm({ post }: { post: Post | null }) {
 
   return (
     <>
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10">
-        <div className="space-y-6">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10">
+        <div className="min-w-0 space-y-6">
           <Input
             value={title}
             onChange={(event) => {
@@ -347,7 +347,7 @@ export default function PostForm({ post }: { post: Post | null }) {
           </section>
         </div>
 
-        <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+        <aside className="min-w-0 space-y-6 lg:sticky lg:top-24 lg:self-start">
           {issues.length ? (
             <div ref={issuesAlert} tabIndex={-1} className="outline-none">
               <Alert variant="destructive">
