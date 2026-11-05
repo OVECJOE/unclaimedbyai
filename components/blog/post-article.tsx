@@ -10,6 +10,7 @@ import { isSafeCoverUrl } from "@/lib/blog/cover-image"
 import { tagToSlug } from "@/lib/blog/tags"
 import type { Post } from "@/lib/blog/types"
 import DateLabel from "./date-label"
+import WebsiteFavicon from "./website-favicon"
 
 export default function PostArticle({ post }: { post: Post }) {
   // Two or more headings is the threshold for a rail worth reading;
@@ -57,7 +58,11 @@ export default function PostArticle({ post }: { post: Post }) {
                       title={`${post.author.name} on ${platform.label}`}
                       className="inline-flex min-h-9 min-w-9 items-center justify-center transition-colors hover:text-primary"
                     >
-                      <HugeiconsIcon icon={platform.icon} size="1.25rem" />
+                      {platform.value === "website" ? (
+                        <WebsiteFavicon url={social.url} />
+                      ) : (
+                        <HugeiconsIcon icon={platform.icon} size="1.25rem" />
+                      )}
                       <span className="sr-only">
                         {post.author.name} on {platform.label}
                       </span>
