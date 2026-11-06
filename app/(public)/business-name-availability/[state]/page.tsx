@@ -49,7 +49,7 @@ function faqJsonLd(name: string, abbr: string) {
         name: `How do I check if a business name is available in ${name}?`,
         acceptedAnswer: {
           "@type": "Answer",
-          text: `Two checks, two different authorities. The legal name — the one on your ${name} (${abbr}) entity filing — is decided by the state's business registry: search it for your exact name and close variants before you file. The rest of the name is decided elsewhere: whether the .com is open, whether the handles are free on GitHub, X, Instagram, TikTok and YouTube, and what GPT, Claude and Perplexity already associate with the name. Run those in one check before you fall for the name.`,
+          text: `There are two checks here, with two different authorities behind them. The legal name, the one on your ${name} (${abbr}) entity filing, is decided by the state's business registry, so search it for your exact name and any close variants before you file. The rest of the name is decided somewhere else entirely: whether the .com is open, whether the handles are free on GitHub, X, Instagram, TikTok and YouTube, and what GPT, Claude and Perplexity already associate with the name. Run those in one check before you fall for the name.`,
         },
       },
       {
@@ -57,7 +57,7 @@ function faqJsonLd(name: string, abbr: string) {
         name: `Does the ${name} business registry check domains and social handles?`,
         acceptedAnswer: {
           "@type": "Answer",
-          text: `No. The ${name} registry answers one question: is this entity name distinguishable from names already on record. A name can be approved by the state and still have a taken .com, no free handles, and a meaning in every AI model's head. That is the gap this page's check fills.`,
+          text: `No. The ${name} registry answers one question, which is whether this entity name is distinguishable from names already on record. A name can be approved by the state and still have a taken .com, no free handles, and a meaning in every AI model's head, and that is exactly the gap this check fills.`,
         },
       },
       {
@@ -65,7 +65,7 @@ function faqJsonLd(name: string, abbr: string) {
         name: `Can I reserve a business name in ${name} before I file?`,
         acceptedAnswer: {
           "@type": "Answer",
-          text: `Most states let you reserve or hold a name for a while before you file, but the rules and fees are the registry's to set and they change — check with ${name}'s registry before counting on a reservation. A reservation holds the entity name only; it does nothing for the domain, the handles, or the AI associations, and those are what get claimed while you wait.`,
+          text: `Most states let you reserve or hold a name for a while before you file, but the rules and fees belong to the registry and they do change, so check with ${name}'s registry before counting on one. A reservation only holds the entity name. It does nothing for the domain, the handles or the AI associations, and those are exactly the things that get claimed while you wait.`,
         },
       },
     ],
@@ -79,15 +79,15 @@ const LAYERS: [string, string][] = [
   ],
   [
     "The domain",
-    "Nobody at the registry looks up the .com. A live lookup tells you in seconds whether it is open — checked now, not cached — because a name with a taken domain is a name you cannot own.",
+    "Nobody at the registry is going to look up the .com for you. A live lookup tells you in seconds whether it is still open, checked right now rather than cached, because a name whose domain is taken is a name you cannot fully own.",
   ],
   [
     "The handles",
-    "GitHub, X, Instagram, TikTok, YouTube. A brand that cannot get its name on the platforms starts every launch explaining why it spells the name differently.",
+    "That means GitHub, X, Instagram, TikTok and YouTube. A brand that cannot get its own name on the platforms starts every launch by explaining why it spells the name differently.",
   ],
   [
     "The AI associations",
-    "Ask GPT, Claude and Perplexity what the name already means. If they already have an answer, you have a problem no domain search — and no registry — will ever catch. The check nobody else runs.",
+    "Ask GPT, Claude and Perplexity what the name already means. If they already have an answer, you have a problem that no domain search and no registry will ever catch. It is the check nobody else runs.",
   ],
 ]
 
@@ -118,12 +118,14 @@ export default async function StatePage({ params }: PageProps) {
             <span className="text-primary">{name}</span>
           </h1>
           <p className="max-w-prose text-muted-foreground md:text-lg">
-            Two different questions wear the same words. The {name} business
-            registry answers the legal one — is this entity name already on
-            record in {abbr}? It does not answer the others: whether the .com
-            is open, whether the handles are free, or what the chatbots already
-            think the name means. Here is how to answer all of them before you
-            file.
+            People usually mean two different things when they ask whether a
+            business name is available, and only one of them is the
+            state&rsquo;s business. The {name} registry answers the legal
+            question, which is whether this entity name is already on record in{" "}
+            {abbr}. The rest is up to you: whether the .com is still open,
+            whether the handles are free, and what the chatbots already think
+            the name means. Here is how to answer all of it before you file
+            anything.
           </p>
         </div>
       </section>
@@ -136,8 +138,8 @@ export default async function StatePage({ params }: PageProps) {
               What &ldquo;available&rdquo; actually means in {name}
             </h2>
             <p className="text-muted-foreground md:text-lg">
-              Four checks, four different authorities. The state runs one of
-              them.
+              Four checks, four different authorities, and the state runs only
+              one of them.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -165,15 +167,15 @@ export default async function StatePage({ params }: PageProps) {
               How to check business name availability in {name}
             </h2>
             <p className="text-muted-foreground md:text-lg">
-              Four steps, cheapest first — the state filing comes last, after
-              the name has survived everything else.
+              Four steps, cheapest first, with the state filing at the end,
+              once the name has survived everything else.
             </p>
           </div>
           <ol className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             {[
               [
                 `Search the ${name} registry`,
-                `Look up your exact name and close variants in the ${abbr} business registry before anything else. If it is already on record, everything below is moot.`,
+                `Look up your exact name and close variants in the ${abbr} business registry before anything else. If it is already on record, nothing else on this list matters.`,
               ],
               [
                 "Check the domain and the handles",
@@ -211,10 +213,10 @@ export default async function StatePage({ params }: PageProps) {
             doesn&rsquo;t.
           </h2>
           <p className="mx-auto max-w-prose text-muted-foreground md:text-lg">
-            The first check on every name is free, forever. Live .com lookups,
-            GitHub, X, Instagram, TikTok and YouTube, and GPT, Claude and
-            Perplexity collision checks — each with the evidence, run the moment
-            you ask.
+            The first check on every name is free, forever. You get live .com
+            lookups, GitHub, X, Instagram, TikTok and YouTube, and GPT, Claude
+            and Perplexity collision checks, and every result comes with the
+            evidence behind it.
           </p>
           <Button size="lg" className="h-auto px-8 py-5 text-lg" asChild>
             <Link href="/?mode=name">Check a name now</Link>
@@ -236,7 +238,8 @@ export default async function StatePage({ params }: PageProps) {
             Other states
           </h2>
           <p className="text-muted-foreground md:text-lg">
-            The process is the same in every state; the registry is not.{" "}
+            The process is the same in every state, but the registry is
+            different in each one.{" "}
             <Link
               href="/business-name-availability"
               className="underline underline-offset-4"

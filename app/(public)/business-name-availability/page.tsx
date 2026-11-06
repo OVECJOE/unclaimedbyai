@@ -15,7 +15,7 @@ import { pageMetadata, SITE_URL } from "@/lib/site"
 export const metadata: Metadata = pageMetadata({
   title: "Business name availability by state",
   description:
-    "How business name availability works in every US state: what the state registry decides, and what it never checks — the .com, the social handles, and what AI models already associate with your name. The first check on every name is free.",
+    "How business name availability works in every US state: what the state registry decides, and everything it never checks, from the .com to the social handles to what AI models already associate with your name. The first check on every name is free.",
   path: "/business-name-availability",
 })
 
@@ -42,16 +42,17 @@ export default function BusinessNameAvailabilityHub() {
             <span className="text-primary">state by state</span>
           </h1>
           <p className="max-w-prose text-muted-foreground md:text-lg">
-            Every state has a registry that answers one question: is this
-            entity name already on record? That is the legal answer, and it is
-            the only one the state gives. The domain, the social handles, and
-            what the AI models already think your name means are decided
-            elsewhere — usually by whoever claims them first. Pick your state
-            for the local process, then run the checks the registry
-            doesn&rsquo;t.
+            Every state keeps a registry that answers exactly one question: is
+            this entity name already on record? That is the legal answer, and
+            it is the only one the state gives you. Everything else that
+            decides whether a name is really yours, like the domain, the social
+            handles, and what the AI models already think your name means, is
+            settled elsewhere, usually by whoever claims it first. Pick your
+            state below to see how the local process works, then run the checks
+            the registry doesn&rsquo;t.
           </p>
           <Button size="lg" className="h-auto px-8 py-5 text-lg" asChild>
-            <Link href="/?mode=name">Check a name — first check free</Link>
+            <Link href="/?mode=name">Check a name, first check free</Link>
           </Button>
         </div>
       </section>

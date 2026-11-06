@@ -58,7 +58,7 @@ export async function GET(): Promise<Response> {
     "",
     "## Guides",
     "",
-    `- [Business name availability by state](${SITE_URL}/business-name-availability): What each state's registry decides — and the domain, handle, and AI checks it never runs.`,
+    `- [Business name availability by state](${SITE_URL}/business-name-availability): What each state's registry decides, and the domain, handle, and AI checks it never runs.`,
     // The worked example points at a real public report rather than a
     // /check/ permalink: that page is a JS kickoff whose canonical
     // points at /searches/<name>, and the name this used to link to

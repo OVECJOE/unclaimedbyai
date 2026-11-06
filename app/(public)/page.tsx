@@ -44,7 +44,7 @@ const howToJsonLdData = {
   "@id": `${SITE_URL}/#how-to`,
   name: "Check a name before you build on it",
   description:
-    "Check a name you already have — or generate one from a brief — screen every candidate against live domain registration, real social handles, and AI associations, and score it before you register.",
+    "Start with a name you already have, or generate one from a brief. Either way, screen every candidate against live domain registration, real social handles, and AI associations, and score it before you register.",
   step: [
     {
       "@type": "HowToStep",
@@ -72,7 +72,7 @@ const howToJsonLdData = {
 export const metadata: Metadata = pageMetadata({
   title: "Name checker: is this name taken?",
   description:
-    "Check any name against live .com registration, real social handles, and what GPT, Claude, and Perplexity already associate with it — before you register. No name yet? Four naming studios generate a scored shortlist. The first check on every name is free.",
+    "Check any name against live .com registration, real social handles, and what GPT, Claude, and Perplexity already associate with it, all before you register. No name yet? Four naming studios generate a scored shortlist, and every name in it gets checked the same way. The first check on every name is free.",
   path: "/",
 })
 
@@ -126,8 +126,8 @@ export default async function Page() {
               How it works
             </h2>
             <p className="text-muted-foreground md:text-lg">
-              Four steps from a name — or a blank page — to one you can
-              actually own.
+              Four steps from a name, or a blank page, to one you can actually
+              own.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
