@@ -35,7 +35,7 @@ export default function PrompterCta({
   signedIn?: boolean
 }) {
   const [pending, setPending] = useState(false)
-  const [lastMode, setLastMode] = useState<PrompterMode>("idea")
+  const [lastMode, setLastMode] = useState<PrompterMode>("name")
   const [known, setKnown] = useState<boolean | null>(signedIn ?? null)
   // A handoff from the extension (or any deep link): ?mode=…&brief=….
   // Read once on mount from window rather than useSearchParams, so the
@@ -282,7 +282,10 @@ export default function PrompterCta({
         onSubmit={(value, mode, signals) => void onSubmit(value, mode, signals)}
         pending={pending}
         defaultValue={prefill ? prefill.brief : defaultValue}
-        defaultMode={prefill?.mode}
+        // The landing leads with the check, so the prompter opens ready
+        // for one: a visitor from "is this name taken" can type and go.
+        // A deep link's explicit mode still wins.
+        defaultMode={prefill?.mode ?? "name"}
         // A signed-in visitor's steer lives on the account, so the
         // inline fields would ask twice. Unknown counts as signed out
         // until the mount check says otherwise.

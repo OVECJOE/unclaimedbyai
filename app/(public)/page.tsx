@@ -44,7 +44,7 @@ const howToJsonLdData = {
   "@id": `${SITE_URL}/#how-to`,
   name: "Check a name before you build on it",
   description:
-    "Generate a name from a brief, screen the survivor against live domain registration, real social handles, and AI associations, and score it before you register.",
+    "Check a name you already have — or generate one from a brief — screen every candidate against live domain registration, real social handles, and AI associations, and score it before you register.",
   step: [
     {
       "@type": "HowToStep",
@@ -70,9 +70,9 @@ const howToJsonLdData = {
 }
 
 export const metadata: Metadata = pageMetadata({
-  title: "Discover names for your idea",
+  title: "Name checker: is this name taken?",
   description:
-    "Four naming studios generate names from your brief, an editor keeps the strongest, and every survivor is screened against live .com registration, social handles, and AI associations before it reaches you.",
+    "Check any name against live .com registration, real social handles, and what GPT, Claude, and Perplexity already associate with it — before you register. No name yet? Four naming studios generate a scored shortlist. The first check on every name is free.",
   path: "/",
 })
 
@@ -109,14 +109,14 @@ export default async function Page() {
       {/* The problem, in three public numbers */}
       <PressureSection />
 
-      {/* Ideas, generated */}
-      <GenerationSection />
-
       {/* The story, in photographs: names get haunted */}
       <StatementScatter />
 
-      {/* The three checks, as receipts */}
+      {/* The three checks, as receipts: the pitch, before generation */}
       <ChecksReceipts />
+
+      {/* No name yet? Ideas, generated — then checked the same way */}
+      <GenerationSection />
 
       {/* How it works */}
       <section id="how-it-works" className="scroll-mt-20 border-b px-4 py-10">
@@ -126,7 +126,8 @@ export default async function Page() {
               How it works
             </h2>
             <p className="text-muted-foreground md:text-lg">
-              Four steps from a blank page to a name you can actually own.
+              Four steps from a name — or a blank page — to one you can
+              actually own.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">

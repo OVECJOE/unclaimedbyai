@@ -4,9 +4,9 @@ import GsapReveal from "@/components/about/gsap-reveal"
 import GenerationMock from "@/components/public/generation-mock"
 
 /**
- * The half of the product the old homepage never mentioned: ideas are
- * generated, not just checked. Server-rendered; the mock is the only
- * client part.
+ * The entry point for visitors who have no name yet: ideas are
+ * generated, then checked the same way. Server-rendered; the mock is
+ * the only client part.
  */
 export default function GenerationSection() {
   return (
@@ -14,7 +14,7 @@ export default function GenerationSection() {
       <GsapReveal className="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-2 md:gap-16">
         <div className="space-y-4">
           <p className="text-[0.625rem] font-semibold tracking-widest text-primary uppercase">
-            Before the checks
+            No name yet?
           </p>
           <h2 className="font-heading text-2xl font-semibold sm:text-3xl md:text-4xl">
             Describe it once.{" "}

@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 export const SITE_NAME = "Unclaimed by AI"
 export const SITE_URL = "https://www.unclaimedbyai.com"
 export const SITE_DESCRIPTION =
-  "Four naming studios generate names from your brief, an editor keeps the strongest, and every survivor is screened against live .com registration, social handles, and AI associations before it reaches you."
+  "Name checker for founders and creators: live .com registration, real social handles, and what GPT, Claude, and Perplexity already associate with a name — checked before you register. No name yet? Four naming studios generate options worth checking."
 export const OG_PATH = "/og-image.png"
 
 export const FREE_SEARCHES = 3
@@ -163,7 +163,7 @@ export const homeJsonLd = {
   "@id": `${SITE_URL}/#webapp`,
   name: SITE_NAME,
   url: SITE_URL,
-  description: `Name checker for founders and creators. Four naming studios generate names from your brief, an editor keeps the strongest, and every survivor is screened against live .com registration, social handles, and AI associations across GPT, Claude, and Perplexity before it reaches you. ${FREE_SEARCHES} free searches, and the first check on every name is free.`,
+  description: `Name checker for founders and creators. Every name is screened against live .com registration, social handles, and AI associations across GPT, Claude, and Perplexity before you register — with the receipts for each check. No name yet? Four naming studios generate names from your brief, an editor keeps the strongest, and every survivor gets the same screening. ${FREE_SEARCHES} free searches, and the first check on every name is free.`,
   applicationCategory: "BusinessApplication",
   applicationSubCategory: "Name checker",
   operatingSystem: "Web",

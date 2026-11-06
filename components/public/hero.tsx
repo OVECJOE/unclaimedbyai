@@ -39,11 +39,11 @@ export default function Hero({ signedIn }: { signedIn: boolean }) {
               .
             </h1>
             <p className="mx-auto max-w-prose text-muted-foreground md:text-lg lg:mx-0">
-              You have an idea or you have a name, and either way the tool
-              generates options, screens every survivor, and scores the result.
-              The screening runs against live domain registration, real social
-              handles, and what AI models already associate with the name, so
-              you know which names are clear before you register.
+              You have a name or you have an idea, and either way the check
+              runs first: live domain registration, real social handles, and
+              what AI models already associate with the name, so you know
+              it&apos;s clear before you register. No name yet? The tool
+              generates options and screens every survivor the same way.
             </p>
             <p className="text-sm text-muted-foreground">
               Live .com lookups,
