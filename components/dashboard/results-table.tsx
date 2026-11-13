@@ -957,7 +957,7 @@ export default function ResultsTable({
       </div>
 
       {/* Desktop: the full table. */}
-      <div className="hidden w-full overflow-x-auto lg:block">
+      <div className="scroll-fade hidden w-full overflow-x-auto lg:block">
         <Table className="min-w-[680px]">
           <TableHeader>
             <TableRow>

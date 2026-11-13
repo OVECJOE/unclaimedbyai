@@ -56,7 +56,7 @@ export default function Matrix({ facts }: { facts: NameFacts[] }) {
 
   return (
     <figure className="space-y-3">
-      <div className="relative overflow-x-auto">
+      <div className="scroll-fade relative overflow-x-auto">
         <table className="w-full min-w-[34rem] border-collapse text-sm">
           <thead>
             <tr className="text-[0.625rem] font-semibold tracking-widest text-muted-foreground uppercase">

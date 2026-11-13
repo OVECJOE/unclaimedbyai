@@ -809,3 +809,20 @@ div[data-sonner-toast] [data-button][data-cancel] {
 .blog-prose :where(pre, table) {
   scrollbar-width: none;
 }
+
+/* A soft edge on whichever side of a sideways-scrolling area still has
+   more to show, so hidden scrollbars don't hide that it scrolls. Pure
+   CSS: the cover gradients scroll with the content and mask the shadow
+   gradients, which stay put. Needs the area to sit on the page
+   background. */
+.scroll-fade {
+  background:
+    linear-gradient(to right, var(--background) 30%, transparent) left center /
+      2.5rem 100% no-repeat local,
+    linear-gradient(to left, var(--background) 30%, transparent) right center /
+      2.5rem 100% no-repeat local,
+    linear-gradient(to right, color-mix(in oklab, var(--foreground) 22%, transparent), transparent) left center /
+      0.875rem 100% no-repeat scroll,
+    linear-gradient(to left, color-mix(in oklab, var(--foreground) 22%, transparent), transparent) right center /
+      0.875rem 100% no-repeat scroll;
+}

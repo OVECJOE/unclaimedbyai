@@ -331,7 +331,7 @@ export default async function PricingPage() {
             </p>
           )}
 
-          <div className="overflow-x-auto border">
+          <div className="scroll-fade overflow-x-auto border">
             <table className="w-full min-w-[32rem] border-collapse text-sm">
               <caption className="sr-only">What a credit buys</caption>
               <thead>

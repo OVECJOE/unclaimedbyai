@@ -54,7 +54,7 @@ function Mark({ cell, featured }: { cell: Cell; featured: boolean }) {
  */
 export default function CompareTable() {
   return (
-    <div className="relative overflow-x-auto border">
+    <div className="scroll-fade relative overflow-x-auto border">
       <table className="w-full min-w-[40rem] border-collapse text-sm">
         <thead>
           <tr className="border-b">
