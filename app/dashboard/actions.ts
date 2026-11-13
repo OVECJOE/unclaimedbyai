@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
+import { revalidatePath } from "next/cache"
 import { API_ORIGIN } from "@/lib/api"
 
 export async function signOut() {
@@ -22,4 +23,15 @@ export async function signOut() {
   // this server-side fetch, so drop the session cookie locally too.
   jar.delete("sid")
   redirect("/")
+}
+
+/**
+ * Publishing, updating or unpublishing a page changes what the public
+ * sees, so the cached copies are dropped at once instead of waiting out
+ * their five minutes.
+ */
+export async function refreshIdeaPage(slug: string) {
+  revalidatePath(`/ideas/${slug}`)
+  revalidatePath("/ideas")
+  revalidatePath("/sitemap.xml")
 }

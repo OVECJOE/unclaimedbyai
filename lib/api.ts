@@ -21,7 +21,11 @@ export class ApiError extends Error {
   status: number
   /** Seconds the server asked us to wait (Retry-After), when it sent one. */
   retryAfter: number | null
-  constructor(status: number, message: string, retryAfter: number | null = null) {
+  constructor(
+    status: number,
+    message: string,
+    retryAfter: number | null = null
+  ) {
     super(message)
     this.status = status
     this.retryAfter = retryAfter
@@ -393,6 +397,7 @@ export type PendingName = {
 
 export type SearchResultsPayload = {
   items: {
+    id: number
     name: string
     about: string | null
     score: number
@@ -783,9 +788,12 @@ export async function getPublicSearchStrip(
   limit = 10,
   signal?: AbortSignal
 ): Promise<PublicSearchStripResponse> {
-  return apiRequest<PublicSearchStripResponse>(`/api/v1/searches/public-top?limit=${encodeURIComponent(String(limit))}`, {
-    signal,
-  })
+  return apiRequest<PublicSearchStripResponse>(
+    `/api/v1/searches/public-top?limit=${encodeURIComponent(String(limit))}`,
+    {
+      signal,
+    }
+  )
 }
 
 export function deleteSearch(
@@ -1157,5 +1165,51 @@ export function sweepWatch(
   return apiRequest(`/api/v1/watches/${watchId}/sweep`, {
     method: "POST",
     timeoutMs: 60000,
+  })
+}
+
+export type Publication = {
+  published: boolean
+  slug: string | null
+  path: string | null
+  title: string | null
+  default_title: string
+  author_name: string | null
+  default_author_name: string | null
+  show_avatar: boolean
+  has_avatar: boolean
+  note: string | null
+  hidden_name_ids: number[]
+  taken_down: boolean
+  eligible: boolean
+  reason: string | null
+  min_names: number
+}
+
+export type PublicationInput = {
+  title: string | null
+  author_name: string | null
+  show_avatar: boolean
+  note: string | null
+  hidden_name_ids: number[]
+}
+
+export function getPublication(searchId: number): Promise<Publication> {
+  return apiRequest<Publication>(`/api/v1/searches/${searchId}/publication`)
+}
+
+export function savePublication(
+  searchId: number,
+  input: PublicationInput
+): Promise<Publication> {
+  return apiRequest<Publication>(`/api/v1/searches/${searchId}/publication`, {
+    method: "PUT",
+    body: input,
+  })
+}
+
+export function unpublish(searchId: number): Promise<Publication> {
+  return apiRequest<Publication>(`/api/v1/searches/${searchId}/publication`, {
+    method: "DELETE",
   })
 }

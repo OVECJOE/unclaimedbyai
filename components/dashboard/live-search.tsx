@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button"
 import GradingDistribution from "@/components/dashboard/grading-distribution"
 import ScoreSummary from "@/components/dashboard/score-summary"
 import ResultsTable from "@/components/dashboard/results-table"
+import PublishDialog from "@/components/dashboard/publish-dialog"
 import QueryUnfurl from "@/components/dashboard/query-unfurl"
 import ShortageDialog from "@/components/dashboard/shortage-dialog"
 import SearchResultsToolbar from "@/components/dashboard/search-results-toolbar"
@@ -368,6 +369,17 @@ export default function LiveSearch({
           <span className="text-xs text-muted-foreground">
             {formatDateTime(header.created_at)}
           </span>
+          {historyHref &&
+          header.generation.status === "ready" &&
+          header.checked_count >= 3 ? (
+            <span className="ml-2">
+              <PublishDialog
+                searchId={searchId}
+                query={header.query}
+                names={items.map((item) => ({ id: item.id, name: item.name }))}
+              />
+            </span>
+          ) : null}
         </div>
         {header.brief_summary || header.brief_attributes ? (
           <div className="space-y-1.5">
@@ -445,8 +457,8 @@ export default function LiveSearch({
             </p>
             <p className="text-muted-foreground">
               Something went wrong on our side, so no names were made or
-              checked. Try your idea again, or check a name you already have
-              in mind.
+              checked. Try your idea again, or check a name you already have in
+              mind.
             </p>
           </div>
           <div className="flex shrink-0 flex-col gap-2 sm:flex-row md:flex-col">

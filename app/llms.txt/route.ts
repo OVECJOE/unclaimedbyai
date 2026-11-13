@@ -1,4 +1,5 @@
 import { listPublishedPostsPage } from "@/lib/blog/store"
+import { listIdeas } from "@/lib/ideas"
 import { SITE_URL } from "@/lib/site"
 import { nameToSlug } from "@/lib/utils"
 
@@ -33,9 +34,10 @@ async function reportExamples(): Promise<string[]> {
 }
 
 export async function GET(): Promise<Response> {
-  const [blog, reports] = await Promise.all([
+  const [blog, reports, ideas] = await Promise.all([
     listPublishedPostsPage(1, 10),
     reportExamples(),
+    listIdeas(20),
   ])
 
   // A title or a name can carry a newline, which would break the markdown
@@ -80,6 +82,23 @@ export async function GET(): Promise<Response> {
         `- [Report for ${oneLine(name)}](${SITE_URL}/searches/${nameToSlug(
           name
         )}): A complete scored report, public by design.`
+      )
+    }
+    lines.push("")
+  }
+
+  if (ideas.items.length > 0) {
+    lines.push("## Idea reports", "")
+    lines.push(
+      `- [All idea reports](${SITE_URL}/ideas): Founders publish how their name search went, with every domain, handle and chatbot check.`
+    )
+    for (const item of ideas.items) {
+      lines.push(
+        `- [${oneLine(item.title)}](${SITE_URL}/ideas/${item.slug}): ${item.name_count} names tested${
+          item.best
+            ? `; best was ${oneLine(item.best.name)} at ${item.best.score}/100`
+            : ""
+        }.`
       )
     }
     lines.push("")

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next"
 import { listPublishedForSitemap, listPublishedTags } from "@/lib/blog/store"
+import { listIdeas } from "@/lib/ideas"
 import { SITE_URL } from "@/lib/site"
 import { nameToSlug } from "@/lib/utils"
 
@@ -35,10 +36,11 @@ async function publicReportUrls(): Promise<MetadataRoute.Sitemap> {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date()
-  const [posts, reports, tags] = await Promise.all([
+  const [posts, reports, tags, ideas] = await Promise.all([
     listPublishedForSitemap(),
     publicReportUrls(),
     listPublishedTags(),
+    listIdeas(500),
   ])
 
   return [
@@ -101,6 +103,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified,
       changeFrequency: "weekly" as const,
       priority: 0.4,
+    })),
+    {
+      url: `${SITE_URL}/ideas`,
+      lastModified: ideas.items[0]
+        ? new Date(ideas.items[0].updated_at)
+        : lastModified,
+      changeFrequency: "daily" as const,
+      priority: 0.7,
+    },
+    ...ideas.items.map((item) => ({
+      url: `${SITE_URL}/ideas/${item.slug}`,
+      lastModified: new Date(item.updated_at),
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
     })),
     ...reports,
   ]
