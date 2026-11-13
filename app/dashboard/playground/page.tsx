@@ -1,3 +1,4 @@
+import DashboardPageHeader from "@/components/dashboard/page-header"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -48,21 +49,15 @@ export default async function PlaygroundPage({
   return (
     <section className="px-4 py-10">
       <div className="mx-auto max-w-7xl space-y-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="space-y-2">
-            <h1 className="font-heading text-4xl font-semibold md:text-5xl">
-              Playground
-            </h1>
-            <p className="max-w-prose text-sm text-muted-foreground md:text-base">
-              One sandbox at a time. Drag ideas to reorder them, drag one onto
-              Generate names to start a search, and open a card for its full
-              canvas and research.
-            </p>
-          </div>
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/playground/sandboxes">All sandboxes</Link>
-          </Button>
-        </div>
+        <DashboardPageHeader
+          title="Playground"
+          description="One sandbox at a time. Drag ideas to reorder them, drag one onto Generate names to start a search, and open a card for its full canvas and research."
+          actions={
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/playground/sandboxes">All sandboxes</Link>
+            </Button>
+          }
+        />
         <PlaygroundCanvas
           initialList={list}
           initialDetail={detail}

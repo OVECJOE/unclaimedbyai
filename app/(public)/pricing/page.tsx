@@ -1,6 +1,13 @@
-import { Badge } from "@/components/ui/badge"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { CheckmarkCircle02Icon } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
-import { PriceCard, PriceCardProps } from "@/components/price-card"
+import { FaqItem, FaqList } from "@/components/ui/faq-list"
+import { SectionHeader } from "@/components/public/section-header"
+import CreditCalculator, {
+  type CalculatorPack,
+} from "@/components/public/credit-calculator"
+import { cn } from "@/lib/utils"
+import RegistryField from "@/components/fields/registry-field"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Suspense } from "react"
@@ -11,13 +18,15 @@ import { getMeServer } from "@/lib/api-server"
 import {
   CURRENCY_SYMBOL,
   PRICING_DESCRIPTION,
+  FREE_SEARCHES,
+  PLANS,
   PRO_LIMITS,
   PRO_PRICE,
   pageMetadata,
   pricingJsonLd,
-  creditPackBenefits,
   proBenefits,
   SITE_URL,
+  formatPrice,
 } from "@/lib/site"
 import { FAQS } from "@/app/(public)/product/constants"
 import type { Pack } from "@/lib/api"
@@ -40,25 +49,23 @@ async function loadPacks(): Promise<Pack[]> {
   }
 }
 
-function toPriceCard(pack: Pack, singleRate: number): PriceCardProps {
-  const perCredit = pack.price_minor / 100 / pack.credits
-  return {
-    title: pack.title,
-    label: `${CURRENCY_SYMBOL}${perCredit.toFixed(2)} per credit.`,
-    price: { currency: CURRENCY_SYMBOL, amount: pack.price_minor / 100 },
-    benefits: creditPackBenefits(pack.credits),
-    discountage:
-      perCredit < singleRate
-        ? Math.round((1 - perCredit / singleRate) * 100)
-        : undefined,
-  }
-}
+const PRICING_FAQ_IDS = [
+  "is-unclaimedbyai-free-to-use",
+  "how-do-credits-work",
+  "why-would-i-check-the-same-name-more-than-once",
+  "what-happens-to-my-work-if-i-stop-paying",
+  "can-i-buy-the-domain-through-you",
+]
+
+const PRICING_FAQS = PRICING_FAQ_IDS.map((id) =>
+  FAQS.find((faq) => faq.id === id)
+).filter((faq): faq is (typeof FAQS)[number] => Boolean(faq))
 
 const pricingFaqJsonLd = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "@id": `${SITE_URL}/pricing#faq`,
-  mainEntity: FAQS.map((faq) => ({
+  mainEntity: PRICING_FAQS.map((faq) => ({
     "@type": "Question",
     name: faq.question,
     acceptedAnswer: {
@@ -93,50 +100,74 @@ export const metadata: Metadata = pageMetadata({
   path: "/pricing",
 })
 
+const COSTS = [
+  { action: "First check on any name", credits: "Free", note: "Always, on every plan" },
+  { action: "Re-check a name", credits: "1", note: "Availability is what changes" },
+  { action: "Search past your allowance", credits: "2", note: "A generated, checked shortlist" },
+  { action: "Research an idea", credits: "3", note: "Competitors, demand, channels, money" },
+]
+
+function Benefit({ children }: { children: React.ReactNode }) {
+  return (
+    <li className="flex items-start gap-2.5">
+      <HugeiconsIcon
+        icon={CheckmarkCircle02Icon}
+        className="mt-0.5 size-4 shrink-0 text-primary"
+      />
+      <span>{children}</span>
+    </li>
+  )
+}
+
 export default async function PricingPage() {
   const packs = await loadPacks()
   const user = await getMeServer().catch(() => null)
-  const singleRate = packs.length
-    ? Math.max(...packs.map((p) => p.price_minor / 100 / p.credits))
-    : 0.5
+  const signedIn = Boolean(user)
+
+  // Live packs when the API answers, the build-time mirror otherwise,
+  // so the calculator always has real numbers to work with.
+  const calculatorPacks: CalculatorPack[] = packs.length
+    ? packs.map((pack) => ({
+        slug: pack.slug,
+        title: pack.title,
+        credits: pack.credits,
+        amount: pack.price_minor / 100,
+      }))
+    : PLANS.map((plan) => ({
+        slug: plan.slug,
+        title: plan.title,
+        credits: plan.credits,
+        amount: plan.amount,
+      }))
+  const highestRate = Math.max(
+    ...calculatorPacks.map((pack) => pack.amount / pack.credits)
+  )
 
   const tiers = [
     {
       title: "Free",
-      label: "For seeing whether this is for you.",
-      price: { currency: CURRENCY_SYMBOL, amount: 0 },
+      price: 0,
+      cadence: "forever. No card, ever.",
+      label: "For finding out whether a name, or this tool, is for you.",
       benefits: [
-        "1 sandbox to hold your ideas",
-        "3 searches a month",
-        "3 idea runs a day",
         "First check on every name stays free",
-        "No card, ever",
+        `${FREE_SEARCHES} searches a month`,
+        "3 idea runs a day",
+        "1 sandbox to hold your ideas",
       ],
+      cta: signedIn ? "Open your dashboard" : "Start free",
+      href: signedIn ? "/dashboard" : "/auth",
+      featured: false,
     },
     {
       title: "Pro",
+      price: PRO_PRICE,
+      cadence: "a month. Cancel from Billing any time.",
       label: "For the person who has stopped browsing and started building.",
-      price: { currency: CURRENCY_SYMBOL, amount: PRO_PRICE },
       benefits: proBenefits(PRO_LIMITS),
-    },
-  ]
-
-  const steps = [
-    {
-      title: "Start free",
-      body: "One sandbox, three searches a month, and the first check on every name is free. Nothing to cancel because there is nothing to join.",
-    },
-    {
-      title: "Research before you build",
-      body: "Spend 3 credits on deep market research for an idea: competitors, demand, audience channels, and how it makes money.",
-    },
-    {
-      title: "Search, then re-check",
-      body: "A search costs 2 credits past your allowance, and re-checking a name costs 1. Availability is the thing that changes, so re-checking is the thing worth paying for.",
-    },
-    {
-      title: "Watch what you love",
-      body: "On Pro, star a name and we recheck its domains and handles every few hours, emailing you the moment something gets claimed.",
+      cta: signedIn ? "Upgrade to Pro" : "Start with Pro",
+      href: signedIn ? "/dashboard/billing" : "/auth",
+      featured: true,
     },
   ]
 
@@ -150,110 +181,221 @@ export default async function PricingPage() {
       <Suspense fallback={null}>
         <PaymentFlag />
       </Suspense>
-      <section className="space-y-5 px-4 py-10 sm:text-center">
-        <Badge
-          className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
-          asChild
-        >
-          <p className="px-2 py-1 sm:px-3">
-            Free to start. Pro when you build. Credits for the rest.
-          </p>
-        </Badge>
-        <div className="space-y-3">
-          <h1 className="font-heading text-4xl font-semibold md:text-5xl">
-            Ideas are free. Depth is not.
-          </h1>
-          <p className="mx-auto max-w-prose md:text-lg">
-            Generate ideas and check names without paying anything. When an idea
-            earns your attention, research it properly and keep its availability
-            fresh, either on Pro or with credits you buy once.
+
+      {/* Hero + plans */}
+      <section className="relative isolate overflow-hidden border-b px-4 pt-16 pb-20 md:pt-24">
+        <RegistryField quiet />
+        <div className="mx-auto max-w-5xl space-y-14">
+          <SectionHeader
+            as="h1"
+            eyebrow="Pricing"
+            title="Ideas are free."
+            accent="Depth costs pocket change."
+            lede="Generate ideas and check names without paying anything. When an idea earns your attention, research it properly and keep its availability fresh, on Pro or with credits you buy once."
+          />
+
+          <div
+            data-field-avoid
+            className="grid gap-px overflow-hidden border border-border bg-border md:grid-cols-2"
+          >
+            {tiers.map((tier) => (
+              <article
+                key={tier.title}
+                className={cn(
+                  "relative flex flex-col gap-6 p-6 sm:p-10",
+                  tier.featured ? "bg-primary/5" : "bg-background"
+                )}
+              >
+                {tier.featured ? (
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-0 top-0 h-1 bg-primary"
+                  />
+                ) : null}
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="font-mono text-[0.6875rem] font-semibold tracking-[0.14em] uppercase">
+                    {tier.title}
+                  </h2>
+                  {tier.featured ? (
+                    <span className="bg-primary px-2 py-0.5 font-mono text-[0.625rem] font-semibold tracking-widest text-primary-foreground uppercase">
+                      Everything included
+                    </span>
+                  ) : null}
+                </div>
+                <div>
+                  <p className="font-heading text-7xl leading-none">
+                    {tier.price === 0 ? "$0" : formatPrice(tier.price)}
+                  </p>
+                  <p className="mt-2 font-mono text-xs text-muted-foreground">
+                    {tier.cadence}
+                  </p>
+                </div>
+                <p className="text-muted-foreground">{tier.label}</p>
+                <ul className="flex-1 space-y-3 border-t pt-6 text-sm">
+                  {tier.benefits.map((benefit) => (
+                    <Benefit key={benefit}>{benefit}</Benefit>
+                  ))}
+                </ul>
+                <Button
+                  asChild
+                  size="lg"
+                  variant={tier.featured ? "default" : "outline"}
+                  className="h-12 w-full"
+                >
+                  <Link href={tier.href}>{tier.cta}</Link>
+                </Button>
+              </article>
+            ))}
+          </div>
+          <p
+            data-field-avoid
+            className="text-center text-sm text-muted-foreground"
+          >
+            Pro bills monthly and cancels from Billing; the plan stays active
+            until the period ends. Credits never expire, on any plan.
           </p>
         </div>
+      </section>
 
-        <div className="mx-auto mt-10 grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2">
-          {tiers.map((tier) => (
-            <PriceCard
-              key={tier.title}
-              {...tier}
-              highlight={tier.title === "Pro"}
-              action={
-                user ? (
-                  <Button size="lg" asChild className="w-full">
-                    <Link href="/dashboard/billing">
-                      {tier.title === "Pro" ? "Upgrade" : "Open your dashboard"}
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button size="lg" asChild className="w-full">
-                    <Link href="/auth">Get started</Link>
-                  </Button>
-                )
-              }
-            />
-          ))}
-        </div>
-        <p className="mx-auto max-w-prose text-sm text-muted-foreground">
-          Pro bills monthly and cancels any time from Billing — the plan stays
-          active until the period ends. Credits never expire, on any plan.
-        </p>
+      {/* Credit packs */}
+      <section id="credits" className="scroll-mt-20 border-b px-4 py-20 md:py-28">
+        <div className="mx-auto max-w-7xl space-y-12">
+          <SectionHeader
+            eyebrow="Credits"
+            title="Top up once."
+            accent="Spend whenever."
+            lede="Credits sit on top of any plan and never expire. Going past your monthly allowance draws from them, so running out of plan never blocks you while credits last."
+          />
 
-        <div>
-          <h2 className="mb-3 font-heading text-xl font-semibold">
-            Top up with credits
-          </h2>
-          <p className="mx-auto mb-5 max-w-prose text-sm text-muted-foreground">
-            Credits sit on top of any plan and never expire. Going past your
-            monthly allowance draws from them, so running out of plan never
-            blocks you while credits last.
-          </p>
-          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {packs.length > 0 ? (
-              packs.map((pack) => (
-                <PriceCard
-                  key={pack.slug}
-                  {...toPriceCard(pack, singleRate)}
-                  action={
-                    user ? (
+          {calculatorPacks.length > 0 ? (
+            <div className="grid gap-px overflow-hidden border border-border bg-border md:grid-cols-3">
+              {calculatorPacks.map((pack) => {
+                const amount = pack.amount
+                const perCredit = amount / pack.credits
+                const saving =
+                  perCredit < highestRate
+                    ? Math.round((1 - perCredit / highestRate) * 100)
+                    : 0
+                return (
+                  <article
+                    key={pack.slug}
+                    className="flex flex-col gap-5 bg-background p-6 sm:p-8"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="font-mono text-[0.6875rem] font-semibold tracking-[0.14em] uppercase">
+                        {pack.title}
+                      </h3>
+                      {saving > 0 ? (
+                        <span className="border border-primary/30 bg-primary/10 px-2 py-0.5 font-mono text-[0.625rem] font-semibold tracking-widest text-primary uppercase">
+                          Save {saving}%
+                        </span>
+                      ) : null}
+                    </div>
+                    <div>
+                      <p className="font-heading text-6xl leading-none">
+                        {CURRENCY_SYMBOL}
+                        {amount.toFixed(2)}
+                      </p>
+                      <p className="mt-2 font-mono text-xs text-muted-foreground">
+                        {CURRENCY_SYMBOL}
+                        {perCredit.toFixed(2)} per credit, once
+                      </p>
+                    </div>
+                    <ul className="flex-1 space-y-2 border-t pt-5 text-sm">
+                      <Benefit>{pack.credits} credits, yours until spent</Benefit>
+                      <Benefit>
+                        Up to {pack.credits} re-checks, or{" "}
+                        {Math.floor(pack.credits / 3)} research runs
+                      </Benefit>
+                    </ul>
+                    {user ? (
                       <BuyButton
                         packSlug={pack.slug}
                         label={`Buy ${pack.title}`}
                       />
                     ) : (
-                      <Button size="lg" asChild className="w-full">
+                      <Button asChild size="lg" variant="outline" className="w-full">
                         <Link href={`/auth?plan=${pack.slug}`}>
-                          Get started
+                          Get {pack.title}
                         </Link>
                       </Button>
-                    )
-                  }
-                />
-              ))
-            ) : (
-              <p className="mx-auto max-w-prose text-sm text-muted-foreground">
-                Credit packs could not load right now. Refresh in a moment — the
-                free plan above works regardless.
-              </p>
-            )}
+                    )}
+                  </article>
+                )
+              })}
+            </div>
+          ) : (
+            <p className="border p-6 text-center text-sm text-muted-foreground">
+              Credit packs could not load right now. Refresh in a moment. The
+              free plan works regardless.
+            </p>
+          )}
+
+          <div className="overflow-x-auto border">
+            <table className="w-full min-w-[32rem] border-collapse text-sm">
+              <caption className="sr-only">What a credit buys</caption>
+              <thead>
+                <tr className="border-b bg-sidebar">
+                  <th scope="col" className="p-4 text-start font-mono text-[0.6875rem] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                    Action
+                  </th>
+                  <th scope="col" className="p-4 text-start font-mono text-[0.6875rem] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                    Credits
+                  </th>
+                  <th scope="col" className="p-4 text-start font-mono text-[0.6875rem] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                    Why
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {COSTS.map((row) => (
+                  <tr key={row.action} className="border-b last:border-b-0">
+                    <th scope="row" className="p-4 text-start font-medium">
+                      {row.action}
+                    </th>
+                    <td className="p-4 font-heading text-2xl text-primary">
+                      {row.credits}
+                    </td>
+                    <td className="p-4 text-muted-foreground">{row.note}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
+      </section>
 
-        <div className="mx-auto mt-16 max-w-7xl space-y-8">
-          <h2 className="font-heading text-2xl font-semibold md:text-3xl">
-            How the money works
-          </h2>
-          <ol className="grid grid-cols-1 gap-4 text-left md:grid-cols-2 lg:grid-cols-4">
-            {steps.map((step, index) => (
-              <li key={step.title} className="space-y-2 border p-5">
-                <span className="font-mono text-sm text-muted-foreground">
-                  0{index + 1}
-                </span>
-                <h3 className="font-heading text-lg font-semibold">
-                  {step.title}
-                </h3>
-                <p className="text-muted-foreground">{step.body}</p>
-              </li>
+      {/* Calculator */}
+      <section className="border-b bg-sidebar px-4 py-20 md:py-28">
+        <div className="mx-auto max-w-7xl space-y-12">
+          <SectionHeader
+            eyebrow="Calculator"
+            title="Which pack do you"
+            accent="actually need?"
+            lede="Slide in what you expect to do in a month. We'll work out the cheapest way to cover it, and tell you when Pro would cost less."
+          />
+          <CreditCalculator packs={calculatorPacks} signedIn={signedIn} />
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="scroll-mt-20 px-4 py-20 md:py-28">
+        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_1.6fr] lg:gap-20">
+          <div className="lg:sticky lg:top-28 lg:self-start">
+            <SectionHeader
+              align="start"
+              eyebrow="Money questions"
+              title="No fine print,"
+              accent="just print."
+            />
+          </div>
+          <FaqList className="border-t">
+            {PRICING_FAQS.map((faq, index) => (
+              <FaqItem key={faq.id} question={faq.question} open={index === 0}>
+                {faq.body ?? faq.answer}
+              </FaqItem>
             ))}
-          </ol>
+          </FaqList>
         </div>
       </section>
     </>

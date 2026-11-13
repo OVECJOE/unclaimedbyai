@@ -2,7 +2,7 @@ import Link from "next/link"
 import type { ReactNode } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowLeft01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons"
-import { Badge } from "@/components/ui/badge"
+import { SectionHeader } from "@/components/public/section-header"
 import TableOfContents from "./table-of-contents"
 
 export type LegalSection = {
@@ -37,27 +37,21 @@ export default function LegalDoc({
 }: LegalDocProps) {
   return (
     <>
-      <section className="border-b px-4 py-10">
-        <div className="mx-auto max-w-3xl space-y-5 text-center">
-          <Badge
-            className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
-            asChild
-          >
-            <p className="px-2 py-1 sm:px-3">{eyebrow}</p>
-          </Badge>
-          <h1 className="font-heading text-4xl font-semibold md:text-5xl">
-            {title}
-          </h1>
-          <p className="mx-auto max-w-prose text-muted-foreground md:text-lg">
-            {lede}
-          </p>
-          <p className="text-sm text-muted-foreground">
+      <section className="relative isolate overflow-hidden border-b px-4 pt-16 pb-14 md:pt-24">
+        <SectionHeader
+          as="h1"
+          className="mx-auto max-w-7xl"
+          eyebrow={eyebrow}
+          title={title}
+          lede={lede}
+        >
+          <p className="font-mono text-xs text-muted-foreground">
             Last updated {updated} · {readTime} read
           </p>
-        </div>
+        </SectionHeader>
       </section>
 
-      <section className="px-4 py-10">
+      <section className="px-4 py-16">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[16rem_minmax(0,1fr)]">
           <TableOfContents
             items={sections.map(({ id, title }) => ({ id, title }))}

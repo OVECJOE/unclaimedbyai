@@ -395,7 +395,7 @@ export default function LiveSearch({
             as they arrive.
           </p>
         ) : null}
-        {header.generation.status === "failed" ? (
+        {header.generation.status === "failed" && !noNamesYet ? (
           <p className="text-sm text-destructive" role="alert">
             {header.generation.error ??
               "Name generation failed. Try a new search from "}
@@ -432,6 +432,34 @@ export default function LiveSearch({
               className="h-full bg-primary transition-all duration-700"
               style={{ width: `${Math.max(5, header.generation.progress)}%` }}
             />
+          </div>
+        </div>
+      ) : header.generation.status === "failed" && noNamesYet ? (
+        <div
+          role="alert"
+          className="flex flex-col gap-6 border border-destructive/40 p-6 sm:p-8 md:flex-row md:items-center md:justify-between"
+        >
+          <div className="max-w-xl space-y-2">
+            <p className="font-heading text-2xl font-semibold">
+              We couldn&apos;t come up with names this time
+            </p>
+            <p className="text-muted-foreground">
+              Something went wrong on our side, so no names were made or
+              checked. Try your idea again, or check a name you already have
+              in mind.
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-col gap-2 sm:flex-row md:flex-col">
+            <Button asChild>
+              <Link
+                href={`${homeHref}?mode=idea&brief=${encodeURIComponent(header.query)}`}
+              >
+                Try again
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href={`${homeHref}?mode=name`}>Check a name</Link>
+            </Button>
           </div>
         </div>
       ) : (

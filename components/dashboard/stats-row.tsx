@@ -96,7 +96,7 @@ export default function StatsRow({ stats }: { stats: MeStats }) {
         label="Checks"
         value={String(stats.checks)}
         note="Name checks run this month."
-        href="/dashboard/history"
+        href="/dashboard/playground/watchlist?tab=browse"
       />
       <StatCard
         label="Credits"

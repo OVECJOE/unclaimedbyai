@@ -1,3 +1,4 @@
+import DashboardPageHeader from "@/components/dashboard/page-header"
 import {
   ProfilePhoto,
   PreferencesForm,
@@ -62,14 +63,10 @@ export default async function AccountPage({
     <>
       <section className="px-4 py-10">
         <div className="mx-auto max-w-7xl space-y-5">
-          <div className="space-y-2">
-            <h1 className="font-heading text-4xl font-semibold md:text-5xl">
-              Account
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Manage your account settings and preferences.
-            </p>
-          </div>
+          <DashboardPageHeader
+            title="Account"
+            description="Manage your account settings and preferences."
+          />
           <Tabs defaultValue={active} className="w-full min-w-0">
             {/* The tab row scrolls sideways on narrow screens instead of
                 clipping. justify-start matters: the list defaults to

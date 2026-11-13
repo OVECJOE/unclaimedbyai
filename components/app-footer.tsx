@@ -7,148 +7,129 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import Link from "next/link"
 import Logo from "@/components/app/logo"
 
+const COLUMNS = [
+  {
+    title: "Product",
+    links: [
+      { href: "/", label: "Name checker" },
+      { href: "/product", label: "How checks work" },
+      { href: "/pricing", label: "Pricing" },
+      { href: "/product#faq", label: "FAQ" },
+    ],
+  },
+  {
+    title: "Build",
+    links: [
+      { href: "/api/docs", label: "API docs" },
+      { href: "/api/docs#quickstarts", label: "Quickstarts" },
+      { href: "/llms.txt", label: "llms.txt" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { href: "/about", label: "About" },
+      { href: "/blog", label: "Blog" },
+      { href: "/contact", label: "Contact" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { href: "/privacy", label: "Privacy" },
+      { href: "/terms", label: "Terms" },
+    ],
+  },
+]
+
+const SOCIALS = [
+  {
+    href: "https://x.com/UnclaimedByAI",
+    label: "Unclaimed by AI on X",
+    icon: NewTwitterIcon,
+  },
+  {
+    href: "https://instagram.com/unclaimedbyai",
+    label: "Unclaimed by AI on Instagram",
+    icon: InstagramIcon,
+  },
+  {
+    href: "https://linkedin.com/in/victorohachor",
+    label: "Victor Ohachor on LinkedIn",
+    icon: LinkedinIcon,
+  },
+]
+
 export default function AppFooter() {
   return (
-    // mt-10 keeps page content clear of the gray block; the flex
-    // column layouts above do not collapse margins, so the gap holds
-    // on every page that uses this footer.
-    <footer className="mt-10 bg-secondary/70 p-4 pt-10 dark:bg-secondary/40">
-      <div className="container mx-auto max-w-7xl space-y-8">
-        <div className="flex flex-col justify-between gap-8 sm:flex-row">
-          <div className="space-y-3">
-            <div>
-              <Logo className="h-6 w-auto sm:h-8 md:h-10" />
-            </div>
-            <p className="font-heading text-2xl font-light sm:text-lg">
-              Claim it before someone&apos;s
-              <br />
-              chatbot already has.
+    // mt-10 keeps page content clear of the footer; the flex column
+    // layouts above do not collapse margins, so the gap holds on every
+    // page that uses this footer.
+    <footer className="mt-10 overflow-hidden border-t bg-sidebar">
+      <div className="mx-auto max-w-7xl px-4 pt-14 pb-6">
+        <div className="grid gap-12 lg:grid-cols-[1.1fr_2fr]">
+          <div className="space-y-5">
+            <Logo className="h-8 w-auto" />
+            <p className="max-w-xs font-heading text-3xl leading-tight">
+              Claim it before someone&apos;s{" "}
+              <span className="text-primary">chatbot already has.</span>
             </p>
-          </div>
-          <div className="grid w-full flex-1 grid-cols-3 place-content-between gap-4">
-            <div className="space-y-3">
-              <h3 className="text-xs font-bold uppercase">Product</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link
-                    href="/product#faq"
-                    className="transition-colors hover:text-primary"
-                  >
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/#how-it-works"
-                    className="transition-colors hover:text-primary"
-                  >
-                    How it works
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/pricing"
-                    className="transition-colors hover:text-primary"
-                  >
-                    Pricing
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div className="space-y-3">
-              <h3 className="text-xs font-bold uppercase">Company</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link
-                    href="/blog"
-                    className="transition-colors hover:text-primary"
-                  >
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/api/docs"
-                    className="transition-colors hover:text-primary"
-                  >
-                    API docs
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/about"
-                    className="transition-colors hover:text-primary"
-                  >
-                    About us
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/contact"
-                    className="transition-colors hover:text-primary"
-                  >
-                    Contact
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div className="space-y-3">
-              <h3 className="text-xs font-bold uppercase">Legal</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link
-                    href="/privacy"
-                    className="transition-colors hover:text-primary"
-                  >
-                    Privacy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/terms"
-                    className="transition-colors hover:text-primary"
-                  >
-                    Terms
-                  </Link>
-                </li>
-              </ul>
+            <div className="-ms-3 flex items-center">
+              {SOCIALS.map((social) => (
+                <Link
+                  key={social.href}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted-foreground transition-colors hover:text-primary"
+                >
+                  <HugeiconsIcon icon={social.icon} size="1.25rem" />
+                </Link>
+              ))}
             </div>
           </div>
+
+          <nav
+            aria-label="Footer"
+            className="grid grid-cols-2 gap-8 sm:grid-cols-4"
+          >
+            {COLUMNS.map((column) => (
+              <div key={column.title} className="space-y-4">
+                <h3 className="font-mono text-[0.6875rem] font-semibold tracking-[0.14em] text-primary uppercase">
+                  {column.title}
+                </h3>
+                <ul className="space-y-2.5 text-sm">
+                  {column.links.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground italic sm:text-sm">
+
+        {/* The wordmark, set huge and hollow: a signature, not a link. */}
+        <p
+          aria-hidden
+          className="text-outline mt-14 font-heading text-[19vw] leading-[0.8] tracking-tight select-none lg:text-[13.5rem]"
+        >
+          unclaimed
+        </p>
+
+        <div className="mt-6 flex flex-col gap-2 border-t pt-6 font-mono text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <span>
             &copy; {new Date().getFullYear()} Unclaimed by AI. All rights
             reserved.
           </span>
-          <div className="inline-flex items-center gap-1">
-            <Link
-              href="https://x.com/UnclaimedByAI"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Unclaimed by AI on X"
-              className="inline-flex min-h-11 min-w-11 items-center justify-center transition-colors hover:text-primary"
-            >
-              <HugeiconsIcon icon={NewTwitterIcon} size="1.5rem" />
-            </Link>
-            <Link
-              href="https://instagram.com/unclaimedbyai"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Unclaimed by AI on Instagram"
-              className="inline-flex min-h-11 min-w-11 items-center justify-center transition-colors hover:text-primary"
-            >
-              <HugeiconsIcon icon={InstagramIcon} size="1.5rem" />
-            </Link>
-            <Link
-              href="https://linkedin.com/in/victorohachor"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Victor Ohachor on LinkedIn"
-              className="inline-flex min-h-11 min-w-11 items-center justify-center transition-colors hover:text-primary"
-            >
-              <HugeiconsIcon icon={LinkedinIcon} size="1.5rem" />
-            </Link>
-          </div>
+          <span>Live checks. Honest labels. Your name, your registrar.</span>
         </div>
       </div>
     </footer>

@@ -1,3 +1,4 @@
+import DashboardPageHeader from "@/components/dashboard/page-header"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
 import { headers } from "next/headers"
@@ -34,17 +35,17 @@ export default async function BillingLayout({
     <>
       <section className="px-4 py-10">
         <div className="mx-auto max-w-7xl space-y-5">
-          <div className="space-y-2">
-            <h1 className="font-heading text-4xl font-semibold md:text-5xl">
-              Billing
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Total spent:{" "}
-              <span className="font-mono font-semibold text-primary">
-                ${totalSpent.toFixed(2)}
-              </span>
-            </p>
-          </div>
+          <DashboardPageHeader
+            title="Billing"
+            description={
+              <>
+                Total spent:{" "}
+                <span className="font-mono font-semibold text-primary">
+                  ${totalSpent.toFixed(2)}
+                </span>
+              </>
+            }
+          />
           <Tabs defaultValue={activeTab}>
             <div>
               <TabsList variant="line" className="w-full border-b">

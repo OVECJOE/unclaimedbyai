@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next"
 import { listPublishedForSitemap, listPublishedTags } from "@/lib/blog/store"
-import { US_STATES } from "@/lib/states"
 import { SITE_URL } from "@/lib/site"
 import { nameToSlug } from "@/lib/utils"
 
@@ -61,19 +60,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.8,
     },
-    // The state cluster: the hub plus one static page per state.
-    {
-      url: `${SITE_URL}/business-name-availability`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    ...US_STATES.map((state) => ({
-      url: `${SITE_URL}/business-name-availability/${state.slug}`,
-      lastModified,
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
-    })),
     {
       url: `${SITE_URL}/about`,
       lastModified,

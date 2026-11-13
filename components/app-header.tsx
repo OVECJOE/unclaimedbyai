@@ -7,6 +7,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { Menu09Icon } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
 import SoundToggle from "@/components/sound/sound-toggle"
+import FocusPrompterButton from "@/components/landing/focus-prompter-button"
 import {
   Sheet,
   SheetContent,
@@ -17,10 +18,11 @@ import {
 import { cn } from "@/lib/utils"
 
 const navLinks = [
-  { href: "/product", label: "Product" },
+  { href: "/product", label: "How it works" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/api/docs", label: "API" },
   { href: "/blog", label: "Blog" },
-  { href: "/api/docs", label: "Docs" },
+  { href: "/about", label: "About" },
 ]
 
 export default function AppHeader() {
@@ -33,7 +35,7 @@ export default function AppHeader() {
 
         <nav
           aria-label="Primary"
-          className="hidden items-center gap-6 text-sm md:flex"
+          className="hidden items-center gap-7 text-sm md:flex"
         >
           {navLinks.map((link) => {
             const active = pathname === link.href
@@ -56,11 +58,12 @@ export default function AppHeader() {
           })}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-2 md:flex">
           <SoundToggle />
-          <Button asChild>
+          <Button asChild variant="ghost">
             <Link href="/dashboard">Dashboard</Link>
           </Button>
+          <FocusPrompterButton size="default">Check a name</FocusPrompterButton>
         </div>
 
         <Sheet>
@@ -101,7 +104,12 @@ export default function AppHeader() {
                 )
               })}
               <SheetClose asChild>
-                <Button className="mt-4" asChild>
+                <FocusPrompterButton size="default" className="mt-4">
+                  Check a name, free
+                </FocusPrompterButton>
+              </SheetClose>
+              <SheetClose asChild>
+                <Button variant="outline" asChild>
                   <Link href="/dashboard">Dashboard</Link>
                 </Button>
               </SheetClose>

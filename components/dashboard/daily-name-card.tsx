@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { getPublicSearchStrip, type PublicSearchStripItem } from "@/lib/api"
 import { TierBadge } from "@/components/tier-badge"
+import { nameToSlug } from "@/lib/utils"
 
 function hashSeed(seed: string): number {
   let h = 2166136261
@@ -53,16 +54,32 @@ export default function DailyNameCard({ userKey }: { userKey: string }) {
     }
   }, [])
 
-  if (items === null || !picked) return null
+  if (items === null) {
+    return <div className="h-36 animate-pulse border bg-muted/30" />
+  }
 
-  return (
-    <div className="border p-5">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
+  if (!picked) {
+    return (
+      <div className="border p-5">
         <p className="text-[0.625rem] font-semibold tracking-widest text-primary uppercase">
           Daily name
         </p>
-        <p className="text-xs text-muted-foreground">{today}</p>
+        <p className="mt-2 font-heading text-xl font-semibold">
+          No daily name yet
+        </p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Each day we feature one strong name from people&apos;s public
+          searches. Check back tomorrow.
+        </p>
       </div>
+    )
+  }
+
+  return (
+    <div className="border p-5">
+      <p className="text-[0.625rem] font-semibold tracking-widest text-primary uppercase">
+        Daily name
+      </p>
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <p className="font-heading text-2xl font-semibold">{picked.top_name}</p>
         <TierBadge tier={picked.top_tier} />
@@ -71,14 +88,20 @@ export default function DailyNameCard({ userKey }: { userKey: string }) {
         </span>
       </div>
       <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-        From a brief: {picked.query}
+        Someone was looking for: {picked.query}
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <Link href="/check" className="text-sm text-primary underline">
-          Check any name for free
+        <Link
+          href={`/searches/${nameToSlug(picked.top_name)}`}
+          className="text-sm text-primary underline"
+        >
+          See the full report
         </Link>
-        <Link href="/" className="text-sm text-muted-foreground underline">
-          Run your own search
+        <Link
+          href="/dashboard?mode=name"
+          className="text-sm text-muted-foreground underline"
+        >
+          Check your own name
         </Link>
       </div>
     </div>

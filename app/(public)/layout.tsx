@@ -15,7 +15,7 @@ export default function PublicLayout({
         Skip to content
       </a>
       <AppHeader />
-      <main id="main-content" className="flex-1">
+      <main id="main-content" className="flex-1 overflow-x-clip">
         {children}
       </main>
       <AppFooter />

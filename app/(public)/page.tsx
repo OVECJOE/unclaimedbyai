@@ -1,34 +1,28 @@
-import Hero from "@/components/public/hero"
-import StatementScatter from "@/components/public/statement-scatter"
-import BlogCarousel from "@/components/public/blog-carousel"
-import PublicSearchesStrip from "@/components/public/public-searches-strip"
-import PressureSection from "@/components/public/pressure-section"
-import GenerationSection from "@/components/public/generation-section"
-import ChecksReceipts from "@/components/public/checks-receipts"
-import PricingBand from "@/components/public/pricing-band"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarGroup,
-  AvatarGroupCount,
-  AvatarImage,
-} from "@/components/ui/avatar"
-import { dicebearAvatar } from "@/lib/avatar"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import type { Metadata } from "next"
+import Hero from "@/components/landing/hero"
+import VerdictSpecimen from "@/components/landing/verdict-specimen"
+import LandGrabs from "@/components/landing/land-grabs"
+import Suite from "@/components/landing/suite"
+import LiveFeed from "@/components/landing/live-feed"
+import PricingTeaser from "@/components/landing/pricing-teaser"
+import FaqTeaser, { LANDING_FAQS } from "@/components/landing/faq-teaser"
+import FinalCta from "@/components/landing/final-cta"
+import BlogCarousel from "@/components/public/blog-carousel"
+import CompareTable from "@/components/public/compare-table"
+import { SectionHeader } from "@/components/public/section-header"
+import GsapReveal from "@/components/about/gsap-reveal"
 import { JsonLd } from "@/components/app/json-ld"
 import { homeJsonLd, pageMetadata, SITE_URL } from "@/lib/site"
-import { FAQS } from "@/app/(public)/product/constants"
 import { getMeServer } from "@/lib/api-server"
+import { loadRealSpecimens } from "@/lib/landing-reports"
 
-const AUDIENCE_EXAMPLE = ["Founders", "Creators", "Makers", "Marketers"]
-
+// The schema mirrors what the page shows: the six landing questions,
+// not the product page's full set.
 const faqJsonLdData = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "@id": `${SITE_URL}/#faq`,
-  mainEntity: FAQS.map((faq) => ({
+  mainEntity: LANDING_FAQS.map((faq) => ({
     "@type": "Question",
     name: faq.question,
     acceptedAnswer: {
@@ -36,37 +30,6 @@ const faqJsonLdData = {
       text: faq.answer,
     },
   })),
-}
-
-const howToJsonLdData = {
-  "@context": "https://schema.org",
-  "@type": "HowTo",
-  "@id": `${SITE_URL}/#how-to`,
-  name: "Check a name before you build on it",
-  description:
-    "Start with a name you already have, or generate one from a brief. Either way, screen every candidate against live domain registration, real social handles, and AI associations, and score it before you register.",
-  step: [
-    {
-      "@type": "HowToStep",
-      name: "Generate",
-      text: "Describe what you are building, and four naming studios argue from different angles while an editor keeps the strongest, so the report fills with scored candidates.",
-    },
-    {
-      "@type": "HowToStep",
-      name: "Check",
-      text: "Every candidate arrives checked against live domain registration, real social handles, and what the AI models already think the name means, and every check comes with receipts.",
-    },
-    {
-      "@type": "HowToStep",
-      name: "Claim",
-      text: "Buy the domain at a registrar in your own name, after the tool tells you the name is open, and finish the registration yourself.",
-    },
-    {
-      "@type": "HowToStep",
-      name: "Watch",
-      text: "Star the name and the pro plan rechecks it every few hours, emailing you the morning something gets claimed.",
-    },
-  ],
 }
 
 export const metadata: Metadata = pageMetadata({
@@ -77,144 +40,64 @@ export const metadata: Metadata = pageMetadata({
 })
 
 export default async function Page() {
-  // The real number when stats answer, nothing when they don't: a
-  // stale constant worse than no counter at all.
-  let communityCount: number | null = null
-  try {
-    const base = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8007"
-    const res = await fetch(`${base}/api/v1/stats`, {
-      next: { revalidate: 3600 },
-    })
-    if (res.ok) {
-      const stats = (await res.json()) as { users?: number }
-      if (typeof stats.users === "number" && stats.users > 0) {
-        communityCount = stats.users
-      }
-    }
-  } catch {
-    communityCount = null
-  }
-  const user = await getMeServer().catch(() => null)
+  const [user, specimens] = await Promise.all([
+    getMeServer().catch(() => null),
+    loadRealSpecimens(4),
+  ])
+  const signedIn = Boolean(user)
+
+  // Real names from recent checks, hidden in the letter fields.
+  const fieldNames = specimens.flatMap((specimen) => [
+    specimen.name,
+    ...(specimen.shortlist ?? []).map((item) => item.name),
+  ])
+
   return (
     <>
       <JsonLd data={homeJsonLd} />
       <JsonLd data={faqJsonLdData} />
-      <JsonLd data={howToJsonLdData} />
 
-      {/* Hero: copy and prompter on the left, the Haunted Shortlist on the right */}
-      <Hero signedIn={Boolean(user)} />
+      {/* Order follows the visitor's questions, not a template: what
+          is this (hero, with a real result), why does it matter, what
+          exactly do I get, what else is there, is it real, how does it
+          compare, what does it cost. */}
+      <Hero signedIn={signedIn} names={fieldNames} />
+      <LandGrabs />
 
-      <PublicSearchesStrip />
-
-      {/* The problem, in three public numbers */}
-      <PressureSection />
-
-      {/* The story, in photographs: names get haunted */}
-      <StatementScatter />
-
-      {/* The three checks, as receipts: the pitch, before generation */}
-      <ChecksReceipts />
-
-      {/* No name yet? Ideas, generated — then checked the same way */}
-      <GenerationSection />
-
-      {/* How it works */}
-      <section id="how-it-works" className="scroll-mt-20 border-b px-4 py-10">
-        <div className="mx-auto max-w-7xl space-y-10 sm:text-center">
-          <div className="space-y-1">
-            <h2 className="font-heading text-2xl font-semibold">
-              How it works
-            </h2>
-            <p className="text-muted-foreground md:text-lg">
-              Four steps from a name, or a blank page, to one you can actually
-              own.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            <article className="space-y-2 border border-primary/20 bg-sidebar/50 px-3 py-5 text-start">
-              <p className="font-heading text-xs font-bold text-primary uppercase">
-                Step 1
-              </p>
-              <div className="space-y-1">
-                <h3 className="font-heading text-xl font-medium">Generate</h3>
-                <p className="text-sm text-muted-foreground">
-                  Describe what you&apos;re building. Four naming studios argue
-                  from different angles, an editor keeps the strongest, and your
-                  report fills with scored candidates.
-                </p>
-              </div>
-            </article>
-            <article className="space-y-2 border border-primary/20 bg-sidebar/60 px-3 py-5 text-start">
-              <p className="font-heading text-xs font-bold text-primary uppercase">
-                Step 2
-              </p>
-              <div className="space-y-1">
-                <h3 className="font-heading text-xl font-medium">Check</h3>
-                <p className="text-sm text-muted-foreground">
-                  Every candidate arrives checked: live .com registration, the
-                  major social handles, and what ChatGPT and Claude already
-                  think the name means. Re-check any name with one click.
-                </p>
-              </div>
-            </article>
-            <article className="space-y-2 border border-primary/20 bg-sidebar/70 px-3 py-5 text-start">
-              <p className="font-heading text-xs font-bold text-primary uppercase">
-                Step 3
-              </p>
-              <div className="space-y-1">
-                <h3 className="font-heading text-xl font-medium">Claim it</h3>
-                <p className="text-sm text-muted-foreground">
-                  Buy the domain at a registrar, in your own name. We tell you
-                  it&apos;s open; the registration is yours.
-                </p>
-              </div>
-            </article>
-            <article className="space-y-2 border border-primary/20 bg-sidebar/80 px-3 py-5 text-start">
-              <p className="font-heading text-xs font-bold text-primary uppercase">
-                Step 4
-              </p>
-              <div className="space-y-1">
-                <h3 className="font-heading text-xl font-medium">Watch it</h3>
-                <p className="text-sm text-muted-foreground">
-                  Star the name and Pro rechecks it every few hours, emailing
-                  you the morning something gets claimed.
-                </p>
-              </div>
-            </article>
-          </div>
+      <section className="border-b px-4 py-20 md:py-28">
+        <div className="mx-auto max-w-7xl space-y-12">
+          <SectionHeader
+            eyebrow="One name, three answers"
+            title="Three answers for every name."
+            lede="Is the website address free? Are the social media usernames free? And what do AI chatbots already say the name means? Click through a few names, then try your own."
+          />
+          <GsapReveal y={32}>
+            <VerdictSpecimen specimens={specimens} />
+          </GsapReveal>
         </div>
       </section>
 
-      {/* Most-boosted writing */}
+      <Suite latest={specimens[0] ?? null} />
+      <LiveFeed />
+
+      <section className="border-b px-4 py-20 md:py-28">
+        <div className="mx-auto max-w-7xl space-y-12">
+          <SectionHeader
+            eyebrow="The honest comparison"
+            title="Close"
+            accent="the other tabs."
+            lede="A name generator, a domain search and a lawyer's trademark search each cover a piece. Here's what they leave out, next to a single check."
+          />
+          <GsapReveal y={24}>
+            <CompareTable />
+          </GsapReveal>
+        </div>
+      </section>
+
+      <PricingTeaser signedIn={signedIn} />
       <BlogCarousel />
-
-      {/* What it costs */}
-      <PricingBand />
-
-      {/* Audience Stats CTA */}
-      <section className="mx-auto max-w-7xl space-y-10 px-4 py-10 sm:text-center">
-        <div className="space-y-4">
-          <p className="text-xl">
-            Built for founders, creators, and makers launching in the age of AI.
-          </p>
-          <AvatarGroup className="flex sm:justify-center">
-            {AUDIENCE_EXAMPLE.map((audience) => (
-              <Avatar size="lg" key={audience}>
-                <AvatarImage src={dicebearAvatar(audience)} alt="" />
-                <AvatarFallback>{audience.charAt(0)}</AvatarFallback>
-              </Avatar>
-            ))}
-            {communityCount !== null ? (
-              <AvatarGroupCount>+{communityCount}</AvatarGroupCount>
-            ) : null}
-          </AvatarGroup>
-        </div>
-        <Button size="lg" className="h-auto px-8 py-5 text-lg" asChild>
-          <Link href={user ? "/dashboard" : "/auth"}>
-            Claim your first shortlist
-          </Link>
-        </Button>
-      </section>
+      <FaqTeaser />
+      <FinalCta signedIn={signedIn} names={fieldNames} />
     </>
   )
 }

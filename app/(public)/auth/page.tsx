@@ -8,6 +8,7 @@ import MagicLinkForm from "@/components/public/magic-link-form"
 import { MagicLinkTimer } from "@/components/public/magic-link-timer"
 import PlaySound from "@/components/sound/play-sound"
 import TrackOnce from "@/components/app/track"
+import LetterField from "@/components/fields/letter-field"
 import { sendMagicLink } from "./actions"
 import type { Metadata } from "next"
 
@@ -29,6 +30,24 @@ async function planTitle(slug: string): Promise<string | null> {
     return null
   }
 }
+
+const PERKS = [
+  {
+    index: "01",
+    title: "Your history, saved",
+    body: "Every check and shortlist you run, newest first, ready to re-check.",
+  },
+  {
+    index: "02",
+    title: "Generation and the studio",
+    body: "Four naming studios for your brief, and a sandbox of researched ideas.",
+  },
+  {
+    index: "03",
+    title: "A watchlist for the names you love",
+    body: "Pro rechecks them every few hours and emails you when something changes.",
+  },
+]
 
 const AUTH_ERRORS: Record<string, string> = {
   link: "That sign-in link expired or was already used. Send a new one below.",
@@ -109,36 +128,76 @@ export default async function AuthPage({
   }
 
   return (
-    <section className="space-y-5 px-4 py-10 sm:text-center md:mt-16">
-      <div className="space-y-1">
-        <h1 className="font-heading text-4xl font-bold sm:text-5xl">
-          Continue to your dashboard
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Sign in or create an account — it&apos;s the same either way.
-        </p>
-        {picked ? (
-          <p className="text-sm font-medium text-primary">
-            You picked the {picked} pack. Sign in and it will be waiting on the
-            billing page.
-          </p>
-        ) : null}
-      </div>
+    <section className="relative isolate overflow-hidden px-4 py-14 md:py-24">
+      <LetterField quiet fade="both" />
+      <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-20">
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <p
+              data-field-avoid
+              className="w-fit font-mono text-[0.6875rem] font-semibold tracking-[0.14em] text-primary uppercase"
+            >
+              Sign in or sign up
+            </p>
+            <h1
+              data-field-avoid
+              className="font-heading text-5xl leading-[1.02] tracking-tight text-balance md:text-6xl">
+              Your names are{" "}
+              <span className="text-primary">waiting.</span>
+            </h1>
+            <p
+              data-field-avoid
+              className="max-w-md text-lg text-muted-foreground"
+            >
+              One account for everything. Signing in and creating an account
+              are the same step.
+            </p>
+          </div>
+          <ul data-field-avoid className="hidden divide-y border-y lg:block">
+            {PERKS.map((perk) => (
+              <li key={perk.title} className="flex gap-4 py-4">
+                <span className="font-mono text-xs text-primary">
+                  {perk.index}
+                </span>
+                <div>
+                  <p className="font-medium">{perk.title}</p>
+                  <p className="text-sm text-muted-foreground">{perk.body}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-      {errorMessage ? (
-        <p
-          role="alert"
-          className="mx-auto max-w-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        <div
+          data-field-avoid
+          className="space-y-5 border bg-background p-6 sm:p-8"
         >
-          {errorMessage}
-        </p>
-      ) : null}
+          <p className="font-heading text-3xl">Continue to your dashboard</p>
+          {picked ? (
+            <p className="border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-primary">
+              You picked the {picked} pack. Sign in and it will be waiting on
+              the billing page.
+            </p>
+          ) : null}
 
-      <GoogleButton plan={plan} next={nextPath} />
+          {errorMessage ? (
+            <p
+              role="alert"
+              className="border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+            >
+              {errorMessage}
+            </p>
+          ) : null}
 
-      <TextDivider className="mx-auto max-w-lg" />
+          <div className="[&>a]:h-12 [&>a]:w-full">
+            <GoogleButton plan={plan} next={nextPath} />
+          </div>
 
-      <MagicLinkForm plan={plan} next={nextPath} />
+          <TextDivider />
+
+          <MagicLinkForm plan={plan} next={nextPath} />
+        </div>
+      </div>
     </section>
   )
 }

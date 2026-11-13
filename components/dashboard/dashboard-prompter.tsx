@@ -1,18 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import Prompter, { type PrompterMode } from "@/components/app/prompter"
 import {
   createSandbox,
@@ -28,8 +18,10 @@ import { nameToSlug } from "@/lib/utils"
  * The prompter inside the dashboard. Idea runs the brief through the
  * naming pipeline and lands on the live report — its promise is
  * names. Studio builds a sandbox of business ideas shaped by the
- * steer. A name leaves the dashboard, so it asks first rather than
- * yanking the person out of work in progress. Studio mode shows an
+ * steer. A name goes straight to its live check page; everything on
+ * the dashboard is saved, so there is nothing to confirm. A deep link
+ * (?brief=…&mode=…) prefills the box, which is how a failed search
+ * offers its retry. Studio mode shows an
  * onboarding nudge when the account steer is still empty, because a
  * new signup's ideas are only as good as the answers it gets.
  */
@@ -41,7 +33,34 @@ export default function DashboardPrompter({
   const router = useRouter()
   const [pending, setPending] = useState(false)
   const [lastMode, setLastMode] = useState<PrompterMode>("idea")
-  const [confirmName, setConfirmName] = useState<string | null>(null)
+  const [prefill, setPrefill] = useState<{
+    brief: string
+    mode: PrompterMode
+  } | null>(null)
+
+  // Read once on mount from window, then take the params back out of
+  // the address bar so a refresh doesn't re-seed the box.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const brief = params.get("brief")
+    const rawMode = params.get("mode")
+    if (brief === null && rawMode === null) return
+    const mode: PrompterMode =
+      rawMode === "name" || rawMode === "studio" ? rawMode : "idea"
+    params.delete("brief")
+    params.delete("mode")
+    const query = params.toString()
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}${query ? `?${query}` : ""}`
+    )
+    const id = window.setTimeout(
+      () => setPrefill({ brief: (brief ?? "").slice(0, 400), mode }),
+      0
+    )
+    return () => window.clearTimeout(id)
+  }, [])
 
   async function runStudio(
     value: string,
@@ -88,21 +107,14 @@ export default function DashboardPrompter({
     }
   }
 
-  function submitNameOutside(value: string) {
-    setConfirmName(value)
-  }
-
-  async function leaveForCheck() {
-    const value = confirmName
-    setConfirmName(null)
-    if (!value) return
+  async function runNameCheck(value: string) {
     setPending(true)
     setLastMode("name")
     try {
       const result = await directCheck({ name: value })
       // The check page is the public surface for one name, and it
       // picks the search up by its id when one already exists.
-      window.location.href = `/check/${nameToSlug(value)}?s=${result.search_id}`
+      router.push(`/check/${nameToSlug(value)}?s=${result.search_id}`)
     } catch (error) {
       setPending(false)
       toastApiError(error, "Could not start that check.")
@@ -112,9 +124,12 @@ export default function DashboardPrompter({
   return (
     <div className="space-y-3">
       <Prompter
+        key={prefill ? "prefilled" : "prompter"}
+        defaultValue={prefill?.brief ?? ""}
+        defaultMode={prefill?.mode ?? "idea"}
         onSubmit={(value, mode, signals) =>
           mode === "name"
-            ? submitNameOutside(value)
+            ? void runNameCheck(value)
             : void onSubmit(value, mode, signals)
         }
         pending={pending}
@@ -130,7 +145,7 @@ export default function DashboardPrompter({
       ) : null}
 
       {hasSignals ? null : (
-        <div className="mx-auto flex max-w-prose flex-wrap items-center justify-between gap-3 border p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border border-dashed p-4">
           <p className="text-sm text-muted-foreground">
             Your account steer is empty, so generated ideas run on the brief
             alone. Eight answers make them sharper.
@@ -143,32 +158,6 @@ export default function DashboardPrompter({
           </Link>
         </div>
       )}
-
-      <AlertDialog
-        open={confirmName !== null}
-        onOpenChange={(open) => {
-          if (!open) setConfirmName(null)
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              This will take you out of the dashboard. Continue?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              The name check lives on its own page, with domains, handles, and
-              the AI associations for {confirmName}. Your work here stays where
-              it is.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Stay here</AlertDialogCancel>
-            <AlertDialogAction onClick={() => void leaveForCheck()}>
-              Check the name
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }

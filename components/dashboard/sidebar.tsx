@@ -169,6 +169,27 @@ export default function DashboardSidebar({ user }: { user?: ApiUser | null }) {
         ))}
       </nav>
 
+      {user ? (
+        <Link
+          href="/dashboard/billing"
+          className="mx-4 mb-4 block border p-3 transition-colors hover:border-primary/50"
+        >
+          <p className="text-[0.625rem] font-semibold tracking-widest text-muted-foreground uppercase">
+            Your balance
+          </p>
+          <div className="mt-2 space-y-1 text-sm">
+            <p className="flex items-baseline justify-between gap-2">
+              <span className="text-muted-foreground">Credits</span>
+              <span className="font-semibold">{user.credits}</span>
+            </p>
+            <p className="flex items-baseline justify-between gap-2">
+              <span className="text-muted-foreground">Searches left</span>
+              <span className="font-semibold">{user.searches_left}</span>
+            </p>
+          </div>
+        </Link>
+      ) : null}
+
       <div className="border-t px-4 py-4">
         <div className="mb-2 flex items-center gap-3">
           <UserAvatar user={user} />

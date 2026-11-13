@@ -38,7 +38,7 @@ export default function MagicLinkForm({
 
   return (
     <form
-      className="mt-16 space-y-4 sm:mx-auto sm:max-w-lg"
+      className="space-y-4"
       action={async (formData) => {
         // Wait for an in-flight solve so a fast submit does not fire
         // before the widget has delivered a token. The token is left in

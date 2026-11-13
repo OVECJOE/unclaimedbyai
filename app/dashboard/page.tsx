@@ -7,9 +7,12 @@ import ActivityChart from "@/components/dashboard/activity-chart"
 import RecentSandboxes from "@/components/dashboard/recent-sandboxes"
 import DailyNameCard from "@/components/dashboard/daily-name-card"
 import OnboardingChecklist from "@/components/dashboard/onboarding-checklist"
+import RecentChecks from "@/components/dashboard/recent-checks"
+import DashboardPageHeader from "@/components/dashboard/page-header"
 import { getMeServer, apiServer } from "@/lib/api-server"
 import {
   ApiError,
+  type CheckedList,
   type MeStats,
   type PlanInfo,
   type Sandbox,
@@ -40,12 +43,12 @@ function greeting(name: string | null, email: string): string {
 }
 
 /**
- * The dashboard home: who you are, what the month looks like, and
- * where you were working. Server-rendered in one pass, every fetch
- * fired together, so the numbers paint with the first byte.
+ * The dashboard home: the box to check a name or an idea, the names
+ * you checked most recently, your activity, and where you left off.
+ * Every fetch fires together so the page paints in one pass.
  */
 export default async function DashboardHomePage() {
-  const [user, stats, plan, sandboxes, signals] = await Promise.all([
+  const [user, stats, plan, sandboxes, signals, checked] = await Promise.all([
     getMeServer().catch((error: unknown) => {
       if (error instanceof ApiError && error.status === 401) return null
       throw error
@@ -58,6 +61,9 @@ export default async function DashboardHomePage() {
     apiServer<SignalProfile>("/api/v1/me/signals").catch(
       (): SignalProfile | null => null
     ),
+    apiServer<CheckedList>("/api/v1/names/checked?page_size=6").catch(
+      (): CheckedList | null => null
+    ),
   ])
   if (!user) redirect("/auth")
 
@@ -69,30 +75,27 @@ export default async function DashboardHomePage() {
   return (
     <section className="px-4 py-10">
       <div className="mx-auto max-w-7xl space-y-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <h1 className="font-heading text-4xl font-semibold md:text-5xl">
-                Hello, {greeting(user.full_name, user.email)}
-              </h1>
-              <span className="border px-2 py-0.5 text-[0.625rem] font-semibold tracking-widest text-primary uppercase">
+        <DashboardPageHeader
+          title={
+            <span className="inline-flex flex-wrap items-center gap-3">
+              Hello, {greeting(user.full_name, user.email)}
+              <span className="border px-2 py-0.5 font-sans text-[0.625rem] font-semibold tracking-widest text-primary uppercase">
                 {isPro ? "Pro" : "Free"}
               </span>
-            </div>
-            <p className="max-w-prose text-sm text-muted-foreground md:text-base">
-              Your month in ideas and names. Everything here updates as you
-              work.
-            </p>
-          </div>
-          {!isPro ? (
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <p className="max-w-56 text-sm text-muted-foreground">
-                Pro removes the sandbox cap and adds the watchlist.
-              </p>
-              <UpgradeButton />
-            </div>
-          ) : null}
-        </div>
+            </span>
+          }
+          description="Check a name or describe an idea. Everything you've done so far is below."
+          actions={
+            !isPro ? (
+              <>
+                <p className="max-w-56 text-sm text-muted-foreground">
+                  Pro removes the sandbox cap and adds the watchlist.
+                </p>
+                <UpgradeButton />
+              </>
+            ) : null
+          }
+        />
 
         {stats ? <StatsRow stats={stats} /> : null}
 
@@ -100,20 +103,32 @@ export default async function DashboardHomePage() {
           searchesUsed={stats?.searches_used ?? 0}
           sandboxesCount={sandboxes?.items?.length ?? 0}
         />
-        <DailyNameCard userKey={user.id ? String(user.id) : user.email} />
 
-        {/* The prompter leads and the chart follows, side by side on
-            desktop. The prompter wears no card: its own bordered box
-            and aura are the surface, so a second border around it
-            would only double the frame. min-w-0 lets the columns
-            shrink below their content's first-paint width, which the
-            chart's initial 320px render would otherwise refuse, and
-            which pushed the whole page sideways on narrow screens. */}
-        <div className="grid items-start gap-6 lg:grid-cols-2 [&>*]:min-w-0">
+        {/* The prompter wears no card: its own bordered box and aura are
+            the surface. min-w-0 lets the columns shrink below their
+            content's first-paint width on narrow screens. */}
+        <div className="grid items-start gap-6 lg:grid-cols-[1.2fr_1fr] [&>*]:min-w-0">
           <DashboardPrompter hasSignals={hasSignals} />
+          <div className="space-y-4">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 className="font-heading text-2xl font-semibold">
+                Names you checked
+              </h2>
+              <Link
+                href="/dashboard/playground/watchlist?tab=browse"
+                className="text-sm text-primary underline"
+              >
+                See all
+              </Link>
+            </div>
+            <RecentChecks items={checked?.items ?? []} />
+          </div>
+        </div>
+
+        <div className="grid items-start gap-6 lg:grid-cols-[1.2fr_1fr] [&>*]:min-w-0">
           <div data-tour="activity" className="border p-5">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <p className="font-heading text-xl font-semibold">Last 30 days</p>
+              <h2 className="font-heading text-xl font-semibold">Last 30 days</h2>
               <p className="text-xs text-muted-foreground">
                 <span className="inline-block size-2 bg-primary align-middle" />{" "}
                 Searches{"  "}
@@ -131,6 +146,7 @@ export default async function DashboardHomePage() {
               )}
             </div>
           </div>
+          <DailyNameCard userKey={user.id ? String(user.id) : user.email} />
         </div>
 
         <div data-tour="recent-sandboxes" className="space-y-4">
@@ -155,10 +171,7 @@ export default async function DashboardHomePage() {
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {PRODUCT_NOTES.map((note) => (
               <li key={note.title} className="border p-5">
-                <p className="text-[0.625rem] font-semibold tracking-widest text-primary uppercase">
-                  Product note
-                </p>
-                <p className="mt-2 font-heading text-lg font-semibold">
+                <p className="font-heading text-lg font-semibold">
                   {note.title}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">

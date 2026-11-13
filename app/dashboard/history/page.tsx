@@ -1,3 +1,4 @@
+import DashboardPageHeader from "@/components/dashboard/page-header"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -97,6 +98,7 @@ async function HistoryList({
     items = clamped.items
   }
   const cards = items.map((item) => toCardProps(item))
+  const filtered = Boolean(filters.q || filters.from || filters.to || filters.quality)
 
   return (
     <div className="space-y-5">
@@ -107,13 +109,21 @@ async function HistoryList({
           ))}
         </div>
       ) : (
-        <div className="space-y-3 border border-dashed p-6 text-center">
-          <p className="text-muted-foreground">
-            No searches match. Describe what you&apos;re building and we&apos;ll
-            generate names for it.
-          </p>
+        <div className="flex flex-col items-start gap-4 border border-dashed p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <p className="font-heading text-2xl font-semibold">
+              {filtered ? "No searches match these filters" : "No searches yet"}
+            </p>
+            <p className="max-w-prose text-sm text-muted-foreground">
+              {filtered
+                ? "Try removing a filter, or start a new search."
+                : "Describe what you're building and we'll suggest names and check if they're taken. Names you checked one at a time are on your Watchlist page."}
+            </p>
+          </div>
           <Button asChild>
-            <Link href="/dashboard">Run your first check</Link>
+            <Link href={filtered ? "/dashboard/history" : "/dashboard?mode=idea"}>
+              {filtered ? "Clear filters" : "Start a search"}
+            </Link>
           </Button>
         </div>
       )}
@@ -173,16 +183,17 @@ export default async function SearchHistoryPage({
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <div className="flex items-center justify-between gap-5 md:items-end">
-            <h1 className="font-heading text-4xl leading-5 font-semibold md:text-5xl">
-              Search history
-            </h1>
-            {total !== null ? (
-              <span className="text-sm font-semibold text-muted-foreground">
-                {total} searches
-              </span>
-            ) : null}
-          </div>
+          <DashboardPageHeader
+            title="Search history"
+            description="Every idea you've searched, newest first. Open one to see its names again."
+            actions={
+              total !== null ? (
+                <span className="text-sm font-semibold text-muted-foreground">
+                  {total} {total === 1 ? "search" : "searches"}
+                </span>
+              ) : null
+            }
+          />
           <SearchHistoryToolbar />
           <Suspense fallback={<ListSkeleton rows={ITEMS_PER_PAGE} />}>
             <HistoryList

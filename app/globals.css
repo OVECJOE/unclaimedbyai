@@ -374,7 +374,10 @@
 
 /* Hero prompter aura: a Gemini-style boiling gradient, several hue
    blobs drifting on incommensurate loops behind the glass so the mix
-   never repeats, brightening when the field takes focus. */
+   never repeats, brightening when the field takes focus. Each blob's
+   gradient fades out inside its own box (closest-side), so it is soft
+   without a blur filter: a 52px blur re-rendered every frame the hero
+   field animated beneath it, which halved the frame rate. */
 .prompter-aura {
   position: absolute;
   inset: -30%;
@@ -384,7 +387,6 @@
 .prompter-blob {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(52px);
   will-change: transform;
 }
 
@@ -394,9 +396,9 @@
   left: -8%;
   top: -25%;
   background: radial-gradient(
-    circle at 50% 50%,
+    closest-side,
     #4285f4 0%,
-    rgba(66, 133, 244, 0) 65%
+    rgba(66, 133, 244, 0) 100%
   );
   animation: prompter-boil-a 15s ease-in-out infinite;
 }
@@ -407,9 +409,9 @@
   right: -10%;
   top: -10%;
   background: radial-gradient(
-    circle at 50% 50%,
+    closest-side,
     #9b72cb 0%,
-    rgba(155, 114, 203, 0) 62%
+    rgba(155, 114, 203, 0) 100%
   );
   animation: prompter-boil-b 18s ease-in-out infinite;
 }
@@ -420,9 +422,9 @@
   left: 25%;
   bottom: -30%;
   background: radial-gradient(
-    circle at 50% 50%,
+    closest-side,
     #d96570 0%,
-    rgba(217, 101, 112, 0) 60%
+    rgba(217, 101, 112, 0) 100%
   );
   animation: prompter-boil-c 13s ease-in-out infinite;
 }
@@ -433,9 +435,9 @@
   right: 15%;
   bottom: -20%;
   background: radial-gradient(
-    circle at 50% 50%,
+    closest-side,
     #f4b400 0%,
-    rgba(244, 180, 0, 0) 58%
+    rgba(244, 180, 0, 0) 100%
   );
   animation: prompter-boil-a 17s ease-in-out infinite reverse;
 }
@@ -481,45 +483,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .prompter-blob {
-    animation: none;
-  }
-}
-
-/* Ghosts and sparks for the landing scatter: game-like status sprites
-   that bob in place, honoring reduced motion like everything else. */
-@keyframes uba-ghost-bob {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-3deg);
-  }
-  50% {
-    transform: translateY(-10px) rotate(3deg);
-  }
-}
-
-@keyframes uba-sparkle {
-  0%,
-  100% {
-    opacity: 0.55;
-    transform: scale(0.9);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.12);
-  }
-}
-
-.ghost-bob {
-  animation: uba-ghost-bob 6s ease-in-out infinite;
-}
-
-.sparkle {
-  animation: uba-sparkle 3.2s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ghost-bob,
-  .sparkle {
     animation: none;
   }
 }
@@ -662,4 +625,87 @@ div[data-sonner-toast] [data-button][data-cancel] {
   .driver-fade .driver-popover {
     animation: none;
   }
+}
+
+/* Landing motion: the scan line and row reveals, built from the theme
+   tokens so they follow light and dark. */
+@keyframes uba-scan {
+  from {
+    transform: translateX(-100%);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(200%);
+    opacity: 0;
+  }
+}
+
+.scan-line {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--primary) 18%, transparent),
+    transparent
+  );
+  animation: uba-scan 0.9s ease-out 1 both;
+}
+
+@keyframes uba-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.row-in {
+  animation: uba-row-in 0.35s ease-out both;
+}
+
+@keyframes uba-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.text-outline {
+  -webkit-text-stroke: 1px var(--border);
+  color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scan-line,
+  .row-in {
+    animation: none;
+  }
+}
+
+/* Sound toggle level meter: three bars at rest, dancing while sound plays. */
+.uba-meter > span {
+  width: 3px;
+  height: 100%;
+  background: currentColor;
+  transform-origin: bottom;
+  transition: transform 0.3s ease;
+}
+.uba-meter > span:nth-child(1) { transform: scaleY(0.45); }
+.uba-meter > span:nth-child(2) { transform: scaleY(0.8); }
+.uba-meter > span:nth-child(3) { transform: scaleY(0.6); }
+.uba-meter[data-playing] > span {
+  animation: uba-meter 0.42s ease-in-out infinite alternate;
+}
+.uba-meter[data-playing] > span:nth-child(2) { animation-duration: 0.31s; animation-delay: -0.12s; }
+.uba-meter[data-playing] > span:nth-child(3) { animation-duration: 0.37s; animation-delay: -0.2s; }
+@keyframes uba-meter {
+  from { transform: scaleY(0.25); }
+  to { transform: scaleY(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .uba-meter[data-playing] > span { animation: none; }
 }

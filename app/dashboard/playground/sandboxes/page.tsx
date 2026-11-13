@@ -1,3 +1,4 @@
+import DashboardPageHeader from "@/components/dashboard/page-header"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
@@ -108,24 +109,18 @@ export default async function SandboxesPage({
   return (
     <section className="px-4 py-10">
       <div className="mx-auto max-w-7xl space-y-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="space-y-2">
-            <h1 className="font-heading text-4xl font-semibold md:text-5xl">
-              Sandboxes
-            </h1>
-            <p className="max-w-prose text-sm text-muted-foreground md:text-base">
-              A sandbox holds ideas. Generate a batch, research the ones that
-              catch you, then turn one into names. Each sandbox carries its own
-              steer, so a weekend idea and a serious one can differ.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/playground/watchlist">Watchlist</Link>
-            </Button>
-            <NewSandboxButton />
-          </div>
-        </div>
+        <DashboardPageHeader
+          title="Sandboxes"
+          description="A sandbox holds ideas. Generate a batch, research the ones that catch you, then turn one into names. Each sandbox carries its own steer, so a weekend idea and a serious one can differ."
+          actions={
+            <>
+              <Button variant="outline" asChild>
+                <Link href="/dashboard/playground/watchlist">Watchlist</Link>
+              </Button>
+              <NewSandboxButton />
+            </>
+          }
+        />
         <Suspense fallback={<SandboxListSkeleton />}>
           <SandboxList filters={filters} />
         </Suspense>

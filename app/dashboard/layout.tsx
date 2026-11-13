@@ -1,4 +1,5 @@
-import AppFooter from "@/components/app-footer"
+import AmbientContours from "@/components/dashboard/ambient-contours"
+import DashboardFooter from "@/components/dashboard/dashboard-footer"
 import ClaimSearches from "@/components/dashboard/claim-searches"
 import DashboardSidebar from "@/components/dashboard/sidebar"
 import MobileHeader from "@/components/dashboard/mobile-header"
@@ -20,6 +21,7 @@ export default async function DashboardLayout({
   if (!user) redirect("/auth")
   return (
     <div className="min-h-screen">
+      <AmbientContours />
       <DashboardSidebar user={user} />
       {/* The phone shell is a fixed bottom bar, so the content carries
           the bar's height as bottom padding rather than scrolling under
@@ -42,7 +44,7 @@ export default async function DashboardLayout({
         {/* Renders nothing; drives the spotlight tour while active. */}
         <DashboardTour />
         <div className="flex-1">{children}</div>
-        <AppFooter />
+        <DashboardFooter />
       </main>
       <MobileNav />
     </div>

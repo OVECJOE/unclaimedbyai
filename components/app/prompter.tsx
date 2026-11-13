@@ -27,6 +27,16 @@ export type PrompterMode = "idea" | "studio" | "name"
 
 export const PROMPTER_NAME_MODE_EVENT = "prompter:name-mode"
 
+/** Fills the prompter from elsewhere on the page (example chips, the
+ *  landing's specimen), switching mode and focusing the field. */
+export const PROMPTER_FILL_EVENT = "prompter:fill"
+
+export type PrompterFillDetail = { value: string; mode: PrompterMode }
+
+export function fillPrompter(detail: PrompterFillDetail) {
+  window.dispatchEvent(new CustomEvent(PROMPTER_FILL_EVENT, { detail }))
+}
+
 const MODES: { value: PrompterMode; label: string; hint: string }[] = [
   {
     value: "idea",
@@ -118,9 +128,23 @@ export default function Prompter({
         field.focus({ preventScroll: true })
       }
     }
+    function onFill(event: Event) {
+      const detail = (event as CustomEvent<PrompterFillDetail>).detail
+      if (!detail) return
+      setMode(detail.mode)
+      setValue(detail.value.slice(0, detail.mode === "name" ? 60 : 400))
+      const field = document.getElementById("prompt")
+      if (field instanceof HTMLTextAreaElement) {
+        field.focus({ preventScroll: true })
+        field.scrollIntoView({ block: "center", behavior: "smooth" })
+      }
+    }
     window.addEventListener(PROMPTER_NAME_MODE_EVENT, onNameMode)
-    return () =>
+    window.addEventListener(PROMPTER_FILL_EVENT, onFill)
+    return () => {
       window.removeEventListener(PROMPTER_NAME_MODE_EVENT, onNameMode)
+      window.removeEventListener(PROMPTER_FILL_EVENT, onFill)
+    }
   }, [])
 
   function submit() {
@@ -182,6 +206,7 @@ export default function Prompter({
           <Textarea
             id="prompt"
             name="prompt"
+            data-sound-keys
             rows={2}
             value={value}
             onChange={(e) => setValue(e.target.value)}

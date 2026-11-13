@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
+import { usePathname } from "next/navigation"
 import {
   playSound,
   resumeSoundContext,
@@ -20,7 +21,8 @@ function moodOf(element: Element): SoundMood | null {
     raw === "complete" ||
     raw === "error" ||
     raw === "spark" ||
-    raw === "reward"
+    raw === "reward" ||
+    raw === "page"
   ) {
     return raw
   }
@@ -64,7 +66,21 @@ function audible(element: Element): boolean {
  * stays silent.
  */
 export default function SoundBridge() {
+  // A soft page-turn on every navigation after the first page. It is
+  // silent until the visitor has clicked something (browsers only allow
+  // sound after a gesture), which a navigation almost always is.
+  const pathname = usePathname()
+  const firstPath = useRef(pathname)
   useEffect(() => {
+    if (pathname === firstPath.current) return
+    firstPath.current = ""
+    playSound("page", pathname)
+  }, [pathname])
+
+  useEffect(() => {
+    const panOf = (clientX: number) =>
+      (clientX / (window.innerWidth || 1)) * 2 - 1
+
     function onPointerDown(event: PointerEvent): void {
       if (event.pointerType === "mouse" && event.button !== 0) return
       const element = targetOf(event)
@@ -72,7 +88,7 @@ export default function SoundBridge() {
       const mood = moodOf(element)
       if (!mood) return
       resumeSoundContext()
-      playSound(mood, seedOf(element))
+      playSound(mood, seedOf(element), { pan: panOf(event.clientX) })
     }
 
     function onKeyDown(event: KeyboardEvent): void {
@@ -83,7 +99,20 @@ export default function SoundBridge() {
       const mood = moodOf(element)
       if (!mood) return
       resumeSoundContext()
-      playSound(mood, seedOf(element))
+      const box = element.getBoundingClientRect()
+      playSound(mood, seedOf(element), {
+        pan: panOf(box.left + box.width / 2),
+      })
+    }
+
+    // Boxes that opt in with data-sound-keys tick quietly as you type.
+    function onInput(event: Event): void {
+      const { target } = event
+      if (!(target instanceof Element)) return
+      if (!target.closest("[data-sound-keys]")) return
+      if ((event as InputEvent).inputType?.startsWith("delete")) return
+      const box = target.getBoundingClientRect()
+      playSound("key", "", { pan: panOf(box.left + box.width / 2) * 0.5 })
     }
 
     function onStorage(event: StorageEvent): void {
@@ -112,11 +141,13 @@ export default function SoundBridge() {
       passive: true,
     })
     document.addEventListener("keydown", onKeyDown)
+    document.addEventListener("input", onInput)
     window.addEventListener("storage", onStorage)
     toastObserver.observe(document.body, { childList: true, subtree: true })
     return () => {
       document.removeEventListener("pointerdown", onPointerDown)
       document.removeEventListener("keydown", onKeyDown)
+      document.removeEventListener("input", onInput)
       window.removeEventListener("storage", onStorage)
       toastObserver.disconnect()
     }

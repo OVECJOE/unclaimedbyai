@@ -14,10 +14,13 @@ import Watchlist from "@/components/dashboard/watchlist"
  */
 export default function WatchlistTabs({
   initialChecked,
+  initialTab = "watching",
 }: {
   initialChecked: CheckedList
+  /** ?tab=browse deep-links straight to the pick list. */
+  initialTab?: "watching" | "browse"
 }) {
-  const [tab, setTab] = useState("watching")
+  const [tab, setTab] = useState<string>(initialTab)
   const [version, setVersion] = useState(0)
 
   function changed() {

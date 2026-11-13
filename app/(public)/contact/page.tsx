@@ -13,9 +13,10 @@ import {
   Shield01Icon,
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Badge } from "@/components/ui/badge"
+import { SectionHeader } from "@/components/public/section-header"
 import GsapReveal from "@/components/about/gsap-reveal"
 import ContactForm from "@/components/contact/contact-form"
+import LetterField from "@/components/fields/letter-field"
 import { JsonLd } from "@/components/app/json-ld"
 import { pageMetadata, SITE_NAME, SITE_URL } from "@/lib/site"
 
@@ -125,30 +126,28 @@ export default function ContactPage() {
       <JsonLd data={contactJsonLd} />
 
       {/* Hero */}
-      <section className="space-y-5 border-b px-4 py-10 sm:text-center">
-        <Badge
-          className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
-          asChild
+      <section className="relative isolate overflow-hidden border-b px-4 pt-16 pb-14 md:pt-24">
+        <LetterField quiet />
+        <SectionHeader
+          as="h1"
+          className="mx-auto max-w-7xl"
+          eyebrow="Contact"
+          title="Talk to"
+          accent="a human."
+          lede="One inbox, read by the people who build the product. No ticket numbers, no phone tree, no bot asking if you've tried turning it off and on again."
         >
-          <p className="px-2 py-1 sm:px-3">Contact</p>
-        </Badge>
-        <div className="space-y-3">
-          <h1 className="mx-auto max-w-xl font-heading text-4xl font-semibold md:text-5xl">
-            Talk to <span className="text-primary">a human.</span>
-          </h1>
-          <p className="mx-auto max-w-prose md:text-lg">
-            One inbox, read by the people who build the product. No ticket
-            numbers, no phone tree, no bot that says &ldquo;have you tried
-            turning it off and on again&rdquo;?
-          </p>
-        </div>
-        <p className="font-mono text-xs tracking-[0.12em] text-muted-foreground uppercase">
-          hello@unclaimedbyai.com
-        </p>
+          <a
+            href="mailto:hello@unclaimedbyai.com"
+            data-field-avoid
+            className="inline-flex border border-primary/30 bg-background px-4 py-2 font-mono text-sm text-primary transition-colors hover:bg-primary/10"
+          >
+            hello@unclaimedbyai.com
+          </a>
+        </SectionHeader>
       </section>
 
       {/* Channels */}
-      <section className="border-b px-4 py-10">
+      <section className="border-b px-4 py-20 md:py-24">
         <GsapReveal
           className="mx-auto grid max-w-7xl gap-px overflow-hidden border border-border bg-border sm:grid-cols-2"
           stagger={0.08}
@@ -160,13 +159,10 @@ export default function ContactPage() {
               className="space-y-3 bg-background p-5 md:p-8"
             >
               <div className="flex items-center gap-2">
-                <Badge
-                  className="bg-primary/20 p-2 text-primary dark:bg-primary/30 dark:text-primary-foreground"
-                  asChild
-                >
-                  <HugeiconsIcon icon={channel.icon} size={24} />
-                </Badge>
-                <h2 className="font-heading text-xl font-medium md:text-2xl">
+                <span className="flex size-9 items-center justify-center border border-primary/30 bg-primary/5 text-primary">
+                  <HugeiconsIcon icon={channel.icon} className="size-4" />
+                </span>
+                <h2 className="font-heading text-2xl md:text-3xl">
                   {channel.title}
                 </h2>
               </div>
@@ -192,17 +188,16 @@ export default function ContactPage() {
       </section>
 
       {/* The form */}
-      <section className="border-b px-4 py-10 md:py-16">
-        <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2 md:gap-16">
-          <GsapReveal className="space-y-3">
-            <h2 className="font-heading text-2xl font-medium sm:text-3xl">
-              Or write to us here
-            </h2>
-            <p className="max-w-prose text-base leading-7 sm:text-lg">
-              Same inbox as the email above. This just saves you opening a mail
-              app. We&apos;ll reply to the address you leave, and we&apos;ll
-              never add you to a mailing list for it.
-            </p>
+      <section className="border-b px-4 py-20 md:py-28">
+        <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-2 md:gap-20">
+          <GsapReveal className="space-y-5">
+            <SectionHeader
+              align="start"
+              eyebrow="The form"
+              title="Or write to us"
+              accent="right here."
+              lede="Same inbox as the email above, minus the mail app. We'll reply to the address you leave, and we'll never add you to a mailing list for it."
+            />
             <ul className="space-y-2 pt-2">
               {[
                 "Include the name you checked. It makes diagnosis ten minutes instead of ten emails.",
@@ -226,16 +221,14 @@ export default function ContactPage() {
       </section>
 
       {/* Quick answers: maybe you don't need to write at all */}
-      <section className="border-b bg-primary/5 px-4 py-10 md:py-16">
-        <GsapReveal className="mx-auto max-w-7xl space-y-8">
-          <div className="space-y-1 sm:text-center">
-            <h2 className="font-heading text-2xl font-semibold md:text-3xl">
-              You might not need to write at all
-            </h2>
-            <p className="text-muted-foreground md:text-lg">
-              The four questions we get most, answered already.
-            </p>
-          </div>
+      <section className="border-b bg-sidebar px-4 py-20 md:py-28">
+        <GsapReveal className="mx-auto max-w-7xl space-y-12">
+          <SectionHeader
+            eyebrow="Quick answers"
+            title="You might not need"
+            accent="to write at all."
+            lede="The four questions we get most, answered already."
+          />
           <div className="grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-2">
             {QUICK_ANSWERS.map((item) => (
               <Link
@@ -249,7 +242,7 @@ export default function ContactPage() {
                     icon={item.icon}
                     className="size-4 text-primary"
                   />
-                  <h3 className="font-heading text-lg font-medium md:text-xl">
+                  <h3 className="font-heading text-xl md:text-2xl">
                     {item.question}
                   </h3>
                 </div>
@@ -266,16 +259,14 @@ export default function ContactPage() {
       </section>
 
       {/* Socials + closing */}
-      <section className="space-y-6 px-4 py-10 sm:text-center">
-        <div className="space-y-2">
-          <h2 className="font-heading text-2xl font-medium sm:text-3xl">
-            Not the writing type?
-          </h2>
-          <p className="text-muted-foreground">
-            We post check teardowns and naming wreckage in public.
-          </p>
-        </div>
-        <div className="flex gap-4 md:justify-center">
+      <section className="space-y-8 px-4 py-20 sm:text-center md:py-28">
+        <SectionHeader
+          eyebrow="Elsewhere"
+          title="Not the"
+          accent="writing type?"
+          lede="We post check teardowns and naming wreckage in public."
+        />
+        <div className="flex gap-3 sm:justify-center">
           {SOCIALS.map((social) => (
             <a
               key={social.label}
@@ -283,7 +274,7 @@ export default function ContactPage() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={social.label}
-              className="border border-border bg-secondary/70 p-3 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary dark:bg-secondary/40"
+              className="border border-border bg-background p-4 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
             >
               <HugeiconsIcon icon={social.icon} size="1.5rem" />
             </a>
