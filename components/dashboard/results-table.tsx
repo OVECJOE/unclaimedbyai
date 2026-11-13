@@ -58,11 +58,14 @@ function liveStepLabel(job: PendingName["job"]): string {
   if (job.current_step) return stepLabel(job.current_step)
   const snapshot = job.snapshot
   if (!snapshot) return "Starting checks"
-  if (snapshot.ai?.verdict) return "Scoring"
-  if (snapshot.ai) return "Consulting AI models"
-  if (snapshot.socials) return "Checking handles"
-  if (snapshot.domains) return "Checking domains"
-  return "Starting checks"
+  // Domains, handles and chatbots are all asked at once and answers
+  // arrive one by one, so the honest label is a running count.
+  const landed =
+    (snapshot.domains?.length ?? 0) +
+    (snapshot.socials?.length ?? 0) +
+    (snapshot.ai?.models.length ?? 0)
+  if (landed === 0) return "Starting checks"
+  return `${landed} ${landed === 1 ? "answer" : "answers"} in so far`
 }
 
 type ResultsTableProps = {

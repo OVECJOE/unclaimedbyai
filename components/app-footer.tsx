@@ -18,19 +18,12 @@ const COLUMNS = [
     ],
   },
   {
-    title: "Build",
-    links: [
-      { href: "/api/docs", label: "API docs" },
-      { href: "/api/docs#quickstarts", label: "Quickstarts" },
-      { href: "/llms.txt", label: "llms.txt" },
-    ],
-  },
-  {
     title: "Company",
     links: [
       { href: "/about", label: "About" },
       { href: "/blog", label: "Blog" },
       { href: "/contact", label: "Contact" },
+      { href: "/llms.txt", label: "llms.txt" },
     ],
   },
   {
@@ -92,7 +85,7 @@ export default function AppFooter() {
 
           <nav
             aria-label="Footer"
-            className="grid grid-cols-2 gap-8 sm:grid-cols-4"
+            className="grid grid-cols-2 gap-8 sm:grid-cols-3"
           >
             {COLUMNS.map((column) => (
               <div key={column.title} className="space-y-4">

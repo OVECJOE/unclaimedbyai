@@ -54,7 +54,6 @@ export async function GET(): Promise<Response> {
     `- [Home](${SITE_URL}/): What the product does, in one screen.`,
     `- [How it works](${SITE_URL}/product): The check pipeline, explained.`,
     `- [Pricing](${SITE_URL}/pricing): Free and Pro tiers, and what a credit buys.`,
-    `- [API docs](${SITE_URL}/api/docs): Every endpoint, with parameters, request bodies, and responses.`,
     "",
     "## Guides",
     "",
@@ -70,7 +69,6 @@ export async function GET(): Promise<Response> {
           )}): A worked example of a free first check, every score with its evidence.`,
         ]
       : []),
-    `- [API quickstarts](${SITE_URL}/api/docs#quickstarts): Three copy-paste paths that cover most of what people build.`,
     "",
   ]
 
@@ -114,11 +112,6 @@ export async function GET(): Promise<Response> {
     "",
     `- [Privacy policy](${SITE_URL}/privacy): What is collected, why, and the affiliate disclosure.`,
     `- [Terms of service](${SITE_URL}/terms): Accounts, credits, and acceptable use.`,
-    "",
-    "## Optional",
-    "",
-    `- [API reference (markdown)](${SITE_URL}/api/docs.md): The same reference as clean markdown, for tooling and agents.`,
-    `- [API reference (OpenAPI)](${SITE_URL}/api/v1/openapi.json): The machine-readable schema behind the API docs.`,
     ""
   )
 
