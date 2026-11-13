@@ -39,6 +39,9 @@ export const playgroundNavItems: NavItem[] = [
   },
 ]
 
+/** One icon for Playground on the rail and the phone bar. */
+export const playgroundIcon = Folder02Icon
+
 export const canvasHref = "/dashboard/playground"
 
 /**

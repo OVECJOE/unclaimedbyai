@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils"
 import {
   historyNavItem,
   isActivePath,
+  playgroundIcon,
   topNavItems,
 } from "@/components/dashboard/nav"
-import { Layout01Icon } from "@hugeicons/core-free-icons"
 
 /**
  * The phone shell: a fixed bottom bar, four destinations, thumb reach.
@@ -21,7 +21,7 @@ export default function MobileNav() {
   const items = [
     ...topNavItems.slice(0, 1),
     historyNavItem,
-    { href: "/dashboard/playground", label: "Playground", icon: Layout01Icon },
+    { href: "/dashboard/playground", label: "Playground", icon: playgroundIcon },
     ...topNavItems.slice(1, 2),
   ]
 

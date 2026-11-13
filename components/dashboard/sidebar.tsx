@@ -25,6 +25,7 @@ import {
   canvasHref,
   historyNavItem,
   isActivePath,
+  playgroundIcon,
   playgroundNavItems,
   topNavItems,
 } from "@/components/dashboard/nav"
@@ -127,7 +128,7 @@ export default function DashboardSidebar({ user }: { user?: ApiUser | null }) {
           aria-expanded={open}
           className={cn(linkClass(playgroundActive), "w-full")}
         >
-          <HugeiconsIcon icon={playgroundNavItems[0].icon} className="size-4" />
+          <HugeiconsIcon icon={playgroundIcon} className="size-4" />
           <span className="flex-1 text-left">Playground</span>
           <HugeiconsIcon
             icon={ChevronDownIcon}
