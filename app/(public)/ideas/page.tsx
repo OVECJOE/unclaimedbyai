@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import RegistryField from "@/components/fields/registry-field"
 import IdeaCardLink from "@/components/ideas/idea-card"
 import { JsonLd } from "@/components/app/json-ld"
 import PrompterCta from "@/components/public/prompter-cta"
@@ -38,7 +39,8 @@ export default async function IdeasIndexPage() {
           },
         }}
       />
-      <section className="border-b px-4 pt-16 pb-12 md:pt-24">
+      <section className="relative isolate overflow-hidden border-b px-4 pt-16 pb-12 md:pt-24">
+        <RegistryField quiet />
         <div className="mx-auto max-w-5xl">
           <SectionHeader
             as="h1"

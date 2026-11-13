@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { JsonLd } from "@/components/app/json-ld"
+import RegistryField from "@/components/fields/registry-field"
+import LetterField from "@/components/fields/letter-field"
 import Matrix from "@/components/ideas/matrix"
 import NameCard from "@/components/ideas/name-card"
 import OwnerCard from "@/components/ideas/owner-card"
@@ -176,7 +178,8 @@ export default async function IdeaPage({ params }: PageProps) {
 
       <article>
         {/* The opening: whose idea, what we found, in one screen. */}
-        <header className="border-b px-4 pt-10 pb-12 md:pt-16">
+        <header className="relative isolate overflow-hidden border-b px-4 pt-10 pb-12 md:pt-16">
+          <RegistryField quiet />
           <div className="mx-auto max-w-5xl space-y-8">
             <p className="flex flex-wrap items-center gap-x-2 text-[0.6875rem] font-semibold tracking-widest uppercase">
               <Link
@@ -414,7 +417,8 @@ export default async function IdeaPage({ params }: PageProps) {
           </div>
         </section>
 
-        <section className="border-t bg-primary/5 px-4 py-16 md:py-24">
+        <section className="relative isolate overflow-hidden border-t bg-primary/5 px-4 py-16 md:py-24">
+          <LetterField mode="claim" quiet fade="both" />
           <div className="mx-auto max-w-3xl space-y-5 text-center">
             <p className="text-[0.6875rem] font-semibold tracking-widest text-primary uppercase">
               Your turn
