@@ -132,7 +132,7 @@ export function reportToSpecimen(
     handles,
     ai,
     query,
-    href: query ? `/searches/${nameToSlug(query)}` : undefined,
+    href: `/searches/${nameToSlug(name)}`,
     checkedAt: report.created_at,
   }
 }
@@ -166,7 +166,7 @@ export async function loadRealSpecimens(limit = 4): Promise<Specimen[]> {
   const specimens = await Promise.all(
     feed.items.map(async (item): Promise<Specimen | null> => {
       const search = await getJson<SearchDetail>(
-        `/api/v1/searches/by-query?q=${encodeURIComponent(item.query)}`
+        `/api/v1/searches/by-query?q=${encodeURIComponent(item.top_name)}`
       )
       const ranked = (search?.names ?? [])
         .filter((name) => name.latest_check !== null)

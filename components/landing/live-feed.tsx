@@ -51,7 +51,7 @@ export default async function LiveFeed() {
           {items.map((item) => (
             <li key={`${item.query}-${item.top_name}`}>
               <Link
-                href={`/searches/${nameToSlug(item.query)}`}
+                href={`/searches/${nameToSlug(item.top_name)}`}
                 aria-label={`See check results for ${item.top_name}, found for "${item.query}"`}
                 className="group grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-1 py-5 transition-colors hover:bg-muted/40 sm:grid-cols-[1.4fr_1fr_auto_auto] sm:px-3"
               >
