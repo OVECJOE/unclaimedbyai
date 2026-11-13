@@ -5,6 +5,7 @@ import DashboardSidebar from "@/components/dashboard/sidebar"
 import MobileHeader from "@/components/dashboard/mobile-header"
 import MobileNav from "@/components/dashboard/mobile-nav"
 import DashboardTour from "@/components/dashboard/tour"
+import CommandMenuHost from "@/components/dashboard/command-menu-host"
 import { getMeServer } from "@/lib/api-server"
 import { ApiError } from "@/lib/api"
 import { redirect } from "next/navigation"
@@ -43,6 +44,7 @@ export default async function DashboardLayout({
         <ClaimSearches />
         {/* Renders nothing; drives the spotlight tour while active. */}
         <DashboardTour />
+        <CommandMenuHost />
         <div className="flex-1 mt-5">{children}</div>
         <DashboardFooter />
       </main>

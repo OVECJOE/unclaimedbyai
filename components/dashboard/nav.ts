@@ -1,4 +1,5 @@
 import {
+  Clock01Icon,
   CreditCardIcon,
   Folder02Icon,
   Home01Icon,
@@ -18,6 +19,12 @@ export const topNavItems: NavItem[] = [
   { href: "/dashboard/billing", label: "Billing", icon: CreditCardIcon },
   { href: "/dashboard/account", label: "Account", icon: UserIcon },
 ]
+
+export const historyNavItem: NavItem = {
+  href: "/dashboard/history",
+  label: "History",
+  icon: Clock01Icon,
+}
 
 export const playgroundNavItems: NavItem[] = [
   {

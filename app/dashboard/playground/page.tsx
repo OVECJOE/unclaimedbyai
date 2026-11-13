@@ -51,7 +51,7 @@ export default async function PlaygroundPage({
       <div className="mx-auto max-w-7xl space-y-6">
         <DashboardPageHeader
           title="Playground"
-          description="One sandbox at a time. Drag ideas to reorder them, drag one onto Generate names to start a search, and open a card for its full canvas and research."
+          description="A sandbox holds the ideas for one business. Open an idea to research it, or turn it into names to check."
           actions={
             <Button variant="outline" asChild>
               <Link href="/dashboard/playground/sandboxes">All sandboxes</Link>

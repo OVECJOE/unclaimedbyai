@@ -38,6 +38,8 @@ import { aiAssociationColor, tierColor } from "@/lib/name-results"
 import { SocialAvailabilityList } from "@/components/dashboard/social-icons"
 import { useTurnstile } from "@/components/public/turnstile"
 import { WatchButton } from "@/components/dashboard/watch-button"
+import CompareBar, { COMPARE_MAX } from "@/components/dashboard/compare-bar"
+import { nextStep } from "@/lib/name-results"
 
 const INITIAL_ROWS = 5
 
@@ -145,18 +147,67 @@ const AI_VERDICT_TONE: Record<string, string> = {
   hard: "bg-destructive/10 text-destructive",
 }
 
+function ShortlistToggle({
+  name,
+  chosen,
+  full,
+  onToggle,
+}: {
+  name: string
+  chosen: boolean
+  full: boolean
+  onToggle: (name: string) => void
+}) {
+  const blocked = !chosen && full
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={chosen}
+      aria-label={`${chosen ? "Remove" : "Add"} ${name} ${chosen ? "from" : "to"} your shortlist`}
+      title={blocked ? `You can compare up to ${COMPARE_MAX} names` : undefined}
+      disabled={blocked}
+      onClick={() => onToggle(name)}
+      className={`relative z-10 inline-flex shrink-0 items-center border px-2 py-1 text-[0.625rem] font-semibold tracking-widest uppercase transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+        chosen
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-input text-muted-foreground hover:border-primary/60 hover:text-foreground"
+      }`}
+    >
+      {chosen ? "Shortlisted" : "Shortlist"}
+    </button>
+  )
+}
+
+function NextStep({ result }: { result: NameResult }) {
+  const step = nextStep(result)
+  const tone =
+    step.tone === "good"
+      ? "text-green-700 dark:text-green-400"
+      : step.tone === "warn"
+        ? "text-amber-700 dark:text-amber-400"
+        : "text-red-700 dark:text-red-400"
+  return <span className={`mt-0.5 block text-xs ${tone}`}>{step.short}</span>
+}
+
 function NameRow({
   result,
   searchId,
   detailBase,
   showWatch,
   watchId,
+  shortlist,
 }: {
   result: NameResult
   searchId: string
   detailBase?: string | null
   showWatch?: boolean
   watchId?: number
+  shortlist?: {
+    chosen: boolean
+    full: boolean
+    onToggle: (name: string) => void
+  }
 }) {
   const searchParams = useSearchParams()
   const carry = new URLSearchParams()
@@ -198,10 +249,23 @@ function NameRow({
               watchId={watchId}
             />
           ) : null}
+          {shortlist ? (
+            <ShortlistToggle
+              name={result.name}
+              chosen={shortlist.chosen}
+              full={shortlist.full}
+              onToggle={shortlist.onToggle}
+            />
+          ) : null}
         </span>
         {result.rationale ? (
           <span className="mt-0.5 block max-w-sm truncate pl-8 text-xs text-muted-foreground italic">
             {result.rationale}
+          </span>
+        ) : null}
+        {shortlist ? (
+          <span className="block pl-8 whitespace-normal">
+            <NextStep result={result} />
           </span>
         ) : null}
       </TableCell>
@@ -444,12 +508,18 @@ function MobileNameCard({
   detailBase,
   showWatch,
   watchId,
+  shortlist,
 }: {
   result: NameResult
   searchId: string
   detailBase?: string | null
   showWatch?: boolean
   watchId?: number
+  shortlist?: {
+    chosen: boolean
+    full: boolean
+    onToggle: (name: string) => void
+  }
 }) {
   const base = detailBase ?? `/dashboard/history/${searchId}/results`
   const href = `${base}/${encodeURIComponent(result.name)}`
@@ -499,6 +569,7 @@ function MobileNameCard({
           {result.rationale}
         </p>
       ) : null}
+      {shortlist ? <NextStep result={result} /> : null}
       <div className="space-y-1.5">
         <PillarRow label="Domains">
           <AvailabilityList name={result.name} items={result.domains} />
@@ -512,6 +583,14 @@ function MobileNameCard({
           </Badge>
         </PillarRow>
       </div>
+      {shortlist ? (
+        <ShortlistToggle
+          name={result.name}
+          chosen={shortlist.chosen}
+          full={shortlist.full}
+          onToggle={shortlist.onToggle}
+        />
+      ) : null}
     </div>
   )
 }
@@ -619,6 +698,7 @@ export default function ResultsTable({
   const [expanded, setExpanded] = useState(false)
   const [selected, setSelected] = useState<number[]>([])
   const [firing, setFiring] = useState(false)
+  const [shortlisted, setShortlisted] = useState<string[]>([])
   // Anonymous spend calls need a Turnstile token, and this page is the
   // only surface where people can act without ever having seen the
   // landing widget, so it carries its own (invisible unless challenged).
@@ -627,6 +707,25 @@ export default function ResultsTable({
   // The dashboard leaves detailBase undefined while the public page
   // passes an explicit null, so compare strictly against null here.
   const showWatch = !anonSessionId && detailBase !== null
+
+  // Shortlisting is a dashboard feature: the public page has no history
+  // to come back to, so it keeps its one-glance table.
+  const canShortlist = detailBase === undefined && !anonSessionId
+  const shortlistFor = (name: string) =>
+    canShortlist
+      ? {
+          chosen: shortlisted.includes(name),
+          full: shortlisted.length >= COMPARE_MAX,
+          onToggle: (target: string) =>
+            setShortlisted((current) =>
+              current.includes(target)
+                ? current.filter((entry) => entry !== target)
+                : current.length >= COMPARE_MAX
+                  ? current
+                  : [...current, target]
+            ),
+        }
+      : undefined
 
   function toggleSelect(nameId: number, value: boolean) {
     setSelected((current) =>
@@ -800,6 +899,7 @@ export default function ResultsTable({
               detailBase={detailBase}
               showWatch={showWatch}
               watchId={watched[result.name]}
+              shortlist={shortlistFor(result.name)}
             />
           ))}
           {visiblePending.map((item) => (
@@ -814,6 +914,7 @@ export default function ResultsTable({
                   detailBase={detailBase}
                   showWatch={showWatch}
                   watchId={watched[result.name]}
+                  shortlist={shortlistFor(result.name)}
                 />
               ))
             : null}
@@ -934,6 +1035,7 @@ export default function ResultsTable({
                 detailBase={detailBase}
                 showWatch={showWatch}
                 watchId={watched[result.name]}
+                shortlist={shortlistFor(result.name)}
               />
             ))}
             {visiblePending.map((item) => (
@@ -950,6 +1052,7 @@ export default function ResultsTable({
                   detailBase={detailBase}
                   showWatch={showWatch}
                   watchId={watched[result.name]}
+                  shortlist={shortlistFor(result.name)}
                 />
               ))}
               {hiddenPending.map((item) => (
@@ -959,6 +1062,21 @@ export default function ResultsTable({
           ) : null}
         </Table>
       </div>
+
+      {canShortlist ? (
+        <CompareBar
+          chosen={results.filter((result) => shortlisted.includes(result.name))}
+          detailHref={(name) =>
+            `/dashboard/history/${searchId}/results/${encodeURIComponent(name)}`
+          }
+          onRemove={(name) =>
+            setShortlisted((current) =>
+              current.filter((entry) => entry !== name)
+            )
+          }
+          onClear={() => setShortlisted([])}
+        />
+      ) : null}
 
       {overflowCount > 0 ? (
         <Button

@@ -8,6 +8,7 @@ import { Search01Icon } from "@hugeicons/core-free-icons"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import DomainChip from "@/components/domain-chip"
 import { formatDateTime } from "@/lib/utils"
 import {
   WatchConfigButton,
@@ -47,6 +48,22 @@ function eventSentence(event: WatchEventItem): string {
     case "handle_released":
       return `The handle ${event.label} opened back up`
   }
+}
+
+/**
+ * Domains that are free right now: the newest event on a label decides,
+ * so a domain that was released and then taken again does not show.
+ * Events arrive newest first.
+ */
+function freeNow(events: WatchEventItem[]): string[] {
+  const seen = new Set<string>()
+  const free: string[] = []
+  for (const event of events) {
+    if (!event.kind.startsWith("domain_") || seen.has(event.label)) continue
+    seen.add(event.label)
+    if (event.kind === "domain_released") free.push(event.label)
+  }
+  return free
 }
 
 export default function Watchlist({ onChanged }: { onChanged?: () => void }) {
@@ -215,161 +232,205 @@ export default function Watchlist({ onChanged }: { onChanged?: () => void }) {
       <p className="text-sm text-muted-foreground">
         Watching {slots.used} of {slots.total}{" "}
         {slots.total === 1 ? "name" : "names"}.
+        {items.some((item) => item.status === "threatened") ? (
+          <>
+            {" "}
+            <strong className="text-destructive">
+              {items.filter((item) => item.status === "threatened").length} on
+              this page need attention
+            </strong>
+            , shown first.
+          </>
+        ) : items.length > 0 ? (
+          " Everything on this page is clear."
+        ) : null}
       </p>
       <ul className="space-y-4">
-        {items.map((item) => {
-          const threatened = item.status === "threatened"
-          const active = sweeping.includes(item.id)
-          return (
-            <li key={item.id} className="relative overflow-hidden border">
-              <div className="watch-aura" aria-hidden="true" />
-              <div className="relative space-y-4 bg-background/60 p-5 backdrop-blur-md sm:p-6">
-                <div className="flex flex-col items-start justify-between gap-4 md:flex-row">
-                  <div className="space-y-2">
-                    <span className="flex items-center gap-3">
-                      <Link
-                        href={`/dashboard/history/${item.search_id}/results/${encodeURIComponent(item.name)}`}
-                        className="font-heading text-3xl font-semibold transition-colors hover:text-primary"
-                      >
-                        {item.name}
-                      </Link>
-                      <Badge
-                        className={
-                          threatened
-                            ? "bg-destructive/10 text-destructive"
-                            : "bg-green-600/10 text-green-700 dark:bg-green-400/10 dark:text-green-400"
-                        }
-                      >
-                        {threatened ? "Claimed" : "Clean"}
-                      </Badge>
-                    </span>
-                    <p className="max-w-prose text-sm text-muted-foreground">
-                      Rechecking {item.tlds.map((tld) => `.${tld}`).join(", ")}{" "}
-                      among others and {item.platforms.length} handle
-                      {item.platforms.length === 1 ? "" : "s"} every few hours.
-                      Last sweep{" "}
-                      <strong>
-                        {item.last_swept_at
-                          ? formatDateTime(item.last_swept_at)
-                          : "has not run yet"}
-                      </strong>
-                      {untilSweep(item.next_sweep_at) ? (
-                        <>
-                          . Next sweep{" "}
-                          <strong>{untilSweep(item.next_sweep_at)}</strong>
-                        </>
-                      ) : null}
-                      .
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    {threatened ? (
-                      <>
-                        <p className="font-heading text-2xl font-semibold text-destructive">
-                          Part of it is gone
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          The streak restarts once it opens back up
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="text-start font-heading text-4xl leading-none font-bold text-primary tabular-nums md:text-end">
-                          {item.days_clean ?? 0}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {(item.days_clean ?? 0) === 1
-                            ? "day clear"
-                            : "days clear"}
-                        </p>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {item.events.length > 0 ? (
-                  <ul className="divide-y divide-border border-y text-sm">
-                    {item.events.slice(0, 8).map((event) => (
-                      <li
-                        key={event.id}
-                        className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-2"
-                      >
-                        <span
+        {[...items]
+          .sort(
+            (a, b) =>
+              Number(b.status === "threatened") -
+              Number(a.status === "threatened")
+          )
+          .map((item) => {
+            const threatened = item.status === "threatened"
+            const active = sweeping.includes(item.id)
+            const free = freeNow(item.events)
+            return (
+              <li key={item.id} className="relative overflow-hidden border">
+                <div className="watch-aura" aria-hidden="true" />
+                <div className="relative space-y-4 bg-background/60 p-5 backdrop-blur-md sm:p-6">
+                  <div className="flex flex-col items-start justify-between gap-4 md:flex-row">
+                    <div className="space-y-2">
+                      <span className="flex items-center gap-3">
+                        <Link
+                          href={`/dashboard/history/${item.search_id}/results/${encodeURIComponent(item.name)}`}
+                          className="font-heading text-3xl font-semibold transition-colors hover:text-primary"
+                        >
+                          {item.name}
+                        </Link>
+                        <Badge
                           className={
-                            event.kind.endsWith("_taken")
-                              ? undefined
-                              : "text-muted-foreground"
+                            threatened
+                              ? "bg-destructive/10 text-destructive"
+                              : "bg-green-600/10 text-green-700 dark:bg-green-400/10 dark:text-green-400"
                           }
                         >
-                          {eventSentence(event)}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {formatDateTime(event.created_at)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    Nothing has changed since the first sweep, which is exactly
-                    what you want to keep seeing here.
-                  </p>
-                )}
+                          {threatened ? "Claimed" : "Clean"}
+                        </Badge>
+                      </span>
+                      <p className="max-w-prose text-sm text-muted-foreground">
+                        Rechecking{" "}
+                        {item.tlds.map((tld) => `.${tld}`).join(", ")} among
+                        others and {item.platforms.length} handle
+                        {item.platforms.length === 1 ? "" : "s"} every few
+                        hours. Last sweep{" "}
+                        <strong>
+                          {item.last_swept_at
+                            ? formatDateTime(item.last_swept_at)
+                            : "has not run yet"}
+                        </strong>
+                        {untilSweep(item.next_sweep_at) ? (
+                          <>
+                            . Next sweep{" "}
+                            <strong>{untilSweep(item.next_sweep_at)}</strong>
+                          </>
+                        ) : null}
+                        .
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      {threatened ? (
+                        <>
+                          <p className="font-heading text-2xl font-semibold text-destructive">
+                            Part of it is gone
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            The streak restarts once it opens back up
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-start font-heading text-4xl leading-none font-bold text-primary tabular-nums md:text-end">
+                            {item.days_clean ?? 0}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {(item.days_clean ?? 0) === 1
+                              ? "day clear"
+                              : "days clear"}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    size="sm"
-                    disabled={active}
-                    onClick={() => void sweep(item)}
-                  >
-                    {active ? "Sweeping…" : "Sweep now"}
-                  </Button>
-                  <WatchConfigButton
-                    name={item.name}
-                    searchId={item.search_id}
-                    watchId={item.id}
-                    initialTlds={item.tlds}
-                    initialPlatforms={item.platforms}
-                    onSaved={() => void refresh()}
-                  >
-                    <Button size="sm" variant="outline">
-                      Edit watch
-                    </Button>
-                  </WatchConfigButton>
-                  <WatchRemoveButton
-                    name={item.name}
-                    watchId={item.id}
-                    onRemoved={() => {
-                      const remaining = items.filter(
-                        (entry) => entry.id !== item.id
-                      )
-                      setItems(remaining)
-                      setTotal((current) => Math.max(0, current - 1))
-                      setSlots((current) => ({
-                        ...current,
-                        used: Math.max(0, current.used - 1),
-                      }))
-                      if (remaining.length === 0 && page > 1) {
-                        setPage(page - 1)
-                      } else {
-                        void refresh()
-                      }
-                      onChanged?.()
-                    }}
-                  >
+                  {free.length > 0 ? (
+                    <div className="space-y-2 border border-green-600/30 bg-green-600/5 p-4">
+                      <p className="font-medium text-green-700 dark:text-green-400">
+                        Free again. You can register{" "}
+                        {free.length === 1 ? "it" : "them"} now.
+                      </p>
+                      <p className="flex flex-wrap gap-2">
+                        {free.map((label) => {
+                          const dot = label.lastIndexOf(".")
+                          return dot > 0 ? (
+                            <DomainChip
+                              key={label}
+                              name={label.slice(0, dot)}
+                              tld={label.slice(dot + 1)}
+                              status="available"
+                              placement="report-domains"
+                              size="md"
+                            />
+                          ) : null
+                        })}
+                      </p>
+                    </div>
+                  ) : null}
+
+                  {item.events.length > 0 ? (
+                    <ul className="divide-y divide-border border-y text-sm">
+                      {item.events.slice(0, 8).map((event) => (
+                        <li
+                          key={event.id}
+                          className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-2"
+                        >
+                          <span
+                            className={
+                              event.kind.endsWith("_taken")
+                                ? undefined
+                                : "text-muted-foreground"
+                            }
+                          >
+                            {eventSentence(event)}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatDateTime(event.created_at)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Nothing has changed since the first sweep, which is
+                      exactly what you want to keep seeing here.
+                    </p>
+                  )}
+
+                  <div className="flex flex-wrap gap-2">
                     <Button
                       size="sm"
-                      variant="ghost"
-                      className="text-muted-foreground"
+                      disabled={active}
+                      onClick={() => void sweep(item)}
                     >
-                      Stop watching
+                      {active ? "Sweeping…" : "Sweep now"}
                     </Button>
-                  </WatchRemoveButton>
+                    <WatchConfigButton
+                      name={item.name}
+                      searchId={item.search_id}
+                      watchId={item.id}
+                      initialTlds={item.tlds}
+                      initialPlatforms={item.platforms}
+                      onSaved={() => void refresh()}
+                    >
+                      <Button size="sm" variant="outline">
+                        Edit watch
+                      </Button>
+                    </WatchConfigButton>
+                    <WatchRemoveButton
+                      name={item.name}
+                      watchId={item.id}
+                      onRemoved={() => {
+                        const remaining = items.filter(
+                          (entry) => entry.id !== item.id
+                        )
+                        setItems(remaining)
+                        setTotal((current) => Math.max(0, current - 1))
+                        setSlots((current) => ({
+                          ...current,
+                          used: Math.max(0, current.used - 1),
+                        }))
+                        if (remaining.length === 0 && page > 1) {
+                          setPage(page - 1)
+                        } else {
+                          void refresh()
+                        }
+                        onChanged?.()
+                      }}
+                    >
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-muted-foreground"
+                      >
+                        Stop watching
+                      </Button>
+                    </WatchRemoveButton>
+                  </div>
                 </div>
-              </div>
-            </li>
-          )
-        })}
+              </li>
+            )
+          })}
       </ul>
 
       {pageCount > 1 ? (
@@ -433,7 +494,7 @@ function Toolbar({
           [
             ["all", "All"],
             ["clean", "Clean"],
-            ["threatened", "Threatened"],
+            ["threatened", "Needs attention"],
           ] as const
         ).map(([value, label]) => (
           <Button

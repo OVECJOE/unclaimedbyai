@@ -137,10 +137,10 @@ export default function IdeaBoard({
   if (ideas.length === 0) {
     return (
       <div className="border border-dashed p-8 text-center">
-        <p className="font-heading text-xl font-semibold">Empty board</p>
+        <p className="font-heading text-xl font-semibold">No ideas yet</p>
         <p className="mx-auto mt-1 max-w-prose text-sm text-muted-foreground">
-          Generate a batch or add an idea by hand. Either way, this board fills
-          with what the studios and you come up with.
+          Use Generate on the right to get a batch of ideas, or add your own
+          with the button above. Drag cards to put your favourites first.
         </p>
       </div>
     )

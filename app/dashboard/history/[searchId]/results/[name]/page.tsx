@@ -24,6 +24,8 @@ import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   AiBrain02Icon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
   AtSignIcon,
   GlobeIcon,
 } from "@hugeicons/core-free-icons"
@@ -33,6 +35,8 @@ import { ScoreGauge } from "@/components/app/score-gauge"
 import { TierBadge, type Tier } from "@/components/tier-badge"
 import { WatchButton } from "@/components/dashboard/watch-button"
 import BuyReportButton from "@/components/dashboard/buy-report-button"
+import CopySummaryButton from "@/components/dashboard/copy-summary-button"
+import { Button } from "@/components/ui/button"
 import PaymentFlag from "@/components/dashboard/payment-flag"
 import { formatDateTime } from "@/lib/utils"
 import DomainChip from "@/components/domain-chip"
@@ -244,6 +248,67 @@ export default async function SearchResultNamePage({
         ? "strong availability"
         : "weak availability"
 
+  // What to do, in the order people decide: the .com first, then
+  // whether chatbots already tie the name to something else.
+  const com = report.domains.find((d) => d.tld === "com")
+  const comFree = com?.status === "available"
+  const handleTaken = report.socials.filter((s) => s.status === "taken").length
+  const step = comFree
+    ? associating >= 2
+      ? {
+          title: "The .com is free, but read the AI tab first",
+          body: "Chatbots already connect this name to something else. Check what they say before you commit.",
+        }
+      : {
+          title: "Register the .com now",
+          body:
+            handleTaken > 0
+              ? `${handleTaken} social ${handleTaken === 1 ? "handle is" : "handles are"} already taken, so claim the rest soon.`
+              : "Then claim the handles before someone else does.",
+        }
+    : freeDomains.length > 0
+      ? {
+          title: "The .com is not available",
+          body: `${freeDomains
+            .slice(0, 3)
+            .map((d) => `.${d.tld}`)
+            .join(
+              ", "
+            )}${freeDomains.length > 3 ? ` and ${freeDomains.length - 3} more` : ""} ${freeDomains.length === 1 ? "is" : "are"} free if that works for your business.`,
+        }
+      : {
+          title: "Every domain we checked is taken",
+          body: "Only keep this name if you can buy one, or pick another from your results.",
+        }
+  const summaryText = [
+    `${nameItem.name}: ${report.overall_score}/100 (${toTier(report.overall_risk_level)})`,
+    `Domains free: ${freeDomains.length ? freeDomains.map((d) => d.domain).join(", ") : "none"}`,
+    `Handles open: ${availableSocials} of ${totalSocials}`,
+    `Chatbots tie it to something else: ${associating} of ${report.ai.length}`,
+    step.title + ". " + step.body,
+  ].join("\n")
+
+  // Move through the shortlist in the order the results list shows
+  // them, so deciding is one click per name, not back and forth.
+  const ranked = search.names
+    .filter((item) => item.latest_check)
+    .sort(
+      (a, b) =>
+        (b.latest_check?.overall_score ?? 0) -
+        (a.latest_check?.overall_score ?? 0)
+    )
+  const at = ranked.findIndex((item) => item.id === nameItem.id)
+  const neighbour = (index: number) => {
+    const item = ranked[index]
+    if (!item) return null
+    return {
+      name: item.name,
+      href: `/dashboard/history/${id}/results/${encodeURIComponent(item.name)}${backSuffix ? `?${backSuffix}` : ""}`,
+    }
+  }
+  const previous = at > 0 ? neighbour(at - 1) : null
+  const next = at >= 0 ? neighbour(at + 1) : null
+
   return (
     <>
       <section className="px-4 pt-10 pb-5">
@@ -410,17 +475,39 @@ export default async function SearchResultNamePage({
                     />
                   </div>
 
-                  <div className="flex flex-col gap-4 border border-border bg-muted/50 p-6 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="space-y-4 border border-border bg-muted/50 p-6">
                     <div className="space-y-1">
                       <p className="text-[0.625rem] font-medium tracking-widest text-muted-foreground uppercase">
-                        Recommended next step
+                        What to do next
                       </p>
+                      <p className="font-heading text-2xl">{step.title}</p>
                       <p className="text-sm text-muted-foreground">
-                        {nameItem.name} has {availabilityCopy}. Buy the full
-                        report to see raw results and register the assets with
-                        confidence.
+                        {step.body}
                       </p>
                     </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {freeDomains.slice(0, 3).map((domain) => (
+                        <DomainChip
+                          key={domain.domain}
+                          name={domain.domain.slice(
+                            0,
+                            domain.domain.lastIndexOf(".")
+                          )}
+                          tld={domain.tld}
+                          status="available"
+                          placement="report-domains"
+                          size="md"
+                        />
+                      ))}
+                      <CopySummaryButton text={summaryText} />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-3 border border-dashed p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-sm text-muted-foreground">
+                      Want the raw results to register with confidence? The full
+                      report has every check behind this score.
+                    </p>
                     <div className="shrink-0">
                       <BuyReportButton label="Buy report" />
                     </div>
@@ -586,6 +673,58 @@ export default async function SearchResultNamePage({
               </Card>
             </TabsContent>
           </Tabs>
+
+          {previous || next ? (
+            <nav
+              aria-label="Move between names"
+              className="flex items-stretch justify-between gap-3 border-t pt-6"
+            >
+              {previous ? (
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-auto min-w-0 flex-1 justify-start py-3"
+                >
+                  <Link href={previous.href}>
+                    <HugeiconsIcon
+                      icon={ArrowLeft01Icon}
+                      className="size-4 shrink-0"
+                    />
+                    <span className="min-w-0 text-left">
+                      <span className="block text-[0.625rem] tracking-widest text-muted-foreground uppercase">
+                        Higher score
+                      </span>
+                      <span className="block truncate">{previous.name}</span>
+                    </span>
+                  </Link>
+                </Button>
+              ) : (
+                <span className="flex-1" />
+              )}
+              {next ? (
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-auto min-w-0 flex-1 justify-end py-3"
+                >
+                  <Link href={next.href}>
+                    <span className="min-w-0 text-right">
+                      <span className="block text-[0.625rem] tracking-widest text-muted-foreground uppercase">
+                        Next name
+                      </span>
+                      <span className="block truncate">{next.name}</span>
+                    </span>
+                    <HugeiconsIcon
+                      icon={ArrowRight01Icon}
+                      className="size-4 shrink-0"
+                    />
+                  </Link>
+                </Button>
+              ) : (
+                <span className="flex-1" />
+              )}
+            </nav>
+          ) : null}
         </div>
       </section>
     </>

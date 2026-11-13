@@ -2,7 +2,13 @@
 
 import { useState } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Compass01Icon, Logout02Icon } from "@hugeicons/core-free-icons"
+import Link from "next/link"
+import {
+  Compass01Icon,
+  Logout02Icon,
+  Search01Icon,
+  UserIcon,
+} from "@hugeicons/core-free-icons"
 import Logo from "@/components/app/logo"
 import SoundToggle from "@/components/sound/sound-toggle"
 import NotificationsBell from "@/components/dashboard/notifications-bell"
@@ -17,6 +23,7 @@ import {
 import { useTourStore } from "@/lib/store/tour"
 import type { ApiUser } from "@/lib/api"
 import { signOut } from "@/app/dashboard/actions"
+import { OPEN_EVENT } from "@/components/dashboard/command-menu"
 
 export default function MobileHeader({ user }: { user: ApiUser }) {
   const [signingOut, setSigningOut] = useState(false)
@@ -25,6 +32,14 @@ export default function MobileHeader({ user }: { user: ApiUser }) {
     <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background/95 px-4 backdrop-blur-sm md:hidden">
       <Logo className="h-6 w-auto" href="/dashboard" />
       <div className="flex items-center gap-1">
+        <button
+          type="button"
+          aria-label="Search or jump to"
+          onClick={() => window.dispatchEvent(new Event(OPEN_EVENT))}
+          className="inline-flex size-9 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <HugeiconsIcon icon={Search01Icon} className="size-5" />
+        </button>
         <NotificationsBell />
         <SoundToggle />
         <DropdownMenu>
@@ -34,6 +49,12 @@ export default function MobileHeader({ user }: { user: ApiUser }) {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/account">
+                <HugeiconsIcon icon={UserIcon} />
+                Account
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => useTourStore.getState().start()}>
               <HugeiconsIcon icon={Compass01Icon} />
               Take the tour

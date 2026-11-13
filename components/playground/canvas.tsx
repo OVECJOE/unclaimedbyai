@@ -24,6 +24,7 @@ import { announceCompletion } from "@/lib/sound/announce"
 import { playSound } from "@/lib/sound/engine"
 import { useDashboardStore } from "@/lib/store/dashboard"
 import { useMediaQuery } from "@/hooks/use-media-query"
+import NewSandboxButton from "@/components/dashboard/new-sandbox-button"
 import SandboxSwitcher from "@/components/playground/sandbox-switcher"
 import GeneratePanel from "@/components/playground/generate-panel"
 import IdeaBoard from "@/components/playground/idea-board"
@@ -205,13 +206,49 @@ export default function PlaygroundCanvas({
 
   if (!board) {
     return (
-      <div className="border border-dashed p-8 text-center">
-        <p className="font-heading text-xl font-semibold">No sandbox open</p>
-        <p className="mx-auto mt-1 max-w-prose text-sm text-muted-foreground">
-          {sandboxes.length
-            ? "Pick one above, or start a new sandbox to generate ideas."
-            : "Start a sandbox, answer three questions, and generate your first batch."}
-        </p>
+      <div className="space-y-6 border border-dashed p-6 sm:p-10">
+        <div className="space-y-1 text-center">
+          <p className="font-heading text-2xl font-semibold">
+            {sandboxes.length
+              ? "Pick a sandbox to open"
+              : "Start your first sandbox"}
+          </p>
+          <p className="mx-auto max-w-prose text-sm text-muted-foreground">
+            {sandboxes.length
+              ? "Choose one from the list above, or start a new one."
+              : "A sandbox is a workspace for one business idea. Here is how it works:"}
+          </p>
+        </div>
+        {sandboxes.length ? null : (
+          <ol className="mx-auto grid max-w-3xl gap-px border bg-border text-left sm:grid-cols-3">
+            {[
+              [
+                "1",
+                "Describe your idea",
+                "Answer a few short questions about what you are building and who it is for.",
+              ],
+              [
+                "2",
+                "Get ideas back",
+                "Four naming studios each suggest business ideas. You keep the ones you like.",
+              ],
+              [
+                "3",
+                "Turn one into names",
+                "Pick an idea and we suggest names, then check each one for domains and handles.",
+              ],
+            ].map(([n, title, body]) => (
+              <li key={n} className="space-y-1 bg-background p-4">
+                <p className="font-mono text-xs text-primary">Step {n}</p>
+                <p className="font-medium">{title}</p>
+                <p className="text-sm text-muted-foreground">{body}</p>
+              </li>
+            ))}
+          </ol>
+        )}
+        <div className="flex justify-center">
+          <NewSandboxButton />
+        </div>
       </div>
     )
   }

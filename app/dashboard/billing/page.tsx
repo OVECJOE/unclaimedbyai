@@ -145,7 +145,9 @@ export default async function BillingPage({
                 {user.credits}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Spend on research, extra searches, and re-checks.
+                {user.credits > 0
+                  ? `Enough for ${user.credits} re-checks, ${Math.floor(user.credits / 2)} extra searches, or ${Math.floor(user.credits / 3)} in-depth research reports.`
+                  : "A re-check costs 1, an extra search 2, and in-depth research 3."}
               </p>
             </div>
             <div className="border p-5">

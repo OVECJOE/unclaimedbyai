@@ -64,3 +64,74 @@ export function aiAssociationColor(
 ): string {
   return AI_ASSOCIATION_COLORS[association]
 }
+
+/**
+ * One plain sentence on what to do with a name, from the facts we
+ * checked. The .com is the deciding fact for most people, so it leads;
+ * a name with nothing free says so rather than staying quiet. Unknown
+ * answers (null) are never treated as taken.
+ */
+export function nextStep(result: NameResult): {
+  /** A few words, for a crowded table row. */
+  short: string
+  /** The full sentence, for the comparison and detail views. */
+  text: string
+  tone: "good" | "warn" | "bad"
+} {
+  const free = result.domains.filter((domain) => domain.available === true)
+  const com = result.domains.find((domain) => domain.tld === "com")
+  const handlesFree = result.socials.filter(
+    (social) => social.available === true
+  ).length
+  const handlesTaken = result.socials.filter(
+    (social) => social.available === false
+  ).length
+  const crowded =
+    result.aiAssociation === "High" || result.aiAssociation === "Very High"
+  // Long lists read as noise: name three and count the rest.
+  const some = free.slice(0, 3).map((domain) => `.${domain.tld}`)
+  const list =
+    free.length > 3
+      ? `${some.join(", ")} and ${free.length - 3} more`
+      : some.join(", ").replace(/, ([^,]*)$/, " and $1")
+
+  if (com?.available === true) {
+    if (crowded) {
+      return {
+        short: ".com free, but chatbots link it to something else",
+        text: "The .com is free, but chatbots already link this name to something else. Check what they say first.",
+        tone: "warn",
+      }
+    }
+    return {
+      short: "Register the .com now",
+      text:
+        handlesTaken > 0
+          ? `Register the .com now. ${handlesTaken} handle${handlesTaken === 1 ? " is" : "s are"} already taken, so claim the rest soon.`
+          : "Register the .com now, then claim the handles.",
+      tone: "good",
+    }
+  }
+  if (free.length > 0) {
+    return {
+      short: `No .com. ${some[0]} is free`,
+      text: `The .com is ${com?.available === false ? "taken" : "not confirmed"}. ${list} ${free.length === 1 ? "is" : "are"} free if that works for you.`,
+      tone: "warn",
+    }
+  }
+  if (result.domains.every((domain) => domain.available === null)) {
+    return {
+      short: "Domains not confirmed. Check again",
+      text: "We could not confirm the domains. Check this name again.",
+      tone: "warn",
+    }
+  }
+  return {
+    short: "Probably skip this one",
+    text:
+      handlesFree > 0
+        ? "Every domain we checked is taken. Only worth it if you can buy one."
+        : "Domains and handles are mostly taken. Probably skip this one.",
+    tone: "bad",
+  }
+}

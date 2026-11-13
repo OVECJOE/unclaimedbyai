@@ -13,6 +13,7 @@ import {
 import Logo from "@/components/app/logo"
 import SoundToggle from "@/components/sound/sound-toggle"
 import NotificationsBell from "@/components/dashboard/notifications-bell"
+import { CommandMenuButton } from "@/components/dashboard/command-menu"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { accountAvatarUrl } from "@/lib/avatar"
@@ -22,6 +23,7 @@ import type { ApiUser } from "@/lib/api"
 import { signOut } from "@/app/dashboard/actions"
 import {
   canvasHref,
+  historyNavItem,
   isActivePath,
   playgroundNavItems,
   topNavItems,
@@ -85,6 +87,10 @@ export default function DashboardSidebar({ user }: { user?: ApiUser | null }) {
         </div>
       </div>
 
+      <div className="px-4 pt-4">
+        <CommandMenuButton />
+      </div>
+
       <nav
         aria-label="Primary"
         className="flex-1 space-y-2 overflow-y-auto py-4"
@@ -98,6 +104,17 @@ export default function DashboardSidebar({ user }: { user?: ApiUser | null }) {
         >
           <HugeiconsIcon icon={topNavItems[0].icon} className="size-4" />
           Home
+        </Link>
+
+        <Link
+          href={historyNavItem.href}
+          aria-current={
+            isActivePath(pathname, historyNavItem.href) ? "page" : undefined
+          }
+          className={linkClass(isActivePath(pathname, historyNavItem.href))}
+        >
+          <HugeiconsIcon icon={historyNavItem.icon} className="size-4" />
+          {historyNavItem.label}
         </Link>
 
         {/* The whole row toggles the group: the label is not a

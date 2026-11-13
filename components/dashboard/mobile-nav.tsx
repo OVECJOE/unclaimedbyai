@@ -4,7 +4,11 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { cn } from "@/lib/utils"
-import { isActivePath, topNavItems } from "@/components/dashboard/nav"
+import {
+  historyNavItem,
+  isActivePath,
+  topNavItems,
+} from "@/components/dashboard/nav"
 import { Layout01Icon } from "@hugeicons/core-free-icons"
 
 /**
@@ -16,8 +20,9 @@ export default function MobileNav() {
   const pathname = usePathname()
   const items = [
     ...topNavItems.slice(0, 1),
+    historyNavItem,
     { href: "/dashboard/playground", label: "Playground", icon: Layout01Icon },
-    ...topNavItems.slice(1),
+    ...topNavItems.slice(1, 2),
   ]
 
   return (
