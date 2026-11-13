@@ -69,24 +69,24 @@ export default function CommentForm({
       >
         <div className="space-y-2">
           <Label htmlFor={parentId ? `name-${parentId}` : "name"}>
-            Codename
+            Your name
           </Label>
           <Input
             id={parentId ? `name-${parentId}` : "name"}
             name="authorName"
-            placeholder="Ada, Turing, or something entirely"
+            placeholder="How you want to appear"
             maxLength={60}
             required
           />
         </div>
         <div className="space-y-2">
           <Label htmlFor={parentId ? `body-${parentId}` : "body"}>
-            Transmission
+            Comment
           </Label>
           <Textarea
             id={parentId ? `body-${parentId}` : "body"}
             name="body"
-            placeholder="Tell me what you think, what I got wrong, or what you would like me to break down next."
+            placeholder="What you think, what we got wrong, or what you want explained next."
             rows={compact ? 2 : 3}
             maxLength={2000}
             required
@@ -96,14 +96,14 @@ export default function CommentForm({
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <Button type="submit" disabled={isPending}>
           {isPending
-            ? "Transmitting…"
+            ? "Sending…"
             : parentId !== null
-              ? "Reply"
-              : "Transmit"}
+              ? "Post reply"
+              : "Post comment"}
         </Button>
         {compact ? null : (
           <span className="text-sm text-muted-foreground">
-            Comments are public — be kind, be useful.
+            Comments are public and appear once we&apos;ve read them.
           </span>
         )}
       </div>

@@ -1,163 +1,164 @@
 import Link from "next/link"
 import Image from "next/image"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { ArrowRight01Icon } from "@hugeicons/core-free-icons"
+import { ViewTransition } from "react"
 import { cn } from "@/lib/utils"
 import type { PostSummary } from "@/lib/blog/types"
 import { isSafeCoverUrl } from "@/lib/blog/cover-image"
 import DateLabel from "./date-label"
 
-function Doodle({ variant }: { variant: number }) {
-  if (variant === 1) {
-    return (
-      <svg
-        viewBox="0 0 120 120"
-        aria-hidden="true"
-        className="absolute -top-6 -right-6 size-36 text-primary/25"
-        fill="currentColor"
-      >
-        {Array.from({ length: 25 }).map((_, i) => (
-          <circle
-            key={i}
-            cx={12 + (i % 5) * 24}
-            cy={12 + Math.floor(i / 5) * 24}
-            r={i % 5 === 2 && Math.floor(i / 5) === 2 ? 5 : 2}
-          />
-        ))}
-        <rect x={72} y={104} width={36} height={6} rx={3} />
-      </svg>
-    )
-  }
-  if (variant === 2) {
-    return (
-      <svg
-        viewBox="0 0 120 120"
-        aria-hidden="true"
-        className="absolute -top-8 -right-8 size-40 text-primary/25"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={3}
-      >
-        <circle cx={120} cy={0} r={88} />
-        <circle cx={120} cy={0} r={58} />
-        <circle cx={120} cy={0} r={28} fill="currentColor" stroke="none" />
-        <path d="M18 92h16M26 84v16" strokeWidth={4} strokeLinecap="round" />
-      </svg>
-    )
-  }
+/**
+ * One post in a list. The cover sits above the words and never behind
+ * them: most covers carry their own headline, and printing the title
+ * over that made two layers of text fight. The cover shares a view
+ * transition name with the article's cover, so opening a post carries
+ * the picture into place instead of swapping pages.
+ */
+export function coverTransitionName(id: number): string {
+  return `blog-cover-${id}`
+}
+
+export function PostMeta({
+  post,
+  className,
+}: {
+  post: Pick<PostSummary, "tags" | "readingMinutes">
+  className?: string
+}) {
   return (
-    <svg
-      viewBox="0 0 120 120"
-      aria-hidden="true"
-      className="absolute -top-6 -right-6 size-36 text-primary/25"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={3}
+    <p
+      className={cn(
+        "flex items-center gap-2 text-[0.6875rem] font-semibold tracking-widest uppercase",
+        className
+      )}
     >
-      <path d="M8 112L112 8" strokeDasharray="2 10" strokeLinecap="round" />
-      <rect x={70} y={70} width={26} height={26} />
-      <circle cx={34} cy={34} r={12} />
-      <rect
-        x={16}
-        y={96}
-        width={30}
-        height={6}
-        rx={3}
-        fill="currentColor"
-        stroke="none"
-      />
-    </svg>
+      {post.tags[0] ? (
+        <>
+          <span className="truncate text-primary">{post.tags[0]}</span>
+          <span aria-hidden="true" className="text-muted-foreground">
+            ·
+          </span>
+        </>
+      ) : null}
+      <span className="shrink-0 text-muted-foreground">
+        {post.readingMinutes} min read
+      </span>
+    </p>
   )
 }
 
-function CropMarks() {
-  const tick = "absolute h-3 w-3 border-primary/50"
+function Cover({
+  post,
+  sizes,
+  priority = false,
+}: {
+  post: PostSummary
+  sizes: string
+  priority?: boolean
+}) {
+  const hasCover = post.coverImageUrl && isSafeCoverUrl(post.coverImageUrl)
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute -inset-2">
-      <span className={cn(tick, "-top-0.5 -left-0.5 border-t-2 border-l-2")} />
-      <span className={cn(tick, "-top-0.5 -right-0.5 border-t-2 border-r-2")} />
-      <span
-        className={cn(tick, "-bottom-0.5 -left-0.5 border-b-2 border-l-2")}
-      />
-      <span
-        className={cn(tick, "-right-0.5 -bottom-0.5 border-r-2 border-b-2")}
-      />
-    </div>
-  )
-}
-
-export default function BlogCard({ post }: { post: PostSummary }) {
-  const variant = post.id % 3
-
-  return (
-    <li className="relative m-2">
-      <CropMarks />
-      <Link
-        href={`/blog/${post.slug}`}
-        className="group relative flex min-h-72 flex-col justify-end overflow-hidden border bg-card p-5 transition-colors hover:border-primary/60 sm:min-h-80 sm:p-6"
-      >
-        {post.coverImageUrl && isSafeCoverUrl(post.coverImageUrl) ? (
-          <>
-            <Image
-              src={post.coverImageUrl}
-              alt=""
-              aria-hidden="true"
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 640px"
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-            />
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 bg-linear-to-t from-background via-background/80 to-background/20"
-            />
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 bg-primary/[0.07]"
-            />
-          </>
+    <ViewTransition
+      name={coverTransitionName(post.id)}
+      share="blog-morph"
+      default="none"
+    >
+      <div className="relative aspect-[1.91/1] overflow-hidden border bg-muted transition-colors group-hover:border-primary/60">
+        {hasCover ? (
+          <Image
+            src={post.coverImageUrl!}
+            alt=""
+            fill
+            priority={priority}
+            sizes={sizes}
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+          />
         ) : (
-          <div aria-hidden="true" className="absolute inset-0 bg-muted/60" />
+          <p
+            aria-hidden="true"
+            className="absolute inset-0 flex items-center justify-center p-6 text-center font-heading text-3xl text-muted-foreground/70"
+          >
+            {post.title}
+          </p>
         )}
+      </div>
+    </ViewTransition>
+  )
+}
 
-        <Doodle variant={variant} />
+export default function BlogCard({
+  post,
+  lead = false,
+  headingLevel = "h2",
+}: {
+  post: PostSummary
+  /** The newest post on the first page: wider, with a larger title. */
+  lead?: boolean
+  headingLevel?: "h2" | "h3"
+}) {
+  const Heading = headingLevel
 
-        <div className="relative space-y-2">
-          {post.tags.length ? (
-            <p className="flex flex-wrap gap-1.5">
-              {post.tags.slice(0, 3).map((tag) => (
-                <span
-                  key={tag}
-                  className="border border-primary/30 bg-background/70 px-1.5 py-0.5 text-[0.625rem] font-semibold tracking-widest text-primary uppercase"
-                >
-                  {tag}
-                </span>
-              ))}
-            </p>
-          ) : null}
-          <h2 className="font-heading text-2xl leading-tight">{post.title}</h2>
-          {post.excerpt ? (
-            <p className="line-clamp-2 text-sm text-muted-foreground">
-              {post.excerpt}
-            </p>
-          ) : null}
-          <p className="flex items-center justify-between gap-2 pt-1 text-sm text-muted-foreground">
-            <span className="truncate">
+  if (lead) {
+    return (
+      <li>
+        <Link
+          href={`/blog/${post.slug}`}
+          className="group grid items-center gap-6 md:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] md:gap-10"
+        >
+          <Cover
+            post={post}
+            priority
+            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 58vw, 740px"
+          />
+          <div className="space-y-4">
+            <PostMeta post={post} />
+            <Heading className="font-heading text-4xl leading-[1.05] text-balance underline-offset-4 decoration-primary/60 group-hover:underline md:text-5xl">
+              {post.title}
+            </Heading>
+            {post.excerpt ? (
+              <p className="line-clamp-4 text-pretty text-muted-foreground md:text-lg">
+                {post.excerpt}
+              </p>
+            ) : null}
+            <p className="text-sm text-muted-foreground">
               {post.author.name}
               {post.publishedAt ? (
                 <>
                   {" · "}
-                  <DateLabel value={post.publishedAt} />
+                  <DateLabel value={post.publishedAt} dateStyle="long" />
                 </>
               ) : null}
-            </span>
-            <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold tracking-widest text-primary uppercase">
-              Read
-              <HugeiconsIcon
-                icon={ArrowRight01Icon}
-                className="transition-transform group-hover:translate-x-0.5"
-              />
-            </span>
-          </p>
+            </p>
+          </div>
+        </Link>
+      </li>
+    )
+  }
+
+  return (
+    <li>
+      <Link
+        href={`/blog/${post.slug}`}
+        className="group flex h-full flex-col gap-4"
+      >
+        <Cover
+          post={post}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
+        />
+        <div className="flex flex-1 flex-col gap-2">
+          <PostMeta post={post} />
+          <Heading className="font-heading text-2xl leading-tight text-balance underline-offset-4 decoration-primary/60 group-hover:underline">
+            {post.title}
+          </Heading>
+          {post.excerpt ? (
+            <p className="line-clamp-3 text-sm text-pretty text-muted-foreground">
+              {post.excerpt}
+            </p>
+          ) : null}
+          {post.publishedAt ? (
+            <p className="mt-auto pt-1 text-sm text-muted-foreground">
+              <DateLabel value={post.publishedAt} />
+            </p>
+          ) : null}
         </div>
       </Link>
     </li>

@@ -134,14 +134,24 @@
 
 @layer components {
   .blog-prose {
-    font-size: 1.1875rem;
-    line-height: 1.8;
+    font-size: 1.0625rem;
+    line-height: 1.75;
     /* A bare URL or long link is one unbreakable run, and without this
        it pushes the page wider than the viewport on a phone. Inherited
        by every descendant, so paragraphs, links, inline code and table
        cells all wrap; `pre` keeps white-space: pre, so code blocks
        still scroll instead of reflowing. */
     overflow-wrap: anywhere;
+    text-wrap: pretty;
+  }
+  @media (min-width: 40rem) {
+    .blog-prose {
+      font-size: 1.1875rem;
+      line-height: 1.8;
+    }
+  }
+  .blog-prose ::selection {
+    background: color-mix(in oklch, var(--primary) 22%, transparent);
   }
   .blog-prose > :where(* + *) {
     margin-block-start: 1.5rem;
@@ -149,20 +159,37 @@
   .blog-prose :where(h2, h3, h4) {
     font-family: var(--font-heading);
     font-weight: 400;
-    line-height: 1.2;
-    scroll-margin-block-start: 5rem;
+    line-height: 1.15;
+    scroll-margin-block-start: 6rem;
+    text-wrap: balance;
   }
   .blog-prose :where(h2) {
-    font-size: 2.25rem;
-    margin-block-start: 3rem;
+    font-size: 2rem;
+    margin-block-start: 3.5rem;
   }
   .blog-prose :where(h3) {
-    font-size: 1.625rem;
-    margin-block-start: 2.25rem;
+    font-size: 1.5rem;
+    margin-block-start: 2.5rem;
   }
   .blog-prose :where(h4) {
-    font-size: 1.375rem;
-    margin-block-start: 1.75rem;
+    font-size: 1.25rem;
+    margin-block-start: 2rem;
+  }
+  @media (min-width: 40rem) {
+    .blog-prose :where(h2) {
+      font-size: 2.375rem;
+    }
+    .blog-prose :where(h3) {
+      font-size: 1.75rem;
+    }
+    .blog-prose :where(h4) {
+      font-size: 1.375rem;
+    }
+  }
+  /* A heading pulls the paragraph after it closer, so each section
+     reads as one unit instead of a heading floating between two. */
+  .blog-prose :where(h2, h3, h4) + * {
+    margin-block-start: 1rem;
   }
   .blog-prose :where(h2, h3, h4) a {
     color: inherit;
@@ -171,7 +198,13 @@
   .blog-prose :where(a) {
     color: var(--primary);
     text-decoration: underline;
+    text-decoration-color: color-mix(in oklch, var(--primary) 40%, transparent);
+    text-decoration-thickness: 1px;
     text-underline-offset: 3px;
+    transition: text-decoration-color 150ms;
+  }
+  .blog-prose :where(a):hover {
+    text-decoration-color: var(--primary);
   }
   .blog-prose :where(ul) {
     list-style: disc;
@@ -181,40 +214,57 @@
     list-style: decimal;
     padding-inline-start: 1.5rem;
   }
+  .blog-prose :where(li)::marker {
+    color: var(--primary);
+  }
   .blog-prose :where(li + li) {
     margin-block-start: 0.625rem;
   }
   .blog-prose :where(blockquote) {
-    border-inline-start: 2px solid var(--border);
-    color: var(--muted-foreground);
-    padding-inline-start: 1rem;
+    border-inline-start: 2px solid var(--primary);
+    color: color-mix(in oklch, var(--foreground) 80%, transparent);
+    padding-block: 0.25rem;
+    padding-inline-start: 1.25rem;
   }
   .blog-prose :where(hr) {
     border-color: var(--border);
-    margin-block: 2.5rem;
+    margin-block: 3rem;
+    margin-inline: auto;
+    width: 6rem;
   }
   .blog-prose :where(img) {
     height: auto;
     max-width: 100%;
   }
+  .blog-prose :where(figure img, p > img:only-child) {
+    border: 1px solid var(--border);
+  }
+  .blog-prose :where(figcaption) {
+    font-size: 0.875rem;
+  }
   .blog-prose :where(code) {
     background: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.9em;
+    font-size: 0.85em;
     padding: 0.125rem 0.375rem;
   }
   .blog-prose :where(pre) {
     background: var(--muted);
+    border: 1px solid var(--border);
+    font-size: 0.875rem;
+    line-height: 1.7;
     overflow-x: auto;
-    padding: 1rem;
+    padding: 1.25rem;
   }
   .blog-prose :where(pre code) {
     background: transparent;
+    font-size: inherit;
     padding: 0;
   }
   .blog-prose :where(table) {
     border-collapse: collapse;
     display: block;
+    font-size: 0.9375rem;
     overflow-x: auto;
     width: 100%;
   }
@@ -225,6 +275,41 @@
   }
   .blog-prose :where(th) {
     background: var(--muted);
+  }
+  /* Pictures, code and tables step out past the text on wide screens,
+     where the margins have room for them; the words keep their
+     comfortable width. */
+  @media (min-width: 80rem) {
+    .blog-prose
+      > :where(figure, pre, table, p:has(> img:only-child), p:has(> a:only-child > img:only-child)) {
+      margin-inline: -6rem;
+      max-width: none;
+      width: calc(100% + 12rem);
+    }
+    .blog-prose > :where(table) {
+      width: calc(100% + 12rem);
+    }
+  }
+}
+
+/* Opening a post carries its cover from the list into place. */
+::view-transition-group(.blog-morph) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+::view-transition-image-pair(.blog-morph) {
+  animation-name: blog-morph-soften;
+}
+@keyframes blog-morph-soften {
+  40% {
+    filter: blur(2px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }
 

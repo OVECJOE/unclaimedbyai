@@ -291,7 +291,7 @@ export async function submitComment(
       : ""
 
   if (honeypot) {
-    return { ok: true, message: "Transmission received." }
+    return { ok: true, message: "Thanks, your comment was sent." }
   }
   if (!Number.isInteger(postId)) {
     return { ok: false, message: "That post no longer exists." }
@@ -300,13 +300,13 @@ export async function submitComment(
     return {
       ok: false,
       message:
-        "Every transmission needs a codename. Keep it under 60 characters.",
+        "Add your name (up to 60 characters) so people know who wrote it.",
     }
   }
   if (body.length < 1 || body.length > COMMENT_BODY_MAX) {
     return {
       ok: false,
-      message: "An empty transmission says nothing. Write something first.",
+      message: "Your comment is empty. Write something first.",
     }
   }
 
@@ -320,7 +320,7 @@ export async function submitComment(
     return {
       ok: false,
       message:
-        "That's a lot of transmissions in a short window. Give it a few minutes and try again.",
+        "You've sent a lot of comments in a short time. Wait a few minutes and try again.",
     }
   }
 
@@ -334,14 +334,14 @@ export async function submitComment(
   if (!created) {
     return {
       ok: false,
-      message: "The channel dropped that one. Try again in a moment.",
+      message: "We couldn't save your comment. Try again in a moment.",
     }
   }
 
   revalidatePath(`/blog/${created.postSlug}`)
   return {
     ok: true,
-    message: "Transmission received. It goes live once we've reviewed it.",
+    message: "Thanks! Your comment will appear once we've read it.",
   }
 }
 
@@ -431,7 +431,7 @@ export async function boostSignal(
         ok: true,
         boosted: true,
         inserted: true,
-        message: "Boost sent. The signal is stronger now.",
+        message: "Thanks, your boost was counted.",
       }
     : {
         ok: true,

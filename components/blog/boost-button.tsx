@@ -68,7 +68,7 @@ export default function BoostButton({
           onClick={() => setConfirmOpen(true)}
           aria-label={
             sent
-              ? `Signal boosted, ${displayCount} boosts`
+              ? `Boosted, ${displayCount} boosts`
               : commentId !== null
                 ? `Boost this comment, ${displayCount} boosts`
                 : `Boost this post, ${displayCount} boosts`

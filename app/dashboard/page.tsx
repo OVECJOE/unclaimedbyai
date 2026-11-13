@@ -21,21 +21,6 @@ import {
 
 export const dynamic = "force-dynamic"
 
-const PRODUCT_NOTES = [
-  {
-    title: "The playground moved",
-    body: "Sandboxes and your watchlist now live together under Playground in the sidebar, and the canvas is one click away.",
-  },
-  {
-    title: "Idea generation is open",
-    body: "Free accounts get three runs a day. Each run has four studios argue from different angles and a judge keeps the strongest.",
-  },
-  {
-    title: "Credits buy the deep work",
-    body: "Market research costs 3 credits, a search 2, and a re-check 1. Your first check on any name is always free.",
-  },
-]
-
 function greeting(name: string | null, email: string): string {
   if (name) return name
   const handle = email.split("@")[0]
@@ -162,24 +147,6 @@ export default async function DashboardHomePage() {
             </Link>
           </div>
           <RecentSandboxes sandboxes={sandboxes?.items ?? []} />
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="font-heading text-2xl font-semibold">
-            What&apos;s new
-          </h2>
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {PRODUCT_NOTES.map((note) => (
-              <li key={note.title} className="border p-5">
-                <p className="font-heading text-lg font-semibold">
-                  {note.title}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {note.body}
-                </p>
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
     </section>

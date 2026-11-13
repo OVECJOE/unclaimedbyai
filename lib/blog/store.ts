@@ -28,6 +28,7 @@ type PostRow = {
   cover_image_width: number | null
   cover_image_height: number | null
   body_mdx: string
+  reading_minutes: number
   status: PostStatus
   published_at: Date | string | null
   updated_at: Date | string
@@ -55,6 +56,7 @@ type SummaryRow = Pick<
   | "author_name"
   | "author_avatar_url"
   | "author_socials"
+  | "reading_minutes"
 >
 
 type EditorRow = {
@@ -65,8 +67,15 @@ type EditorRow = {
   socials: AuthorSocial[] | null
 }
 
+// Reading time at 230 words a minute, the usual adult silent-reading
+// pace, counted in Postgres so list pages never ship whole bodies.
+const READING_MINUTES = `greatest(1, round(coalesce(array_length(
+    regexp_split_to_array(btrim(p.body_mdx), '\\s+'), 1), 0) / 230.0))::int
+    as reading_minutes`
+
 const POST_SELECT = `
   select p.id::int as id, p.slug, p.title, p.excerpt, p.cover_image_url,
+    ${READING_MINUTES},
     p.cover_image_width::int as cover_image_width,
     p.cover_image_height::int as cover_image_height,
     p.body_mdx, p.status, p.published_at, p.updated_at, p.seo_title,
@@ -77,6 +86,7 @@ const POST_SELECT = `
 
 const SUMMARY_SELECT = `
   select p.id::int as id, p.slug, p.title, p.excerpt, p.cover_image_url,
+    ${READING_MINUTES},
     p.cover_image_width::int as cover_image_width,
     p.cover_image_height::int as cover_image_height,
     p.published_at, p.updated_at, p.tags, e.name as author_name,
@@ -98,6 +108,7 @@ function toPost(row: PostRow): Post {
     coverImageWidth: row.cover_image_width,
     coverImageHeight: row.cover_image_height,
     bodyMdx: row.body_mdx,
+    readingMinutes: row.reading_minutes,
     status: row.status,
     publishedAt: row.published_at ? iso(row.published_at) : null,
     updatedAt: iso(row.updated_at),
@@ -130,6 +141,7 @@ function toSummary(row: SummaryRow): PostSummary {
       socials: row.author_socials ?? [],
     },
     tags: row.tags,
+    readingMinutes: row.reading_minutes,
   }
 }
 
@@ -190,6 +202,9 @@ export async function listTopPublishedPosts(limit: number): Promise<TopPost[]> {
       p.cover_image_height::int as cover_image_height,
       p.published_at, p.updated_at, p.tags, e.name as author_name,
       e.avatar_url as author_avatar_url, e.socials as author_socials,
+      greatest(1, round(coalesce(array_length(
+        regexp_split_to_array(btrim(p.body_mdx), '\\s+'), 1), 0) / 230.0))::int
+        as reading_minutes,
       count(s.id)::int as boosts
     from blog_posts p
     join blog_editors e on e.id = p.author_id
@@ -293,6 +308,30 @@ export const listPublishedPostsByTag = cache(
       .filter((post) => post.tags.some((tag) => tagToSlug(tag) === tagSlug))
   }
 )
+
+/**
+ * What to read next: the posts sharing the most tags with this one,
+ * newest first among equals, so a post with no overlap still gets the
+ * latest writing rather than nothing.
+ */
+export async function listRelatedPosts(
+  postId: number,
+  tags: string[],
+  limit: number
+): Promise<PostSummary[]> {
+  if (!configured()) return []
+
+  const rows = (await getSql().query(
+    `${SUMMARY_SELECT} where p.status = 'published' and p.id <> $1
+     order by cardinality(array(
+       select unnest(p.tags) intersect select unnest($2::text[])
+     )) desc, p.published_at desc, p.id desc
+     limit $3`,
+    [postId, tags, limit]
+  )) as SummaryRow[]
+
+  return rows.map(toSummary)
+}
 
 export const getPublishedPost = cache(async function getPublishedPost(
   slug: string

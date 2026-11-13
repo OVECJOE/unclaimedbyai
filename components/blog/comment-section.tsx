@@ -88,20 +88,19 @@ export default async function CommentSection({ postId }: { postId: number }) {
 
   return (
     <section
-      aria-labelledby="transmissions-heading"
-      className="mx-auto max-w-7xl space-y-6 border-t px-4 py-10"
+      id="comments"
+      aria-labelledby="comments-heading"
+      className="mx-auto max-w-[44.5rem] scroll-mt-24 space-y-6 px-4 py-10"
     >
-      <div className="max-w-prose space-y-2">
-        <h2
-          id="transmissions-heading"
-          className="font-heading text-3xl font-semibold"
-        >
-          Transmissions <span className="text-primary">[{total}]</span>
+      <div className="space-y-2">
+        <h2 id="comments-heading" className="font-heading text-3xl">
+          Comments{" "}
+          <span className="font-mono text-xl text-muted-foreground">
+            ({total})
+          </span>
         </h2>
-        <p className="text-muted-foreground md:text-lg">
-          This channel is open to anyone with something worth saying. Every
-          transmission is reviewed before it goes live, so give yours a moment
-          to land.
+        <p className="text-muted-foreground">
+          Questions, corrections and ideas are all welcome. No account needed.
         </p>
       </div>
 
@@ -118,9 +117,8 @@ export default async function CommentSection({ postId }: { postId: number }) {
           ))}
         </ol>
       ) : (
-        <p className="border border-dashed p-8 text-center text-muted-foreground">
-          Dead air so far, which means the first transmission on this post is
-          yours to send.
+        <p className="border border-dashed p-6 text-center text-muted-foreground">
+          No comments yet. Yours could be the first.
         </p>
       )}
 

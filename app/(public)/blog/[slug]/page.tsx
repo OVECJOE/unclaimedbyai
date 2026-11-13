@@ -6,7 +6,12 @@ import PostBoost from "@/components/blog/post-boost"
 import BoostStateProvider from "@/components/blog/boost-state"
 import CommentSection from "@/components/blog/comment-section"
 import PrompterCta from "@/components/public/prompter-cta"
-import { getPublishedPost, listPublishedSlugs } from "@/lib/blog/store"
+import BlogCard from "@/components/blog/blog-card"
+import {
+  getPublishedPost,
+  listPublishedSlugs,
+  listRelatedPosts,
+} from "@/lib/blog/store"
 import { markdownToPlainText } from "@/lib/blog/markdown"
 import { SITE_URL, pageMetadata } from "@/lib/site"
 
@@ -59,6 +64,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   if ("redirectTo" in post) permanentRedirect(`/blog/${post.redirectTo}`)
 
   const url = `${SITE_URL}/blog/${post.slug}`
+  const related = await listRelatedPosts(post.id, post.tags, 3)
 
   return (
     <>
@@ -142,9 +148,26 @@ export default async function BlogPostPage({ params }: PageProps) {
         <PostBoost postId={post.id} />
         <CommentSection postId={post.id} />
       </BoostStateProvider>
+      {related.length ? (
+        <section
+          aria-labelledby="keep-reading"
+          className="border-t px-4 pt-12 pb-4"
+        >
+          <div className="mx-auto max-w-7xl space-y-8">
+            <h2 id="keep-reading" className="font-heading text-3xl">
+              Keep reading
+            </h2>
+            <ul className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+              {related.map((entry) => (
+                <BlogCard key={entry.id} post={entry} headingLevel="h3" />
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
       {/* Every article ends in the product: reading about naming should
           end with a name being named, not with another article. */}
-      <section className="mt-10 border-t px-4 py-10">
+      <section className="mt-12 border-t px-4 py-12">
         <div className="mx-auto max-w-prose space-y-4 text-center">
           <p className="text-[0.625rem] font-semibold tracking-widest text-primary uppercase">
             Your turn

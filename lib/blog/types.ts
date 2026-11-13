@@ -34,6 +34,8 @@ export type PostSummary = {
   updatedAt: string
   author: PostAuthor
   tags: string[]
+  /** Whole minutes at an adult reading pace, never below one. */
+  readingMinutes: number
 }
 
 export type BlogFaq = {
