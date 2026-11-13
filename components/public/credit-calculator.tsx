@@ -3,6 +3,7 @@
 import { useId, useMemo, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 import { CURRENCY_SYMBOL, PRO_PRICE } from "@/lib/site"
 
@@ -101,9 +102,7 @@ export default function CreditCalculator({
           return (
             <div key={action.key} className="space-y-3">
               <div className="flex items-baseline justify-between gap-4">
-                <label htmlFor={inputId} className="font-medium">
-                  {action.label}
-                </label>
+                <span className="font-medium">{action.label}</span>
                 <output
                   htmlFor={inputId}
                   className="font-heading text-3xl leading-none tabular-nums"
@@ -111,19 +110,19 @@ export default function CreditCalculator({
                   {values[action.key]}
                 </output>
               </div>
-              <input
+              <Slider
                 id={inputId}
-                type="range"
                 min={0}
                 max={action.max}
-                value={values[action.key]}
-                onChange={(event) =>
+                step={1}
+                value={[values[action.key]]}
+                onValueChange={([next]) =>
                   setValues((current) => ({
                     ...current,
-                    [action.key]: Number(event.target.value),
+                    [action.key]: next,
                   }))
                 }
-                className="h-2 w-full cursor-pointer accent-primary"
+                aria-label={action.label}
               />
               <p className="text-xs text-muted-foreground">{action.hint}</p>
             </div>
