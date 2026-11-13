@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
-import Link from "next/link"
+import IdeaCardLink from "@/components/ideas/idea-card"
 import { JsonLd } from "@/components/app/json-ld"
 import PrompterCta from "@/components/public/prompter-cta"
 import { SectionHeader } from "@/components/public/section-header"
-import { checkedLabel, listIdeas } from "@/lib/ideas"
+import { listIdeas } from "@/lib/ideas"
 import { pageMetadata, SITE_URL } from "@/lib/site"
 
 export const revalidate = 300
@@ -55,35 +55,7 @@ export default async function IdeasIndexPage() {
             <ul className="grid gap-x-8 gap-y-10 sm:grid-cols-2">
               {items.map((item) => (
                 <li key={item.slug}>
-                  <Link
-                    href={`/ideas/${item.slug}`}
-                    className="group block space-y-3 border p-5 transition-colors hover:border-primary/60"
-                  >
-                    <p className="text-[0.6875rem] font-semibold tracking-widest text-muted-foreground uppercase">
-                      {item.owner} · {checkedLabel(item.published_at)}
-                    </p>
-                    <h2 className="font-heading text-2xl leading-tight text-balance group-hover:underline group-hover:underline-offset-4">
-                      {item.title}
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                      {item.name_count} names tested
-                      {item.best
-                        ? `. Best: ${item.best.name} at ${item.best.score}/100.`
-                        : "."}
-                    </p>
-                    {item.top_names.length > 0 ? (
-                      <p className="flex flex-wrap gap-1.5">
-                        {item.top_names.map((name) => (
-                          <span
-                            key={name}
-                            className="border border-primary/30 px-1.5 py-0.5 text-xs text-primary"
-                          >
-                            {name}
-                          </span>
-                        ))}
-                      </p>
-                    ) : null}
-                  </Link>
+                  <IdeaCardLink item={item} />
                 </li>
               ))}
             </ul>

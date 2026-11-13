@@ -794,3 +794,18 @@ div[data-sonner-toast] [data-button][data-cancel] {
 @media (prefers-reduced-motion: reduce) {
   .uba-meter[data-playing] > span { animation: none; }
 }
+
+/* Horizontal scrollbars are hidden everywhere. Wide tables, code and
+   tab rows still scroll sideways by touch, trackpad or shift + wheel;
+   vertical scrollbars are left alone. Chromium and Safari can target
+   the horizontal bar alone; Firefox can only hide a whole element's
+   bar, so it is limited to the elements that scroll sideways on purpose. */
+*::-webkit-scrollbar:horizontal {
+  display: none;
+  height: 0;
+}
+.overflow-x-auto,
+.overflow-x-scroll,
+.blog-prose :where(pre, table) {
+  scrollbar-width: none;
+}

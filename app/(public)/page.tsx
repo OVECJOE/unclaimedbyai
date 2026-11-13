@@ -6,6 +6,7 @@ import Suite from "@/components/landing/suite"
 import LiveFeed from "@/components/landing/live-feed"
 import PricingTeaser from "@/components/landing/pricing-teaser"
 import FaqTeaser, { LANDING_FAQS } from "@/components/landing/faq-teaser"
+import IdeaReports from "@/components/landing/idea-reports"
 import FinalCta from "@/components/landing/final-cta"
 import BlogCarousel from "@/components/public/blog-carousel"
 import CompareTable from "@/components/public/compare-table"
@@ -94,6 +95,7 @@ export default async function Page() {
         </div>
       </section>
 
+      <IdeaReports />
       <PricingTeaser signedIn={signedIn} />
       <BlogCarousel />
       <FaqTeaser />
