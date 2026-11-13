@@ -43,7 +43,7 @@ export default async function DashboardLayout({
         <ClaimSearches />
         {/* Renders nothing; drives the spotlight tour while active. */}
         <DashboardTour />
-        <div className="flex-1">{children}</div>
+        <div className="flex-1 mt-5">{children}</div>
         <DashboardFooter />
       </main>
       <MobileNav />
