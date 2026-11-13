@@ -45,7 +45,7 @@ export default async function DashboardLayout({
         {/* Renders nothing; drives the spotlight tour while active. */}
         <DashboardTour />
         <CommandMenuHost />
-        <div className="flex-1 mt-5">{children}</div>
+        <div className="flex-1 mb-5">{children}</div>
         <DashboardFooter />
       </main>
       <MobileNav />
