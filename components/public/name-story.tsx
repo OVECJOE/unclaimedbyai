@@ -1,12 +1,17 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import dynamic from "next/dynamic"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import type { NameStoryData, StoryTile } from "@/lib/name-facts"
 import { cn } from "@/lib/utils"
 
 gsap.registerPlugin(ScrollTrigger)
+
+// The film is code-split and only fetched once the page is idle and the
+// visitor allows motion, so it never touches first load.
+const StoryBackdrop = dynamic(() => import("./story-backdrop"), { ssr: false })
 
 /**
  * The result, told as three short chapters while you scroll: the
@@ -111,6 +116,38 @@ export default function NameStory({ story }: { story: NameStoryData }) {
   const root = useRef<HTMLDivElement>(null)
   const stage = useRef<HTMLDivElement>(null)
   const quote = useRef<HTMLQuoteElement>(null)
+  const film = useRef({ p: 0 })
+  const [showFilm, setShowFilm] = useState(false)
+
+  const domainStates = useMemo(
+    () => story.domains.tiles.map((tile) => tile.state),
+    [story]
+  )
+  const handleStates = useMemo(
+    () => story.handles.tiles.map((tile) => tile.state),
+    [story]
+  )
+  const lines = useMemo(
+    () =>
+      [
+        story.chatbots.quote?.text,
+        ...story.chatbots.models.map(
+          (model) => `${model} · asked about ${story.name}`
+        ),
+        `${story.name} · checked live`,
+        ...story.domains.tiles.map((tile) => `${story.name}${tile.label}`),
+      ].filter((line): line is string => Boolean(line)),
+    [story]
+  )
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    const idle =
+      window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 600))
+    const cancel = window.cancelIdleCallback ?? clearTimeout
+    const id = idle(() => setShowFilm(true))
+    return () => cancel(id as number)
+  }, [])
 
   useEffect(() => {
     const el = root.current
@@ -151,6 +188,9 @@ export default function NameStory({ story }: { story: NameStoryData }) {
             pin: true,
             scrub: 0.5,
             anticipatePin: 1,
+            onUpdate: (self) => {
+              film.current.p = self.progress
+            },
           },
         })
 
@@ -231,7 +271,18 @@ export default function NameStory({ story }: { story: NameStoryData }) {
   }, [])
 
   return (
-    <div ref={root} className="px-4 py-12 md:py-0">
+    <div
+      ref={root}
+      className="relative isolate overflow-hidden px-4 py-12 md:py-0"
+    >
+      {showFilm ? (
+        <StoryBackdrop
+          film={film}
+          domains={domainStates}
+          handles={handleStates}
+          lines={lines}
+        />
+      ) : null}
       <div className="mx-auto max-w-6xl">
         <div data-rail aria-hidden="true" className="hidden gap-2 pt-6 pb-4">
           {["Website address", "Usernames", "Chatbots"].map((label) => (

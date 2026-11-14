@@ -153,7 +153,7 @@ export default function Watchlist({ onChanged }: { onChanged?: () => void }) {
     return (
       <div className="space-y-4" aria-busy="true">
         {Array.from({ length: 2 }).map((_, index) => (
-          <div key={index} className="h-32 animate-pulse border bg-muted/40" />
+          <div key={index} className="h-32 skeleton skeleton-faint border" />
         ))}
       </div>
     )

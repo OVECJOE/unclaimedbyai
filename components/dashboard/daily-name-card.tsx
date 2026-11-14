@@ -55,7 +55,7 @@ export default function DailyNameCard({ userKey }: { userKey: string }) {
   }, [])
 
   if (items === null) {
-    return <div className="h-36 animate-pulse border bg-muted/30" />
+    return <div className="h-36 skeleton skeleton-faint border" />
   }
 
   if (!picked) {

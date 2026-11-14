@@ -826,3 +826,73 @@ div[data-sonner-toast] [data-button][data-cancel] {
     linear-gradient(to left, color-mix(in oklab, var(--foreground) 22%, transparent), transparent) right center /
       0.875rem 100% no-repeat scroll;
 }
+
+/* Ranked result cards: a nearly invisible light that drifts behind the
+   content, tinted by the card's tier, and a fine sheen on hover. All
+   compositor-only transforms; offscreen cards are skipped entirely and
+   reduced motion gets a still tint. */
+.card-skip {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 220px;
+}
+[data-tier="excellent"] { --aura: 34 197 94; }
+[data-tier="good"] { --aura: 101 163 13; }
+[data-tier="okay"] { --aura: 245 158 11; }
+[data-tier="poor"] { --aura: 239 68 68; }
+.card-aura {
+  position: absolute;
+  inset: -45%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.16;
+  background:
+    radial-gradient(34% 34% at 22% 32%, rgb(var(--aura, 124 58 237) / 0.5), transparent 70%),
+    radial-gradient(30% 30% at 78% 68%, rgb(var(--aura, 124 58 237) / 0.32), transparent 70%);
+  animation: aura-drift 24s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.dark .card-aura { opacity: 0.22; }
+.card-aura-lead { opacity: 0.3; }
+.dark .card-aura-lead { opacity: 0.38; }
+.card-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 40%, rgb(var(--aura, 124 58 237) / 0.1) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform 0.9s ease;
+}
+.group:hover > .card-sheen { transform: translateX(100%); }
+@keyframes aura-drift {
+  from { transform: translate3d(-5%, -3%, 0) rotate(0deg); }
+  to { transform: translate3d(5%, 4%, 0) rotate(8deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-aura { animation: none; }
+  .card-sheen { display: none; }
+}
+
+/* Skeletons: one soft sweep of light over a muted block, the same
+   everywhere. Compositor-only, off for reduced motion. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--muted);
+}
+.skeleton-faint { background-color: color-mix(in oklab, var(--muted) 45%, transparent); }
+.skeleton-soft { background-color: color-mix(in oklab, var(--muted) 65%, transparent); }
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--background) 60%, transparent), transparent);
+  animation: skeleton-sweep 1.7s ease-in-out infinite;
+}
+@keyframes skeleton-sweep {
+  to { transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after { display: none; }
+}

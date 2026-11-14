@@ -106,7 +106,9 @@ async function SearchLiveBlock({
             Sign in and this search moves into your dashboard history
             automatically.
           </p>
-          <SignInToClaim href={`/auth?next=${encodeURIComponent(`/results/${searchId}`)}`}>
+          <SignInToClaim
+            href={`/auth?next=${encodeURIComponent(`/results/${searchId}`)}`}
+          >
             Sign in to save
           </SignInToClaim>
         </div>

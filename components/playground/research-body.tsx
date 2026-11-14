@@ -173,8 +173,8 @@ export function ResearchBody({
                 aria-busy="true"
                 aria-label={`${section.label}: researching`}
               >
-                <div className="h-3 w-2/3 animate-pulse bg-muted" />
-                <div className="h-3 w-5/6 animate-pulse bg-muted" />
+                <div className="h-3 w-2/3 skeleton" />
+                <div className="h-3 w-5/6 skeleton" />
               </div>
             ) : "error" in value ? (
               <div className="border border-dashed border-destructive/40 px-2 py-1.5 text-xs text-destructive">

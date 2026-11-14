@@ -7,7 +7,7 @@ export const PostEditor = dynamic(() => import("./post-editor"), {
   loading: () => (
     <div
       role="status"
-      className="h-96 animate-pulse border border-input bg-muted/40"
+      className="skeleton skeleton-faint h-96 border border-input"
       aria-label="Loading editor"
     />
   ),

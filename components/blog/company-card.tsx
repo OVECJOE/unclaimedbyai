@@ -215,8 +215,8 @@ export default function CompanyCard({
         <div className="border-t px-4 py-3">
           {loading ? (
             <div className="space-y-2" aria-label="Loading company details">
-              <div className="h-3 animate-pulse bg-muted" />
-              <div className="h-3 w-4/5 animate-pulse bg-muted" />
+              <div className="h-3 skeleton" />
+              <div className="h-3 w-4/5 skeleton" />
             </div>
           ) : meta?.description ? (
             <p className="text-sm">{decodeEntities(meta.description)}</p>

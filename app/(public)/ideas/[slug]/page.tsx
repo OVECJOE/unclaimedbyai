@@ -339,7 +339,9 @@ export default async function IdeaPage({ params }: PageProps) {
               Type one name and get the same checks in seconds, free, no account
               needed.
             </p>
-            <div className="overflow-hidden"><PrompterCta /></div>
+            <div className="overflow-hidden">
+              <PrompterCta />
+            </div>
           </div>
         </section>
 
