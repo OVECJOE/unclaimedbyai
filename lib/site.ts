@@ -4,7 +4,7 @@ export const SITE_NAME = "Unclaimed by AI"
 export const SITE_URL = "https://www.unclaimedbyai.com"
 export const SITE_DESCRIPTION =
   "A name checker for founders and creators. Check any name against live .com registration, real social handles, and what GPT, Claude, and Perplexity already associate with it, all before you register. No name yet? Four naming studios generate options worth checking."
-export const OG_PATH = "/og-image.png"
+export const OG_PATH = "/og-image.png?v=2"
 
 export const FREE_SEARCHES = 3
 export const PRO_PRICE = 4.99
