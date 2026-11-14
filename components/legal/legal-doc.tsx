@@ -6,6 +6,8 @@ import {
   ArrowRight01Icon,
   Tick02Icon,
 } from "@hugeicons/core-free-icons"
+import GsapReveal from "@/components/about/gsap-reveal"
+import ReadingProgress from "@/components/blog/reading-progress"
 import RegistryField from "@/components/fields/registry-field"
 import { SectionHeader } from "@/components/public/section-header"
 import { cn } from "@/lib/utils"
@@ -62,6 +64,7 @@ export default function LegalDoc({
 }: LegalDocProps) {
   return (
     <>
+      <ReadingProgress targetId="legal-body" />
       <section className="relative isolate overflow-hidden border-b px-4 pt-16 pb-12 md:pt-24">
         <RegistryField quiet />
         <div className="mx-auto max-w-3xl space-y-8">
@@ -120,30 +123,36 @@ export default function LegalDoc({
         </div>
       </section>
 
-      <section className="px-4 py-14 md:py-20">
+      <section id="legal-body" className="px-4 py-14 md:py-20">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[14rem_minmax(0,42.5rem)] lg:justify-center xl:gap-16">
           <TableOfContents
             items={sections.map(({ id, title }) => ({ id, title }))}
           />
           <article className="w-full min-w-0">
             {sections.map((section) => (
-              <section
+              <GsapReveal
                 key={section.id}
-                id={section.id}
-                aria-labelledby={`${section.id}-heading`}
-                className="scroll-mt-24 border-b py-10 first:pt-0 last:border-b-0"
+                y={16}
+                start="top 90%"
+                className="border-b py-10 first:pt-0"
               >
-                <h2
-                  id={`${section.id}-heading`}
-                  className="font-heading text-3xl leading-tight text-balance md:text-4xl"
+                <section
+                  id={section.id}
+                  aria-labelledby={`${section.id}-heading`}
+                  className="scroll-mt-24"
                 >
-                  {section.title}
-                </h2>
-                <p className="mt-4 border-l-2 border-primary pl-4 text-xl font-medium text-pretty">
-                  {section.plain}
-                </p>
-                <div className="blog-prose mt-5">{section.body}</div>
-              </section>
+                  <h2
+                    id={`${section.id}-heading`}
+                    className="font-heading text-3xl leading-tight text-balance md:text-4xl"
+                  >
+                    {section.title}
+                  </h2>
+                  <p className="mt-4 border-l-2 border-primary pl-4 text-xl font-medium text-pretty">
+                    {section.plain}
+                  </p>
+                  <div className="blog-prose mt-5">{section.body}</div>
+                </section>
+              </GsapReveal>
             ))}
 
             <div className="mt-6 space-y-4 border bg-muted/40 p-6">
