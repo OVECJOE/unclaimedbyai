@@ -84,6 +84,7 @@ export default function StoryBackdrop({
     let sheet: HTMLCanvasElement | null = null
     let sheetPrimary: HTMLCanvasElement | null = null
     let cell = 12
+    let glyph = 7
     let shown = reduced ? 0.12 : 0
 
     const family = () =>
@@ -127,13 +128,18 @@ export default function StoryBackdrop({
       font: string,
       step: number,
       state: number,
-      group: number
+      group: number,
+      weight = 400
     ): Point[] {
       off.clearRect(0, 0, width, height)
-      off.font = `${size}px ${font}`
+      off.font = `${weight} ${size}px ${font}`
       off.textAlign = "left"
       off.textBaseline = "middle"
       off.fillStyle = "#000"
+      off.strokeStyle = "#000"
+      off.lineJoin = "round"
+      off.lineWidth = Math.max(1.5, size * 0.03)
+      off.strokeText(text, x, y)
       off.fillText(text, x, y)
       const w = Math.ceil(off.measureText(text).width) + 4
       const top = Math.max(0, Math.floor(y - size))
@@ -145,7 +151,7 @@ export default function StoryBackdrop({
       const points: Point[] = []
       for (let py = 0; py < bh; py += step) {
         for (let px = 0; px < bw; px += step) {
-          if (data[(py * bw + px) * 4 + 3] > 110) {
+          if (data[(py * bw + px) * 4 + 3] > 60) {
             points.push({ x: left + px, y: top + py, state, group })
           }
         }
@@ -159,11 +165,13 @@ export default function StoryBackdrop({
       off.height = Math.max(1, Math.round(height))
       const o = off.getContext("2d", { willReadFrequently: true })!
       const serif = family()
-      const small = mono()
+      const monoFont = mono()
       const stateOf = (s: FilmTile["state"]) =>
         s === "free" ? 1 : s === "taken" ? 2 : 0
-      const bigSize = Math.min(width * 0.115, 150)
-      const rowSize = Math.max(14, Math.min(width * 0.02, 22))
+      const narrow = width < 640
+      const bigSize = narrow
+        ? Math.min(width * 0.19, 80)
+        : Math.min(width * 0.085, 104)
 
       /** One headline, centered in the top band. */
       const headline = (text: string, fontFamily: string, size: number) => {
@@ -184,12 +192,23 @@ export default function StoryBackdrop({
 
       /** A row of labels in the bottom band, each its own group. */
       const row = (tiles: FilmTile[]) => {
-        o.font = `${rowSize}px ${small}`
-        const gap = rowSize * 1.6
-        const widths = tiles.map((t) => o.measureText(t.label).width)
-        const total =
-          widths.reduce((a, b) => a + b, 0) +
-          gap * Math.max(tiles.length - 1, 0)
+        // On a phone the labels are too small to spell; the tiles say it.
+        if (narrow) return []
+        // As large as fits across, so the letters stay readable.
+        let rowSize = Math.min(34, Math.max(16, width * 0.03))
+        let widths: number[] = []
+        let gap = 0
+        let total = 0
+        for (;;) {
+          o.font = `600 ${rowSize}px ${monoFont}`
+          gap = rowSize * 1.4
+          widths = tiles.map((t) => o.measureText(t.label).width)
+          total =
+            widths.reduce((a, b) => a + b, 0) +
+            gap * Math.max(tiles.length - 1, 0)
+          if (total <= width * 0.88 || rowSize <= 12) break
+          rowSize -= 2
+        }
         let x = (width - total) / 2
         const out: Point[] = []
         tiles.forEach((tile, i) => {
@@ -200,10 +219,11 @@ export default function StoryBackdrop({
               x,
               height * 0.86,
               rowSize,
-              small,
-              Math.max(2, step - 2),
+              monoFont,
+              step,
               stateOf(tile.state),
-              i
+              i,
+              600
             )
           )
           x += widths[i] + gap
@@ -218,43 +238,9 @@ export default function StoryBackdrop({
         ...headline(`@${name.toLowerCase()}`, serif, bigSize * 0.82),
         ...row(handles),
       ]
-      // Chapter three: the answer, wrapped over up to three lines.
-      const l3: Point[] = []
-      const aSize = Math.max(18, Math.min(width * 0.03, 34))
-      o.font = `${aSize}px ${serif}`
-      const maxW = width * 0.78
-      const words = answer.split(/\s+/)
-      const lines: string[] = []
-      let current = ""
-      for (const word of words) {
-        const test = current ? `${current} ${word}` : word
-        if (o.measureText(test).width > maxW && current) {
-          lines.push(current)
-          current = word
-        } else current = test
-      }
-      if (current) lines.push(current)
-      const shownLines = lines.slice(0, 3)
-      if (lines.length > 3) {
-        shownLines[2] = shownLines[2].replace(/\s*\S*$/, "") + "…"
-      }
-      shownLines.forEach((line, i) => {
-        o.font = `${aSize}px ${serif}`
-        const w = o.measureText(line).width
-        l3.push(
-          ...sampleText(
-            o,
-            line,
-            (width - w) / 2,
-            height * 0.12 + i * aSize * 1.45,
-            aSize,
-            serif,
-            step,
-            0,
-            0
-          )
-        )
-      })
+      // Chapter three: the answer itself is real text on the page, so
+      // the swarm only gathers back into the name above it.
+      const l3 = headline(name, serif, bigSize * 0.8)
       return [l1, l2, l3]
     }
 
@@ -270,17 +256,18 @@ export default function StoryBackdrop({
 
       // Sample at a spacing that keeps the swarm to a few hundred
       // letters; widen it until all three scenes fit.
-      const cap = small ? 420 : 780
-      let step = small ? 6 : 5
+      const cap = small ? 1800 : 2600
+      let step = 3
       let layouts = buildLayouts(step)
       for (
         let tries = 0;
-        tries < 5 && Math.max(...layouts.map((l) => l.length)) > cap;
+        tries < 6 && Math.max(...layouts.map((l) => l.length)) > cap;
         tries++
       ) {
         step += 1
         layouts = buildLayouts(step)
       }
+      glyph = small ? 4.4 : Math.max(4.5, Math.min(7, step * 1.7))
       const count = Math.min(
         cap,
         Math.max(...layouts.map((l) => l.length), 120)
@@ -398,15 +385,15 @@ export default function StoryBackdrop({
                 alpha,
                 (0.3 + 0.5 * lit) * present * (0.85 + 0.15 * sway)
               )
-              size = cell * (0.85 + 0.1 * lit)
+              size = glyph * (0.95 + 0.1 * lit)
             } else if (dest.state === 2) {
               alpha = Math.max(alpha, 0.34 * present * (1 - lit * 0.85))
               fall = lit * present * (18 + 22 * letter.z)
-              size = cell * 0.9
+              size = glyph * 0.9
             } else {
               usePrimary = k === 2 || dest.y < height * 0.5
               alpha = Math.max(alpha, (k === 2 ? 0.7 : 0.55) * present)
-              size = cell * 0.9
+              size = glyph
             }
           }
         }
