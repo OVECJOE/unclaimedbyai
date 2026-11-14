@@ -3,11 +3,12 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import ReportLeaderboard from "@/components/public/report-leaderboard"
 import CopyPermalink from "@/components/public/copy-permalink"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { JsonLd } from "@/components/app/json-ld"
 import PrompterCta from "@/components/public/prompter-cta"
-import FreeDomainChips from "@/components/public/free-domain-chips"
+import NameVerdict, { answerLine } from "@/components/public/name-verdict"
+import ResultHero, { toTier } from "@/components/public/result-hero"
+import LetterField from "@/components/fields/letter-field"
 import { ApiError, getReport, searchByQuery, type CheckReport } from "@/lib/api"
 import { getMeServer } from "@/lib/api-server"
 import { formatDateTime, slugToName } from "@/lib/utils"
@@ -76,10 +77,6 @@ export default async function PublicSearchPage({ params }: PageProps) {
       topReport = null
     }
   }
-  const freeDomains =
-    topReport?.domains.filter((domain) => domain.status === "available") ?? []
-  const claimedHandles =
-    topReport?.socials.filter((social) => social.status === "taken") ?? []
   const user = await getMeServer().catch(() => null)
 
   return (
@@ -93,125 +90,61 @@ export default async function PublicSearchPage({ params }: PageProps) {
           numberOfItems: search.names.length,
         }}
       />
-      <section className="space-y-5 border-b px-4 py-10 sm:text-center">
-        <Badge
-          className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
-          asChild
-        >
-          <p className="px-2 py-1 sm:px-3">
-            Public report, checked {formatDateTime(search.created_at)}
-          </p>
-        </Badge>
-        <div className="space-y-3">
-          <h1 className="font-heading text-4xl font-semibold md:text-5xl">
+      <ResultHero
+        eyebrow={`Public report · checked ${formatDateTime(search.created_at)}`}
+        title={
+          <>
             {search.names.length} name ideas for{" "}
-            <span className="text-primary">&ldquo;{term}&rdquo;</span>, scored
-          </h1>
-          <p className="mx-auto max-w-prose text-muted-foreground md:text-lg">
-            Someone ran this brief through Unclaimed by AI. Every candidate
-            below was scored from 0 to 100 across three checks: how many domain
-            extensions are still free, how many social handles are still open,
-            and whether AI models already know the name. Higher scores are safer
-            bets.
-            {checked.length > 0 && average !== null
-              ? ` The top pick scored ${
-                  checked[0].check.overall_score
-                }, and the average across all checked names is ${average}.`
-              : ""}
-          </p>
-        </div>
-        <div className="mx-auto flex max-w-3xl items-center justify-center gap-2">
-          <Button size="lg" asChild className="flex-1">
-            <Link href="#check-yours">Check your own name</Link>
-          </Button>
-          {checked.length > 0 ? (
-            <CopyPermalink
-              name={checked[0].name.name}
-              size="default"
-              variant="outline"
-            />
-          ) : null}
-        </div>
-      </section>
+            <span className="text-primary">&ldquo;{term}&rdquo;</span>
+          </>
+        }
+        answer={
+          topPick && topReport
+            ? `${topPick.name.name} came out on top with ${topPick.check.overall_score} out of 100. ${answerLine(topReport)}`
+            : "Names were generated for this idea, but none have been scored yet."
+        }
+        score={topPick?.check.overall_score ?? null}
+        tier={topPick ? toTier(topPick.check.overall_risk_level) : undefined}
+        actions={
+          <>
+            <Button size="lg" asChild>
+              <Link href="#check-yours">Check your own name</Link>
+            </Button>
+            {topPick ? (
+              <span className="flex w-32">
+                <CopyPermalink
+                  name={topPick.name.name}
+                  size="default"
+                  variant="outline"
+                />
+              </span>
+            ) : null}
+          </>
+        }
+      />
 
-      <section className="border-b px-4 py-6">
-        <div className="mx-auto grid max-w-7xl gap-px border bg-border sm:grid-cols-3">
-          <div className="bg-background p-4">
-            <p className="text-sm font-medium">Domains</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              How many of the checked domain extensions are still free to
-              register.
-            </p>
-          </div>
-          <div className="bg-background p-4">
-            <p className="text-sm font-medium">Handles</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              How many checked social platforms still have the handle open.
-            </p>
-          </div>
-          <div className="bg-background p-4">
-            <p className="text-sm font-medium">AI association</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Whether AI models already connect this name to something that
-              exists.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="px-4 py-10">
-        <div className="mx-auto max-w-7xl space-y-6">
+      <section className="px-4 py-12 md:py-16">
+        <div className="mx-auto max-w-5xl space-y-12">
           {topPick && topReport ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div className="space-y-1">
-                <h2 className="font-heading text-2xl font-semibold md:text-3xl">
-                  A closer look at the top pick, {topPick.name.name}
+                <h2 className="font-heading text-3xl">
+                  The top pick, {topPick.name.name}
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  The details behind its {topPick.check.overall_score} out of
-                  100, from the same check.
+                  {checked.length} of {search.names.length} names scored
+                  {average !== null ? `, average ${average} out of 100` : ""}.
+                  Here is what sits behind the leader&apos;s score.
                 </p>
               </div>
-              <div className="grid gap-px border bg-border md:grid-cols-2">
-                <div className="space-y-2 bg-background p-4">
-                  <p className="text-sm font-medium">
-                    Free to register right now
-                  </p>
-                  <FreeDomainChips domains={freeDomains} />
-                </div>
-                <div className="space-y-2 bg-background p-4">
-                  <p className="text-sm font-medium">Handles already claimed</p>
-                  {claimedHandles.length ? (
-                    <ul className="space-y-1">
-                      {claimedHandles.slice(0, 6).map((social) => (
-                        <li
-                          key={social.platform}
-                          className="font-mono text-xs text-muted-foreground line-through decoration-border"
-                        >
-                          @{social.handle} on {social.platform}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      Every checked handle is still open.
-                    </p>
-                  )}
-                  {claimedHandles.length > 6 ? (
-                    <p className="text-xs text-muted-foreground">
-                      {claimedHandles.length - 6} more claimed across the
-                      checked platforms.
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-3 border p-4">
-                <p className="max-w-prose text-sm text-muted-foreground">
+              <NameVerdict report={topReport} />
+              <div className="flex flex-wrap items-center justify-between gap-4 border bg-card p-5">
+                <p className="max-w-xl text-sm text-muted-foreground">
                   {user
-                    ? `Star ${topPick.name.name} on your watchlist and we recheck its domains and handles every few hours, emailing you the moment something changes. Watching is free.`
-                    : `Sign in to star ${topPick.name.name}: we recheck its domains and handles every few hours and email you the moment something changes. Watching is free.`}
+                    ? `Add ${topPick.name.name} to your watchlist. We recheck its domains and handles every few hours and email you the moment something changes. Watching is free.`
+                    : `Sign in to watch ${topPick.name.name}. We recheck its domains and handles every few hours and email you the moment something changes. Watching is free.`}
                 </p>
-                <Button asChild>
+                <Button variant="outline" asChild>
                   <Link
                     href={user ? "/dashboard/playground/watchlist" : "/auth"}
                   >
@@ -235,7 +168,7 @@ export default async function PublicSearchPage({ params }: PageProps) {
           ) : (
             <div className="border border-dashed p-10 text-center">
               <p className="font-heading text-2xl">
-                No completed checks for this brief yet
+                No completed checks for this idea yet
               </p>
               <p className="mx-auto mt-2 max-w-prose text-sm text-muted-foreground">
                 Names were generated for it, but none have been scored so far.
@@ -243,18 +176,26 @@ export default async function PublicSearchPage({ params }: PageProps) {
               </p>
             </div>
           )}
+        </div>
+      </section>
 
-          <div
-            id="check-yours"
-            className="scroll-mt-20 space-y-3 border-t pt-8 sm:mx-auto sm:max-w-prose sm:text-center"
-          >
-            <p className="font-heading text-2xl">Check a name of your own</p>
-            <p className="text-sm text-muted-foreground">
-              Describe what you&apos;re building, or type a name you&apos;re
-              considering. We&apos;ll check it right here, no account needed.
-            </p>
-            <PrompterCta defaultValue={term} />
-          </div>
+      <section
+        id="check-yours"
+        className="relative isolate scroll-mt-16 overflow-hidden border-t bg-primary/5 px-4 py-16 md:py-24"
+      >
+        <LetterField mode="claim" quiet fade="both" />
+        <div className="mx-auto max-w-3xl space-y-5 text-center">
+          <p className="text-[0.6875rem] font-semibold tracking-widest text-primary uppercase">
+            Your turn
+          </p>
+          <h2 className="font-heading text-4xl text-balance sm:text-5xl">
+            Check a name of your own.
+          </h2>
+          <p className="text-muted-foreground">
+            Describe what you&apos;re building, or type a name you&apos;re
+            considering. We&apos;ll check it right here, no account needed.
+          </p>
+          <PrompterCta defaultValue={term} />
         </div>
       </section>
     </>

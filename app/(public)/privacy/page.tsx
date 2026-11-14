@@ -6,96 +6,100 @@ import { pageMetadata } from "@/lib/site"
 export const metadata: Metadata = pageMetadata({
   title: "Privacy Policy",
   description:
-    "How Unclaimed by AI collects, uses, shares, and protects your data — including what happens to the names you check.",
+    "What Unclaimed by AI collects, what happens to the names you check, what becomes public, and how to delete your data.",
   path: "/privacy",
 })
 
-const UPDATED = "October 12, 2026"
+const UPDATED = "November 14, 2026"
+const EMAIL = "hello@unclaimedbyai.com"
+
+const summary = [
+  "We collect your email when you sign in, the names you check, and what you buy. Card numbers go to Stripe and never reach us.",
+  "Every name you check is sent to AI companies, because that is how we find out what chatbots think it means. Don't type anything secret.",
+  "Searches you run without an account can show up on public report pages. Searches you run signed in stay private unless you publish one.",
+  "Publishing an idea report is your choice. It shows your idea, your display name and the results, and you can take it down at any time.",
+  "We don't sell your data, and there are no advertising trackers.",
+  "You can delete your account and data whenever you like. Email us and we'll do it within 30 days.",
+]
 
 const sections: LegalSection[] = [
   {
     id: "who-we-are",
     title: "Who we are",
     plain:
-      "We're Unclaimed by AI, the name-checking service at unclaimedbyai.com. We're the ones responsible for your data here.",
+      "We're Unclaimed by AI, the name-checking service at unclaimedbyai.com. We're responsible for your data here.",
     body: (
       <>
         <p>
-          Unclaimed by AI (&ldquo;we&rdquo;, &ldquo;us&rdquo;) operates the
-          name-checking service at unclaimedbyai.com (the
-          &ldquo;Service&rdquo;). We help founders and creators check domains,
-          social handles, and AI associations before building around a name.
+          Unclaimed by AI (&ldquo;we&rdquo;, &ldquo;us&rdquo;) runs the service
+          at unclaimedbyai.com. It helps founders and creators check domains,
+          social handles and AI associations before they build around a name.
         </p>
         <p>
-          For data-protection purposes we are the data controller for the
-          personal data described in this policy. You can reach us at{" "}
-          <a href="mailto:hello@unclaimedbyai.com">hello@unclaimedbyai.com</a>.
+          Under data-protection law we are the &ldquo;data controller&rdquo; for
+          the personal data described here. You can reach us at{" "}
+          <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.
         </p>
       </>
     ),
   },
   {
     id: "data-we-collect",
-    title: "Data we collect",
+    title: "What we collect",
     plain:
-      "Your email when you sign in, the names you check, your purchase history, and basic technical logs. That's the whole list.",
+      "Your email when you sign in, the names you check, what you buy, and basic technical logs. That's the whole list.",
     body: (
-      <>
-        <p>We collect the minimum needed to run the Service:</p>
-        <ul>
-          <li>
-            <strong>Account data.</strong> Your email address when you sign in
-            with a magic link or Google, plus basic profile details Google
-            shares (like your name) if you choose that option.
-          </li>
-          <li>
-            <strong>Names you check.</strong> Every name, brief, search, and
-            check you run, including the results we generate for you.
-          </li>
-          <li>
-            <strong>Purchase data.</strong> Which credit packs you buy and your
-            credit balance. Payments are processed by Stripe — we never see or
-            store your card number.
-          </li>
-          <li>
-            <strong>Technical data.</strong> Standard server logs (IP address,
-            browser type, pages visited, timestamps) for security and debugging.
-          </li>
-          <li>
-            <strong>Waitlist data.</strong> Your email if you join the waitlist,
-            used only to notify you about launch.
-          </li>
-        </ul>
-      </>
+      <ul>
+        <li>
+          <strong>Account.</strong> Your email address. If you sign in with
+          Google, also the basic profile details Google shares, such as your
+          name and picture.
+        </li>
+        <li>
+          <strong>Your checks.</strong> Every name, idea description and search
+          you run, with the results we produce.
+        </li>
+        <li>
+          <strong>Purchases.</strong> Which credit packs you buy and your
+          balance. Stripe takes the payment. We never see or store your card
+          number.
+        </li>
+        <li>
+          <strong>Technical logs.</strong> Your IP address, browser type, pages
+          visited and times, kept for security and fixing bugs.
+        </li>
+        <li>
+          <strong>Waitlist.</strong> Your email, if you joined a waitlist, used
+          only to tell you about the launch.
+        </li>
+      </ul>
     ),
   },
   {
     id: "how-we-use",
     title: "How we use it",
     plain:
-      "To run your checks, keep you signed in, take payment, and improve the service. We don't sell your data or use it for ads.",
+      "To run your checks, keep you signed in, take payment and make the service better. Never for ads, and we don't sell it.",
     body: (
       <>
-        <p>We use your data to:</p>
         <ul>
           <li>
-            Run domain, social-handle, and AI-association checks you request.
+            Run the domain, handle and AI checks you ask for, and keep your
+            history.
           </li>
-          <li>Create and maintain your account and sign-in sessions.</li>
-          <li>Process payments and manage your credits through Stripe.</li>
+          <li>Create your account and keep you signed in.</li>
+          <li>Take payment and manage your credits.</li>
           <li>
-            Send transactional emails (magic links, receipts) and, rarely,
-            product updates.
+            Send the emails the service needs (sign-in links, receipts, watch
+            alerts) and, rarely, product news you can opt out of.
           </li>
-          <li>
-            Keep the Service secure, fix bugs, and understand aggregate usage.
-          </li>
+          <li>Keep the service secure and see how it is used overall.</li>
         </ul>
         <p>
-          Our legal bases are performance of our contract with you, our
-          legitimate interests in operating and securing the Service, and your
-          consent where you give it (for example, marketing emails, which you
-          can opt out of at any time).
+          In legal terms we rely on three things: we need your data to deliver
+          the service you signed up for, we have a legitimate interest in
+          running and securing it, and for anything optional, such as marketing
+          email, we ask for your consent.
         </p>
       </>
     ),
@@ -104,30 +108,84 @@ const sections: LegalSection[] = [
     id: "ai-checks",
     title: "What happens to the names you check",
     plain:
-      "To check AI associations, we have to send the name to AI providers. Assume anything you type into the checker is shared with them.",
+      "To learn what chatbots think a name means, we have to send the name to AI companies. Treat anything you type into the checker as not confidential.",
     body: (
       <>
         <p>
-          This one deserves its own section because it surprises people. To tell
-          you what AI models already associate with a name, we send that name to
-          third-party AI providers (via OpenRouter) and ask what they know about
-          it. Their responses become part of your check results.
+          This is the part that surprises people, so here it is plainly. We ask
+          several AI models what they already associate with your name, and
+          their answers become part of your results. We reach them through a
+          service called OpenRouter.
         </p>
         <p>
           That means{" "}
-          <strong>
-            every name you check is shared with AI model providers
-          </strong>
-          , and their own privacy policies apply to that data. Please don&apos;t
-          check names containing passwords, secrets, or other sensitive
-          information — the checker is for brand names you&apos;re considering,
-          and you should treat anything you type as non-confidential.
+          <strong>every name you check is shared with AI companies</strong>, and
+          their own privacy policies apply to what they receive. Please
+          don&apos;t type passwords, secrets or anything sensitive. The checker
+          is for brand names you&apos;re considering.
         </p>
         <p>
-          Domain availability is checked against public registration data
-          (RDAP/WHOIS), and social handles against the platforms&apos; public
-          APIs. Those queries are inherently public — a registry or platform can
-          see that someone looked up that name.
+          Domain checks use public registration records, and handle checks use
+          each platform&apos;s public pages. Those lookups are public by nature,
+          so a registry or platform can see that someone looked a name up.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "public-pages",
+    title: "What becomes public",
+    plain:
+      "Searches run without an account can appear on public report pages. Searches run while signed in are private unless you publish one.",
+    body: (
+      <>
+        <p>
+          <strong>Searches without an account.</strong> If you check a name
+          without signing in, the result is treated as a public report. Anyone
+          with the link can read it, and it can appear on the site, for example
+          in the &ldquo;fresh from the wild&rdquo; list on the home page. These
+          reports don&apos;t show your email or any account details.
+        </p>
+        <p>
+          <strong>Searches while signed in.</strong> Private. Only you can see
+          them.
+        </p>
+        <p>
+          <strong>Idea reports you publish.</strong> You can turn a finished
+          search into a public page at <Link href="/ideas">/ideas</Link>. This
+          is always your choice, and nothing is published until you confirm. The
+          page shows:
+        </p>
+        <ul>
+          <li>The idea you described and the title you chose.</li>
+          <li>
+            The names and their results, except any you hide. We never show
+            names you hide.
+          </li>
+          <li>
+            Your display name and, if you turn it on, your profile picture. With
+            no display name set, the page says &ldquo;A founder&rdquo;.
+          </li>
+          <li>A note, if you write one.</li>
+          <li>
+            Simple facts about your account, such as when you joined and how
+            many searches and names you have checked.
+          </li>
+        </ul>
+        <p>
+          Search engines and AI assistants may index a published page. You can
+          take it offline from the same screen at any time. A copy may stay
+          visible for a few minutes afterwards, and search engines can take
+          longer to drop it. Deleting your account takes all of your pages
+          offline.
+        </p>
+        <p>
+          If you think a published page shows something it shouldn&apos;t, use
+          the &ldquo;Report this page&rdquo; link at the bottom of it or email{" "}
+          <a href={`mailto:${EMAIL}`}>{EMAIL}</a>. Pages that enough people
+          report are hidden automatically while we look at them. To tell reports
+          from repeats we keep a one-way scrambled code of the reporter, not
+          their address.
         </p>
       </>
     ),
@@ -136,52 +194,45 @@ const sections: LegalSection[] = [
     id: "cookies",
     title: "Cookies",
     plain:
-      "A handful of strictly necessary cookies to keep you signed in and remember choices, plus analytics — which only runs if you allow it. No advertising trackers.",
+      "A few cookies the site needs to work, plus analytics that only run if you allow them. No advertising trackers.",
     body: (
       <>
-        <p>We use a small, honest set of cookies:</p>
         <ul>
           <li>
-            <strong>sid</strong> — your sign-in session (30 days, strictly
-            necessary).
+            <strong>sid</strong>: keeps you signed in. 30 days. Needed.
           </li>
           <li>
-            <strong>tb</strong> — a one-hour marker that you&apos;ve passed our
-            Cloudflare bot check, so it doesn&apos;t nag you repeatedly
-            (strictly necessary).
+            <strong>tb</strong>: remembers for an hour that you passed our bot
+            check, so it doesn&apos;t keep asking. Needed.
           </li>
           <li>
-            <strong>uba-consent</strong> — remembers the choice you make in the
-            cookie banner for a year (strictly necessary).
+            <strong>uba-consent</strong>: remembers your answer to the cookie
+            banner for a year. Needed.
           </li>
           <li>
-            <strong>bid</strong> — makes sure a boost you send counts once (two
-            years).
+            <strong>uba-pending-plan</strong>: carries the credit pack you
+            picked through checkout. One hour. Needed.
           </li>
           <li>
-            <strong>uba-pending-plan</strong> — carries your selected credit
-            pack through checkout (one hour, strictly necessary).
+            <strong>bid</strong>: makes sure a boost you send counts once. Two
+            years.
           </li>
         </ul>
         <p>
-          Some pages load Cloudflare Turnstile to verify that requests come from
-          humans rather than bots. We also use privacy-friendly, first-party
-          analytics (no cross-site identifiers) to understand aggregate usage —
-          it only loads if you allow it in the cookie banner, and declining it
-          doesn&apos;t limit the Service in any way.
+          Some pages use Cloudflare Turnstile to check that a request comes from
+          a person. We also use simple first-party analytics with no cross-site
+          identifiers, and it only loads if you allow it in the cookie banner.
+          Saying no changes nothing about how the service works.
         </p>
         <p>
-          On top of that, the app sends a small number of first-party usage
-          events to our own servers — which page you were on and which action
-          you took (for example, that a search finished), never the text you
-          typed. They run on the session above, set no cookies, involve no
-          third parties, and exist so we can see where the product helps and
-          where it gets in the way.
+          The app also sends a few usage events to our own servers, such as
+          which page you were on and that a search finished, never the text you
+          typed. They set no cookies and involve no third parties.
         </p>
         <p>
-          We do not use advertising cookies or cross-site trackers. If that ever
-          changes, we&apos;ll update this policy and ask for consent where the
-          law requires it.
+          We don&apos;t use advertising cookies or cross-site trackers. If that
+          ever changes, we&apos;ll update this page and ask first where the law
+          requires it.
         </p>
       </>
     ),
@@ -190,31 +241,23 @@ const sections: LegalSection[] = [
     id: "sharing",
     title: "Who we share data with",
     plain:
-      "Only the processors that run the service: hosting, database, email, payments, and AI. Nobody else, and never for sale.",
+      "Only the companies that help run the service: hosting, email, payments and AI. Nobody else, and never for sale.",
     body: (
       <>
-        <p>
-          We share data only with the service providers that operate the
-          Service, each limited to what they need:
-        </p>
         <ul>
+          <li>Hosting and database providers, which store the app and data.</li>
+          <li>Resend, which sends sign-in links, receipts and alerts.</li>
+          <li>Stripe, which handles payment.</li>
           <li>
-            Cloud hosting and database providers that store and serve the app
-            and your data.
-          </li>
-          <li>Resend (transactional email) for magic links and receipts.</li>
-          <li>Stripe (payments) for checkout and billing.</li>
-          <li>
-            OpenRouter and AI model providers for AI-association checks, as
+            OpenRouter and the AI companies behind it, for the AI checks
             described above.
           </li>
           <li>Google, only if you choose Google sign-in.</li>
         </ul>
         <p>
-          We do not sell personal data, share it with advertisers, or use it for
-          any purpose outside operating the Service. We may disclose data if
-          required by law or to protect our rights, and we&apos;ll push back on
-          overbroad requests where we can.
+          We don&apos;t sell personal data or share it with advertisers. We may
+          disclose data if the law requires it or to protect our rights, and
+          we&apos;ll push back on requests that go too far.
         </p>
       </>
     ),
@@ -223,52 +266,41 @@ const sections: LegalSection[] = [
     id: "affiliate-links",
     title: "Affiliate links",
     plain:
-      "Some registrar links earn us a commission if you buy through them. It costs you the same either way, and it never changes what we report.",
+      "Some registrar links earn us a commission if you buy through them. It costs you the same, and it never changes what we report.",
     body: (
       <>
         <p>
-          When a check shows a domain is free, some of the links to registrars
-          on that page are affiliate links. If you follow one and register the
-          name, the registrar may pay us a commission. Your price is identical
-          whether you use our link or type the domain into the registrar
-          yourself, because the commission comes out of the registrar&apos;s
-          marketing budget, not your pocket.
+          When a check shows a domain is free, some of the registrar links next
+          to it are affiliate links. If you register the name through one, the
+          registrar may pay us. Your price is the same either way.
         </p>
         <p>
-          Two things we won&apos;t do. We won&apos;t let a commission change a
-          result: the extensions we show as free are the ones the check actually
-          found free, whether or not a registrar on that list pays us. And we
-          won&apos;t pretend the link isn&apos;t a link. Wherever one appears,
-          it says so.
-        </p>
-        <p>
-          Registrars we may link this way include Namecheap, GoDaddy, and
-          Dynadot. The same goes for any register link we send in a watch-alert
-          email.
+          Two promises. A commission never changes a result: the extensions we
+          show as free are the ones the check found free, whether or not that
+          registrar pays us. And a link that earns us money says so. We may use
+          this with Namecheap, GoDaddy and Dynadot, including the register links
+          in watch-alert emails.
         </p>
       </>
     ),
   },
   {
     id: "retention",
-    title: "Retention and deletion",
+    title: "Keeping and deleting your data",
     plain:
-      "We keep your data while your account is active, and you can delete your account and data at any time by emailing us.",
+      "We keep your data while your account is open. Ask us to delete it and we will, within 30 days.",
     body: (
       <>
         <p>
-          We keep account data, searches, and checks for as long as your account
-          is active, so your history is there when you return. Server logs are
-          kept for a limited period for security and debugging, then deleted or
-          anonymized.
+          We keep your account, searches and checks while your account is
+          active, so your history is there when you return. Server logs are kept
+          for a limited time for security, then deleted or anonymized.
         </p>
         <p>
-          You can request deletion of your account and associated data at any
-          time by emailing{" "}
-          <a href="mailto:hello@unclaimedbyai.com">hello@unclaimedbyai.com</a>.
-          We&apos;ll delete your personal data within 30 days, except where we
-          must retain records for legal, tax, or fraud-prevention reasons (for
-          example, payment records).
+          To delete your account and data, email{" "}
+          <a href={`mailto:${EMAIL}`}>{EMAIL}</a>. We&apos;ll do it within 30
+          days. We may need to keep some records, such as payments, where the
+          law requires it.
         </p>
       </>
     ),
@@ -277,20 +309,19 @@ const sections: LegalSection[] = [
     id: "security",
     title: "Security",
     plain:
-      "Encryption in transit and at rest, least-privilege access, and scoped credentials. No system is perfect, so tell us if you find a hole.",
+      "Encryption in transit and at rest, limited access, and sign-in links that expire. No system is perfect, so tell us if you spot a problem.",
     body: (
       <>
         <p>
-          We protect your data with encryption in transit (TLS) and at rest,
-          least-privilege access to production systems, and scoped credentials
-          for third-party services. Sessions expire, magic links are single-use
-          and short-lived.
+          Your data is encrypted in transit (TLS) and at rest. Only the people
+          and systems that need production access have it, and credentials for
+          outside services are limited to what each needs. Sessions expire, and
+          sign-in links work once and soon stop working.
         </p>
         <p>
-          No system is perfectly secure. If you discover a vulnerability, please
-          report it to{" "}
-          <a href="mailto:hello@unclaimedbyai.com">hello@unclaimedbyai.com</a>{" "}
-          and we&apos;ll respond promptly.
+          If you find a vulnerability, please email{" "}
+          <a href={`mailto:${EMAIL}`}>{EMAIL}</a> and we&apos;ll respond
+          promptly.
         </p>
       </>
     ),
@@ -299,22 +330,20 @@ const sections: LegalSection[] = [
     id: "your-rights",
     title: "Your rights",
     plain:
-      "Access, correct, export, or delete your data — just ask. EU/UK users get GDPR rights; Californians get CCPA rights.",
+      "You can ask to see, fix, export or delete your data at any time. People in the EU, UK and California have specific legal rights too.",
     body: (
       <>
         <p>
-          Depending on where you live, you may have the right to access,
-          correct, export, restrict, or delete your personal data, and to object
-          to certain processing. To exercise any of these rights, email{" "}
-          <a href="mailto:hello@unclaimedbyai.com">hello@unclaimedbyai.com</a>.
+          Depending on where you live you may be able to access, correct,
+          export, restrict or delete your personal data, and to object to some
+          uses of it. Email <a href={`mailto:${EMAIL}`}>{EMAIL}</a> and
+          we&apos;ll handle it.
         </p>
         <p>
-          If you&apos;re in the EU, UK, or Switzerland, this includes your GDPR
-          rights (access, rectification, erasure, restriction, portability,
-          objection) and the right to lodge a complaint with your supervisory
-          authority. If you&apos;re in California, this includes your CCPA
-          rights to know, delete, and opt out of sale — and to be clear, we do
-          not sell personal information.
+          In the EU, UK or Switzerland this includes your GDPR rights and the
+          right to complain to your data-protection authority. In California it
+          includes your CCPA rights to know, delete and opt out of sale. To be
+          clear, we don&apos;t sell personal information.
         </p>
       </>
     ),
@@ -323,12 +352,11 @@ const sections: LegalSection[] = [
     id: "children",
     title: "Children",
     plain:
-      "The Service is for people 16 and older. We don't knowingly collect data from younger children.",
+      "The service is for people 16 and over. We don't knowingly collect data from younger children.",
     body: (
       <p>
-        The Service is not directed at children under 16, and we do not
-        knowingly collect their personal data. If you believe a child has
-        provided us data, contact us and we&apos;ll delete it.
+        The service isn&apos;t aimed at children under 16. If you think a child
+        has given us their data, tell us and we&apos;ll delete it.
       </p>
     ),
   },
@@ -336,27 +364,26 @@ const sections: LegalSection[] = [
     id: "changes",
     title: "Changes to this policy",
     plain:
-      "If we change this policy in a meaningful way, we'll tell you by email or in the app before it takes effect.",
+      "If we change this policy in a way that matters, we'll tell you by email or in the app before it takes effect.",
     body: (
       <p>
-        We may update this policy as the Service evolves. Material changes will
-        be announced by email or in-app notice before they take effect, and the
-        &ldquo;last updated&rdquo; date above will always reflect the current
-        version. Continued use of the Service after changes take effect means
-        you accept the updated policy.
+        We may update this policy as the service changes. We&apos;ll announce
+        important changes by email or in the app before they take effect, and
+        the &ldquo;last updated&rdquo; date at the top always shows the current
+        version. If you keep using the service after a change, you accept the
+        updated policy.
       </p>
     ),
   },
   {
     id: "contact",
     title: "Contact",
-    plain:
-      "Questions about privacy? Email hello@unclaimedbyai.com and a human will reply.",
+    plain: `Questions about privacy? Email ${EMAIL} and a person will reply.`,
     body: (
       <p>
-        For any privacy question, request, or complaint, email{" "}
-        <a href="mailto:hello@unclaimedbyai.com">hello@unclaimedbyai.com</a>. We
-        aim to reply within a few business days.
+        For any privacy question, request or complaint, email{" "}
+        <a href={`mailto:${EMAIL}`}>{EMAIL}</a>. We aim to reply within a few
+        business days.
       </p>
     ),
   },
@@ -365,11 +392,13 @@ const sections: LegalSection[] = [
 export default function PrivacyPage() {
   return (
     <LegalDoc
-      eyebrow="Legal · Privacy"
+      current="privacy"
+      eyebrow="Legal"
       title="Privacy Policy"
-      lede="What we collect, why we collect it, and what happens to the names you check. Written to be read, not skimmed past."
+      lede="What we collect, what happens to the names you check, and what becomes public. Written to be read."
       updated={UPDATED}
-      readTime="6 min"
+      readTime="5 min"
+      summary={summary}
       sections={sections}
       footerNote={
         <p className="text-sm text-muted-foreground">
@@ -377,7 +406,7 @@ export default function PrivacyPage() {
           <Link href="/terms" className="text-primary hover:underline">
             Terms of Service
           </Link>
-          , which cover accounts, credits, and acceptable use.
+          , which cover accounts, credits and acceptable use.
         </p>
       }
       next={{ href: "/terms", label: "Terms of Service" }}

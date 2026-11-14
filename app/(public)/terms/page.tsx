@@ -6,55 +6,64 @@ import { FREE_SEARCHES, pageMetadata } from "@/lib/site"
 export const metadata: Metadata = pageMetadata({
   title: "Terms of Service",
   description:
-    "The rules for using Unclaimed by AI — accounts, credits and payments, acceptable use, and what our checks do and don't promise.",
+    "The rules for using Unclaimed by AI: accounts, credits and payments, publishing idea reports, and what our checks do and don't promise.",
   path: "/terms",
 })
 
-const UPDATED = "October 1, 2026"
+const UPDATED = "November 14, 2026"
+const EMAIL = "hello@unclaimedbyai.com"
+
+const summary = [
+  "Our checks are signals to help you decide. They are not legal advice or trademark clearance, so do a proper trademark search before you invest in a name.",
+  `You start with ${FREE_SEARCHES} free searches a month, and the first check on every name is free. After that you pay with credits or a Pro subscription.`,
+  "Credits never expire. They are generally not refundable once used, but if something went wrong on our side we'll make it right.",
+  "Use the service for lawful naming work. Don't scrape it, attack it, or put secrets in it.",
+  "Your names and checks are yours. If you publish an idea report, you're allowed to, and we can take a page down if it breaks these rules.",
+  "You can leave any time by deleting your account.",
+]
 
 const sections: LegalSection[] = [
   {
     id: "agreement",
     title: "The agreement",
     plain:
-      "Using the service means you accept these terms. If you don't agree, don't use it.",
+      "Using the service means you accept these terms. If you don't agree, please don't use it.",
     body: (
       <>
         <p>
           These Terms of Service (&ldquo;Terms&rdquo;) are an agreement between
-          you and Unclaimed by AI (&ldquo;we&rdquo;, &ldquo;us&rdquo;) for your
-          use of unclaimedbyai.com and related services (the
-          &ldquo;Service&rdquo;).
+          you and Unclaimed by AI (&ldquo;we&rdquo;, &ldquo;us&rdquo;) about
+          your use of unclaimedbyai.com and related services (the
+          &ldquo;service&rdquo;).
         </p>
         <p>
-          By creating an account, checking a name, or otherwise using the
-          Service, you agree to these Terms and to our{" "}
-          <Link href="/privacy">Privacy Policy</Link>. If you don&apos;t agree,
-          please don&apos;t use the Service.
+          By creating an account, checking a name or otherwise using the
+          service, you agree to these Terms and to our{" "}
+          <Link href="/privacy">Privacy Policy</Link>.
         </p>
       </>
     ),
   },
   {
     id: "what-we-do",
-    title: "What the Service does (and doesn't)",
+    title: "What the service does, and doesn't",
     plain:
-      "We check name availability signals. We are not lawyers, and a clean check is not trademark clearance — do your own legal diligence.",
+      "We check signals about a name. We are not lawyers, and a clean check is not trademark clearance. Do your own legal checks.",
     body: (
       <>
         <p>
-          The Service generates name ideas and checks them across domain
-          registries, social platforms, and AI models, scoring what it finds.
-          Checks, scores, verdicts, and &ldquo;available&rdquo; labels are
-          informational signals to help your decision-making.
+          The service suggests names and checks them across domain registries,
+          social platforms and AI models, then scores what it finds. Scores,
+          verdicts and &ldquo;available&rdquo; labels are information to help
+          you decide.
         </p>
         <p>
           They are <strong>not legal advice and not trademark clearance</strong>
-          . A name showing as available can still infringe someone else&apos;s
-          rights, and data from registries, platforms, and AI models can be
-          incomplete, stale, or wrong. Before you invest in a brand, do your own
-          diligence — including a proper trademark search with qualified counsel
-          where it matters.
+          . A name that shows as available can still infringe someone
+          else&apos;s rights, and the data we read from registries, platforms
+          and AI models can be incomplete, out of date or wrong. Before you put
+          money into a brand, do your own checks, including a proper trademark
+          search with a qualified lawyer where it matters.
         </p>
       </>
     ),
@@ -63,20 +72,18 @@ const sections: LegalSection[] = [
     id: "accounts",
     title: "Accounts",
     plain:
-      "One account per person, keep your email secure, and tell us if someone gets in.",
+      "One account per person. Keep your email secure, and tell us if someone gets in.",
     body: (
       <>
         <p>
-          You sign in with an email magic link or Google. You must provide
-          accurate information, keep your email account secure, and promptly
-          tell us at{" "}
-          <a href="mailto:hello@unclaimedbyai.com">hello@unclaimedbyai.com</a>{" "}
-          if you suspect unauthorized access.
+          You sign in with an emailed link or with Google. Give us accurate
+          information, keep your email account secure, and tell us at{" "}
+          <a href={`mailto:${EMAIL}`}>{EMAIL}</a> if you think someone else got
+          into your account.
         </p>
         <p>
-          One account per person. You&apos;re responsible for everything done
-          under your account, and you must be at least 16 years old to use the
-          Service.
+          You&apos;re responsible for what happens under your account, and you
+          must be at least 16 to use the service.
         </p>
       </>
     ),
@@ -84,44 +91,41 @@ const sections: LegalSection[] = [
   {
     id: "credits-payments",
     title: "Credits and payments",
-    plain: `You start with ${FREE_SEARCHES} free searches, one sandbox, and the first check on every name is free. Credits buy market research, extra searches, and re-checks, and never expire. Pro is a monthly subscription that renews until you cancel.`,
+    plain: `You start with ${FREE_SEARCHES} free searches a month, one sandbox, and a free first check on every name. Credits buy extra searches, research and re-checks and never expire. Pro is a monthly subscription that renews until you cancel.`,
     body: (
       <>
         <p>
-          New accounts receive {FREE_SEARCHES} free searches, one sandbox, and
-          the first check on every name is free. After that there are two ways
-          to pay, and they are independent of each other.
+          After the free allowance there are two ways to pay, and they work
+          independently.
         </p>
         <ul>
           <li>
             <strong>Credits</strong> are pay-as-you-go and never expire. Market
             research costs 3 credits, a search past your monthly allowance costs
-            2, and re-checking a name costs 1. Current pack prices are listed on
-            the <Link href="/pricing">pricing page</Link>.
+            2, and re-checking a name costs 1. Pack prices are on the{" "}
+            <Link href="/pricing">pricing page</Link>.
           </li>
           <li>
-            <strong>Pro</strong> is a monthly subscription at the price shown on
-            the pricing page. It renews automatically each month until you
-            cancel, and you can cancel yourself from the billing page at any
-            time. Your plan allowances (sandboxes, searches, checks per name,
-            idea runs) reset with each billing period.
+            <strong>Pro</strong> is a monthly subscription at the price on the
+            pricing page. It renews each month until you cancel, which you can
+            do yourself from the billing page. Its allowances (sandboxes,
+            searches, checks per name, idea runs) reset every billing period.
           </li>
         </ul>
+        <p>Some details that matter:</p>
         <ul>
           <li>
-            Payments are processed by Stripe at checkout. We never see or store
-            card numbers.
+            Stripe processes payments. We never see or store card numbers.
           </li>
           <li>
-            Credits are tied to your account, don&apos;t expire, and aren&apos;t
-            transferable or redeemable for cash.
+            Credits belong to your account. They can&apos;t be transferred or
+            exchanged for cash.
           </li>
           <li>
-            Because credits are consumed instantly (checks run on purchase),
-            credit packs are generally non-refundable, and a used portion of a
-            Pro period is not prorated on cancellation. But if something went
-            wrong on our side, contact us and we&apos;ll make it right,
-            including with replacement credits or a refund.
+            Credits are used the moment a check runs, so packs are generally
+            non-refundable, and we don&apos;t refund part of a Pro month when
+            you cancel. If something went wrong on our side, contact us and
+            we&apos;ll make it right with replacement credits or a refund.
           </li>
         </ul>
       </>
@@ -131,124 +135,164 @@ const sections: LegalSection[] = [
     id: "acceptable-use",
     title: "Acceptable use",
     plain:
-      "Use the checker for lawful naming work. Don't abuse, scrape, or attack it.",
+      "Use the checker for lawful naming work. Don't abuse, scrape or attack it.",
     body: (
       <>
         <p>You agree not to:</p>
         <ul>
-          <li>Use the Service for anything unlawful or infringing.</li>
+          <li>Use the service for anything unlawful or infringing.</li>
           <li>
-            Scrape, bulk-query, or automate the Service outside normal use, or
-            resell its outputs as your own checking service.
+            Scrape it, send bulk automated queries, or resell its results as
+            your own checking service.
           </li>
           <li>
-            Probe, attack, or degrade the Service, or attempt to access other
-            users&apos; accounts or data.
+            Probe, attack or overload the service, or try to reach other
+            people&apos;s accounts or data.
           </li>
           <li>
-            Submit names containing secrets, credentials, or other sensitive
-            data (see our Privacy Policy on what happens to checked names).
+            Submit secrets, credentials or other sensitive data. See the Privacy
+            Policy for what happens to the names you check.
           </li>
-          <li>
-            Circumvent credit consumption, rate limits, or access controls.
-          </li>
+          <li>Get around credit use, rate limits or access controls.</li>
         </ul>
       </>
     ),
   },
   {
-    id: "intellectual-property",
-    title: "Intellectual property",
+    id: "publishing",
+    title: "Publishing idea reports",
     plain:
-      "Our app is ours; your names and checks are yours. We just need a license to show them back to you.",
+      "You can make a finished search public. You decide what it shows, you can take it down any time, and we can remove pages that break these terms.",
     body: (
       <>
         <p>
-          The Service — its code, design, copy, and branding — belongs to us and
-          is protected by intellectual-property law. We grant you a limited,
-          non-exclusive, non-transferable license to use it while these Terms
-          are in effect.
+          A published idea report is a public web page built from one of your
+          searches. It is always optional and nothing goes live until you
+          confirm. By publishing, you tell us that:
+        </p>
+        <ul>
+          <li>
+            You wrote or have the right to share the idea description, title and
+            note you publish.
+          </li>
+          <li>
+            Nothing in it is unlawful, misleading, hateful, or about a private
+            person, and it doesn&apos;t contain anyone else&apos;s personal
+            information.
+          </li>
+          <li>
+            You&apos;re happy for the page to be read by anyone, indexed by
+            search engines and quoted by AI assistants.
+          </li>
+        </ul>
+        <p>
+          You give us permission to display the page, and to make it reachable
+          from our own pages, such as the idea gallery and the home page. That
+          permission ends when you take the page down, apart from copies other
+          sites have already made.
+        </p>
+        <p>
+          Anyone can report a page. Pages that several different people report
+          are hidden automatically while we look at them, and we may take down
+          or keep offline any page that breaks these Terms, with or without
+          notice. A published page is a snapshot of when it was checked, so
+          results on it can go out of date.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "intellectual-property",
+    title: "Who owns what",
+    plain:
+      "Our app is ours. Your names and checks are yours. We only need permission to show them back to you.",
+    body: (
+      <>
+        <p>
+          The service, including its code, design, writing and branding, belongs
+          to us and is protected by intellectual-property law. We give you a
+          limited, non-exclusive, non-transferable licence to use it while these
+          Terms apply.
         </p>
         <p>
           The names you submit and the checks we generate for you are yours. You
-          grant us a license to store, process, and display them to you as part
-          of operating the Service — and nothing more. We claim no ownership
-          over your brand ideas.
+          let us store, process and show them to you as part of running the
+          service, and nothing more, except for pages you choose to publish (see
+          above). We claim no ownership of your brand ideas.
         </p>
       </>
     ),
   },
   {
     id: "third-parties",
-    title: "Third-party services",
+    title: "Other companies' services",
     plain:
-      "Checks run through registries, platforms, AI providers, and Stripe. Their availability and terms apply too.",
+      "Checks run through registries, platforms, AI providers and Stripe. Their availability and terms apply too.",
     body: (
       <p>
-        To produce checks we rely on third parties: domain registries and RDAP
-        servers, social platforms&apos; public APIs, AI model providers, Google
-        sign-in, and Stripe for payments. Their availability, accuracy, and
-        terms are outside our control — if a registry is down or a platform
-        rate-limits us, affected checks will show as inconclusive rather than
-        guessed.
+        We depend on outside services to run checks: domain registries, social
+        platforms&apos; public pages, AI model providers, Google sign-in and
+        Stripe. We don&apos;t control their uptime, accuracy or terms. If a
+        registry is down or a platform limits us, the affected checks show as
+        inconclusive instead of being guessed.
       </p>
     ),
   },
   {
     id: "disclaimers",
-    title: "Disclaimers",
+    title: "No guarantees",
     plain:
-      "The service is provided as-is. We work hard on uptime and accuracy but can't guarantee either.",
+      "The service is provided as it is. We work hard on uptime and accuracy but can't promise either.",
     body: (
       <>
         <p>
-          The Service is provided &ldquo;as is&rdquo; and &ldquo;as
-          available&rdquo;, without warranties of any kind, express or implied —
-          including merchantability, fitness for a particular purpose, and
-          non-infringement.
+          The service is provided &ldquo;as is&rdquo; and &ldquo;as
+          available&rdquo;, without warranties of any kind, express or implied,
+          including about quality, fitness for a particular purpose and not
+          infringing anyone&apos;s rights.
         </p>
         <p>
-          We don&apos;t guarantee uninterrupted availability, that every check
-          will succeed, or that results will be complete or error-free. Features
-          may change or be discontinued with reasonable notice.
+          We don&apos;t promise that it will always be available, that every
+          check will succeed, or that results will be complete or error-free.
+          Features may change or end, and we&apos;ll give reasonable notice.
         </p>
       </>
     ),
   },
   {
     id: "liability",
-    title: "Limitation of liability",
+    title: "Limit on our liability",
     plain:
-      "If something goes wrong, our liability is capped at what you paid us in the last 12 months.",
+      "If something goes wrong, what we owe you is capped at what you paid us in the last 12 months.",
     body: (
       <p>
-        To the maximum extent permitted by law, we are not liable for indirect,
-        incidental, consequential, or punitive damages — including lost profits
-        or brand investments made in reliance on a check. Our total liability
-        for any claim is capped at the amount you paid us in the 12 months
-        before the claim arose (or $10 if you paid nothing). Some jurisdictions
-        don&apos;t allow these limits, so they may not apply to you.
+        As far as the law allows, we aren&apos;t liable for indirect,
+        incidental, consequential or punitive losses, including lost profit or
+        money spent on a brand because of a check. Our total liability for any
+        claim is limited to what you paid us in the 12 months before it arose,
+        or $10 if you paid nothing. Some places don&apos;t allow these limits,
+        so they may not apply to you.
       </p>
     ),
   },
   {
     id: "termination",
-    title: "Termination",
+    title: "Ending your account",
     plain:
-      "You can leave anytime by deleting your account. We can suspend accounts that break these terms.",
+      "You can leave any time by deleting your account. We can suspend accounts that break these terms.",
     body: (
       <>
         <p>
-          You may stop using the Service at any time; deleting your account (via
-          a request to{" "}
-          <a href="mailto:hello@unclaimedbyai.com">hello@unclaimedbyai.com</a>)
-          terminates these Terms for you, subject to the sections that
-          reasonably survive (payments owed, IP, liability limits).
+          You can stop using the service whenever you like. Deleting your
+          account (email <a href={`mailto:${EMAIL}`}>{EMAIL}</a>) ends these
+          Terms for you, except for the parts that naturally continue, such as
+          money owed, ownership and the limit on liability. It also takes your
+          published idea reports offline.
         </p>
         <p>
-          We may suspend or terminate accounts that violate these Terms or abuse
-          the Service, with or without notice for serious violations. Unused
-          credits on terminated-for-cause accounts are forfeited.
+          We may suspend or close accounts that break these Terms or abuse the
+          service, without notice for serious breaches. Unused credits on an
+          account closed for cause are forfeited.
         </p>
       </>
     ),
@@ -257,14 +301,13 @@ const sections: LegalSection[] = [
     id: "changes",
     title: "Changes to these terms",
     plain:
-      "We'll notify you of material changes before they take effect. Continuing to use the service means you accept them.",
+      "We'll tell you about important changes before they take effect. Carrying on using the service means you accept them.",
     body: (
       <p>
-        We may update these Terms as the Service evolves. Material changes will
-        be announced by email or in-app notice before they take effect. If you
-        keep using the Service after the effective date, you accept the updated
-        Terms; if you don&apos;t agree, stop using the Service and delete your
-        account.
+        We may update these Terms as the service changes. We&apos;ll announce
+        important changes by email or in the app before they take effect. If you
+        keep using the service after that date you accept the new Terms. If you
+        don&apos;t, stop using it and delete your account.
       </p>
     ),
   },
@@ -272,19 +315,18 @@ const sections: LegalSection[] = [
     id: "disputes",
     title: "Disputes and governing law",
     plain:
-      "Talk to us first — most issues get resolved by email. Formal disputes follow the laws of our home jurisdiction.",
+      "Talk to us first. Most problems get sorted by email. Formal disputes follow the law of the place we're based.",
     body: (
       <>
         <p>
-          If you have a dispute, contact us first at{" "}
-          <a href="mailto:hello@unclaimedbyai.com">hello@unclaimedbyai.com</a> —
-          most issues are resolved quickly that way.
+          If something is wrong, email us first at{" "}
+          <a href={`mailto:${EMAIL}`}>{EMAIL}</a>. Most issues are resolved
+          quickly that way.
         </p>
         <p>
-          These Terms are governed by the laws of the jurisdiction in which
-          Unclaimed by AI is established, without regard to conflict-of-law
-          principles. Any formal proceedings will be brought in the courts of
-          that jurisdiction, and you consent to their jurisdiction.
+          These Terms are governed by the laws of the jurisdiction where
+          Unclaimed by AI is established, ignoring its conflict-of-law rules.
+          Formal proceedings go to the courts there, and you agree to them.
         </p>
       </>
     ),
@@ -294,15 +336,17 @@ const sections: LegalSection[] = [
 export default function TermsPage() {
   return (
     <LegalDoc
-      eyebrow="Legal · Terms"
+      current="terms"
+      eyebrow="Legal"
       title="Terms of Service"
-      lede="The rules for using Unclaimed by AI — what we promise, what you promise, and what our checks do and don't mean."
+      lede="The rules for using Unclaimed by AI: what we promise, what you promise, and what our checks do and don't mean."
       updated={UPDATED}
-      readTime="7 min"
+      readTime="6 min"
+      summary={summary}
       sections={sections}
       footerNote={
         <p className="text-sm text-muted-foreground">
-          How we handle your data is covered separately in our{" "}
+          How we handle your data is covered in our{" "}
           <Link href="/privacy" className="text-primary hover:underline">
             Privacy Policy
           </Link>

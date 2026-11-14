@@ -77,8 +77,11 @@ export default function DirectCheckKickoff({ name }: { name: string }) {
   }, [name, router, verify])
 
   return (
-    <div className="mx-auto max-w-prose space-y-4 border p-8 text-center">
-      <p className="font-heading text-3xl font-semibold">{name}</p>
+    <div className="mx-auto max-w-prose space-y-4 border bg-card p-8 text-center sm:p-10">
+      <p className="text-[0.6875rem] font-semibold tracking-widest text-primary uppercase">
+        {failed ? "Couldn't start" : "Checking now"}
+      </p>
+      <p className="font-heading text-4xl text-balance break-words">{name}</p>
       {failed ? (
         <>
           {failureDetail ? (
@@ -108,9 +111,9 @@ export default function DirectCheckKickoff({ name }: { name: string }) {
       ) : (
         <>
           <p className="text-sm text-muted-foreground" role="status">
-            Running the checks now. Domains, social handles, and what AI models
-            already associate with the name. The first check on a name is free
-            and this usually takes under a minute.
+            We&apos;re looking up the website address, the social usernames, and
+            what chatbots already say about it. The first check on a name is
+            free and usually takes under a minute.
           </p>
           <div
             className="mx-auto h-1.5 w-full max-w-xs overflow-hidden bg-muted"

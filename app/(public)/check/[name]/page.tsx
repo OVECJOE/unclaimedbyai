@@ -6,9 +6,10 @@ import { TableSkeleton } from "@/components/skeletons/shared"
 import DirectCheckKickoff from "@/components/public/direct-check-kickoff"
 import CopyPermalink from "@/components/public/copy-permalink"
 import PrompterCta from "@/components/public/prompter-cta"
-import FreeDomainChips from "@/components/public/free-domain-chips"
+import NameVerdict, { answerLine } from "@/components/public/name-verdict"
+import ResultHero, { toTier } from "@/components/public/result-hero"
+import LetterField from "@/components/fields/letter-field"
 import ReportLeaderboard from "@/components/public/report-leaderboard"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ApiError, getReport, searchByQuery, type CheckReport } from "@/lib/api"
@@ -154,112 +155,103 @@ export default async function CheckNamePage({
     } catch {
       report = null
     }
-    const freeDomains =
-      report?.domains.filter((domain) => domain.status === "available") ?? []
-    const claimedHandles =
-      report?.socials.filter((social) => social.status === "taken") ?? []
     const user = await getMeServer().catch(() => null)
+    const others = checked.filter((candidate) => candidate.id !== star.id)
 
     return (
       <>
-        <section className="space-y-5 border-b px-4 py-10 sm:text-center">
-          <Badge
-            className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
-            asChild
-          >
-            <p className="px-2 py-1 sm:px-3">
-              Checked {formatDateTime(search.created_at)}, free to read
-            </p>
-          </Badge>
-          <div className="space-y-3">
-            <h1 className="font-heading text-4xl font-semibold md:text-5xl">
+        <ResultHero
+          eyebrow={`Checked ${formatDateTime(search.created_at)} · free to read`}
+          title={
+            <>
               Is <span className="text-primary">&ldquo;{decoded}&rdquo;</span>{" "}
               still free?
-            </h1>
-            <p className="mx-auto max-w-prose text-muted-foreground md:text-lg">
-              It scored <strong>{star.check.overall_score} out of 100</strong>{" "}
-              across domain availability, open social handles, and what AI
-              models already associate with it. The full ranking of candidates
-              from the same check sits below, and you can run a fresh check on
-              any name of your own at the bottom of this page.
-            </p>
-          </div>
-          <span className="flex flex-wrap items-center justify-center gap-2">
-            <Button size="lg" asChild>
-              <Link href="#check-yours">Check a name of your own</Link>
-            </Button>
-            <CopyPermalink name={decoded} size="default" variant="outline" />
-          </span>
-        </section>
+            </>
+          }
+          answer={
+            report
+              ? answerLine(report)
+              : `It scored ${star.check.overall_score} out of 100 across domains, social usernames and chatbots.`
+          }
+          score={star.check.overall_score}
+          tier={toTier(star.check.overall_risk_level)}
+          actions={
+            <>
+              <Button size="lg" asChild>
+                <Link href="#check-yours">Check your own name</Link>
+              </Button>
+              <span className="flex w-32">
+                <CopyPermalink
+                  name={decoded}
+                  size="default"
+                  variant="outline"
+                />
+              </span>
+            </>
+          }
+        />
 
-        {report ? (
-          <section className="border-b px-4 py-6">
-            <div className="mx-auto grid max-w-7xl gap-px border bg-border md:grid-cols-2">
-              <div className="space-y-2 bg-background p-4">
-                <p className="text-sm font-medium">
-                  Free to register right now
+        <section className="px-4 py-12 md:py-16">
+          <div className="mx-auto max-w-5xl space-y-10">
+            {report ? (
+              <div className="space-y-4">
+                <h2 className="font-heading text-3xl">What we found</h2>
+                <NameVerdict report={report} />
+                <p className="text-sm text-muted-foreground">
+                  Checked live on {formatDateTime(report.created_at)}. Names and
+                  handles can be taken at any moment, so check again before you
+                  commit.
                 </p>
-                <FreeDomainChips domains={freeDomains} />
               </div>
-              <div className="space-y-2 bg-background p-4">
-                <p className="text-sm font-medium">Handles already claimed</p>
-                {claimedHandles.length ? (
-                  <ul className="space-y-1">
-                    {claimedHandles.slice(0, 6).map((social) => (
-                      <li
-                        key={social.platform}
-                        className="font-mono text-xs text-muted-foreground line-through decoration-border"
-                      >
-                        @{social.handle} on {social.platform}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    Every checked handle is still open.
-                  </p>
-                )}
-                {claimedHandles.length > 6 ? (
-                  <p className="text-xs text-muted-foreground">
-                    {claimedHandles.length - 6} more claimed across the checked
-                    platforms.
-                  </p>
-                ) : null}
-              </div>
-            </div>
-          </section>
-        ) : null}
+            ) : null}
 
-        <section className="px-4 py-10">
-          <div className="mx-auto max-w-7xl space-y-6">
-            <ReportLeaderboard
-              entries={checked}
-              uncheckedNames={uncheckedNames}
-              highlight={decoded}
-            />
-            <div className="flex flex-wrap items-center justify-between gap-3 border p-4">
-              <p className="max-w-prose text-sm text-muted-foreground">
-                {user
-                  ? `Star ${star.name} on your watchlist and we recheck its domains and handles every few hours, emailing you the moment something changes. Watching is free.`
-                  : `Sign in to star ${star.name}: we recheck its domains and handles every few hours and email you the moment something changes. Watching is free.`}
-              </p>
-              <Button asChild>
+            <div className="flex flex-wrap items-center justify-between gap-4 border bg-card p-5">
+              <div className="max-w-xl space-y-1">
+                <p className="font-heading text-xl">
+                  Want to know if {star.name} gets taken?
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {user
+                    ? `Add it to your watchlist. We recheck its domains and handles every few hours and email you the moment something changes. Watching is free.`
+                    : `Sign in to watch it. We recheck its domains and handles every few hours and email you the moment something changes. Watching is free.`}
+                </p>
+              </div>
+              <Button variant="outline" asChild>
                 <Link href={user ? "/dashboard/playground/watchlist" : "/auth"}>
                   {user ? "Open your watchlist" : "Sign in to watch it"}
                 </Link>
               </Button>
             </div>
-            <div
-              id="check-yours"
-              className="scroll-mt-20 space-y-3 border-t pt-8 sm:mx-auto sm:max-w-prose sm:text-center"
-            >
-              <p className="font-heading text-2xl">Check a name of your own</p>
-              <p className="text-sm text-muted-foreground">
-                Pick the Name option, type a candidate, and we&apos;ll check it
-                right here, no account needed.
-              </p>
-              <PrompterCta />
-            </div>
+
+            {others.length > 0 ? (
+              <div className="space-y-4">
+                <ReportLeaderboard
+                  entries={checked}
+                  uncheckedNames={uncheckedNames}
+                  highlight={decoded}
+                />
+              </div>
+            ) : null}
+          </div>
+        </section>
+
+        <section
+          id="check-yours"
+          className="relative isolate scroll-mt-16 overflow-hidden border-t bg-primary/5 px-4 py-16 md:py-24"
+        >
+          <LetterField mode="claim" quiet fade="both" />
+          <div className="mx-auto max-w-3xl space-y-5 text-center">
+            <p className="text-[0.6875rem] font-semibold tracking-widest text-primary uppercase">
+              Your turn
+            </p>
+            <h2 className="font-heading text-4xl text-balance sm:text-5xl">
+              Check a name of your own.
+            </h2>
+            <p className="text-muted-foreground">
+              Pick Name, type a candidate, and we&apos;ll run the same checks
+              right here. No account needed.
+            </p>
+            <PrompterCta />
           </div>
         </section>
       </>
@@ -268,7 +260,7 @@ export default async function CheckNamePage({
 
   // Phase three: nobody has checked this name, so run the free first check.
   return (
-    <section className="px-4 py-10">
+    <section className="px-4 py-16 md:py-24">
       <DirectCheckKickoff name={decoded} />
     </section>
   )
