@@ -59,7 +59,7 @@ export default function AppFooter() {
     // mt-10 keeps page content clear of the footer; the flex column
     // layouts above do not collapse margins, so the gap holds on every
     // page that uses this footer.
-    <footer className="mt-10 overflow-hidden border-t bg-sidebar">
+    <footer className="overflow-hidden border-t bg-sidebar">
       <div className="mx-auto max-w-7xl px-4 pt-14 pb-6">
         <div className="grid gap-12 lg:grid-cols-[1.1fr_2fr]">
           <div className="space-y-5">

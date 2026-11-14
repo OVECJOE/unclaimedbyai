@@ -26,6 +26,9 @@ const StoryBackdrop = dynamic(() => import("./story-backdrop"), { ssr: false })
  * or no JavaScript, the stacked version is what they read.
  */
 
+const PINNED = "(min-width: 768px) and (min-height: 640px)"
+const PINNED_MOTION = `(prefers-reduced-motion: no-preference) and ${PINNED}`
+
 const TILE_STATE: Record<StoryTile["state"], string> = {
   free: "border-green-600/50 text-green-800 dark:border-green-400/50 dark:text-green-400",
   taken: "border-border text-muted-foreground",
@@ -140,6 +143,8 @@ export default function NameStory({ story }: { story: NameStoryData }) {
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    // The film belongs to the pinned stage, which needs room.
+    if (!window.matchMedia(PINNED).matches) return
     const idle =
       window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 600))
     const cancel = window.cancelIdleCallback ?? clearTimeout
@@ -154,7 +159,30 @@ export default function NameStory({ story }: { story: NameStoryData }) {
     if (!el || !stageEl || !stickyEl) return
 
     const mm = gsap.matchMedia()
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
+    // Small or short screens cannot fit a chapter in one view, so they
+    // keep the stacked layout: every tile in reach, revealed as you scroll.
+    mm.add(
+      "(prefers-reduced-motion: no-preference) and not (min-width: 768px) , (prefers-reduced-motion: no-preference) and (max-height: 639px)",
+      () => {
+        const items = gsap.utils.toArray<HTMLElement>(
+          "[data-chapter] > *, [data-tile]",
+          el
+        )
+        const ctx = gsap.context(() => {
+          items.forEach((item) =>
+            gsap.from(item, {
+              y: 20,
+              autoAlpha: 0,
+              duration: 0.5,
+              ease: "power2.out",
+              scrollTrigger: { trigger: item, start: "top 92%", once: true },
+            })
+          )
+        }, el)
+        return () => ctx.revert()
+      }
+    )
+    mm.add(PINNED_MOTION, () => {
       const chapters = gsap.utils.toArray<HTMLElement>("[data-chapter]", el)
       const rail = el.querySelector<HTMLElement>("[data-rail]")
       const bars = gsap.utils.toArray<HTMLElement>("[data-bar]", el)
