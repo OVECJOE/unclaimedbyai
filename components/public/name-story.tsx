@@ -114,31 +114,29 @@ function Chapter({
 
 export default function NameStory({ story }: { story: NameStoryData }) {
   const root = useRef<HTMLDivElement>(null)
+  const sticky = useRef<HTMLDivElement>(null)
   const stage = useRef<HTMLDivElement>(null)
   const quote = useRef<HTMLQuoteElement>(null)
   const film = useRef({ p: 0 })
   const [showFilm, setShowFilm] = useState(false)
 
-  const domainStates = useMemo(
-    () => story.domains.tiles.map((tile) => tile.state),
-    [story]
-  )
-  const handleStates = useMemo(
-    () => story.handles.tiles.map((tile) => tile.state),
-    [story]
-  )
-  const lines = useMemo(
+  const domainTiles = useMemo(
     () =>
-      [
-        story.chatbots.quote?.text,
-        ...story.chatbots.models.map(
-          (model) => `${model} · asked about ${story.name}`
-        ),
-        `${story.name} · checked live`,
-        ...story.domains.tiles.map((tile) => `${story.name}${tile.label}`),
-      ].filter((line): line is string => Boolean(line)),
+      story.domains.tiles.map((tile) => ({
+        label: tile.label,
+        state: tile.state,
+      })),
     [story]
   )
+  const handleTiles = useMemo(
+    () =>
+      story.handles.tiles.map((tile) => ({
+        label: tile.label.toLowerCase(),
+        state: tile.state,
+      })),
+    [story]
+  )
+  const answer = story.chatbots.quote?.text ?? story.chatbots.headline
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
@@ -152,7 +150,8 @@ export default function NameStory({ story }: { story: NameStoryData }) {
   useEffect(() => {
     const el = root.current
     const stageEl = stage.current
-    if (!el || !stageEl) return
+    const stickyEl = sticky.current
+    if (!el || !stageEl || !stickyEl) return
 
     const mm = gsap.matchMedia()
     mm.add("(prefers-reduced-motion: no-preference)", () => {
@@ -164,7 +163,20 @@ export default function NameStory({ story }: { story: NameStoryData }) {
       if (chapters.length !== 3) return
 
       const ctx = gsap.context(() => {
-        // Turn the stacked layout into one pinned stage.
+        // Turn the stacked layout into one stage that stays put while
+        // the page scrolls past it. Plain CSS sticky inside a tall
+        // wrapper: nothing is moved or wrapped in the DOM, so React can
+        // always remove it cleanly when you navigate away.
+        gsap.set(el, {
+          height: "calc(100svh + 240svh)",
+          paddingTop: 0,
+          paddingBottom: 0,
+        })
+        gsap.set(stickyEl, {
+          position: "sticky",
+          top: 64,
+          height: "calc(100svh - 4rem)",
+        })
         gsap.set(stageEl, { height: "calc(100svh - 9rem)", overflow: "hidden" })
         gsap.set(chapters, {
           position: "absolute",
@@ -184,10 +196,8 @@ export default function NameStory({ story }: { story: NameStoryData }) {
           scrollTrigger: {
             trigger: el,
             start: "top 64px",
-            end: () => `+=${Math.round(window.innerHeight * 2.4)}`,
-            pin: true,
+            end: "bottom bottom",
             scrub: 0.5,
-            anticipatePin: 1,
             onUpdate: (self) => {
               film.current.p = self.progress
             },
@@ -271,101 +281,101 @@ export default function NameStory({ story }: { story: NameStoryData }) {
   }, [])
 
   return (
-    <div
-      ref={root}
-      className="relative isolate overflow-hidden px-4 py-12 md:py-0"
-    >
-      {showFilm ? (
-        <StoryBackdrop
-          film={film}
-          domains={domainStates}
-          handles={handleStates}
-          lines={lines}
-        />
-      ) : null}
-      <div className="mx-auto max-w-6xl">
-        <div data-rail aria-hidden="true" className="hidden gap-2 pt-6 pb-4">
-          {["Website address", "Usernames", "Chatbots"].map((label) => (
-            <div key={label} className="flex-1 space-y-1.5">
-              <div className="h-0.5 overflow-hidden bg-border">
-                <div
-                  data-bar
-                  className="h-full origin-left scale-x-0 bg-primary"
-                />
+    <div ref={root} className="px-4 py-12 md:py-0">
+      <div ref={sticky} className="relative isolate overflow-hidden">
+        {showFilm ? (
+          <StoryBackdrop
+            film={film}
+            name={story.name}
+            domains={domainTiles}
+            handles={handleTiles}
+            answer={answer}
+          />
+        ) : null}
+        <div className="mx-auto max-w-6xl">
+          <div data-rail aria-hidden="true" className="hidden gap-2 pt-6 pb-4">
+            {["Website address", "Usernames", "Chatbots"].map((label) => (
+              <div key={label} className="flex-1 space-y-1.5">
+                <div className="h-0.5 overflow-hidden bg-border">
+                  <div
+                    data-bar
+                    className="h-full origin-left scale-x-0 bg-primary"
+                  />
+                </div>
+                <p className="text-[0.625rem] font-semibold tracking-widest text-muted-foreground uppercase">
+                  {label}
+                </p>
               </div>
-              <p className="text-[0.625rem] font-semibold tracking-widest text-muted-foreground uppercase">
-                {label}
-              </p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        <div ref={stage} className="relative">
-          <Chapter
-            index={1}
-            label="Website address"
-            headline={story.domains.headline}
-            sub={story.domains.sub}
-          >
-            <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3">
-              {story.domains.tiles.map((tile) => (
-                <Tile key={tile.key} tile={tile} />
-              ))}
-            </ul>
-          </Chapter>
+          <div ref={stage} className="relative">
+            <Chapter
+              index={1}
+              label="Website address"
+              headline={story.domains.headline}
+              sub={story.domains.sub}
+            >
+              <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3">
+                {story.domains.tiles.map((tile) => (
+                  <Tile key={tile.key} tile={tile} />
+                ))}
+              </ul>
+            </Chapter>
 
-          <Chapter
-            index={2}
-            label="Social usernames"
-            headline={story.handles.headline}
-            sub={story.handles.sub}
-          >
-            <ul className="grid grid-cols-3 gap-2 sm:gap-3">
-              {story.handles.tiles.map((tile) => (
-                <Tile key={tile.key} tile={tile} />
-              ))}
-            </ul>
-          </Chapter>
+            <Chapter
+              index={2}
+              label="Social usernames"
+              headline={story.handles.headline}
+              sub={story.handles.sub}
+            >
+              <ul className="grid grid-cols-3 gap-2 sm:gap-3">
+                {story.handles.tiles.map((tile) => (
+                  <Tile key={tile.key} tile={tile} />
+                ))}
+              </ul>
+            </Chapter>
 
-          <Chapter
-            index={3}
-            label="What chatbots say"
-            headline={story.chatbots.headline}
-            sub={story.chatbots.sub}
-          >
-            <div className="space-y-5">
-              {story.chatbots.quote ? (
-                <figure className="space-y-3 border-l-2 border-primary pl-5">
-                  <blockquote
-                    ref={quote}
-                    data-full={story.chatbots.quote.text}
-                    className="font-heading text-2xl leading-snug text-balance sm:text-3xl"
-                  >
-                    {story.chatbots.quote.text}
-                  </blockquote>
-                  {story.chatbots.quote.model ? (
-                    <figcaption className="text-sm text-muted-foreground">
-                      {story.chatbots.quote.model}, when asked about{" "}
-                      {story.name}
-                    </figcaption>
-                  ) : null}
-                </figure>
-              ) : null}
-              {story.chatbots.models.length > 0 ? (
-                <ul className="flex flex-wrap gap-2">
-                  {story.chatbots.models.map((model) => (
-                    <li
-                      key={model}
-                      data-model
-                      className="border px-2.5 py-1 font-mono text-xs text-muted-foreground"
+            <Chapter
+              index={3}
+              label="What chatbots say"
+              headline={story.chatbots.headline}
+              sub={story.chatbots.sub}
+            >
+              <div className="space-y-5">
+                {story.chatbots.quote ? (
+                  <figure className="space-y-3 border-l-2 border-primary pl-5">
+                    <blockquote
+                      ref={quote}
+                      data-full={story.chatbots.quote.text}
+                      className="font-heading text-2xl leading-snug text-balance sm:text-3xl"
                     >
-                      {model}
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </div>
-          </Chapter>
+                      {story.chatbots.quote.text}
+                    </blockquote>
+                    {story.chatbots.quote.model ? (
+                      <figcaption className="text-sm text-muted-foreground">
+                        {story.chatbots.quote.model}, when asked about{" "}
+                        {story.name}
+                      </figcaption>
+                    ) : null}
+                  </figure>
+                ) : null}
+                {story.chatbots.models.length > 0 ? (
+                  <ul className="flex flex-wrap gap-2">
+                    {story.chatbots.models.map((model) => (
+                      <li
+                        key={model}
+                        data-model
+                        className="border px-2.5 py-1 font-mono text-xs text-muted-foreground"
+                      >
+                        {model}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            </Chapter>
+          </div>
         </div>
       </div>
     </div>

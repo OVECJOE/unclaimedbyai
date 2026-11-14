@@ -9,29 +9,34 @@ import {
 } from "@/components/fields/kit"
 
 /**
- * The film behind the three chapters. One canvas, one slow camera, three
- * scenes that dissolve into each other as you scroll:
+ * The film behind the three chapters, in the same language as the
+ * landing hero: letters. One swarm of small letters drifts as noise,
+ * then, as you scroll, pulls together and spells what the page is
+ * about, over and over in new shapes:
  *
- *  1. A field of small squares, one per possible name. The names this
- *     check tried sit in a row near the top and light up violet when
- *     free, or hollow out when taken.
- *  2. The field pulls away and the social platforms form a ring. Open
- *     ones glow, taken ones go dark.
- *  3. Faint lines of text drift past like subtitles; the real chatbot
- *     answer comes into focus.
+ *  1. the name itself, with the extensions that were tried below it.
+ *     Free ones light up violet; taken ones lose their letters and fall.
+ *  2. the same swarm re-forms as @name with the platforms below it,
+ *     open ones lit, taken ones falling away.
+ *  3. and finally the swarm writes out the chatbot's answer.
  *
- * It paints with plain 2D rectangles and text: no images, no video, no
- * blur filters. It sleeps when off screen, drops frames on a slow
- * device, and takes its position from the scroll through `film.p`.
+ * Letters travel on curved paths, not straight lines, so every change
+ * of scene is a flow rather than a swap. Drawn from a pre-rendered
+ * glyph sheet with plain drawImage calls: no per-frame text layout, no
+ * blur, no images. It sleeps off-screen and takes its position from the
+ * scroll through `film.p`.
  */
 
 export type Film = { p: number }
 
+export type FilmTile = { label: string; state: "free" | "taken" | "unknown" }
+
 type Props = {
   film: MutableRefObject<Film>
-  domains: ("free" | "taken" | "unknown")[]
-  handles: ("free" | "taken" | "unknown")[]
-  lines: string[]
+  name: string
+  domains: FilmTile[]
+  handles: FilmTile[]
+  answer: string
 }
 
 const clamp = (n: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, n))
@@ -40,20 +45,27 @@ const smooth = (a: number, b: number, x: number) => {
   return t * t * (3 - 2 * t)
 }
 
-type Dot = {
-  x: number
-  y: number
-  phase: number
-  size: number
-  speed: number
+const GLYPHS = "abcdefghijklmnopqrstuvwxyz0123456789@."
+
+type Point = { x: number; y: number; state: number; group: number }
+// state: 0 plain, 1 free, 2 taken
+
+type Letter = {
+  hx: number
+  hy: number
   z: number
+  glyph: number
+  phase: number
+  swirl: number
+  targets: (Point | null)[]
 }
 
 export default function StoryBackdrop({
   film,
+  name,
   domains,
   handles,
-  lines,
+  answer,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -68,15 +80,183 @@ export default function StoryBackdrop({
     let palette = readPalette()
     let width = 0
     let height = 0
-    let dots: Dot[] = []
-    let rowX: number[] = []
-    let scatter: { x: number; y: number }[] = []
-    let starts: { x: number; y: number }[] = []
-    let nodes: { x: number; y: number }[] = []
-    let drift = 0
+    let letters: Letter[] = []
+    let sheet: HTMLCanvasElement | null = null
+    let sheetPrimary: HTMLCanvasElement | null = null
+    let cell = 12
     let shown = reduced ? 0.12 : 0
-    let scroller: { y: number; speed: number; size: number; text: string }[] =
-      []
+
+    const family = () =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--font-heading")
+        .trim() || "serif"
+    const mono = () =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--font-mono")
+        .trim() || "monospace"
+
+    function makeSheet(color: string): HTMLCanvasElement {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const size = Math.ceil(cell * dpr)
+      const sheet = document.createElement("canvas")
+      sheet.width = size * GLYPHS.length
+      sheet.height = size
+      const c = sheet.getContext("2d")!
+      c.fillStyle = color
+      c.font = `500 ${Math.round(cell * dpr * 0.9)}px ${mono()}`
+      c.textAlign = "center"
+      c.textBaseline = "middle"
+      for (let i = 0; i < GLYPHS.length; i++) {
+        c.fillText(GLYPHS[i], i * size + size / 2, size / 2 + 1)
+      }
+      return sheet
+    }
+
+    function paintSheets() {
+      sheet = makeSheet(palette.noise)
+      sheetPrimary = makeSheet(palette.primary)
+    }
+
+    /** Samples the filled pixels of one piece of text into points. */
+    function sampleText(
+      off: CanvasRenderingContext2D,
+      text: string,
+      x: number,
+      y: number,
+      size: number,
+      font: string,
+      step: number,
+      state: number,
+      group: number
+    ): Point[] {
+      off.clearRect(0, 0, width, height)
+      off.font = `${size}px ${font}`
+      off.textAlign = "left"
+      off.textBaseline = "middle"
+      off.fillStyle = "#000"
+      off.fillText(text, x, y)
+      const w = Math.ceil(off.measureText(text).width) + 4
+      const top = Math.max(0, Math.floor(y - size))
+      const left = Math.max(0, Math.floor(x - 2))
+      const bw = Math.min(Math.floor(width) - left, w)
+      const bh = Math.min(Math.floor(height) - top, Math.ceil(size * 2))
+      if (bw <= 0 || bh <= 0) return []
+      const data = off.getImageData(left, top, bw, bh).data
+      const points: Point[] = []
+      for (let py = 0; py < bh; py += step) {
+        for (let px = 0; px < bw; px += step) {
+          if (data[(py * bw + px) * 4 + 3] > 110) {
+            points.push({ x: left + px, y: top + py, state, group })
+          }
+        }
+      }
+      return points
+    }
+
+    function buildLayouts(step: number): Point[][] {
+      const off = document.createElement("canvas")
+      off.width = Math.max(1, Math.round(width))
+      off.height = Math.max(1, Math.round(height))
+      const o = off.getContext("2d", { willReadFrequently: true })!
+      const serif = family()
+      const small = mono()
+      const stateOf = (s: FilmTile["state"]) =>
+        s === "free" ? 1 : s === "taken" ? 2 : 0
+      const bigSize = Math.min(width * 0.115, 150)
+      const rowSize = Math.max(14, Math.min(width * 0.02, 22))
+
+      /** One headline, centered in the top band. */
+      const headline = (text: string, fontFamily: string, size: number) => {
+        o.font = `${size}px ${fontFamily}`
+        const w = o.measureText(text).width
+        return sampleText(
+          o,
+          text,
+          (width - w) / 2,
+          height * 0.2,
+          size,
+          fontFamily,
+          step,
+          0,
+          0
+        )
+      }
+
+      /** A row of labels in the bottom band, each its own group. */
+      const row = (tiles: FilmTile[]) => {
+        o.font = `${rowSize}px ${small}`
+        const gap = rowSize * 1.6
+        const widths = tiles.map((t) => o.measureText(t.label).width)
+        const total =
+          widths.reduce((a, b) => a + b, 0) +
+          gap * Math.max(tiles.length - 1, 0)
+        let x = (width - total) / 2
+        const out: Point[] = []
+        tiles.forEach((tile, i) => {
+          out.push(
+            ...sampleText(
+              o,
+              tile.label,
+              x,
+              height * 0.86,
+              rowSize,
+              small,
+              Math.max(2, step - 2),
+              stateOf(tile.state),
+              i
+            )
+          )
+          x += widths[i] + gap
+        })
+        return out
+      }
+
+      // Chapter one: the name, then the extensions tried.
+      const l1 = [...headline(name, serif, bigSize), ...row(domains)]
+      // Chapter two: the same name as a handle, then the platforms.
+      const l2 = [
+        ...headline(`@${name.toLowerCase()}`, serif, bigSize * 0.82),
+        ...row(handles),
+      ]
+      // Chapter three: the answer, wrapped over up to three lines.
+      const l3: Point[] = []
+      const aSize = Math.max(18, Math.min(width * 0.03, 34))
+      o.font = `${aSize}px ${serif}`
+      const maxW = width * 0.78
+      const words = answer.split(/\s+/)
+      const lines: string[] = []
+      let current = ""
+      for (const word of words) {
+        const test = current ? `${current} ${word}` : word
+        if (o.measureText(test).width > maxW && current) {
+          lines.push(current)
+          current = word
+        } else current = test
+      }
+      if (current) lines.push(current)
+      const shownLines = lines.slice(0, 3)
+      if (lines.length > 3) {
+        shownLines[2] = shownLines[2].replace(/\s*\S*$/, "") + "…"
+      }
+      shownLines.forEach((line, i) => {
+        o.font = `${aSize}px ${serif}`
+        const w = o.measureText(line).width
+        l3.push(
+          ...sampleText(
+            o,
+            line,
+            (width - w) / 2,
+            height * 0.12 + i * aSize * 1.45,
+            aSize,
+            serif,
+            step,
+            0,
+            0
+          )
+        )
+      })
+      return [l1, l2, l3]
+    }
 
     function build() {
       const rect = host!.getBoundingClientRect()
@@ -84,77 +264,81 @@ export default function StoryBackdrop({
       height = rect.height
       if (!width || !height) return
       const small = width < 640
+      cell = small ? 10 : 12
       fitCanvas(canvas!, ctx!, width, height, small ? 1.25 : 1.5)
+      paintSheets()
 
-      // A grid of faint squares, thinned so it never passes ~380.
-      let gap = small ? 34 : 40
-      while ((width / gap) * (height / gap) > 380) gap += 4
-      const cols = Math.ceil(width / gap) + 1
-      const rows = Math.ceil(height / gap) + 1
-      dots = []
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          dots.push({
-            x: c * gap,
-            y: r * gap,
-            phase: Math.random() * Math.PI * 2,
-            size: 1.5 + Math.random() * 2,
-            speed: 0.4 + Math.random() * 0.8,
-            z: 0.5 + Math.random() * 1.1,
-          })
-        }
+      // Sample at a spacing that keeps the swarm to a few hundred
+      // letters; widen it until all three scenes fit.
+      const cap = small ? 420 : 780
+      let step = small ? 6 : 5
+      let layouts = buildLayouts(step)
+      for (
+        let tries = 0;
+        tries < 5 && Math.max(...layouts.map((l) => l.length)) > cap;
+        tries++
+      ) {
+        step += 1
+        layouts = buildLayouts(step)
       }
-
-      // Scene one: the names that were tried, in a row near the top.
-      const a = domains.length
-      rowX = domains.map(
-        (_, i) => width * (0.12 + (0.76 * (i + 0.5)) / Math.max(a, 1))
+      const count = Math.min(
+        cap,
+        Math.max(...layouts.map((l) => l.length), 120)
       )
-      scatter = domains.map(() => ({
-        x: width * (Math.random() * 1.2 - 0.1),
-        y: height * (Math.random() * 1.2 - 0.1),
-      }))
 
-      // Scene two: the platforms, from a random spot in the field to a ring.
-      const k = handles.length
-      starts = handles.map(() => {
-        const d = dots[Math.floor(Math.random() * dots.length)]
-        return { x: d.x, y: d.y }
-      })
-      nodes = handles.map((_, i) => {
-        const angle = -Math.PI / 2 + (i * Math.PI * 2) / Math.max(k, 1)
+      const pool = (name + GLYPHS).toLowerCase()
+      const orders = layouts.map((points) =>
+        points
+          .map((p, i) => [Math.random(), i] as const)
+          .sort((a, b) => a[0] - b[0])
+          .map(([, i]) => points[i])
+      )
+      letters = Array.from({ length: count }, (_, i) => {
+        const ch = pool[Math.floor(Math.random() * pool.length)]
+        const index = GLYPHS.indexOf(ch)
         return {
-          x: width / 2 + Math.cos(angle) * width * 0.34,
-          y: height / 2 + Math.sin(angle) * height * 0.36,
+          hx: Math.random() * width,
+          hy: Math.random() * height,
+          z: 0.55 + Math.random() * 0.9,
+          glyph: index === -1 ? 0 : index,
+          phase: Math.random() * Math.PI * 2,
+          swirl: (Math.random() < 0.5 ? -1 : 1) * (0.15 + Math.random() * 0.35),
+          targets: orders.map((order) => order[i] ?? null),
         }
       })
+    }
 
-      // Scene three: lines drifting across at different depths.
-      const pool = lines.length ? lines : ["no known association"]
-      scroller = Array.from({ length: small ? 10 : 16 }, (_, i) => ({
-        y: height * ((i + 0.5) / (small ? 10 : 16)),
-        speed: 8 + (i % 4) * 7,
-        size: 12 + (i % 3) * 4,
-        text: pool[i % pool.length],
-      }))
+    /** From a to b by e, bowed sideways so a change of scene flows. */
+    function travel(
+      ax: number,
+      ay: number,
+      bx: number,
+      by: number,
+      e: number,
+      swirl: number
+    ): [number, number] {
+      const dx = bx - ax
+      const dy = by - ay
+      const bow = Math.sin(Math.PI * e) * swirl
+      return [ax + dx * e - dy * bow, ay + dy * e + dx * bow]
     }
 
     function draw(now: number) {
+      if (!sheet || !sheetPrimary || !letters.length) return
       const target = film.current.p
-      shown += (target - shown) * (reduced ? 1 : 0.1)
+      shown += (target - shown) * (reduced ? 1 : 0.08)
       const p = shown
-      drift = now / 1000
-
-      const e1 = smooth(0.26, 0.4, p)
-      const e2 = smooth(0.6, 0.72, p)
+      const t = now / 1000
       const dpr = canvas!.width / Math.max(width, 1)
 
-      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0)
-      ctx!.clearRect(0, 0, width, height)
+      const a1 = smooth(0.0, 0.2, p)
+      const a2 = smooth(0.27, 0.43, p)
+      const a3 = smooth(0.6, 0.76, p)
+      const eases = [a1, a2, a3]
 
-      // The camera: a slow push in with a little sideways drift.
-      const zoom = 1 + 0.38 * p
-      const pan = -(p - 0.5) * 60
+      // A slow push in, with a little drift sideways.
+      const zoom = 1 + 0.07 * p
+      const pan = -(p - 0.5) * 24
       ctx!.setTransform(
         dpr * zoom,
         0,
@@ -163,134 +347,86 @@ export default function StoryBackdrop({
         dpr * ((width / 2) * (1 - zoom) + pan),
         dpr * ((height / 2) * (1 - zoom))
       )
+      ctx!.clearRect(-width, -height, width * 3, height * 3)
 
-      const quiet = palette.dark ? 0.2 : 0.26
+      const unit = Math.ceil(cell * dpr)
+      for (const letter of letters) {
+        const sway = Math.sin(t * 0.6 + letter.phase)
+        const swayY = Math.cos(t * 0.5 + letter.phase * 1.3)
+        // Ambient drift: always a little alive, calmer once settled.
+        let x = letter.hx + sway * 9 * letter.z
+        let y = letter.hy + swayY * 7 * letter.z
+        let alpha = 0.2 * letter.z
+        let usePrimary = false
+        let size = cell * letter.z * 0.8
+        let fall = 0
 
-      // A slow violet light that moves from scene to scene.
-      const lx = width * (0.5 + 0.18 * Math.sin(drift * 0.15) + 0.2 * e2)
-      const ly = height * (0.2 + 0.3 * e1 + 0.05 * Math.cos(drift * 0.2))
-      const radius = Math.max(width, height) * 0.55
-      const glow = ctx!.createRadialGradient(lx, ly, 0, lx, ly, radius)
-      glow.addColorStop(
-        0,
-        palette.primary.replace("rgb(", "rgb(").replace(")", " / 0.16)")
-      )
-      glow.addColorStop(1, palette.primary.replace(")", " / 0)"))
-      ctx!.globalAlpha = palette.dark ? 0.7 : 0.55
-      ctx!.fillStyle = glow
-      ctx!.fillRect(-width, -height, width * 3, height * 3)
+        for (let k = 0; k < 3; k++) {
+          const dest = letter.targets[k]
+          const e = eases[k]
+          if (e <= 0) continue
+          if (!dest) {
+            // Nothing to spell in this scene: drift back into the noise.
+            ;[x, y] = travel(
+              x,
+              y,
+              letter.hx + sway * 9 * letter.z,
+              letter.hy + swayY * 7 * letter.z,
+              e,
+              letter.swirl
+            )
+            continue
+          }
+          const wobble = (1 - e) * 5 + 0.6
+          const tx = dest.x + Math.sin(t * 0.8 + letter.phase) * wobble
+          const ty = dest.y + Math.cos(t * 0.7 + letter.phase) * wobble
+          ;[x, y] = travel(x, y, tx, ty, e, letter.swirl)
 
-      // The field of squares.
-      ctx!.fillStyle = palette.noise
-      for (const dot of dots) {
-        const sway = Math.sin(drift * dot.speed + dot.phase)
-        const spread = 1 + 0.3 * e1
-        const x =
-          width / 2 +
-          (dot.x - width / 2) * spread +
-          pan * (dot.z - 1) * 1.6 +
-          sway * 1.5 * (1 + e2 * 6)
-        const y =
-          height / 2 +
-          (dot.y - height / 2) * spread +
-          Math.cos(drift * dot.speed * 0.8 + dot.phase) * 1.5 * (1 + e2 * 6)
-        const alpha =
-          (quiet + sway * 0.04) *
-          (0.55 + 0.45 * dot.z) *
-          (1 - 0.45 * e1) *
-          (1 - e2)
-        if (alpha <= 0.005) continue
-        ctx!.globalAlpha = alpha
-        const size = dot.size * dot.z
-        ctx!.fillRect(x - size / 2, y - size / 2, size, size)
-      }
+          // Where this layout is the current scene, give letters their
+          // meaning: free ones glow, taken ones lose their grip.
+          const next = k < 2 ? eases[k + 1] : 0
+          const present = e * (1 - next)
+          if (present > 0.01) {
+            const lit = smooth(
+              k === 0 ? 0.08 + dest.group * 0.012 : 0.4 + dest.group * 0.02,
+              k === 0 ? 0.14 + dest.group * 0.012 : 0.46 + dest.group * 0.02,
+              p
+            )
+            if (dest.state === 1) {
+              usePrimary = true
+              alpha = Math.max(
+                alpha,
+                (0.3 + 0.5 * lit) * present * (0.85 + 0.15 * sway)
+              )
+              size = cell * (0.85 + 0.1 * lit)
+            } else if (dest.state === 2) {
+              alpha = Math.max(alpha, 0.34 * present * (1 - lit * 0.85))
+              fall = lit * present * (18 + 22 * letter.z)
+              size = cell * 0.9
+            } else {
+              usePrimary = k === 2 || dest.y < height * 0.5
+              alpha = Math.max(alpha, (k === 2 ? 0.7 : 0.55) * present)
+              size = cell * 0.9
+            }
+          }
+        }
 
-      // Scene one: the names that were tried.
-      domains.forEach((state, i) => {
-        const lit = smooth(
-          0.03 + (i / domains.length) * 0.17,
-          0.09 + (i / domains.length) * 0.17,
-          p
+        y += fall
+        if (alpha < 0.012) continue
+        ctx!.globalAlpha = Math.min(alpha, 0.9)
+        const source = usePrimary ? sheetPrimary : sheet
+        ctx!.drawImage(
+          source,
+          letter.glyph * unit,
+          0,
+          unit,
+          unit,
+          x - size / 2,
+          y - size / 2,
+          size,
+          size
         )
-        const ease = smooth(0.26 + i * 0.004, 0.4 + i * 0.004, p)
-        const bob = Math.sin(drift * 0.9 + i) * 2
-        const x = rowX[i] + (scatter[i].x - rowX[i]) * ease
-        const y = height * 0.13 + (scatter[i].y - height * 0.13) * ease + bob
-        const fade = 1 - e1
-        if (fade <= 0.01) return
-        const s = 11
-        if (state === "free") {
-          ctx!.fillStyle = palette.primary
-          ctx!.globalAlpha = 0.16 * lit * fade
-          ctx!.fillRect(x - s * 2.5, y - s * 2.5, s * 5, s * 5)
-          ctx!.globalAlpha = (0.15 + 0.5 * lit) * fade
-          ctx!.fillRect(x - s / 2, y - s / 2, s, s)
-        } else {
-          ctx!.strokeStyle = palette.noise
-          ctx!.globalAlpha = (0.22 - 0.1 * lit) * fade
-          ctx!.lineWidth = 1
-          ctx!.strokeRect(x - s / 2, y - s / 2, s, s)
-        }
-      })
-
-      // Scene two: the platforms gather into a ring.
-      const ringAlpha = e1 * (1 - e2)
-      if (ringAlpha > 0.01 && nodes.length > 1) {
-        ctx!.strokeStyle = palette.primary
-        ctx!.lineWidth = 1
-        ctx!.globalAlpha = 0.16 * ringAlpha
-        ctx!.beginPath()
-        nodes.forEach((n, i) => {
-          const ease = smooth(0.26 + i * 0.01, 0.46 + i * 0.01, p)
-          const x = starts[i].x + (n.x - starts[i].x) * ease
-          const y = starts[i].y + (n.y - starts[i].y) * ease
-          if (i === 0) ctx!.moveTo(x, y)
-          else ctx!.lineTo(x, y)
-        })
-        ctx!.closePath()
-        ctx!.stroke()
       }
-      handles.forEach((state, i) => {
-        const ease = smooth(0.26 + i * 0.01, 0.46 + i * 0.01, p)
-        const lit = smooth(0.4 + i * 0.03, 0.48 + i * 0.03, p)
-        const orbit = Math.sin(drift * 0.6 + i * 1.7) * 3
-        const x = starts[i].x + (nodes[i].x - starts[i].x) * ease + orbit
-        const y =
-          starts[i].y +
-          (nodes[i].y - starts[i].y) * ease +
-          Math.cos(drift * 0.5 + i) * 3
-        const fade = 1 - e2
-        if (fade <= 0.01) return
-        const s = 12
-        if (state === "free") {
-          ctx!.fillStyle = palette.primary
-          ctx!.globalAlpha = 0.18 * lit * fade
-          ctx!.fillRect(x - s * 2.5, y - s * 2.5, s * 5, s * 5)
-          ctx!.globalAlpha = (0.12 + 0.5 * lit) * fade
-          ctx!.fillRect(x - s / 2, y - s / 2, s, s)
-        } else {
-          ctx!.strokeStyle = palette.noise
-          ctx!.globalAlpha =
-            (0.14 + 0.12 * (1 - lit)) * fade * Math.max(ease, 0.3)
-          ctx!.strokeRect(x - s / 2, y - s / 2, s, s)
-        }
-      })
-
-      // Scene three: subtitles drifting past.
-      if (e2 > 0.01) {
-        ctx!.fillStyle = palette.noise
-        ctx!.textBaseline = "middle"
-        scroller.forEach((line, i) => {
-          ctx!.font = `${line.size}px ui-monospace, "Geist Mono", monospace`
-          const span = width + 520
-          const x = ((drift * line.speed + i * 173) % span) - 360
-          const focus = i === Math.floor(scroller.length / 2) ? 1 : 0
-          ctx!.globalAlpha = (focus ? 0.34 : 0.13) * e2
-          ctx!.fillStyle = focus ? palette.primary : palette.noise
-          ctx!.fillText(line.text, x, line.y)
-        })
-      }
-
       ctx!.globalAlpha = 1
     }
 
@@ -300,18 +436,19 @@ export default function StoryBackdrop({
       draw,
       onTheme: () => {
         palette = readPalette()
+        paintSheets()
       },
       animate: !reduced,
       fps: 40,
     })
     return () => field.stop()
-  }, [film, domains, handles, lines])
+  }, [film, name, domains, handles, answer])
 
   return (
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_center,black_55%,transparent_100%)]"
+      className="pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent,black_8%,black_92%,transparent)]"
     />
   )
 }
