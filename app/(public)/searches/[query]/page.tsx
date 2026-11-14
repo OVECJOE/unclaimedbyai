@@ -6,7 +6,9 @@ import CopyPermalink from "@/components/public/copy-permalink"
 import { Button } from "@/components/ui/button"
 import { JsonLd } from "@/components/app/json-ld"
 import PrompterCta from "@/components/public/prompter-cta"
-import NameVerdict, { answerLine } from "@/components/public/name-verdict"
+import NameStory from "@/components/public/name-story"
+import FreeStrip from "@/components/public/free-strip"
+import { answerLine, storyFrom } from "@/lib/name-facts"
 import ResultHero, { toTier } from "@/components/public/result-hero"
 import LetterField from "@/components/fields/letter-field"
 import { ApiError, getReport, searchByQuery, type CheckReport } from "@/lib/api"
@@ -123,21 +125,35 @@ export default async function PublicSearchPage({ params }: PageProps) {
         }
       />
 
-      <section className="px-4 py-12 md:py-16">
+      {topPick && topReport ? (
+        <>
+          <div className="px-4 pt-12">
+            <div className="mx-auto max-w-6xl space-y-2">
+              <h2 className="font-heading text-3xl">
+                The top pick, {topPick.name.name}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {checked.length} of {search.names.length} names scored
+                {average !== null ? `, average ${average} out of 100` : ""}.
+                Here is what sits behind the leader&apos;s score.
+              </p>
+            </div>
+          </div>
+          <NameStory
+            story={storyFrom(
+              topPick.name.name,
+              topPick.check.overall_score,
+              topReport
+            )}
+          />
+          <FreeStrip report={topReport} />
+        </>
+      ) : null}
+
+      <section className="px-4 pb-12 md:pb-16">
         <div className="mx-auto max-w-5xl space-y-12">
           {topPick && topReport ? (
             <div className="space-y-4">
-              <div className="space-y-1">
-                <h2 className="font-heading text-3xl">
-                  The top pick, {topPick.name.name}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {checked.length} of {search.names.length} names scored
-                  {average !== null ? `, average ${average} out of 100` : ""}.
-                  Here is what sits behind the leader&apos;s score.
-                </p>
-              </div>
-              <NameVerdict report={topReport} />
               <div className="flex flex-wrap items-center justify-between gap-4 border bg-card p-5">
                 <p className="max-w-xl text-sm text-muted-foreground">
                   {user

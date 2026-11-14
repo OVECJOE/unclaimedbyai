@@ -6,7 +6,9 @@ import { TableSkeleton } from "@/components/skeletons/shared"
 import DirectCheckKickoff from "@/components/public/direct-check-kickoff"
 import CopyPermalink from "@/components/public/copy-permalink"
 import PrompterCta from "@/components/public/prompter-cta"
-import NameVerdict, { answerLine } from "@/components/public/name-verdict"
+import NameStory from "@/components/public/name-story"
+import FreeStrip from "@/components/public/free-strip"
+import { answerLine, storyFrom } from "@/lib/name-facts"
 import ResultHero, { toTier } from "@/components/public/result-hero"
 import LetterField from "@/components/fields/letter-field"
 import ReportLeaderboard from "@/components/public/report-leaderboard"
@@ -191,20 +193,17 @@ export default async function CheckNamePage({
           }
         />
 
-        <section className="px-4 py-12 md:py-16">
-          <div className="mx-auto max-w-5xl space-y-10">
-            {report ? (
-              <div className="space-y-4">
-                <h2 className="font-heading text-3xl">What we found</h2>
-                <NameVerdict report={report} />
-                <p className="text-sm text-muted-foreground">
-                  Checked live on {formatDateTime(report.created_at)}. Names and
-                  handles can be taken at any moment, so check again before you
-                  commit.
-                </p>
-              </div>
-            ) : null}
+        {report ? (
+          <>
+            <NameStory
+              story={storyFrom(star.name, star.check.overall_score, report)}
+            />
+            <FreeStrip report={report} />
+          </>
+        ) : null}
 
+        <section className="px-4 pb-12 md:pb-16">
+          <div className="mx-auto max-w-5xl space-y-10">
             <div className="flex flex-wrap items-center justify-between gap-4 border bg-card p-5">
               <div className="max-w-xl space-y-1">
                 <p className="font-heading text-xl">
